@@ -153,6 +153,13 @@ export const he: Record<string, string> = {
   'Registered users': 'משתמשים רשומים',
   'Active now': 'פעילים כעת',
   'Guests online': 'אורחים מחוברים',
+  // Account → App update tile (Android app only)
+  'App update': 'עדכון לאפליקציה',
+  'A new version of the app is ready to install.': 'גרסה חדשה של האפליקציה מוכנה להתקנה.',
+  'Update to version': 'עדכון לגרסה',
+  'Downloading…': 'מוריד…',
+  'Allow installs from this app in Android settings, then try again.': 'יש לאשר התקנות מהאפליקציה הזו בהגדרות של אנדרואיד, ולנסות שוב.',
+  'The update could not be installed. Check your connection and try again.': 'לא ניתן היה להתקין את העדכון. בדוק את החיבור ונסה שוב.',
   'See the full list and what earns each one': 'לצפייה ברשימה המלאה ובדרכים לזכות בכל תג',
   'Badges': 'תגים',
   'Language': 'שפה',

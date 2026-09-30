@@ -13,10 +13,14 @@ import com.getcapacitor.BridgeActivity;
 // bar) are hidden and only reappear as a transient overlay when the user swipes
 // in from the edge. The APK workflow copies this file into the generated
 // android/ project after `cap add`.
+//
+// It also registers AppUpdaterPlugin (the in-app APK self-update, driven from
+// src/utils/appUpdate.ts), which has to happen before super.onCreate().
 public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(AppUpdaterPlugin.class);
         super.onCreate(savedInstanceState);
         // Let the WebView paint into the display cutout / notch region. Without
         // this, Android letterboxes the status-bar strip with the activity's

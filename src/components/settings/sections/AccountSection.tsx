@@ -1,6 +1,7 @@
 import { SettingCard, SegmentedControl } from '../../SettingCard';
 import { PinnedBadges } from '../../PinnedBadges';
 import AboutCard from './AboutCard';
+import AppUpdateCard from './AppUpdateCard';
 import { withClick as click } from '../../../utils/withClick';
 import { setOwnEntitlement } from '../../../utils/entitlement';
 import { verror } from '../../../utils/debugLog';
@@ -179,6 +180,8 @@ export default function AccountSection({
       {/* About the app + live community counts (registered accounts, users /
           guests active right now). Self-contained — does its own fetching. */}
       <AboutCard />
+      {/* Android app only: a newer APK from the private release bucket. */}
+      <AppUpdateCard userId={auth.user?.id ?? null} />
       {/* Public privacy policy (static page in public/). Absolute URL on
           purpose: the Android build serves the app from a relative base, so a
           relative link would navigate the WebView away from the app. */}

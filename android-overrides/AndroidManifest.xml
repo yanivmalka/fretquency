@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Overrides the AndroidManifest.xml that `npx cap add android` generates. It is
-  the stock Capacitor 8 template PLUS one addition: a second <intent-filter> on
+  the stock Capacitor 8 template PLUS two additions. First: a second <intent-filter> on
   MainActivity for the `com.guitarfretpractice.app://auth-callback` deep link,
   so Google's OAuth redirect returns into the app (handled in src/hooks/useAuth
   via @capacitor/app's appUrlOpen) instead of being stranded in a browser tab.
@@ -13,7 +13,12 @@
   The APK workflow copies this file into the generated android/ project after
   `cap add`. If Capacitor's template changes on a major upgrade, re-diff this
   against a fresh `npx cap add android` and re-apply just the auth-callback
-  intent-filter.
+  intent-filter and the permission below.
+
+  Second addition: REQUEST_INSTALL_PACKAGES, for the in-app APK self-update
+  (android-overrides/AppUpdaterPlugin.java). The stock FileProvider below
+  already maps <cache-path path="."/>, which is where that plugin saves the
+  downloaded APK before handing it to the system installer.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -74,5 +79,10 @@
          on Android — the haptic.* pulses in src/utils/feedback.ts (button
          taps, right/wrong, the Sound & vibration setting's Vibrate mode) -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- In-app self-update: hand a downloaded APK to the system installer.
+         Android still asks the user once to allow installs from this app.
+         Drop it (and AppUpdaterPlugin) for a Google Play build — Play updates
+         the app itself and restricts this permission. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
 </manifest>

@@ -787,6 +787,13 @@
 .account-community {
   margin-top: 10px;
 }
+/* Account → App update tile (Android app only): install failure hint. */
+.account-update-error {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-2);
+}
 .account-community .sp2-tile-l {
   text-align: center;
 }

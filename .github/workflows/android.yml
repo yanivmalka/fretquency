@@ -85,6 +85,8 @@ jobs:
           cp assets/ic-adaptive-fg.png android/app/src/main/res/drawable-nodpi/ic_adaptive_fg.png
       # Swap in the immersive full-screen MainActivity (hides both system bars).
       - run: cp android-overrides/MainActivity.java android/app/src/main/java/com/guitarfretpractice/app/MainActivity.java
+      # The in-app self-update plugin (registered by that MainActivity).
+      - run: cp android-overrides/AppUpdaterPlugin.java android/app/src/main/java/com/guitarfretpractice/app/AppUpdaterPlugin.java
       # Swap in the manifest with the OAuth-callback deep-link intent-filter.
       - run: cp android-overrides/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
       # Monotonic versionCode + a matching visible versionName, so every new
@@ -151,6 +153,38 @@ jobs:
             echo ""
             echo "Installs over any earlier build with the same key -- no uninstall."
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Publish the APK for the in-app self-update — PRIVATELY. The repo is
+      # public, so no GitHub Release: the APK goes to the private Supabase
+      # Storage bucket `app-releases` (supabase/migrations/0019_app_updates.sql),
+      # which only admins and public.apk_testers can read. latest.json points
+      # the app at the newest build; the previous APK is deleted afterwards.
+      # Needs the SUPABASE_SERVICE_ROLE_KEY repository SECRET (never a var);
+      # without it this step is skipped and the APK is only a run artifact.
+      - name: Publish the APK to the private update bucket
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CODE: ${{ github.run_number }}
+        run: |
+          if [ -z "$SERVICE_KEY" ] || [ -z "$SUPABASE_URL" ]; then
+            echo "::warning::SUPABASE_SERVICE_ROLE_KEY secret not set -- the in-app update was not published."
+            exit 0
+          fi
+          api="$SUPABASE_URL/storage/v1/object"
+          auth=(-H "Authorization: Bearer $SERVICE_KEY" -H "apikey: $SERVICE_KEY")
+          old=$(curl -sf "${auth[@]}" "$api/app-releases/latest.json" | jq -r '.path // empty' || true)
+          path="apk/app-$CODE.apk"
+          curl -sSf -X POST "${auth[@]}" -H "x-upsert: true" -H "cache-control: max-age=0" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @android/app/build/outputs/apk/debug/app-debug.apk "$api/app-releases/$path"
+          printf '{"versionCode":%s,"versionName":"1.0.%s","path":"%s"}' "$CODE" "$CODE" "$path" > latest.json
+          curl -sSf -X POST "${auth[@]}" -H "x-upsert: true" -H "cache-control: max-age=0" \
+            -H "Content-Type: application/json" --data-binary @latest.json "$api/app-releases/latest.json"
+          if [ -n "$old" ] && [ "$old" != "$path" ]; then
+            curl -sS -X DELETE "${auth[@]}" "$api/app-releases/$old" || true
+          fi
+          echo "- published to the private update bucket as \`$path\`" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v7
         with:

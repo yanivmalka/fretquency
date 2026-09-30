@@ -26,13 +26,13 @@ There is no test suite/runner configured in this repo. Instead, `scripts/check-*
 
 Cloud features read `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` from `.env` (copy `.env.example`). The anon key is safe to ship — row access is enforced by Postgres RLS. `dev`/`build` work without these; the app just stays in guest mode.
 
-SQL lives in `supabase/migrations/` (`0001`…`0018`, applied via the Supabase SQL Editor or `supabase db push` — no local Supabase CLI wiring). Each migration's header comment explains its table + RLS shape. Roughly: `0001` history/personal-best, `0002` voice templates, `0003` deletion tombstones, `0004` settings blob, `0005` feedback board, `0006` leaderboard, `0007`–`0010` Pro entitlements, `0011` Premium tier, `0012` learning state (SRS), `0013` learning path, `0014`/`0015`-daily interval learning, `0015` game progress, `0016` registered-user count, `0017` scale + staff learning keys, `0018` tab learning keys (both doc-only, same blob).
+SQL lives in `supabase/migrations/` (`0001`…`0019`, applied via the Supabase SQL Editor or `supabase db push` — no local Supabase CLI wiring). Each migration's header comment explains its table + RLS shape. Roughly: `0001` history/personal-best, `0002` voice templates, `0003` deletion tombstones, `0004` settings blob, `0005` feedback board, `0006` leaderboard, `0007`–`0010` Pro entitlements, `0011` Premium tier, `0012` learning state (SRS), `0013` learning path, `0014`/`0015`-daily interval learning, `0015` game progress, `0016` registered-user count, `0017` scale + staff learning keys, `0018` tab learning keys (both doc-only, same blob), `0019` the private `app-releases` Storage bucket + `apk_testers` allowlist for the in-app APK update.
 
 `scripts/grant-pro.mts` grants/revokes a Pro **or Premium** entitlement out of band — needs `SUPABASE_SERVICE_ROLE_KEY` (a secret; git-ignored `.env` only, never a `VITE_*` var).
 
 ### Android (Capacitor)
 
-The `android/` project is generated, not committed (it's in `.gitignore`). Config in `capacitor.config.ts` (`appId: com.guitarfretpractice.app`); native overrides that survive a regen live in `android-overrides/` (`AndroidManifest.xml`, `MainActivity.java`, a committed `debug.keystore`).
+The `android/` project is generated, not committed (it's in `.gitignore`). Config in `capacitor.config.ts` (`appId: com.guitarfretpractice.app`); native overrides that survive a regen live in `android-overrides/` (`AndroidManifest.xml`, `MainActivity.java`, `AppUpdaterPlugin.java`, a committed `debug.keystore`).
 
 - `npx cap add android` — one-time, regenerates `android/`
 - `npm run cap:sync` — `npm run build` then `npx cap sync android`
@@ -40,6 +40,8 @@ The `android/` project is generated, not committed (it's in `.gitignore`). Confi
 - `.github/workflows/android.yml` — manual (`workflow_dispatch`) debug-APK build. Uses Node 22 + JDK 21, signs with the stable `android-overrides/debug.keystore` so updates install in place (the build **fails** if that file is missing on the branch, and a post-build `apksigner` check fails it if the APK's cert does not match the keystore — never regenerate the key, a new one forces an uninstall on every device), and builds with `CAP_BUILD=1` so Vite uses a **relative `base`** (`./`) instead of the Pages sub-path.
 
 Native plugins: `@capacitor/app`, `@capacitor/browser` (deep-link OAuth callback so Google sign-in stays inside the APK), `@capacitor/splash-screen`, `@capacitor-community/speech-recognition`. The speech plugin's library manifest contributes `RECORD_AUDIO` + the `RecognitionService` `<queries>` entry through Gradle manifest merging.
+
+**In-app self-update** (`android-overrides/AppUpdaterPlugin.java` — a local Capacitor plugin `AppUpdater` registered in `MainActivity` — plus `src/utils/appUpdate.ts` and the Account section's `AppUpdateCard`): downloads a newer APK inside the app and opens the system installer (manifest adds `REQUEST_INSTALL_PACKAGES`). The APK is deliberately **not** public — no GitHub Releases (the repo is public). The workflow uploads each build to the **private** Supabase Storage bucket `app-releases` (`apk/app-<versionCode>.apk` + a `latest.json` pointer) with the `SUPABASE_SERVICE_ROLE_KEY` repository **secret** (skipped with a warning if it is missing); storage RLS lets only admins and `public.apk_testers` read it, and the app signs a 10-minute URL for the download. Everyone else never sees the card.
 
 ### Build/deploy notes
 
