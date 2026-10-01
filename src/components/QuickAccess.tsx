@@ -52,7 +52,8 @@ const DRAG_ASIDE_PX = 24;
 export interface QuickAccessProps {
   t: (s: string) => string;
   voiceSupported: boolean;
-  isAdmin: boolean;
+  /** The device can listen for a played note (answer by guitar). */
+  guitarSupported: boolean;
   askForMic: () => void;
   notation: NotationMode;
   setNotation: (n: NotationMode) => void;
@@ -84,28 +85,27 @@ export interface QuickAccessProps {
  * (gated at the call site in <App>).
  */
 export default function QuickAccess(props: QuickAccessProps) {
-  const { t, voiceSupported, isAdmin, askForMic } = props;
+  const { t, voiceSupported, guitarSupported, askForMic } = props;
   const enabled = useSyncExternalStore(subscribeQuickAccess, getQuickAccessEnabled);
   const pinnedRaw = useSyncExternalStore(subscribeQuickAccess, getPinnedQuick);
   const hintSeen = useSyncExternalStore(subscribeQuickAccess, hasSeenQaHint);
 
-  // Drop the "how you answer" item when neither of its states (voice, or the
-  // admin-only guitar experiment) is available on this platform/account.
+  // Drop the "how you answer" item when neither of its states (voice, or
+  // guitar) is available on this device.
   const pinned = useMemo(
     () => pinnedRaw.filter(
-      (id): id is QuickAccessId => id !== 'answerMode' || voiceSupported || isAdmin,
+      (id): id is QuickAccessId => id !== 'answerMode' || voiceSupported || guitarSupported,
     ),
-    [pinnedRaw, voiceSupported, isAdmin],
+    [pinnedRaw, voiceSupported, guitarSupported],
   );
 
   // The states "How you answer" cycles through here — tap is always
-  // available; voice only where supported; guitar only for admins (it's an
-  // unreleased experiment gated the same way as the Settings picker).
+  // available; voice and guitar only where the device supports them.
   const answerModeStates: AnswerMode[] = useMemo(() => [
     'tap',
     ...(voiceSupported ? ['voice' as const] : []),
-    ...(isAdmin ? ['guitar' as const] : []),
-  ], [voiceSupported, isAdmin]);
+    ...(guitarSupported ? ['guitar' as const] : []),
+  ], [voiceSupported, guitarSupported]);
 
   const [phase, setPhase] = useState<Phase>('sunk');
   // The setting that floats to the circle ("last changed wins") is only

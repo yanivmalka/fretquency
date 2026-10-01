@@ -69,10 +69,9 @@ export interface GeneralSettingsSectionProps {
   answerMode: AnswerMode;
   setAnswerMode: (m: AnswerMode) => void;
   askForMic: () => void;
-  /** Unlocks the "answer by playing the guitar" mode, an admin-only
-   *  experiment ahead of a written go/no-go on the underlying pitch-answer
-   *  spike (see src/pitchSpike/README.md). */
-  isAdmin: boolean;
+  /** The device can listen for a played note — offers the "answer by
+   *  playing the guitar" mode. */
+  guitarSupported: boolean;
   voiceEnginePref: VoiceEnginePref;
   pickVoiceEngine: (p: VoiceEnginePref) => void;
   voiceProfileStat: { enabled: boolean; count: number } | null;
@@ -95,7 +94,7 @@ export interface GeneralSettingsSectionProps {
 export default function GeneralSettingsSection({
   t, lang, setLang, showScore, setShowScore, feedbackMode, setFeedbackMode,
   noteVolume, setNoteVolume, theme, setTheme, season, setSeason, voiceSupported, answerMode, setAnswerMode, askForMic,
-  isAdmin,
+  guitarSupported,
   voiceEnginePref, pickVoiceEngine, voiceProfileStat, setSettingsOpen,
   setShowVoiceCalibration, showMastery, setShowMastery, masteryWindow, setMasteryWindow,
   leftHanded, setLeftHanded, buttonDepth, setButtonDepth, seasonDeco, setSeasonDeco, colorblindHeat, setColorblindHeat,
@@ -253,7 +252,7 @@ export default function GeneralSettingsSection({
           onChange={(v) => { setLeftHanded(v === 'on'); }}
         />
       </SettingCard>
-      {(voiceSupported || isAdmin) && (
+      {(voiceSupported || guitarSupported) && (
         <>
           <SettingCard
             label={t('How you answer')}
@@ -266,9 +265,7 @@ export default function GeneralSettingsSection({
               options={[
                 { value: 'tap', label: <>👆 {t('Tap')}</> },
                 ...(voiceSupported ? [{ value: 'voice' as const, label: <>🎤 {t('Voice')}</> }] : []),
-                // Admin-only ahead of a written go/no-go on the underlying
-                // pitch-answer spike — see src/pitchSpike/README.md.
-                ...(isAdmin ? [{ value: 'guitar' as const, label: <>🎸 {t('Guitar')}</> }] : []),
+                ...(guitarSupported ? [{ value: 'guitar' as const, label: <>🎸 {t('Guitar')}</> }] : []),
               ]}
               onChange={(m) => {
                 setAnswerMode(m);
@@ -283,7 +280,7 @@ export default function GeneralSettingsSection({
             )}
             {answerMode === 'guitar' && (
               <p className="set-card-help">
-                {t('Admin-only experiment: play the target note on your guitar instead of tapping. Only works for “by fret” questions — a played note can’t say which string it came from, so “by note” questions stay on tap.')}
+                {t('Play the target note on your guitar instead of tapping — the app listens through the microphone. Only works for “by fret” questions — a played note can’t say which string it came from, so “by note” questions stay on tap.')}
               </p>
             )}
           </SettingCard>

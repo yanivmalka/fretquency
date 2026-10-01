@@ -536,11 +536,10 @@ export default function App() {
   // Fall back to tap input if voice is selected but no recogniser exists.
   const voiceActive = answerMode === 'voice' && voice.supported;
 
-  // Answer-by-guitar (admin-only, ahead of a written go/no-go on the
-  // underlying pitch-answer spike — see src/pitchSpike/README.md). Only
+  // Answer-by-guitar: play the note instead of tapping it. Only
   // supported for "by fret" questions; see useGuitarAnswer's own comment.
   const guitar = useGuitarAnswer({
-    enabled: answerMode === 'guitar' && auth.admin,
+    enabled: answerMode === 'guitar',
     running,
     paused,
     answered,
@@ -549,7 +548,7 @@ export default function App() {
     hasActiveQuestion: eff.byNote ? currentNote !== null : currentFret !== null,
     onNote: selectAnswer,
   });
-  const guitarActive = answerMode === 'guitar' && auth.admin && guitar.supported && !eff.byNote;
+  const guitarActive = answerMode === 'guitar' && guitar.supported && !eff.byNote;
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { if (!paused) setGuitarString(eff.guitarString); }, [eff.guitarString, paused]);
@@ -888,7 +887,7 @@ export default function App() {
           answerMode={answerMode}
           setAnswerMode={setAnswerMode}
           askForMic={askForMic}
-          isAdmin={auth.admin}
+          guitarSupported={guitar.supported}
           voiceEnginePref={voiceEnginePref}
           pickVoiceEngine={pickVoiceEngine}
           voiceProfileStat={voiceProfileStat}
@@ -1014,7 +1013,7 @@ export default function App() {
         t={t}
         lang={lang}
         onBack={closeQuickAccessLegend}
-        isAdmin={auth.admin}
+        guitarSupported={guitar.supported}
       />
     );
   }
@@ -1026,7 +1025,7 @@ export default function App() {
     <QuickAccess
       t={t}
       voiceSupported={voice.supported}
-      isAdmin={auth.admin}
+      guitarSupported={guitar.supported}
       askForMic={askForMic}
       notation={notation}
       setNotation={setNotation}
@@ -1232,7 +1231,6 @@ export default function App() {
           notation={notation}
           showMenuButton={!settingsOpen}
           onOpenMenu={() => { setDrawerSection(null); setSettingsOpen(true); }}
-          isAdmin={auth.admin}
         />
         {settingsOpen && drawerSection === null && (
           <SettingsDrawerNav

@@ -60,12 +60,9 @@ interface Props {
   showMenuButton?: boolean;
   /** Open the hamburger drawer (the host owns the drawer state + nav). */
   onOpenMenu: () => void;
-  /** Answering by playing the guitar is offered only where Practice offers
-   *  it — admins, until pitch detection has its go/no-go. */
-  isAdmin?: boolean;
 }
 
-export default function ScalePracticeScreen({ instrument, accidental, notation, showMenuButton = true, onOpenMenu, isAdmin = false }: Props) {
+export default function ScalePracticeScreen({ instrument, accidental, notation, showMenuButton = true, onOpenMenu }: Props) {
   const { t, lang } = useTranslation();
   const [finished, setFinished] = useState(false);
   const [tab, setTab] = useState<'practice' | 'progress'>('practice');
@@ -207,9 +204,8 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
 
   // Answer by playing: while a scale is the learner's to play (not during the
   // demo), every note heard on the guitar goes to the engine like a tap.
-  const orderByGuitar = isAdmin && sel.orderGuitar;
   const pitch = usePitchStream({
-    enabled: orderByGuitar && exercise === 'orderScale' && orderEngine.running && orderEngine.demoStep == null,
+    enabled: sel.orderGuitar && exercise === 'orderScale' && orderEngine.running && orderEngine.demoStep == null,
     onNote: orderEngine.hear,
   });
 
@@ -590,7 +586,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 </p>
               </div>
             )}
-            {!running && tab === 'practice' && exercise === 'orderScale' && isAdmin && (
+            {!running && tab === 'practice' && exercise === 'orderScale' && pitch.supported && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
                 <span className="set-card-label">{t('Answer mode')}</span>
                 <div className="scale-difficulty-row">
@@ -694,7 +690,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                       {orderEngine.demoStep != null ? t('Watch and listen…') : t('Your turn — play it back')}
                     </span>
                   )}
-                  {orderByGuitar && orderEngine.demoStep == null && (
+                  {sel.orderGuitar && pitch.supported && orderEngine.demoStep == null && (
                     <span className={`voice-status guitar-status guitar-${pitch.status}`} role="status" aria-live="polite">
                       {pitch.error === 'no-permission'
                         ? t('🎸 Microphone blocked — enable it or switch to tap')

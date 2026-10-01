@@ -11,7 +11,7 @@ interface LegendState {
   caption: string;
 }
 
-function statesFor(id: QuickAccessId, t: (s: string) => string, isAdmin: boolean): LegendState[] {
+function statesFor(id: QuickAccessId, t: (s: string) => string, guitarSupported: boolean): LegendState[] {
   switch (id) {
     case 'notation':
       return [
@@ -37,9 +37,8 @@ function statesFor(id: QuickAccessId, t: (s: string) => string, isAdmin: boolean
       return [
         { value: 'tap', caption: t('Tap') },
         { value: 'voice', caption: t('Voice') },
-        // Admin-only experiment (see GeneralSettingsSection) — only shown to
-        // admins, who are the only ones who can ever pick it.
-        ...(isAdmin ? [{ value: 'guitar', caption: t('Guitar') }] : []),
+        // Only where the device can listen for a played note.
+        ...(guitarSupported ? [{ value: 'guitar', caption: t('Guitar') }] : []),
       ];
     case 'showMastery':
       return [
@@ -60,12 +59,12 @@ function statesFor(id: QuickAccessId, t: (s: string) => string, isAdmin: boolean
  * order.
  */
 export default function QuickAccessLegendPage({
-  t, lang, onBack, isAdmin,
+  t, lang, onBack, guitarSupported,
 }: {
   t: (s: string) => string;
   lang: string;
   onBack: () => void;
-  isAdmin: boolean;
+  guitarSupported: boolean;
 }) {
   return (
     <div className="app settings-page">
@@ -88,7 +87,7 @@ export default function QuickAccessLegendPage({
               <li key={item.id} className="qa-legend-row">
                 <div className="qa-legend-label">{t(item.label)}</div>
                 <div className="qa-legend-states">
-                  {statesFor(item.id, t, isAdmin).map((s, i) => (
+                  {statesFor(item.id, t, guitarSupported).map((s, i) => (
                     <div key={i} className="qa-legend-state">
                       <span className="qa-legend-glyph" aria-hidden="true">
                         <QuickAccessGlyph id={item.id} value={s.value} />

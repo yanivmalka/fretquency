@@ -23,9 +23,10 @@ time in a known order, so pitch alone is enough to judge it).
   (low-string octave errors), the note just played is never a mistake, and
   nothing is played back. Tapping keeps working alongside it.
 - Screen: an "Answer mode" switch (Tap / 🎸 Guitar, `ssel_order_guitar`,
-  cloud-synced with the other `ssel_` picks) and a live status line. Shown
-  to **admins only**, like Practice's answer-by-guitar, until the pitch
-  go/no-go. The mic is off during the "Watch, then play" demo.
+  cloud-synced with the other `ssel_` picks) and a live status line. First
+  shipped admin-only; **opened to every user the same day** by the product
+  owner (shown wherever the device can listen — `getUserMedia` + Web
+  Audio). The mic is off during the "Watch, then play" demo.
 
 Verified in a real browser with a simulated microphone (an oscillator fed
 through a stubbed `getUserMedia`): full runs complete and are recorded as

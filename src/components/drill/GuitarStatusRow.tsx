@@ -3,7 +3,7 @@ import type { UseGuitarAnswerResult } from '../../hooks/useGuitarAnswer';
 
 /**
  * The one-line pitch-detection status readout shown under the question while
- * answering by playing the guitar (admin-only). Mirrors `VoiceStatusRow`'s
+ * answering by playing the guitar. Mirrors `VoiceStatusRow`'s
  * shape and states, with guitar-appropriate copy. Presentation only — <App>
  * owns the `guitarActive` condition and the `guitar` engine state.
  */

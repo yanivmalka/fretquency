@@ -183,8 +183,7 @@ export function useScaleSelector(stringCount: number) {
   const [orderDemo, setOrderDemoState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_demo', false) === true);
   const setOrderDemo = (on: boolean) => { setOrderDemoState(on); saveSetting('ssel_order_demo', on); };
   // "Tap the scale in order" answered by playing the guitar (pitch detection)
-  // instead of tapping. The screen offers it only where answer-by-guitar is
-  // offered at all (admins, like Practice's answer mode).
+  // instead of tapping. The screen offers it wherever the device can listen.
   const [orderGuitar, setOrderGuitarState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_guitar', false) === true);
   const setOrderGuitar = (on: boolean) => { setOrderGuitarState(on); saveSetting('ssel_order_guitar', on); };
 

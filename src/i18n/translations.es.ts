@@ -119,8 +119,8 @@ export const es: Record<string, string> = {
     'Habla con claridad y haz una pausa breve entre palabras — para notas con sostenido/bemol, di la letra, haz una pausa y luego “sharp” / “flat” como dos palabras separadas.',
   'Tap': 'Tocar',
   'Voice': 'Voz',
-  'Admin-only experiment: play the target note on your guitar instead of tapping. Only works for “by fret” questions — a played note can’t say which string it came from, so “by note” questions stay on tap.':
-    'Experimento solo para administradores: toca la nota en tu guitarra en lugar de pulsarla. Solo funciona en las preguntas “por traste” — una nota tocada no indica de qué cuerda viene, así que las preguntas “por nota” siguen siendo por toque.',
+  'Play the target note on your guitar instead of tapping — the app listens through the microphone. Only works for “by fret” questions — a played note can’t say which string it came from, so “by note” questions stay on tap.':
+    'Toca la nota pedida en tu guitarra en lugar de pulsarla — la app escucha por el micrófono. Solo funciona en las preguntas “por traste” — una nota tocada no indica de qué cuerda viene, así que las preguntas “por nota” siguen siendo por toque.',
   '🎸 Microphone blocked — enable it or switch to tap': '🎸 Micrófono bloqueado — actívalo o cambia a tocar',
   '🎸 Pitch detection isn’t available on this device — use tap': '🎸 La detección de altura no está disponible en este dispositivo — usa tocar',
   '🎸 Didn’t catch that': '🎸 No lo he captado',

@@ -5,7 +5,7 @@ import { isSoundPlaying, soundRemainingMs } from '../utils/audio';
 
 // ── useGuitarAnswer ─────────────────────────────────────────────────────
 //
-// Admin-only "answer by playing the note on the guitar" mode. Reuses the
+// The "answer by playing the note on the guitar" mode. Reuses the
 // tuner's pitch detector (`src/tuner/pitchDetect.ts`) the same way the
 // throwaway measurement tool at `src/pitchSpike/` does — listen for a
 // pitch-class match held stable for a couple of ticks, then commit it.

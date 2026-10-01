@@ -121,8 +121,8 @@ export const fr: Record<string, string> = {
     'Parle clairement et marque une courte pause entre les mots — pour les notes avec dièse/bémol, dis la lettre, fais une pause, puis « sharp » / « flat » en deux mots séparés.',
   'Tap': 'Toucher',
   'Voice': 'Voix',
-  'Admin-only experiment: play the target note on your guitar instead of tapping. Only works for “by fret” questions — a played note can’t say which string it came from, so “by note” questions stay on tap.':
-    'Expérience réservée aux administrateurs : joue la note demandée sur ta guitare au lieu de toucher l’écran. Fonctionne uniquement pour les questions « par case » — une note jouée ne dit pas de quelle corde elle vient, donc les questions « par note » restent au toucher.',
+  'Play the target note on your guitar instead of tapping — the app listens through the microphone. Only works for “by fret” questions — a played note can’t say which string it came from, so “by note” questions stay on tap.':
+    'Joue la note demandée sur ta guitare au lieu de toucher l’écran — l’app écoute par le micro. Fonctionne uniquement pour les questions « par case » — une note jouée ne dit pas de quelle corde elle vient, donc les questions « par note » restent au toucher.',
   '🎸 Microphone blocked — enable it or switch to tap': '🎸 Micro bloqué — active-le ou passe au toucher',
   '🎸 Pitch detection isn’t available on this device — use tap': '🎸 La détection de hauteur n’est pas disponible sur cet appareil — utilise le toucher',
   '🎸 Didn’t catch that': '🎸 Pas compris',
