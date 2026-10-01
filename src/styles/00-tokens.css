@@ -83,15 +83,23 @@
   /* "Raised" button look: a light rim along the top and ONE darker band along
      the bottom lip of the button itself. Translucent white / black so they sit
      on any palette's surface without retinting it; the light 'day' modes
-     override them just below. */
+     override them just below. --btn-lip is that band's height at rest and
+     --depth-press how far a pressed / selected button travels down. */
   --btn-lift-hi: rgba(255, 255, 255, 0.3);
   --btn-lift-shade: rgba(0, 0, 0, 0.42);
+  --btn-lip: 4px;
+  --depth-press: 2px;
 }
 
+/* Day: a light surface leaves almost no colour contrast, so the depth
+   itself carries the raised / pressed difference — a darker, taller lip
+   and a deeper press. */
 [data-theme$='-day'],
 [data-theme='day'] {
   --btn-lift-hi: rgba(255, 255, 255, 0.8);
-  --btn-lift-shade: rgba(0, 0, 0, 0.16);
+  --btn-lift-shade: rgba(0, 0, 0, 0.3);
+  --btn-lip: 6px;
+  --depth-press: 4px;
 }
 
 /* ────────────────────────────────────────────────────────────────

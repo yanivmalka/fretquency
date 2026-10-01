@@ -29,7 +29,7 @@
   .desc-question-btn, .desc-question-btn-bottom,
   .play-btn, .pro-cta, .ap-tile, .level-seg
 ) {
-  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 calc(-1 * var(--btn-lip)) 0 var(--btn-lift-shade);
   transition: box-shadow 0.08s, transform 0.08s;
 }
 :where(:root[data-depth='on']) :where(
@@ -47,7 +47,7 @@
   .desc-question-btn, .desc-question-btn-bottom,
   .play-btn, .pro-cta, .ap-tile, .level-seg
 ):active:not(:disabled) {
-  transform: translateY(var(--depth-press, 2px));
+  transform: translateY(var(--depth-press));
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -60,7 +60,7 @@
   .set-card-btn-primary, .teacher-btn-primary, .tn-btn-primary,
   .mic-btn-primary, .pro-cta, .vcal-finish
 ) {
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45), inset 0 -4px 0 var(--btn-lift-shade);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45), inset 0 calc(-1 * var(--btn-lip)) 0 var(--btn-lift-shade);
 }
 
 
@@ -86,7 +86,7 @@
   border-radius: 50%;
   pointer-events: none;
   transform: rotate(var(--wheel-counter, 0deg));
-  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 calc(-1 * var(--btn-lip)) 0 var(--btn-lift-shade);
   transition: box-shadow 0.08s;
 }
 :root[data-depth='on'] :is(.note-wheel-btn, .tn-note-btn):active:not(:disabled)::before {
@@ -114,7 +114,7 @@
   .interval-choice-btn.is-selected, .ap-tile.ap-tile-on,
   .teacher-btn[aria-pressed='true'], .teacher-btn-primary[aria-pressed='true']
 ) {
-  transform: translateY(var(--depth-press, 2px));
+  transform: translateY(var(--depth-press));
   color: var(--text-0);
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
@@ -149,11 +149,11 @@
    state is restated here — raised when off, held down when on, never lit. */
 :root[data-depth='on'] .difficulty-road .auto-advance-toggle:is(*, :hover, :focus, :focus-visible, :active) {
   background: var(--bg-3);
-  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 calc(-1 * var(--btn-lip)) 0 var(--btn-lift-shade);
   transition: box-shadow 0.08s, transform 0.08s;
 }
 :root[data-depth='on'] .difficulty-road .auto-advance-toggle.stats-icon-on:is(*, :hover, :focus, :focus-visible, :active) {
-  transform: translateY(var(--depth-press, 2px));
+  transform: translateY(var(--depth-press));
   border-color: var(--border-soft);
   color: var(--text-0);
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
@@ -180,7 +180,7 @@
 :root[data-depth='on'] .fret-btn:focus,
 :root[data-depth='on'] .fret-btn.fret-reveal,
 :root[data-depth='on'] .fret-btn.fret-reference {
-  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 calc(-1 * var(--btn-lip)) 0 var(--btn-lift-shade);
 }
 :root[data-depth='on'] .fret-btn:active:not(:disabled),
 :root[data-depth='on'] .fret-btn.fret-found,
@@ -189,5 +189,25 @@
 }
 :root[data-depth='on'] .fret-btn.fret-found,
 :root[data-depth='on'] .fret-btn.fret-glow {
-  transform: translateY(var(--depth-press, 2px));
+  transform: translateY(var(--depth-press));
 }
+
+/* The Alpha / Fifths / By String column clips its overflow (10-stages.css),
+   so give it room below for a held-down chip's travel. It is centred on the
+   mode cards' row and never drives its height, so nothing shifts. */
+:root[data-depth='on'] .mode-order-show {
+  padding-bottom: var(--depth-press);
+  max-height: calc(96px + var(--depth-press));
+}
+
+/* Learn tiles: the current domain is held down, its label says "Current",
+   and neither it nor a hovered tile gets the accent border (keyboard focus
+   keeps it, as the focus indicator). */
+:root[data-depth='on'] .learn-tile:is(:hover, .learn-tile--current):not(:focus-visible) {
+  border-color: var(--surface-border);
+}
+:root[data-depth='on'] .learn-tile.learn-tile--current {
+  transform: translateY(var(--depth-press));
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
+}
+:root[data-depth='on'] .learn-tile--current .learn-tile__state { color: var(--text-1); }
