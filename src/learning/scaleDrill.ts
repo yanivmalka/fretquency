@@ -12,7 +12,7 @@
 // for Intervals, minus the `DrillConfig` plumbing (Scales isn't wired
 // through `useGameEngine`/`DrillConfig` — see this file's engines).
 
-import { scaleTypeById, scalePositionsFor, shapeAtRoot, SCALE_TYPES } from '../utils/scales';
+import { scaleTypeById, scalePositionsFor, connectBoxesPosition, shapeAtRoot, SCALE_TYPES } from '../utils/scales';
 import type { NeckPos } from '../utils/scales';
 import { buildTargetNoteOptions, noteNameAtSemitones } from '../utils/intervals';
 
@@ -114,6 +114,60 @@ export function pickScaleQuestion(
       return {
         scaleTypeId: item.scaleTypeId,
         positionIndex: item.positionIndex,
+        rootString: position.rootString,
+        rootFret,
+        rootName,
+        shape,
+        direction: direction === 'both' ? (rng() < 0.5 ? 'up' : 'down') : direction,
+      };
+    }
+  }
+  return null;
+}
+
+/** "Connect the boxes" (scales-learning-spec.md Session 8): the same
+ *  `ScaleQuestion` shape as `pickScaleQuestion`, but the shape comes from
+ *  `connectBoxesPosition` — a section spanning box 1 and box 2 of the same
+ *  scale type and root, not a single authored box. `positionIndex` on the
+ *  returned question is always `0` (the reserved "connect" item id, see
+ *  `scaleItem.ts`). `scaleTypeIds` plays the role `pool` plays for
+ *  `pickScaleQuestion`; there is no position to choose between. */
+export function pickConnectQuestion(
+  scaleTypeIds: readonly string[],
+  noteTable: readonly (readonly string[])[],
+  stringCount: number,
+  maxFret: number,
+  rng: () => number = Math.random,
+  naturalsOnly = false,
+  direction: ScaleDirection = 'up',
+): ScaleQuestion | null {
+  if (scaleTypeIds.length === 0) return null;
+  const order = shuffled(scaleTypeIds, rng);
+  for (const scaleTypeId of order) {
+    const scaleType = scaleTypeById(scaleTypeId);
+    if (!scaleType) continue;
+    const position = connectBoxesPosition(scaleTypeId, stringCount);
+    if (!position) continue;
+    const lo = Math.max(0, -position.window.from);
+    const hi = maxFret - position.window.to;
+    if (lo > hi) continue;
+    const row = noteTable[position.rootString - 1];
+    if (!row) continue;
+    let candidateFrets = shuffled(
+      Array.from({ length: hi - lo + 1 }, (_, i) => lo + i), rng,
+    );
+    if (naturalsOnly) {
+      const naturals = candidateFrets.filter((f) => isNaturalName(row[f] ?? ''));
+      if (naturals.length > 0) candidateFrets = naturals;
+    }
+    for (const rootFret of candidateFrets) {
+      const shape = shapeAtRoot(scaleType, position, rootFret, noteTable);
+      if (!shape || shape.length === 0) continue;
+      const rootName = row[rootFret];
+      if (!rootName) continue;
+      return {
+        scaleTypeId,
+        positionIndex: position.positionIndex,
         rootString: position.rootString,
         rootFret,
         rootName,

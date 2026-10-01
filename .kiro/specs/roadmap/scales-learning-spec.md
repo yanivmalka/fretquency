@@ -7,6 +7,110 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 8 (2026-10-01) — a fifth exercise, "Connect the boxes"
+
+§8.5's Future Extensions table catalogued "Connect-the-boxes" ("a drill that
+spans two adjacent positions as one shape", needing "new multi-position
+candidate geometry") as deferred. The product owner asked to build it now: a
+neck section spanning box 1 and box 2 of the same scale and root, where the
+learner plays a run crossing from one box into the next and back — the
+biggest missing piece for a beginner moving between positions, since every
+other exercise stays inside one box.
+
+**Geometry decision, confirmed with the owner before building (two options
+put to them directly):** a **wider window from the same root** (box 1's
+authored window, widened to also cover box 2's span), not a second,
+independently-anchored box 2 geometry stitched to box 1's. The owner picked
+this — simpler, and the exact fret where a real "box 2" starts was never
+precisely defined to begin with (it's a generative window, not a diagram).
+Concretely, `connectBoxesPosition` (`src/utils/scales.ts`) builds a synthetic
+`ScalePositionDef`: same `rootString` as box 1, `window.to` widened by box 2's
+own span. This reuses `shapeAtRoot` completely unchanged — widening the window
+is the entire geometric change.
+
+**Run shape, also confirmed with the owner:** the same `tonicRun` "Tap the
+scale in order" already uses (tonic → highest note of the shape → lowest →
+back to tonic), just run over the wider shape. No new run-ordering logic was
+needed — `tonicRun`/`scaleRun` (`scaleFall.ts`) are already generic over any
+`NeckPos[]` shape, box-width-agnostic.
+
+**Reuse, as hoped going in:** the entire still-board mechanic — engine,
+component, demo mode, answer-by-guitar — is `useScaleOrderEngine`/
+`ScaleOrderBoard`/`buildOrderBoard` **completely unchanged**, except one
+addition: the hook now takes an optional `pickQuestion` override (default
+`pickScaleQuestion`) so a caller can swap in a different question picker
+without forking the ~300-line engine. "Connect the boxes" is the first (and,
+for now, only) caller that uses it, via a thin adapter
+(`pickConnectAsScaleQuestion` in `ScalePracticeScreen.tsx`) that matches the
+hook's expected picker signature while delegating to the new
+`pickConnectQuestion` (`scaleDrill.ts`).
+
+**Item identity — a reserved `positionIndex` of `0`, not a third real box.**
+`connectBoxesPosition` returns `positionIndex: 0` on its synthetic position,
+and every "Connect the boxes" answer is recorded under
+`scaleItemId(scaleTypeId, 0)` — a real, distinct SRS/history item per scale
+type, separate from box 1's and box 2's own items. `0` was chosen deliberately
+over reusing box 2's id (which would have conflated two different skills'
+accuracy into one item) and over the next free integer, `3` (which §17 OD-S4
+already reserves for the **different** Future Extension "full 5-box system" —
+an authored box 3, not a connecting section; reusing it here would collide
+with that later work). `scaleItem.ts`'s `parseScaleItemId` now accepts `0`
+(previously only `positionIndex >= 1` was valid) — tightened in the same
+change to explicitly reject the empty string after the last `:`, since
+`Number('')` is `0`, not `NaN`, and `"scale:<type>:"` must stay invalid.
+`scaleMastery.ts`/`buildScaleBoard` iterate the authored `pool`
+(`buildScalePool`, which only ever yields positions 1/2), so the connect item
+never appears on the Progress board — a deliberate, acceptable scope limit
+for this session (§12's board stays exactly as designed); its history still
+persists and syncs like every other scale answer.
+
+**New history form:** `ScaleHistoryRow.form` gained `'connectBoxes'`
+(`learningState.ts`, both the type union and `normalizeScaleHistory`'s
+validity check) — recorded the same way every other exercise's answers are,
+through `ScalePracticeScreen.tsx`'s existing `recordAnswer`/
+`recordScaleAnswer` path. No new SRS map, no new persistence field.
+
+**Screen wiring:** a fifth `useScaleOrderEngine` instance (`connectEngine`),
+gated on `exercise === 'connectBoxes'` exactly like the other four engines
+already coexist gated on their own exercise value. A new `ScaleExercise`
+value `'connectBoxes'` (`useScaleSelector.ts`); the Position switcher is
+hidden for this exercise (it always spans both boxes, nothing to choose
+between); Learning mode ("Watch, then play") and Answer mode (tap/guitar)
+both extend to cover it for free, since they are properties of the shared
+engine, not of "Tap the scale in order" specifically. `scaleLabel`'s banner
+shows "Boxes 1–2" instead of a single box number when `positionIndex === 0`.
+
+**Verified:** `scripts/check-scale-connect.mts` (new) — on guitar and bass,
+every shipped scale type, both directions: the synthetic window strictly
+contains both authored boxes' windows, 300 random connect questions per
+instrument/direction are well-formed (tonic-to-tonic run, every shape tile
+lit and played) and are strictly wider than a box-1-only question at the same
+root, the item id round-trips through `parseScaleItemId` at `positionIndex`
+`0`, and `pickScaleQuestion` (the single-box picker) is unaffected. Every
+existing `check-scale-*`/`check-learning*` script still passes unchanged.
+`tsc -b` is clean. `npm run lint` could not be run this session — the
+checkout's `node_modules` is missing `@babel/core`/`.bin` (an environment
+issue unrelated to this change, not something this session's edits caused or
+attempted to fix mid-flight while other sessions share this tree).
+
+**Not yet verified: a live browser click-through** (English + Hebrew,
+`devSimulateTier` forced to `'premium'`) — do this before calling the
+exercise done: Learn → Scales → "Connect the boxes" → confirm the wider board
+renders without horizontal overflow at phone width, a full run records a
+`connectBoxes` row, the Position row stays hidden for this exercise, and
+Hebrew has no untranslated strings.
+
+New Hebrew/Spanish/Portuguese(BR)/French/Italian strings: `'Connect the
+boxes'`, `'Boxes 1–2'`, and the exercise's start-card instructional line —
+all five dictionaries updated.
+
+Built alongside two other sessions live-editing this same screen/file at the
+same time (one simplifying the Scales home screen's defaults and adding a
+"Meet the scale" view, one on Staff/Tab elsewhere) — this session's edits to
+shared files (`ScalePracticeScreen.tsx`, `scales.ts`, `useScaleSelector.ts`)
+were kept additive and scoped to avoid stepping on that concurrent work; each
+session commits only its own hunks.
+
 ## Session 7 (2026-10-01) — answer "Tap the scale in order" by playing
 
 The product owner asked to start improving Scales with answering by playing
@@ -743,10 +847,11 @@ trainer.
 - Not a re-imagined UX. Reuses the Notes/Intervals surfaces and rhythm
   (choose → practise → feedback → review → progress) wherever they fit.
 - Not a Game mode. No stars, points, combos, XP, or achievements.
-- Not (in the MVP): fingering/technique guidance, multi-position "connect the
-  boxes" drilling, scale-over-chord application exercises, modes beyond the
-  five in §4.2, or a "which scale fits this chord" exercise. Catalogued as
-  Future Extensions (§8.5).
+- Not (in the MVP): fingering/technique guidance, scale-over-chord
+  application exercises, modes beyond the five in §4.2, or a "which scale
+  fits this chord" exercise. Catalogued as Future Extensions (§8.5).
+  Multi-position "connect the boxes" drilling **shipped in Session 8** (see
+  above) — no longer on this list.
 
 ### 1.3 Relationship to Notes and Intervals Learning
 
@@ -1270,7 +1375,7 @@ first release, mirroring how Intervals shipped with exactly two.
 |---|---|---|
 | **Additional modes** (Dorian, Mixolydian, Lydian, Phrygian, Locrian, harmonic/melodic minor) | Wider scale-type table | More `ScaleTypeDef` rows; curriculum groups extend |
 | **Full 5-box system per scale type** | All conventional positions, not just 1–2 | More `ScalePositionDef` rows; larger item count |
-| **Connect-the-boxes** | A drill that spans two adjacent positions as one shape | New multi-position candidate geometry |
+| ~~**Connect-the-boxes**~~ | ~~A drill that spans two adjacent positions as one shape~~ | **Shipped, Session 8** — a fifth exercise, "Connect the boxes" (see Session 8 above) |
 | **Auto Advance + scale stage sequence** | Guided walk through the curriculum groups automatically | `scaleStageSequence.ts`; a Selector toggle |
 | **Scale-over-chord application** | "Which scale fits this chord?" | Chord content (premium-product-plan.md P6) |
 | **Fingering / technique guidance** | Recommended fingering overlay | Out of scope for a note-recognition-first app |

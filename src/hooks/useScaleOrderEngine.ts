@@ -66,6 +66,10 @@ export interface ScaleOrderOptions {
   demo?: boolean;
   naturalsOnly?: boolean;
   direction?: ScaleDirection;
+  /** Override question picking — "Connect the boxes" (`pickConnectQuestion`)
+   *  reuses this engine/board unchanged by swapping only this. Defaults to
+   *  the single-box picker every other caller already used. */
+  pickQuestion?: typeof pickScaleQuestion;
   onComplete?: () => void;
   onAnswer?: (answer: ScaleOrderAnswer) => void;
 }
@@ -76,7 +80,8 @@ export interface OrderTile {
 }
 
 export function useScaleOrderEngine({
-  instrument, pool, questionCount, noteTime, demo = false, naturalsOnly = false, direction = 'up', onComplete, onAnswer,
+  instrument, pool, questionCount, noteTime, demo = false, naturalsOnly = false, direction = 'up',
+  pickQuestion = pickScaleQuestion, onComplete, onAnswer,
 }: ScaleOrderOptions) {
   const { session, reset, beginRun, onCorrect, onWrong } = useScoring();
 
@@ -131,7 +136,7 @@ export function useScaleOrderEngine({
   const nextQuestion = useCallback(() => {
     if (!runningRef.current) return;
     if (countRef.current >= questionCount) { finish(); return; }
-    const q = pickScaleQuestion(
+    const q = pickQuestion(
       pool, instrument.notes, instrument.stringCount, instrument.maxFret, Math.random, naturalsOnly, direction,
     );
     if (!q) { finish(); return; }
@@ -172,7 +177,7 @@ export function useScaleOrderEngine({
       questionStartRef.current = Date.now();
       lastHitRef.current = questionStartRef.current;
     });
-  }, [questionCount, pool, instrument, naturalsOnly, direction, demo, finish]);
+  }, [questionCount, pool, instrument, naturalsOnly, direction, demo, pickQuestion, finish]);
 
   const start = useCallback(() => {
     clearTimers();

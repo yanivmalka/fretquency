@@ -32,11 +32,11 @@ const SHIPPED_SCALE_TYPE_IDS: readonly string[] = SCALE_TYPES.map((s) => s.id);
 /** Which scale(s) a session draws from: one scale type id, or every shipped one. */
 export type ScaleChoice = 'all' | string;
 
-export type ScaleExercise = 'buildScale' | 'orderScale' | ScaleChipExercise;
+export type ScaleExercise = 'buildScale' | 'orderScale' | 'connectBoxes' | ScaleChipExercise;
 export type ScalePositionMode = 'one' | 'all';
 export type ScaleDifficulty = 'focused' | 'mixed' | 'full';
 
-const EXERCISES: readonly ScaleExercise[] = ['buildScale', 'orderScale', 'identifyScale', 'nameDegree'];
+const EXERCISES: readonly ScaleExercise[] = ['buildScale', 'orderScale', 'connectBoxes', 'identifyScale', 'nameDegree'];
 const POSITION_MODES: readonly ScalePositionMode[] = ['one', 'all'];
 const DIFFICULTIES: readonly ScaleDifficulty[] = ['focused', 'mixed', 'full'];
 const DIRECTIONS: readonly ScaleDirection[] = ['up', 'down', 'both'];
@@ -214,6 +214,9 @@ export function useScaleSelector(stringCount: number) {
     orderGuitar, setOrderGuitar,
     exercise, setExercise,
     scaleChoice: scaleChoiceStored, setScaleChoice, shippedScaleTypeIds: SHIPPED_SCALE_TYPE_IDS,
+    // "Connect the boxes" has no position to choose between — it needs just
+    // the active scale type ids, not the (type, position) pool.
+    activeScaleTypeIds,
     positionMode, setPositionMode, positionChoiceAvailable,
     positionIndex, setPositionIndex, availablePositions,
     difficulty, difficultyStored, setDifficulty,

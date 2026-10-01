@@ -12,7 +12,10 @@
 
 export const SCALE_ID_PREFIX = 'scale:';
 
-/** The stable id for a (scale type, position) pair. `"scale:<type>:<position>"`. */
+/** The stable id for a (scale type, position) pair. `"scale:<type>:<position>"`.
+ *  `positionIndex` 0 is reserved for the "connect the boxes" exercise's
+ *  synthetic box-1-into-box-2 section (`connectBoxesPosition` in
+ *  `scales.ts`) — not an authored box, but still a valid item id. */
 export function scaleItemId(scaleTypeId: string, positionIndex: number): string {
   return `${SCALE_ID_PREFIX}${scaleTypeId}:${positionIndex}`;
 }
@@ -22,14 +25,20 @@ export function isScaleItemId(id: string): boolean {
 }
 
 /** Parse a `"scale:<type>:<position>"` id back to its parts, or `null` if it
- *  is not a well-formed scale item id. */
+ *  is not a well-formed scale item id. `positionIndex` 0 (the "connect the
+ *  boxes" section, see `scaleItemId`'s header) is accepted; negative values
+ *  are not. */
 export function parseScaleItemId(id: string): { scaleTypeId: string; positionIndex: number } | null {
   if (!isScaleItemId(id)) return null;
   const rest = id.slice(SCALE_ID_PREFIX.length);
   const sep = rest.lastIndexOf(':');
   if (sep < 0) return null;
   const scaleTypeId = rest.slice(0, sep);
-  const positionIndex = Number(rest.slice(sep + 1));
-  if (!scaleTypeId || !Number.isInteger(positionIndex) || positionIndex < 1) return null;
+  const positionPart = rest.slice(sep + 1);
+  // `Number('')` is `0`, not `NaN` — reject the empty string explicitly so
+  // "scale:<type>:" isn't mistaken for the reserved positionIndex 0.
+  if (!positionPart) return null;
+  const positionIndex = Number(positionPart);
+  if (!scaleTypeId || !Number.isInteger(positionIndex) || positionIndex < 0) return null;
   return { scaleTypeId, positionIndex };
 }

@@ -126,8 +126,9 @@ export interface IntervalHistoryRow {
 export interface ScaleHistoryRow {
   /** `scale:<type>:<position>` — the item this answer reviews. */
   itemId: string;
-  /** Which exercise produced the answer (§8). */
-  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree';
+  /** Which exercise produced the answer (§8; `connectBoxes` is Session 8's
+   *  "Connect the boxes", itemId's positionIndex always `0`). */
+  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes';
   /** A timeout folds in here as `false`, matching the SRS treatment. */
   correct: boolean;
   /** Seconds taken; `0` when unknown. */
@@ -359,7 +360,8 @@ export function normalizeScaleHistory(raw: unknown): ScaleHistoryRow[] {
         : NaN;
     if (!Number.isFinite(createdAt)) continue;
     const form =
-      r.form === 'buildScale' || r.form === 'orderScale' || r.form === 'identifyScale' || r.form === 'nameDegree'
+      r.form === 'buildScale' || r.form === 'orderScale' || r.form === 'identifyScale'
+        || r.form === 'nameDegree' || r.form === 'connectBoxes'
         ? r.form
         : null;
     if (form == null) continue;

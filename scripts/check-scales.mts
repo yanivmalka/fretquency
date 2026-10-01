@@ -174,7 +174,10 @@ const bass = INSTRUMENTS.bass;
         parsed?.scaleTypeId === 'minorPentatonic' && parsed?.positionIndex === 1;
     })());
   check('parseScaleItemId rejects junk',
-    parseScaleItemId('scale:minorPentatonic:0') === null &&
+    // 0 is reserved for "Connect the boxes" (scales-learning-spec.md Session
+    // 8, connectBoxesPosition) — a valid id now, covered by
+    // check-scale-connect.mts instead of here.
+    parseScaleItemId('scale:minorPentatonic:-1') === null &&
     parseScaleItemId('scale:minorPentatonic:') === null &&
     parseScaleItemId('scale:') === null &&
     parseScaleItemId('6:3') === null);
