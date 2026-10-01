@@ -86,15 +86,12 @@
      override them just below. */
   --btn-lift-hi: rgba(255, 255, 255, 0.3);
   --btn-lift-shade: rgba(0, 0, 0, 0.42);
-  /* The sunken surface of a held-down (selected) button with depth on. */
-  --btn-sunk-bg: color-mix(in srgb, #000 28%, var(--bg-3));
 }
 
 [data-theme$='-day'],
 [data-theme='day'] {
   --btn-lift-hi: rgba(255, 255, 255, 0.8);
   --btn-lift-shade: rgba(0, 0, 0, 0.16);
-  --btn-sunk-bg: color-mix(in srgb, #000 10%, var(--bg-3));
 }
 
 /* ────────────────────────────────────────────────────────────────
