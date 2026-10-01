@@ -18,6 +18,10 @@
   Second addition: REQUEST_INSTALL_PACKAGES, for the in-app APK self-update
   (android-overrides/AppUpdaterPlugin.java). The FileProvider below maps the
   plugin's download folder through android-overrides/xml/file_paths.xml.
+
+  Third addition: MODIFY_AUDIO_SETTINGS (+ RECORD_AUDIO), without which the
+  WebView's getUserMedia mic request is always denied — see the comment on the
+  permission below.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -83,5 +87,16 @@
          Drop it (and AppUpdaterPlugin) for a Google Play build — Play updates
          the app itself and restricts this permission. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- getUserMedia({ audio }) inside the WebView (the tuner, guitar-answer
+         pitch detection, the personal-voice engine, the mic level meter).
+         Capacitor's BridgeWebChromeClient.onPermissionRequest asks for BOTH
+         RECORD_AUDIO and MODIFY_AUDIO_SETTINGS and denies the WebView request
+         unless every one comes back granted — an undeclared permission always
+         comes back denied, so without this line the user taps "Allow" on the
+         mic prompt and getUserMedia still fails with NotAllowedError.
+         RECORD_AUDIO itself arrives via the speech-recognition plugin's
+         manifest; it's repeated here so this doesn't hinge on that plugin. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
 </manifest>
