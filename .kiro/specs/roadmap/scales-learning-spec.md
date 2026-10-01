@@ -7,6 +7,63 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 9 (2026-10-01) — simplify the home screen + "Meet the scale"
+
+The product owner had fed back (via the real app) that the Scales screen was
+not understandable: a new learner hit 4 exercises, a scale picker, Box,
+Difficulty, Direction, Fall speed, Distance unit and a hidden Learning-mode
+toggle before they could press Start, and there was no "just look at it
+first" view — everything was already a timed test.
+
+- **New defaults (`useScaleSelector.ts`)**, for a fresh install only (an
+  existing player's own stored `ssel_*` picks are untouched): `exercise`
+  defaults to `orderScale` ("Tap the scale in order") instead of `buildScale`;
+  `scaleChoice` defaults to `minorPentatonic` instead of `all`; `positionMode`
+  defaults to `one` (Box 1) instead of `all`; `orderDemo` ("Watch, then play")
+  defaults to `true` instead of `false`. Together these land a new learner on
+  exactly the product owner's named starting point: Minor Pentatonic, Box 1,
+  watch-then-play.
+- **"More options" disclosure (`ScalePracticeScreen.tsx`)** — the Practice tab
+  now opens with one `.scale-current-pick` card (the chosen scale + box, a
+  "📖 Meet the scale" button, and a "▾ More options" toggle) and nothing else
+  until that toggle is opened; every old control (exercise switcher, scale
+  picker, position, difficulty, direction, fall speed, distance unit, learning
+  mode, answer mode) now also requires `moreOpen` to render. The per-exercise
+  explanation + Start button stays outside the disclosure — it's still the one
+  action a learner needs on first look.
+- **New "Meet the scale" view (`ScaleMeetScreen.tsx` + `ScaleMeetBoard.tsx`)**
+  — a full-screen page shown before practicing: the scale's name, its existing
+  plain-language blurb (`scaleBlurbs.ts`, unchanged), a 12-note root picker
+  (sharing `ScaleInfoBody`'s own persisted `ssel_info_root` pick, so the two
+  "which root am I looking at" controls in the app stay in sync), a
+  horizontally-scrollable whole-neck grid (fret 0 to the instrument's
+  `maxFret`, not one movable box) with every scale tone labelled by its degree
+  ('1' for the root, gold-ringed) and every other fret left bare, and a
+  "▶ Play the scale" button that plays it ascending from the root via the
+  existing `playNoteSequence`. New pure helper `degreeLabelMap` in
+  `scales.ts` (scale + root → `Map<noteName, degreeLabel>`, octave-
+  independent) is the only new theory code — everything else is presentation.
+  "Start practicing" just closes the view back to the (already-configured)
+  Practice screen; it carries no drill state of its own.
+- Addresses product-wishlist items 1, 2, 6 and 7 from the owner's feedback
+  (too many decisions before Start; no "learn first" view; "Watch, then play"
+  buried and off by default; no clear starting point). **Not built this
+  session** (out of scope, left for a later pass): item 3, a dedicated
+  explanation of how Box 1 and Box 2 relate/overlap on the neck — "Meet the
+  scale" shows one box's worth of degrees across the *whole* neck, which
+  answers "where do these notes live" but not "how do the two authored boxes
+  connect," a distinct question. (Session 8's "Connect the boxes" exercise,
+  landed the same day, is a practice drill for that gap, not an explanation of
+  it — the two are complementary, not the same ask.)
+- Verified live in a real browser (Playwright/Chromium, 420×900, zero console
+  errors) in both English and Hebrew with `devSimulateTier` forced to
+  `'premium'`: the simplified home screen, the "More options" disclosure
+  opening/closing, "Meet the scale" rendering the blurb/root-picker/degree
+  grid/play button, a root-chip tap updating the grid, "Start practicing"
+  returning home, and — the one hard rule this view had to get right — the
+  neck grid staying `dir="ltr"` while the surrounding Hebrew page is RTL.
+  `tsc -b` and `eslint` are clean on every touched file.
+
 ## Session 8 (2026-10-01) — a fifth exercise, "Connect the boxes"
 
 §8.5's Future Extensions table catalogued "Connect-the-boxes" ("a drill that
