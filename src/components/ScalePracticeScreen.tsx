@@ -38,7 +38,7 @@ import { SCALE_BLURBS } from '../utils/scaleBlurbs';
 import ScaleInfoBody from './ScaleInfoBody';
 import { Chevron } from './Chevron';
 import { scaleItemId } from '../learning/scaleItem';
-import { buildScalePool, type ScaleQuestion } from '../learning/scaleDrill';
+import { buildScalePool, pickConnectQuestion, pickScaleQuestion, type ScaleQuestion, type ScalePoolItem } from '../learning/scaleDrill';
 import { buildScaleBoard } from '../learning/scaleMastery';
 import { loadLearningState, saveLearningStateLocal, getInstrumentState, withInstrumentState, recordScaleAnswer } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
@@ -136,7 +136,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   // to the cloud (§15 — a no-op for a guest / offline; the reconcile merges
   // per item, so another device's scale reviews are never lost).
   const recordAnswer = useCallback(
-    (itemId: string, form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree', correct: boolean, seconds: number) => {
+    (itemId: string, form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes', correct: boolean, seconds: number) => {
       const ts = Date.now();
       const state = loadLearningState(ts);
       const inst = getInstrumentState(state, instrument.id, ts);
@@ -182,9 +182,25 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   });
 
   /** "Minor Pentatonic · A · Box 1 ↑" — the banner that opens each run; the
-   *  arrow says which way this run goes. */
+   *  arrow says which way this run goes. Position `0` is "Connect the
+   *  boxes"'s reserved box-1-into-box-2 section (`connectBoxesPosition`) —
+   *  it has no single box number to show. */
   const scaleLabel = (q: ScaleQuestion) =>
-    `${t(scaleTypeById(q.scaleTypeId)?.nameKey ?? q.scaleTypeId)} · ${displayNote(q.rootName, accidental, notation)} · ${t('Box')} ${q.positionIndex} ${q.direction === 'down' ? '↓' : '↑'}`;
+    `${t(scaleTypeById(q.scaleTypeId)?.nameKey ?? q.scaleTypeId)} · ${displayNote(q.rootName, accidental, notation)} · ${q.positionIndex === 0 ? t('Boxes 1–2') : `${t('Box')} ${q.positionIndex}`} ${q.direction === 'down' ? '↓' : '↑'}`;
+
+  // "Connect the boxes" reuses useScaleOrderEngine's board/engine wholesale
+  // (scales-learning-spec.md Session 8) — only the question picker differs,
+  // via the hook's injectable `pickQuestion`. The pool carries scale type
+  // ids only; `pickConnectQuestion` ignores positionIndex.
+  const pickConnectAsScaleQuestion: typeof pickScaleQuestion = useCallback(
+    (p, noteTable, stringCount, maxFret, rng, naturalsOnly, direction) =>
+      pickConnectQuestion([...new Set(p.map((item) => item.scaleTypeId))], noteTable, stringCount, maxFret, rng, naturalsOnly, direction),
+    [],
+  );
+  const connectPool = useMemo<ScalePoolItem[]>(
+    () => sel.activeScaleTypeIds.map((id) => ({ scaleTypeId: id, positionIndex: 0 })),
+    [sel.activeScaleTypeIds],
+  );
 
   const chipEngine = useScaleChipEngine({
     exercise: exercise === 'nameDegree' ? 'nameDegree' : 'identifyScale',
@@ -216,15 +232,35 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
       recordAnswer(scaleItemId(a.scaleTypeId, a.positionIndex), 'orderScale', a.correct, a.seconds),
   });
 
+  // "Connect the boxes": the same still-board mechanic as "Tap the scale in
+  // order", fed a section spanning box 1 and box 2 instead of one box.
+  const connectEngine = useScaleOrderEngine({
+    instrument: fallInstrument,
+    pool: connectPool,
+    questionCount: buildEnvelope.questionCount,
+    noteTime: Math.max(2, buildEnvelope.timeLimit / 4) * 1.5,
+    demo: sel.orderDemo,
+    naturalsOnly: buildEnvelope.naturalsOnlyRoot,
+    direction: sel.direction,
+    pickQuestion: pickConnectAsScaleQuestion,
+    onComplete: () => setFinished(true),
+    onAnswer: (a: ScaleOrderAnswer) =>
+      recordAnswer(scaleItemId(a.scaleTypeId, a.positionIndex), 'connectBoxes', a.correct, a.seconds),
+  });
+
   // Answer by playing: while a scale is the learner's to play (not during the
   // demo), every note heard on the guitar goes to the engine like a tap.
+  const orderOrConnectRunning = exercise === 'connectBoxes' ? connectEngine.running : orderEngine.running;
+  const orderOrConnectDemoStep = exercise === 'connectBoxes' ? connectEngine.demoStep : orderEngine.demoStep;
   const pitch = usePitchStream({
-    enabled: sel.orderGuitar && exercise === 'orderScale' && orderEngine.running && orderEngine.demoStep == null,
-    onNote: orderEngine.hear,
+    enabled: sel.orderGuitar && (exercise === 'orderScale' || exercise === 'connectBoxes')
+      && orderOrConnectRunning && orderOrConnectDemoStep == null,
+    onNote: exercise === 'connectBoxes' ? connectEngine.hear : orderEngine.hear,
   });
 
   const running = exercise === 'buildScale' ? buildEngine.running
     : exercise === 'orderScale' ? orderEngine.running
+    : exercise === 'connectBoxes' ? connectEngine.running
     : chipEngine.running;
 
   const startSession = () => {
@@ -232,6 +268,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     setFinished(false);
     if (exercise === 'buildScale') buildEngine.start();
     else if (exercise === 'orderScale') orderEngine.start();
+    else if (exercise === 'connectBoxes') connectEngine.start();
     else chipEngine.start();
   };
 
@@ -244,6 +281,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
 
   const score = exercise === 'buildScale' ? buildEngine.session.score
     : exercise === 'orderScale' ? orderEngine.session.score
+    : exercise === 'connectBoxes' ? connectEngine.session.score
     : chipEngine.session.score;
 
   if (morePage && !running) {
@@ -378,7 +416,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               <div className="set-card scale-current-pick">
                 <span className="set-card-help">
                   {t(scaleTypeById(meetScaleTypeId)?.nameKey ?? meetScaleTypeId)}
-                  {sel.positionMode === 'one' ? ` · ${t('Box')} ${sel.positionIndex}` : ''}
+                  {exercise !== 'connectBoxes' && sel.positionMode === 'one' ? ` · ${t('Box')} ${sel.positionIndex}` : ''}
                 </span>
                 <button
                   type="button"
@@ -415,6 +453,14 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   onClick={() => pickExercise('orderScale')}
                 >
                   {t('Tap the scale in order')}
+                </button>
+                <button
+                  type="button"
+                  className={`set-card-btn${exercise === 'connectBoxes' ? ' set-card-btn-primary' : ''}`}
+                  aria-pressed={exercise === 'connectBoxes'}
+                  onClick={() => pickExercise('connectBoxes')}
+                >
+                  {t('Connect the boxes')}
                 </button>
                 <button
                   type="button"
@@ -489,7 +535,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
-            {!running && tab === 'practice' && moreOpen && sel.positionChoiceAvailable && (
+            {!running && tab === 'practice' && moreOpen && exercise !== 'connectBoxes' && sel.positionChoiceAvailable && (
               <div className="set-card scale-position-switcher" role="group" aria-label={t('Position')}>
                 <span className="set-card-label">{t('Position')}</span>
                 <div className="scale-position-row">
@@ -628,7 +674,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 </button>
               </div>
             )}
-            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
+            {!running && tab === 'practice' && moreOpen && (exercise === 'orderScale' || exercise === 'connectBoxes') && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Learning mode')}>
                 <span className="set-card-label">{t('Learning mode')}</span>
                 <div className="scale-difficulty-row">
@@ -654,7 +700,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 </p>
               </div>
             )}
-            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && pitch.supported && (
+            {!running && tab === 'practice' && moreOpen && (exercise === 'orderScale' || exercise === 'connectBoxes') && pitch.supported && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
                 <span className="set-card-label">{t('Answer mode')}</span>
                 <div className="scale-difficulty-row">
@@ -687,6 +733,16 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               <div className="set-card">
                 <p className="set-card-help">
                   {t('A section of the neck is shown with every note of the scale lit. Tap them in order to play the scale: start on the root (gold ring), go to one end of the section, then to the other end, and back to the root — up first or down first, as the arrow shows.')}
+                </p>
+                <button type="button" className="set-card-btn set-card-btn-primary" onClick={startSession}>
+                  {t('Start')}
+                </button>
+              </div>
+            )}
+            {!running && tab === 'practice' && !finished && exercise === 'connectBoxes' && (
+              <div className="set-card">
+                <p className="set-card-help">
+                  {t('A wider section of the neck is shown, spanning box 1 and box 2 of the scale together. Tap the notes in order to play a run that crosses from one box into the next and back — the same rules as "Tap the scale in order".')}
                 </p>
                 <button type="button" className="set-card-btn set-card-btn-primary" onClick={startSession}>
                   {t('Start')}
@@ -794,6 +850,59 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   type="button"
                   className="set-card-btn"
                   onClick={() => { playClickSound(); haptic.tap(); orderEngine.stop(); }}
+                >
+                  {t('Stop')}
+                </button>
+              </div>
+            )}
+
+            {connectEngine.running && connectEngine.question && connectEngine.board && (
+              <div className="set-card scale-order-card">
+                <div className="scale-order-header">
+                  <span className="scale-order-title">{scaleLabel(connectEngine.question)}</span>
+                  <span className="set-card-help">
+                    {t('Scale')} {connectEngine.questionNumber} / {connectEngine.questionCount}
+                    {' · '}{t('Score')}: {connectEngine.session.score}
+                  </span>
+                  {sel.orderDemo && (
+                    <span className="scale-order-status" aria-live="polite">
+                      {connectEngine.demoStep != null ? t('Watch and listen…') : t('Your turn — play it back')}
+                    </span>
+                  )}
+                  {sel.orderGuitar && pitch.supported && connectEngine.demoStep == null && (
+                    <span className={`voice-status guitar-status guitar-${pitch.status}`} role="status" aria-live="polite">
+                      {pitch.error === 'no-permission'
+                        ? t('🎸 Microphone blocked — enable it or switch to tap')
+                        : pitch.error === 'not-supported' || !pitch.supported
+                          ? t('🎸 Pitch detection isn’t available on this device — use tap')
+                          : pitch.status === 'listening'
+                            ? `🎸 ${t('Listening…')}${pitch.partial ? ` “${pitch.partial}”` : ''}`
+                            : t('🎸 Play the scale on your guitar')}
+                      {pitch.status === 'error' && (
+                        <button type="button" className="clear-btn voice-retry" onClick={() => { playClickSound(); haptic.tap(); pitch.retry(); }}>
+                          {t('Retry')}
+                        </button>
+                      )}
+                    </span>
+                  )}
+                </div>
+                <ScaleOrderBoard
+                  board={connectEngine.board}
+                  step={connectEngine.step}
+                  slips={connectEngine.slips}
+                  wrongTile={connectEngine.wrongTile}
+                  demoStep={connectEngine.demoStep}
+                  rootName={connectEngine.question.rootName}
+                  noteTable={instrument.notes}
+                  stringCount={instrument.stringCount}
+                  accidental={accidental}
+                  notation={notation}
+                  onTap={connectEngine.tap}
+                />
+                <button
+                  type="button"
+                  className="set-card-btn"
+                  onClick={() => { playClickSound(); haptic.tap(); connectEngine.stop(); }}
                 >
                   {t('Stop')}
                 </button>
