@@ -11,7 +11,8 @@
    specificity) so a button's own box-shadow — a selected-state ring, a
    glow — always wins and keeps its look; only buttons without one get the
    depth. Only buttons that own a visible surface are listed; transparent
-   link-style buttons, the fretboard cells and tiny icon buttons stay flat.
+   link-style buttons, the full-neck fretboard cells and tiny icon buttons stay flat
+   (the By Note FretGrid gets its own block at the end).
    Add a new solid button's class here to opt it in. */
 :where(:root[data-depth='on']) :where(
   .nav-row,
@@ -121,4 +122,33 @@
 :root[data-depth='on'] .ap-tile-on {
   transform: translateY(var(--depth-press, 2px));
   box-shadow: 0 0 0 1px var(--accent), inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
+}
+
+/* The By Note fret grid (FretGrid). Its own rules reset box-shadow on
+   :focus and paint glows on found / reveal / reference / the tap flash, so
+   these carry real specificity and restate the band next to each glow:
+     • rest (and :focus) — the raised lip,
+     • tap — the grid's own scale(0.93) press, band thins,
+     • a found fret (a correct tap) — held down, like a selected button,
+     • reveal / reference — their glow plus the raised lip,
+     • the tap flash (.fret-glow, !important) — its glow plus the lip. */
+:root[data-depth='on'] .fret-btn,
+:root[data-depth='on'] .fret-btn:focus {
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+}
+:root[data-depth='on'] .fret-btn:active:not(:disabled) {
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
+}
+:root[data-depth='on'] .fret-btn.fret-found {
+  transform: translateY(var(--depth-press, 2px));
+  box-shadow: 0 0 8px 2px rgba(0, 255, 0, 0.4), inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
+}
+:root[data-depth='on'] .fret-btn.fret-reveal {
+  box-shadow: 0 0 8px 2px rgba(0, 255, 0, 0.4), inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+}
+:root[data-depth='on'] .fret-btn.fret-reference {
+  box-shadow: 0 0 8px 2px rgba(74, 170, 255, 0.5), inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+}
+:root[data-depth='on'] .fret-btn.fret-glow {
+  box-shadow: 0 0 14px 5px rgba(var(--accent-rgb), 0.7), inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade) !important;
 }
