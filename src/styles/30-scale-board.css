@@ -556,6 +556,13 @@
   font-weight: 700;
   font-size: 0.85rem;
 }
+.scale-start-picker {
+  flex-basis: 100%;
+  margin-top: 2px;
+}
+.scale-start-info-bubble {
+  margin-top: 6px;
+}
 
 .scale-meet-scroll {
   overflow-x: auto;

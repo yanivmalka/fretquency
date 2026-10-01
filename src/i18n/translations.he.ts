@@ -1009,6 +1009,12 @@ export const he: Record<string, string> = {
   'Start practicing': 'התחל לתרגל',
   'More options': 'עוד אפשרויות',
   'Fewer options': 'פחות אפשרויות',
+  'New to scales? Start with:': 'חדש בסולמות? התחל עם:',
+  'Why start here?': 'למה להתחיל כאן?',
+  'Fewer notes (5) and no awkward fingerings — the most common first scale for guitar, and you can solo with it right away. Trade-off: it skips two notes of the full scale, so it won’t teach you scale-degree theory on its own.':
+    'פחות תווים (5) ובלי אצבוע מביך — הסולם הראשון הנפוץ ביותר לגיטרה, ואפשר לאלתר איתו מיד. החיסרון: הוא מדלג על שני תווים מהסולם המלא, אז הוא לא ילמד אותך לבד את תורת דרגות הסולם.',
+  'The foundation scale — every other scale and key gets explained by comparing it to this one. Trade-off: seven notes means a bit more to remember, and a slightly bigger stretch for the fingers than the five-note pentatonic.':
+    'סולם היסוד — כל סולם וסולם אחר מוסבר בהשוואה אליו. החיסרון: שבעה תווים זה קצת יותר לזכור, ומתיחה מעט גדולה יותר לאצבעות לעומת הפנטטוני בן חמשת התווים.',
   // Intervals Learning — the two MVP exercises + the identify-the-interval
   // question (intervals-learning-spec §8.1, task T5).
   'Identify the interval': 'לזהות את האינטרוול',

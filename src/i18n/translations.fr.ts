@@ -1070,6 +1070,12 @@ export const fr: Record<string, string> = {
   'Start practicing': 'Commencer à pratiquer',
   'More options': 'Plus d’options',
   'Fewer options': 'Moins d’options',
+  'New to scales? Start with:': 'Nouveau dans les gammes ? Commencez par :',
+  'Why start here?': 'Pourquoi commencer ici ?',
+  'Fewer notes (5) and no awkward fingerings — the most common first scale for guitar, and you can solo with it right away. Trade-off: it skips two notes of the full scale, so it won’t teach you scale-degree theory on its own.':
+    'Moins de notes (5) et aucun doigté gênant — la première gamme la plus courante à la guitare, et vous pouvez improviser avec dès maintenant. Contrepartie : elle saute deux notes de la gamme complète, donc elle ne vous enseigne pas à elle seule la théorie des degrés.',
+  'The foundation scale — every other scale and key gets explained by comparing it to this one. Trade-off: seven notes means a bit more to remember, and a slightly bigger stretch for the fingers than the five-note pentatonic.':
+    'La gamme de base — toutes les autres gammes et tonalités s’expliquent en les comparant à celle-ci. Contrepartie : sept notes, c’est un peu plus à retenir, et un écart un peu plus grand pour les doigts que la pentatonique à cinq notes.',
   // Intervals Learning — exercises, questions and interval names
   'Identify the interval': 'Identifier l’intervalle',
   'Find the note': 'Trouver la note',

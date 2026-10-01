@@ -52,3 +52,16 @@ export const SCALE_BLURBS: Record<string, string> = {
   hirajoshi:
     'A five-note Japanese scale with wide gaps between its notes. It sounds sparse and haunting, like a koto.',
 };
+
+/** Pro/trade-off copy for the two starting-scale picks on the Scales home
+ *  screen (product-owner request, 2026-10-01) — a beginner choosing between
+ *  Minor Pentatonic and Major sees *why* each is a reasonable first pick, not
+ *  just what it sounds like (`SCALE_BLURBS` above). Deliberately separate
+ *  from `SCALE_BLURBS`: this is about choosing a starting point, not
+ *  describing the scale in general, so only these two ids are covered. */
+export const START_SCALE_TRADEOFFS: Record<string, string> = {
+  minorPentatonic:
+    'Fewer notes (5) and no awkward fingerings — the most common first scale for guitar, and you can solo with it right away. Trade-off: it skips two notes of the full scale, so it won’t teach you scale-degree theory on its own.',
+  major:
+    'The foundation scale — every other scale and key gets explained by comparing it to this one. Trade-off: seven notes means a bit more to remember, and a slightly bigger stretch for the fingers than the five-note pentatonic.',
+};

@@ -34,7 +34,7 @@ import { useScaleOrderEngine, type ScaleOrderAnswer } from '../hooks/useScaleOrd
 import { usePitchStream } from '../hooks/usePitchStream';
 import { useScaleSelector, FALL_SPEED_LEVELS, DISTANCE_UNITS } from '../hooks/useScaleSelector';
 import { scaleTypeById, SCALE_TYPES, BASIC_SCALE_TYPE_IDS, MORE_SCALE_GROUPS } from '../utils/scales';
-import { SCALE_BLURBS } from '../utils/scaleBlurbs';
+import { SCALE_BLURBS, START_SCALE_TRADEOFFS } from '../utils/scaleBlurbs';
 import ScaleInfoBody from './ScaleInfoBody';
 import { Chevron } from './Chevron';
 import { scaleItemId } from '../learning/scaleItem';
@@ -110,6 +110,18 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
   }, [infoScaleId]);
+  // The home screen's "start with" picker (Minor Pentatonic / Major) — its own
+  // "?" bubble, separate from `infoScaleId` above: this shows the pro/trade-off
+  // of picking THIS scale to start with, not the general `SCALE_BLURBS` text.
+  const [startInfoId, setStartInfoId] = useState<string | null>(null);
+  useEffect(() => {
+    if (startInfoId === null) return;
+    const close = (e: PointerEvent) => {
+      if (!(e.target as Element | null)?.closest?.('.scale-start-info, .scale-start-info-bubble')) setStartInfoId(null);
+    };
+    document.addEventListener('pointerdown', close);
+    return () => document.removeEventListener('pointerdown', close);
+  }, [startInfoId]);
   const basicScaleIds = sel.shippedScaleTypeIds.filter((id) => BASIC_SCALE_TYPE_IDS.includes(id));
   // The open "?" explanation on the main screen — only the five basic scales live there.
   const basicInfoType = infoScaleId && basicScaleIds.includes(infoScaleId) ? scaleTypeById(infoScaleId) : undefined;
@@ -418,6 +430,41 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   {t(scaleTypeById(meetScaleTypeId)?.nameKey ?? meetScaleTypeId)}
                   {exercise !== 'connectBoxes' && sel.positionMode === 'one' ? ` · ${t('Box')} ${sel.positionIndex}` : ''}
                 </span>
+                <div className="scale-start-picker" role="group" aria-label={t('New to scales? Start with:')}>
+                  <span className="set-card-label">{t('New to scales? Start with:')}</span>
+                  <div className="scale-position-row">
+                    {(['minorPentatonic', 'major'] as const).map((id) => {
+                      const infoOpen = startInfoId === id;
+                      return (
+                        <div key={id} className="scale-chip-group">
+                          <button
+                            type="button"
+                            className={`set-card-btn${sel.scaleChoice === id ? ' set-card-btn-primary' : ''}`}
+                            aria-pressed={sel.scaleChoice === id}
+                            onClick={() => { playClickSound(); haptic.tap(); sel.setScaleChoice(id); }}
+                          >
+                            {t(scaleTypeById(id)?.nameKey ?? id)}
+                          </button>
+                          <button
+                            type="button"
+                            className={`scale-more-info scale-start-info${infoOpen ? ' scale-more-info-open' : ''}`}
+                            aria-label={t('Why start here?')}
+                            title={t('Why start here?')}
+                            aria-expanded={infoOpen}
+                            onClick={() => { playClickSound(); haptic.tap(); setStartInfoId(infoOpen ? null : id); }}
+                          >
+                            ?
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {startInfoId && START_SCALE_TRADEOFFS[startInfoId] && (
+                    <div className="mode-card-info-bubble scale-start-info-bubble" role="status" aria-live="polite">
+                      {t(START_SCALE_TRADEOFFS[startInfoId])}
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   className="set-card-btn"

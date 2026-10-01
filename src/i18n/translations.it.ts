@@ -1066,6 +1066,12 @@ export const it: Record<string, string> = {
   'Start practicing': 'Inizia a esercitarti',
   'More options': 'Altre opzioni',
   'Fewer options': 'Meno opzioni',
+  'New to scales? Start with:': 'Nuovo alle scale? Inizia con:',
+  'Why start here?': 'Perché iniziare da qui?',
+  'Fewer notes (5) and no awkward fingerings — the most common first scale for guitar, and you can solo with it right away. Trade-off: it skips two notes of the full scale, so it won’t teach you scale-degree theory on its own.':
+    'Meno note (5) e nessuna diteggiatura scomoda — la prima scala più comune per chitarra, e puoi improvvisare subito. Contro: salta due note della scala completa, quindi da sola non ti insegna la teoria dei gradi.',
+  'The foundation scale — every other scale and key gets explained by comparing it to this one. Trade-off: seven notes means a bit more to remember, and a slightly bigger stretch for the fingers than the five-note pentatonic.':
+    'La scala fondamentale — ogni altra scala e tonalità viene spiegata confrontandola con questa. Contro: sette note significano un po’ più da ricordare, e un’estensione leggermente maggiore per le dita rispetto alla pentatonica a cinque note.',
   // Intervals Learning — exercises, questions and interval names
   'Identify the interval': 'Riconoscere l’intervallo',
   'Find the note': 'Trovare la nota',
