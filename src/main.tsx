@@ -1,12 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
+import { Capacitor } from '@capacitor/core'
 import './index.css'
 import App from './App'
 import { LanguageProvider } from './i18n/LanguageContext'
 import AdBanner from './components/AdBanner'
 import { loadDictionary, type Lang } from './i18n/translations'
 import { initialLanguage } from './i18n/initialLanguage'
+import { markBootDone } from './utils/bootState'
+import { verror } from './utils/debugLog'
 
 // Fetch the starting language's dictionary (only that one) behind the boot
 // splash, so the first render is already translated. Capped so a stalled
@@ -348,6 +351,7 @@ Promise.race([
       render()
       clearMsg()
       hideSplash()
+      markBootDone()
     }
     // Give the readout ~450ms to visibly run up to 100 before the fade.
     const runUp = 450
@@ -385,9 +389,22 @@ Promise.race([
   // No time cap — just reassure the user the splash isn't dead after a while.
   setTimeout(() => { if (!dismissed && !fatal) showMsg(say('slow')) }, SLOW_NOTICE_MS)
 
-  // The only blocking failure: an uncaught error before the app is ready. Show
-  // it with a reload button; if 'app-ready' still fires later, it clears itself.
+  // The only blocking failure: an uncaught error before the app is ready. Every
+  // one is written to the in-app debug log (the admin debug panel) so a flash
+  // on a phone can still be read afterwards. It is shown — with a reload
+  // button — only if the app is still not ready BOOT_ERROR_GRACE_MS later: a
+  // passing error the app recovers from (it still reaches 'app-ready') used to
+  // flash "error, try again" and freeze the bar and the intro scale, which then
+  // all played out at once when the app came back.
+  const BOOT_ERROR_GRACE_MS = 4000
+  let pendingBootError: ReturnType<typeof setTimeout> | undefined
   const onBootError = (detail: string) => {
+    if (appReady || dismissed || fatal) return
+    verror('[boot] error before app-ready', detail)
+    if (pendingBootError !== undefined) return
+    pendingBootError = setTimeout(() => showBootError(detail), BOOT_ERROR_GRACE_MS)
+  }
+  const showBootError = (detail: string) => {
     if (appReady || dismissed || fatal) return
     fatal = true
     stopCreep()
@@ -478,7 +495,27 @@ Promise.race([
     markUpdateSettled()
   }
 
-  if (import.meta.env.DEV || !('serviceWorker' in navigator)) {
+  if (Capacitor.isNativePlatform()) {
+    // The APK ships its web assets inside the app and updates as a new APK, so
+    // a service worker there only does harm: after every APK install the old
+    // worker served the *previous* build from its cache, then found the new
+    // one, installed it and reloaded behind the splash — while the stale page
+    // asked for chunks the new APK no longer has ("error, try again", then a
+    // reset). Retire any worker an earlier APK registered, with its caches. If
+    // a worker still controls this page, the network fallback is the APK's own
+    // files, which are this very build.
+    markUpdateSettled()
+    if ('serviceWorker' in navigator) {
+      void navigator.serviceWorker.getRegistrations()
+        .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+        .catch((err) => console.warn('[pwa] unregister failed', err))
+    }
+    if ('caches' in window) {
+      void caches.keys()
+        .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+        .catch((err) => console.warn('[pwa] cache cleanup failed', err))
+    }
+  } else if (import.meta.env.DEV || !('serviceWorker' in navigator)) {
     // Dev has no service worker (registerSW is a no-op that never calls back);
     // neither do older browsers. Nothing to check — settle straight away.
     markUpdateSettled()
