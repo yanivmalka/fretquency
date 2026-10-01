@@ -8,7 +8,7 @@
    Uses `box-shadow`, never `filter: drop-shadow` — a drop-shadow follows
    the rendered pixels, so on a translucent button it also shadows the
    label and blurs the text. The whole rule sits in `:where()` (zero
-   specificity) so a button's own box-shadow — a selected-state ring, a
+   specificity) so a button's own box-shadow — a status ring, a
    glow — always wins and keeps its look; only buttons without one get the
    depth. Only buttons that own a visible surface are listed; transparent
    link-style buttons, the full-neck fretboard cells and tiny icon buttons stay flat
@@ -63,13 +63,6 @@
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45), inset 0 -4px 0 var(--btn-lift-shade);
 }
 
-/* The Appearance tiles' selected state carries its own ring, which the
-   zero-specificity rule above deliberately yields to — so restate the ring
-   together with the bottom band. */
-:root[data-depth='on'] .ap-tile-on {
-  box-shadow: 0 0 0 1px var(--accent), inset 0 -4px 0 var(--btn-lift-shade);
-}
-
 
 /* Keep the pressed state of the accent-filled buttons above (they come later
    in the file, so their rest shadow would otherwise win over :active). */
@@ -101,54 +94,70 @@
 }
 :root[data-depth='on'] .tn-note-btn:active { transform: scale(0.92); }
 
-/* Selected = held down. A toggle / segment / picker that is currently ON
-   stays in the pressed position (sunk 2px, thin lip, a soft shade along the
-   top instead of the light rim), so the depth look itself tells which
-   option is picked, not only the colour. Covers each button's own "on"
+/* Selected = held down, never lit. With depth on the two looks are not
+   mixed: a toggle / segment / picker that is ON keeps its plain surface
+   colours (no accent fill, accent border, ring or glow) and only sits in
+   the pressed position — sunk 2px, a darker sunken surface, a soft shade
+   along the top instead of the light rim, a thin lip. The flat look
+   (depth off) keeps the lit accent fill. Covers each button's own "on"
    class plus any button carrying aria-pressed="true" (the exercise toggles
-   reuse .teacher-btn-primary for "on", which also marks real Start buttons,
-   so they are matched by aria-pressed, not by that class). Last in the
-   file at zero specificity, so it beats the rest + accent rules above. */
-:where(:root[data-depth='on']) :where(
+   reuse .teacher-btn-primary for "on", which also marks real Start
+   buttons, so they are matched by aria-pressed, not by that class). These
+   carry real specificity so they beat each button's own "on" colours. */
+:root[data-depth='on'] :is(
   .set-seg-btn.set-seg-on, .pick-btn.pick-btn-on, .diff-btn.active,
-  .string-pill.active, .mode-card.active, .order-chip-active,
-  .sp2-scope-btn.sp2-scope-active, .sr-toggle-btn.active, .level-seg-on,
-  .interval-choice-btn.is-selected,
+  .string-pill.active, .mode-card.active, .order-chip.order-chip-active,
+  .sp2-scope-btn.sp2-scope-active, .sr-toggle-btn.active, .level-seg.level-seg-on,
+  .interval-choice-btn.is-selected, .ap-tile.ap-tile-on,
   .teacher-btn[aria-pressed='true'], .teacher-btn-primary[aria-pressed='true']
 ) {
   transform: translateY(var(--depth-press, 2px));
+  background: var(--btn-sunk-bg);
+  color: var(--text-0);
   box-shadow: inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
 }
-:root[data-depth='on'] .ap-tile-on {
-  transform: translateY(var(--depth-press, 2px));
-  box-shadow: 0 0 0 1px var(--accent), inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
+/* Bordered ones keep their resting border instead of the accent one. */
+:root[data-depth='on'] :is(
+  .pick-btn.pick-btn-on, .level-seg.level-seg-on, .interval-choice-btn.is-selected,
+  .ap-tile.ap-tile-on, .teacher-btn[aria-pressed='true'], .teacher-btn-primary[aria-pressed='true']
+) {
+  border-color: var(--surface-border);
+}
+:root[data-depth='on'] :is(.diff-btn.active, .mode-card.active, .order-chip.order-chip-active) {
+  border-color: var(--border-soft);
+}
+:root[data-depth='on'] .string-pill.active { border-bottom-color: transparent; }
+:root[data-depth='on'] .string-pill.string-pill-toggle.active { border-color: var(--border-soft); }
+:root[data-depth='on'] .order-chip.order-chip-active { font-weight: normal; }
+
+/* The wheels' tap flash: in the flat look a tapped note glows (.note-glow,
+   06-controls.css — scoped to depth off); with depth on it shows held down
+   for that moment instead. */
+:root[data-depth='on'] .note-wheel-btn.note-glow { transform: scale(0.94); }
+:root[data-depth='on'] .note-wheel-btn.note-glow::before {
+  box-shadow: inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
 }
 
 /* The By Note fret grid (FretGrid). Its own rules reset box-shadow on
-   :focus and paint glows on found / reveal / reference / the tap flash, so
-   these carry real specificity and restate the band next to each glow:
-     • rest (and :focus) — the raised lip,
+   :focus and paint glows on found / reveal / reference, so these carry
+   real specificity. With depth on there are no glows — the green / blue
+   fills stay, since they say right / missed / reference, not "selected":
+     • rest (and :focus), reveal, reference — the raised lip, no halo,
      • tap — the grid's own scale(0.93) press, band thins,
      • a found fret (a correct tap) — held down, like a selected button,
-     • reveal / reference — their glow plus the raised lip,
-     • the tap flash (.fret-glow, !important) — its glow plus the lip. */
+     • the tap flash (.fret-glow, 09-fretboard.css — scoped to depth off)
+       becomes a brief held-down moment. */
 :root[data-depth='on'] .fret-btn,
-:root[data-depth='on'] .fret-btn:focus {
+:root[data-depth='on'] .fret-btn:focus,
+:root[data-depth='on'] .fret-btn.fret-reveal,
+:root[data-depth='on'] .fret-btn.fret-reference {
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
 }
 :root[data-depth='on'] .fret-btn:active:not(:disabled) {
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
-:root[data-depth='on'] .fret-btn.fret-found {
-  transform: translateY(var(--depth-press, 2px));
-  box-shadow: 0 0 8px 2px rgba(0, 255, 0, 0.4), inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
-}
-:root[data-depth='on'] .fret-btn.fret-reveal {
-  box-shadow: 0 0 8px 2px rgba(0, 255, 0, 0.4), inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
-}
-:root[data-depth='on'] .fret-btn.fret-reference {
-  box-shadow: 0 0 8px 2px rgba(74, 170, 255, 0.5), inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
-}
+:root[data-depth='on'] .fret-btn.fret-found,
 :root[data-depth='on'] .fret-btn.fret-glow {
-  box-shadow: 0 0 14px 5px rgba(var(--accent-rgb), 0.7), inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade) !important;
+  transform: translateY(var(--depth-press, 2px));
+  box-shadow: inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
 }

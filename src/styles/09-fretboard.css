@@ -82,7 +82,9 @@
   transition: width 0.3s ease, color 0.3s ease;
 }
 
-.fret-glow {
+/* Flat look only; with Button depth on the tap shows held down instead
+   (31-button-depth.css). */
+:root:not([data-depth='on']) .fret-glow {
   box-shadow: 0 0 14px 5px rgba(var(--accent-rgb), 0.7) !important;
   animation: fret-glow-fade 0.4s ease-out forwards;
 }
