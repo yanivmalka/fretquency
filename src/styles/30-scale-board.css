@@ -541,3 +541,67 @@
   border-color: transparent;
   color: var(--accent-ink);
 }
+
+/* ── "Meet the scale" — the beginner-facing whole-neck view ─────────────── */
+
+.scale-current-pick {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+}
+.scale-more-options-toggle {
+  color: var(--text-2);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.scale-meet-scroll {
+  overflow-x: auto;
+  margin: 0 -4px 10px;
+  padding: 0 4px;
+}
+.scale-meet-board {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: max-content;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.scale-meet-row {
+  display: grid;
+  grid-template-columns: repeat(var(--meet-frets, 20), 26px);
+  gap: 2px;
+}
+.scale-meet-tile {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--surface-border);
+  border-radius: 5px;
+  background: var(--bg-1);
+}
+.scale-meet-tile-lit {
+  background: color-mix(in srgb, var(--accent) 30%, var(--bg-2));
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.scale-meet-tile-root {
+  box-shadow: inset 0 0 0 2px var(--gold);
+  background: color-mix(in srgb, var(--gold) 25%, var(--bg-2));
+}
+.scale-meet-degree {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--text-0);
+}
+.scale-meet-fret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
