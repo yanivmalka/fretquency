@@ -44,6 +44,7 @@ import { loadLearningState, saveLearningStateLocal, getInstrumentState, withInst
 import { cloudPushLearning } from '../learning/learningSync';
 import ScaleFallBoard from './ScaleFallBoard';
 import ScaleOrderBoard from './ScaleOrderBoard';
+import ScaleMeetScreen from './ScaleMeetScreen';
 import ScaleProgressBoard from './ScaleProgressBoard';
 import IntervalChoiceRow from './IntervalChoiceRow';
 import { ProGate } from './ProGate';
@@ -85,6 +86,19 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   // The five basic scales sit on the screen itself; the rest live on the
   // "More scales" page, whose button carries the pick when one is chosen.
   const [morePage, setMorePage] = useState(false);
+  // Beginner-facing simplification (product-owner request, 2026-10-01): the
+  // home screen opens with just the current pick + a Start button; every
+  // other control (exercise/scale/position/difficulty/direction/speed/
+  // distance unit/learning mode/answer mode) is tucked behind "More options",
+  // closed by default. "Meet the scale" is a separate full-screen view shown
+  // before practicing — the whole neck, root highlighted, every note labelled
+  // with its degree, a play button and the scale's blurb.
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [meetOpen, setMeetOpen] = useState(false);
+  // "Meet the scale" always shows one concrete scale type — 'all' (the
+  // Selector's "every shipped scale" pick) has no single shape to show, so it
+  // falls back to the same beginner default the Selector itself now opens on.
+  const meetScaleTypeId = sel.scaleChoice === 'all' ? 'minorPentatonic' : sel.scaleChoice;
   // Which row's "?" explanation is open on the "More scales" page (one at a time).
   const [infoScaleId, setInfoScaleId] = useState<string | null>(null);
   // The "?" bubble floats, so a tap anywhere outside a "?" dismisses it.
@@ -294,6 +308,20 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     );
   }
 
+  if (meetOpen && !running) {
+    return (
+      <ScaleMeetScreen
+        instrument={instrument}
+        accidental={accidental}
+        notation={notation}
+        lang={lang}
+        scaleTypeId={meetScaleTypeId}
+        onBack={() => { playClickSound(); haptic.tap(); setMeetOpen(false); }}
+        onStart={() => { playClickSound(); haptic.tap(); setMeetOpen(false); }}
+      />
+    );
+  }
+
   return (
     <div className="app settings-page lp-page interval-home">
       {showMenuButton && (
@@ -344,7 +372,33 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
+            {/* Beginner-facing simplification: the current pick + a way to see
+                the scale on the neck before diving into every control. */}
             {!running && tab === 'practice' && (
+              <div className="set-card scale-current-pick">
+                <span className="set-card-help">
+                  {t(scaleTypeById(meetScaleTypeId)?.nameKey ?? meetScaleTypeId)}
+                  {sel.positionMode === 'one' ? ` · ${t('Box')} ${sel.positionIndex}` : ''}
+                </span>
+                <button
+                  type="button"
+                  className="set-card-btn"
+                  onClick={() => { playClickSound(); haptic.tap(); setMeetOpen(true); }}
+                >
+                  📖 {t('Meet the scale')}
+                </button>
+                <button
+                  type="button"
+                  className="clear-btn scale-more-options-toggle"
+                  aria-expanded={moreOpen}
+                  onClick={() => { playClickSound(); haptic.tap(); setMoreOpen((o) => !o); }}
+                >
+                  {moreOpen ? `▴ ${t('Fewer options')}` : `▾ ${t('More options')}`}
+                </button>
+              </div>
+            )}
+
+            {!running && tab === 'practice' && moreOpen && (
               <div className="set-card scale-exercise-switcher" role="group">
                 <button
                   type="button"
@@ -381,7 +435,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
-            {!running && tab === 'practice' && (
+            {!running && tab === 'practice' && moreOpen && (
               <div className="set-card scale-position-switcher" role="group" aria-label={t('Scale')}>
                 <span className="set-card-label">{t('Scale')}</span>
                 <div className="scale-position-row">
@@ -435,7 +489,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
-            {!running && tab === 'practice' && sel.positionChoiceAvailable && (
+            {!running && tab === 'practice' && moreOpen && sel.positionChoiceAvailable && (
               <div className="set-card scale-position-switcher" role="group" aria-label={t('Position')}>
                 <span className="set-card-label">{t('Position')}</span>
                 <div className="scale-position-row">
@@ -466,7 +520,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
-            {!running && tab === 'practice' && (
+            {!running && tab === 'practice' && moreOpen && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Difficulty')}>
                 <span className="set-card-label">{t('Difficulty')}</span>
                 <div className="scale-difficulty-row">
@@ -493,7 +547,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
 
             {/* Ascending / descending — two on/off tiles, at least one lit, like the
                 Intervals selector. "Name the degree" has no direction. */}
-            {!running && tab === 'practice' && exercise !== 'nameDegree' && (
+            {!running && tab === 'practice' && moreOpen && exercise !== 'nameDegree' && (
               <div className="set-card scale-direction-switcher" role="group" aria-label={t('Direction')}>
                 <span className="set-card-label">{t('Direction')}</span>
                 <div className="difficulty-road interval-direction-road">
@@ -519,7 +573,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
-            {!running && tab === 'practice' && exercise === 'buildScale' && (
+            {!running && tab === 'practice' && moreOpen && exercise === 'buildScale' && (
               <div className="set-card scale-speed-switcher" role="group" aria-label={t('Fall speed')}>
                 <span className="set-card-label">{t('Fall speed')}</span>
                 <div className="scale-speed-row">
@@ -542,7 +596,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
-            {!running && tab === 'practice' && exercise === 'buildScale' && (
+            {!running && tab === 'practice' && moreOpen && exercise === 'buildScale' && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Distance shown in')}>
                 <span className="set-card-label">{t('Distance shown in')}</span>
                 <div className="scale-difficulty-row">
@@ -574,7 +628,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 </button>
               </div>
             )}
-            {!running && tab === 'practice' && exercise === 'orderScale' && (
+            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Learning mode')}>
                 <span className="set-card-label">{t('Learning mode')}</span>
                 <div className="scale-difficulty-row">
@@ -600,7 +654,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 </p>
               </div>
             )}
-            {!running && tab === 'practice' && exercise === 'orderScale' && pitch.supported && (
+            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && pitch.supported && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
                 <span className="set-card-label">{t('Answer mode')}</span>
                 <div className="scale-difficulty-row">

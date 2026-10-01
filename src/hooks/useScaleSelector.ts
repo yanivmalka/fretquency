@@ -106,15 +106,20 @@ function baseEnvelopeFor(difficulty: ScaleDifficulty, isChipExercise: boolean): 
 }
 
 export function useScaleSelector(stringCount: number) {
+  // Defaults favour a new learner's first run (product-owner request,
+  // 2026-10-01): "Tap the scale in order" in its demo-first learning mode, on
+  // the single most basic scale, one position — not the old "every exercise/
+  // scale/position" wide-open defaults. An existing player's own stored picks
+  // are untouched; this only changes what a fresh install lands on.
   const [exercise, setExerciseState] = useState<ScaleExercise>(
-    () => loadOneOf('ssel_exercise', EXERCISES, 'buildScale'),
+    () => loadOneOf('ssel_exercise', EXERCISES, 'orderScale'),
   );
   const [scaleChoiceStored, setScaleChoiceState] = useState<ScaleChoice>(() => {
-    const raw = loadSetting<string>('ssel_scale', 'all');
-    return raw === 'all' || SHIPPED_SCALE_TYPE_IDS.includes(raw) ? raw : 'all';
+    const raw = loadSetting<string>('ssel_scale', 'minorPentatonic');
+    return raw === 'all' || SHIPPED_SCALE_TYPE_IDS.includes(raw) ? raw : 'minorPentatonic';
   });
   const [positionModeStored, setPositionModeState] = useState<ScalePositionMode>(
-    () => loadOneOf('ssel_position_mode', POSITION_MODES, 'all'),
+    () => loadOneOf('ssel_position_mode', POSITION_MODES, 'one'),
   );
   const [positionIndex, setPositionIndexState] = useState<number>(
     () => loadSetting<number>('ssel_position_index', 1),
@@ -180,7 +185,7 @@ export function useScaleSelector(stringCount: number) {
 
   // "Tap the scale in order"'s learning mode: the app plays each scale first,
   // lighting its notes in turn, and the learner plays it after.
-  const [orderDemo, setOrderDemoState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_demo', false) === true);
+  const [orderDemo, setOrderDemoState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_demo', true) === true);
   const setOrderDemo = (on: boolean) => { setOrderDemoState(on); saveSetting('ssel_order_demo', on); };
   // "Tap the scale in order" answered by playing the guitar (pitch detection)
   // instead of tapping. The screen offers it wherever the device can listen.

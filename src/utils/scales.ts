@@ -260,6 +260,19 @@ export function scalePositionsFor(scaleTypeId: string, stringCount: number): Sca
     .filter((p) => p.rootString >= 1 && p.rootString <= stringCount);
 }
 
+/** Every pitch class of `scale` rooted at `rootName`, mapped to its degree
+ *  label ('1' for the root itself) — the lookup a whole-neck "meet the
+ *  scale" view needs, as opposed to `shapeAtRoot`'s single fretted position.
+ *  Octave-independent: a note name maps to the same label everywhere it
+ *  appears on the neck. */
+export function degreeLabelMap(scale: ScaleTypeDef, rootName: string): Map<string, string> {
+  const map = new Map<string, string>([[rootName, '1']]);
+  scale.degrees.forEach((semitones, i) => {
+    map.set(noteNameAtSemitones(rootName, semitones), scale.degreeLabels[i]);
+  });
+  return map;
+}
+
 export interface NeckPos {
   /** 1-based string number. */
   string: number;
