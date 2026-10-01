@@ -32,7 +32,7 @@ Verified in a real browser with a simulated microphone (an oscillator fed
 through a stubbed `getUserMedia`): full runs complete and are recorded as
 `orderScale`, a wrong note breaks the streak and slips the step, an
 octave-high note is accepted, the mic never opens during the demo, English
-and Hebrew. **Not yet tried on a real guitar.**
+and Hebrew. The product owner has since tried it on a real guitar.
 
 ## Session 6 (2026-09-25) — a fourth exercise, "Tap the scale in order"
 
