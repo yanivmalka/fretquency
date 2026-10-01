@@ -133,8 +133,11 @@ await solid(1024, 'assets/icon-background.png');
 await centered(512, Math.round(512 * 0.5), 'assets/ic-adaptive-fg.png');
 // Splash: 2732² is the capacitor-assets canonical source size. Keep the mark
 // small — only the centre ~1200px is guaranteed visible on every device.
+// Deliberately no assets/splash-dark.png: the splash looks the same in dark
+// mode, and Android falls back to the plain drawables when no -night ones
+// exist. A dark source (even an identical copy) makes capacitor-assets emit a
+// second full set of -night splash PNGs, ~1.5 MB of APK for nothing.
 await onGradient(2732, 0.3, 'assets/splash.png');
-await onGradient(2732, 0.3, 'assets/splash-dark.png');
 // Android 12+ system splash: the platform draws its own splash and ignores the
 // pre-12 full-screen `splash.png` above — it shows an icon in a fixed ~288dp
 // slot (logo inside the centre ~192dp circle). `capacitor-assets` doesn't emit
