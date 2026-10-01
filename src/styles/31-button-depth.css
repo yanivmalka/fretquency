@@ -129,6 +129,31 @@
 :root[data-depth='on'] .string-pill.active { border-bottom-color: transparent; }
 :root[data-depth='on'] .string-pill.string-pill-toggle.active { border-color: var(--border-soft); }
 :root[data-depth='on'] .order-chip.order-chip-active { font-weight: normal; }
+/* The By String chip: same held-down look, keeping its dashed toggle border. */
+:root[data-depth='on'] .order-chip.chip-toggle-active {
+  transform: translateY(var(--depth-press, 2px));
+  background: var(--btn-sunk-bg);
+  border-color: var(--border-soft);
+  color: var(--text-0);
+  font-weight: normal;
+  box-shadow: inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
+}
+
+/* Auto Advance (⏩): its own rules colour it only through .stats-icon-on
+   (see 13-stages-extra.css on touch-latched :hover / :focus), so every
+   state is restated here — raised when off, held down when on, never lit. */
+:root[data-depth='on'] .difficulty-road .auto-advance-toggle:is(*, :hover, :focus, :focus-visible, :active) {
+  background: var(--bg-3);
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -4px 0 var(--btn-lift-shade);
+  transition: box-shadow 0.08s, transform 0.08s;
+}
+:root[data-depth='on'] .difficulty-road .auto-advance-toggle.stats-icon-on:is(*, :hover, :focus, :focus-visible, :active) {
+  transform: translateY(var(--depth-press, 2px));
+  background: var(--btn-sunk-bg);
+  border-color: var(--border-soft);
+  color: var(--text-0);
+  box-shadow: inset 0 2px 3px var(--btn-lift-shade), inset 0 -1px 0 var(--btn-lift-shade);
+}
 
 /* The wheels' tap flash: in the flat look a tapped note glows (.note-glow,
    06-controls.css — scoped to depth off); with depth on it shows held down
