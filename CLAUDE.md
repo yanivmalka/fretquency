@@ -69,6 +69,8 @@ Sharps/flats and circle-of-fifths/alphabetical ordering are centralized in `src/
 
 ### Game layer — `src/game/`
 
+**Disconnected from the app since 2026-10-01 (owner: "not relevant now")** — no entry point, no screen, no cloud sync is wired; the code below stays on disk so it can be re-hooked (see the wishlist's "Parked" item). Leave it out of reviews and design passes. Two pieces are still live because other code uses them: `stageResult.ts`/`models.ts` (Learning Path) and `useDrillHistorySink.ts` (the Practice interval drill).
+
 A separate progression layer (**not** unified with Practice's Auto Advance curriculum in `src/utils/stageSequence.ts`). Data model in `models.ts` (`World` / `Stage` / `StageTargets`); the curriculum is **15 worlds / 139 stages** in `worlds.ts` + `stages.ts`, each stage a single skill whose `stage.drill` is a plain `DrillConfig` (relationships the engine can't ask directly are rendered as position `candidates`, with the concept in the title). `stageResult.ts` has pure `evaluateStars`/`meetsGoal` (0–3★ against three ascending goal tiers). `GameFlow.tsx` is one component with three nested screens (Home → World → Drill) — no router, no per-screen files. `gameProgress.ts` persists `bestStars` per stage to `localStorage['gameProgress']` (monotonic max, drives stage unlock); `gameSync.ts` reconciles it to `public.user_game_progress` (per-stage max merge, idempotent). `useDrillHistorySink.ts` gives the Game an **in-memory-only** `HistoryOps` so a Game drill never writes Practice's history / mastery / stats / badges / leaderboard.
 
 ### Premium Teacher & Learn area — `src/learning/`, `src/hooks/useLearning.ts`
@@ -99,7 +101,7 @@ One module per data type, all local-first + best-effort; guests never enter any 
 - `src/utils/sync.ts` — History + Personal Best. Union by row `id`; deletions propagate via **tombstones** (`deleted_keys`, plus a global `'*'`). `orphan_practice` captures a declining guest's local rows, unlinked from any account.
 - `src/utils/settingsSync.ts` — selector picks + UI prefs (incl. `pref_language`, `pref_theme`). Can't merge field-wise → **last-synced-device-wins**: one JSON blob with `updated_at`; adopting a newer cloud blob writes every key and reloads.
 - `src/utils/badgeSync.ts` — earned badges. Field-wise union keeping the earliest `earnedAt`; admin "Reset" writes a per-family retirement tombstone. Fires `badges-synced` instead of reloading.
-- `src/learning/learningSync.ts`, `src/utils/gameSync.ts` — see the Teacher / Game sections above. Both merge the meaningful field (SRS per item / stars per stage as a max), never last-writer-wins.
+- `src/learning/learningSync.ts` — see the Teacher section above. Merges the meaningful field (SRS per item), never last-writer-wins. (`src/utils/gameSync.ts`, stars per stage as a max, is not wired while the Game is disconnected.)
 - `src/utils/voiceSync.ts` — personal voice profile (IndexedDB). Union by template `key`; only calibration-screen takes sync.
 - `src/utils/leaderboard.ts` — public `leaderboard_entries` (world-readable, self-write). XP = lifetime correct-answer count, per instrument.
 - `src/utils/board.ts` — feedback board (self-read for authors, full read + moderate for admins).

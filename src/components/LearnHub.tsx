@@ -7,10 +7,8 @@
 // a lock and opens the upgrade page. Chords is still an inert "coming soon"
 // tile (premium-product-plan.md §9 P5–P7); the scales half of P5 has its own
 // live entry now (scales-learning-spec.md), and so does Staff reading
-// (staff-reading-spec.md) and Tab reading (tab-reading-spec.md). The Game tile is
-// the sole entry point into the Game layer, but only for dev/admin
-// (`showGame`) — everyone else
-// still sees it as "coming soon". The Tuner tile is a live entry point for
+// (staff-reading-spec.md) and Tab reading (tab-reading-spec.md). (The Game layer is disconnected
+// for now — see product-wishlist.md.) The Tuner tile is a live entry point for
 // everyone, on every tier — it's a generic utility (mic-based pitch
 // detection), not part of the adaptive Premium teaching system the other
 // domains belong to.
@@ -29,16 +27,12 @@ interface Props {
   canScales: boolean;
   canStaff: boolean;
   canTabs: boolean;
-  /** Dev/admin only: the Game tile is a live entry point, not "coming soon". */
-  showGame: boolean;
   /** Dev/admin only: render the inert "coming soon" roadmap tiles at all. */
   showRoadmap: boolean;
   /** Open the given domain (closes the drawer). */
   onPick: (d: LearnDomain) => void;
   /** A locked (Premium) tile was tapped — open the upgrade page. */
   onLocked: () => void;
-  /** The Game tile was tapped — open the Game layer (closes the drawer). */
-  onOpenGame: () => void;
   /** The Tuner tile was tapped — open the tuner screen (closes the drawer). */
   onOpenTuner: () => void;
 }
@@ -69,11 +63,9 @@ export default function LearnHub({
   canScales,
   canStaff,
   canTabs,
-  showGame,
   showRoadmap,
   onPick,
   onLocked,
-  onOpenGame,
   onOpenTuner,
 }: Props) {
   const { t } = useTranslation();
@@ -95,11 +87,6 @@ export default function LearnHub({
           { kind: 'soon', emoji: '🎹', label: 'Chords' },
         ] as SoonTile[])
       : []),
-    ...(showGame
-      ? [{ kind: 'action', emoji: '🎮', label: 'Game', onSelect: onOpenGame } as ActionTile]
-      : showRoadmap
-        ? [{ kind: 'soon', emoji: '🎮', label: 'Game' } as SoonTile]
-        : []),
   ];
 
   return (

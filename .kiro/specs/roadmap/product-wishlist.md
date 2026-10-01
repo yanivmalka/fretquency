@@ -57,6 +57,9 @@ A compressed, priority-ordered view of everything in this document that is **not
 - **Ads in Free** — undecided; current build has none.
 - Longer-horizon, explicitly parked/low-priority: named expertise tests, dedicated admin dashboard, public user profiles, a real social/friends layer, iOS port — see §4 for each item's product-decision note. (Additional string instruments — ukulele/mandolin/banjo — have since shipped, gated `pro` via `extraInstruments`; see §4's Built & Shipped note.)
 
+### E. Parked
+- **The Game layer (worlds / stages, `src/game/`) — disconnected from the app 2026-10-01 at the product owner's request ("not relevant now").** It was dev/admin-only. Unhooked: the Learn hub's Game tile (`LearnHub.tsx`), the full-screen `<GameFlow>` takeover in `App.tsx`, `gameOpen` / `gameBackRef` in `useAppNavigation` and the Back ladder (`useBackNavigation`), and the `gameProgress` cloud sync effect in `useCloudSync`. Everything under `src/game/`, `src/utils/gameProgress.ts` / `gameSync.ts`, the `check-game-*` scripts and the `user_game_progress` table are left in place, so bringing it back is re-adding those four hooks. Still used elsewhere and **not** Game-only: `src/game/stageResult.ts` + `models.ts` (Learning Path threshold math) and `src/game/useDrillHistorySink.ts` (the Practice interval drill's history sink).
+
 ---
 
 ## 1. Fix Now

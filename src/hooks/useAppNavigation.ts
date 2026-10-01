@@ -60,16 +60,9 @@ export function useAppNavigation({
   const [activeDomain, setActiveDomain] = useState<LearnDomain>('notes');
   // Which settings sub-page is open inside the drawer; null = the list of titles.
   const [drawerSection, setDrawerSection] = useState<string | null>(() => initialView?.section ?? null);
-  // F.1 Game wiring spike: a single flag that swaps the whole screen for the
-  // self-contained <GameFlow>. Not persisted to gfp_view yet — the spike
-  // always re-enters from the home button.
-  const [gameOpen, setGameOpen] = useState(false);
-  // Populated by <GameFlow> with its "step one level back" action, so the
-  // Android hardware Back button can walk the Game's own screens.
-  const gameBackRef = useRef<(() => void) | null>(null);
   // The Tuner is a single-screen full-page takeover (no sub-screens of its
-  // own, unlike the Game), so it needs no backRef — Back just closes it.
-  // Not persisted to gfp_view, same as gameOpen.
+  // own), so it needs no backRef — Back just closes it. Not persisted to
+  // gfp_view.
   const [tunerOpen, setTunerOpen] = useState(false);
   // The `upgrade` (Pro) sub-page is reachable both from the Account tab's plan
   // tile and from any locked <ProGate> in the app (via registerUpgradeHandler,
@@ -245,12 +238,10 @@ export function useAppNavigation({
     settingsOpen, setSettingsOpen,
     activeDomain, setActiveDomain,
     drawerSection, setDrawerSection,
-    gameOpen, setGameOpen,
     tunerOpen, setTunerOpen,
     micPrompt, setMicPrompt,
     showInfo, setShowInfo,
     infoAutoShown, setInfoAutoShown,
-    gameBackRef,
     upgradeFromAccountRef,
     askForMic, grantMic, openInfo,
   };

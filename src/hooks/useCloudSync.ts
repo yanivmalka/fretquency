@@ -7,10 +7,6 @@ import { bootstrapBadges, syncedBadgesUser, clearSyncedBadgesUser, cloudPushBadg
 import {
   bootstrapLearning, syncedLearningUser, clearSyncedLearningUser, clearLocalLearningState, cloudPushLearning,
 } from '../learning/learningSync';
-import {
-  bootstrapGameProgress, syncedGameProgressUser, clearSyncedGameProgressUser,
-  clearLocalGameProgress, cloudPushGameProgress,
-} from '../utils/gameSync';
 import { loadAllBests, writeAllBests } from '../utils/personalBest';
 import { flattenHistory } from '../utils/mastery';
 import { getActiveProfile, setActiveProfile, recomputeReady } from '../utils/voiceProfile';
@@ -126,7 +122,7 @@ export function useCloudSync({ auth, historyOps, bumpVoiceEngineEpoch }: Params)
   //
   // This runs on every sign-in / app start, not just the first bootstrap on a
   // device: `bootstrapSettings` is an idempotent pull→adopt-or-push reconcile
-  // (same cadence as the history / badges / learning / game effects), so a
+  // (same cadence as the history / badges / learning effects), so a
   // settings change made on another device — e.g. enabling Quick Access or
   // pinning a shortcut — reaches this device on its next start without a
   // sign-out/in.
@@ -181,28 +177,6 @@ export function useCloudSync({ auth, historyOps, bumpVoiceEngineEpoch }: Params)
     void (async () => {
       try {
         await bootstrapLearning(user.id);
-      } catch {
-        /* offline or transient error — retried on next sign-in / app start */
-      }
-    })();
-  }, [auth.user]);
-
-  // Game progression (World → Stage stars + "continue" pointer): pull / merge
-  // / push the `gameProgress` row on sign-in / app start, same cadence as
-  // badgeSync. The merge is a per-stage max on `bestStars` (never last-writer),
-  // so a star earned on another device is never discarded; gameSync fires a
-  // `game-progress-synced` event when the local record changes, which a
-  // mounted GameFlow re-reads on.
-  useEffect(() => {
-    const user = auth.user;
-    // Signed out: drop this device's Game progress so it cannot be merged
-    // (max-merged, so it would inflate ratings) into the next account's cloud
-    // row on a shared device.
-    if (!user) { clearSyncedGameProgressUser(); clearLocalGameProgress(); return; }
-    if (syncedGameProgressUser() === user.id) { cloudPushGameProgress(); return; }
-    void (async () => {
-      try {
-        await bootstrapGameProgress(user.id);
       } catch {
         /* offline or transient error — retried on next sign-in / app start */
       }
@@ -277,7 +251,6 @@ export function useCloudSync({ auth, historyOps, bumpVoiceEngineEpoch }: Params)
         } catch { cloudPushSettings(); }
         cloudPushBadges();
         cloudPushLearning();
-        cloudPushGameProgress();
       })();
     };
     window.addEventListener('online', onOnline);

@@ -48,7 +48,6 @@ import { useSelector, type DerivedSettings } from './hooks/useSelector';
 import { useDerivedNotes } from './hooks/useDerivedNotes';
 import { useDrillSession } from './hooks/useDrillSession';
 import { deriveDrillConfig, type DrillConfig } from './drill/DrillConfig';
-import GameFlow from './game/GameFlow';
 import LearningPathScreen from './components/LearningPathScreen';
 import DailyPracticeScreen from './components/DailyPracticeScreen';
 import IntervalPracticeScreen from './components/IntervalPracticeScreen';
@@ -600,9 +599,9 @@ export default function App() {
   const nav = useAppNavigation({ signInPromptSeen, dismissSignInPrompt, hasAnyHistory, voice });
   const {
     showStats, setShowStats, showPath, setShowPath, settingsOpen, setSettingsOpen,
-    activeDomain, setActiveDomain, drawerSection, setDrawerSection, gameOpen, setGameOpen,
+    activeDomain, setActiveDomain, drawerSection, setDrawerSection,
     tunerOpen, setTunerOpen,
-    micPrompt, setMicPrompt, showInfo, gameBackRef, upgradeFromAccountRef,
+    micPrompt, setMicPrompt, showInfo, upgradeFromAccountRef,
     askForMic, grantMic, openInfo,
   } = nav;
 
@@ -791,7 +790,6 @@ export default function App() {
           canScales={can('scaleDrill', auth.tier)}
           canStaff={can('staffReading', auth.tier)}
           canTabs={can('tabReading', auth.tier)}
-          showGame={import.meta.env.DEV || auth.admin}
           showRoadmap={import.meta.env.DEV || auth.admin}
           onPick={(d) => {
             setActiveDomain(d);
@@ -803,13 +801,6 @@ export default function App() {
           onLocked={() => {
             upgradeFromAccountRef.current = false;
             setDrawerSection('upgrade');
-          }}
-          onOpenGame={() => {
-            setShowStats(false);
-            setShowPath(false);
-            setSettingsOpen(false);
-            setDrawerSection(null);
-            setGameOpen(true);
           }}
           onOpenTuner={() => {
             setShowStats(false);
@@ -1044,13 +1035,7 @@ export default function App() {
     />
   );
 
-  // F.1 spike: the Game is a full-screen takeover, mounted as its own
-  // self-contained component so App gains no Game state beyond `gameOpen`.
-  if (gameOpen) {
-    return <GameFlow onExit={() => setGameOpen(false)} backRef={gameBackRef} />;
-  }
-
-  // The Tuner is likewise a self-contained full-screen takeover — it owns
+  // The Tuner is a self-contained full-screen takeover — it owns
   // its own mic/pitch-detection state (src/tuner/useTuner.ts) entirely.
   if (tunerOpen) {
     return <TunerScreen onClose={() => setTunerOpen(false)} />;
@@ -1339,9 +1324,6 @@ export default function App() {
         && renderQuickAccess()}
 
       <h1>{instrument.emoji} {t(instrument.label)} {t('Fret Practice')}</h1>
-
-      {/* The Game layer's only entry point is the "Game" tile on the drawer's
-          "Learn" page (<LearnHub>, dev/admin only) — no home-screen button. */}
 
       {/* The Premium Teacher's Today card and the interval-drill entry now
           live on their own learning-type tabs (drawer "Learn" group →

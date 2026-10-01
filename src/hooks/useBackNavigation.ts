@@ -21,7 +21,7 @@ export interface UseBackNavigationParams {
  * A27 — "Back keeps you inside the app". Android's hardware Back / back-gesture
  * (via @capacitor/app) and the browser's Back button (via a History API
  * sentinel entry) both run the same ladder — close a popup, step back through
- * Settings, leave Stats, back out of the Game, stop a running round — instead
+ * Settings, leave Stats, close the Tuner, stop a running round — instead
  * of dropping straight out of the app. Only on the bare home screen with
  * nothing left to undo does a second Back within 2s actually leave.
  *
@@ -42,7 +42,7 @@ export function useBackNavigation({
     micPrompt, setMicPrompt, showInfo, setShowInfo,
     settingsOpen, setSettingsOpen, drawerSection, setDrawerSection,
     showStats, setShowStats, showPath, setShowPath,
-    activeDomain, setActiveDomain, gameOpen, gameBackRef, upgradeFromAccountRef,
+    activeDomain, setActiveDomain, upgradeFromAccountRef,
     tunerOpen, setTunerOpen,
   } = nav;
 
@@ -51,12 +51,12 @@ export function useBackNavigation({
   // listeners (bound once) always see current values without re-subscribing.
   const backNav = useRef({
     micPrompt, showInfo, revealBadges, signInPromptOpen, settingsOpen, drawerSection,
-    showStats, showPath, activeDomain, gameOpen, tunerOpen, running, paused, stop,
+    showStats, showPath, activeDomain, tunerOpen, running, paused, stop,
   });
   useEffect(() => {
     backNav.current = {
       micPrompt, showInfo, revealBadges, signInPromptOpen, settingsOpen, drawerSection,
-      showStats, showPath, activeDomain, gameOpen, tunerOpen, running, paused, stop,
+      showStats, showPath, activeDomain, tunerOpen, running, paused, stop,
     };
   });
   useEffect(() => {
@@ -89,7 +89,6 @@ export function useBackNavigation({
         setDrawerSection('learn');
         return true;
       }
-      if (s.gameOpen) { gameBackRef.current?.(); return true; }
       if (s.tunerOpen) { setTunerOpen(false); return true; }
       if (s.running || s.paused) { s.stop(); return true; }
       return false;
