@@ -410,12 +410,19 @@ interface NativePlugin {
   ): Promise<{ remove: () => void }> | { remove: () => void };
 }
 
-async function loadNativePlugin(): Promise<NativePlugin | null> {
+// The plugin object is a Capacitor proxy that answers *every* property —
+// `then` included — so it looks like a Promise. Resolving a Promise with it
+// (returning it from an async function, awaiting it) calls `proxy.then()` as
+// a native method that doesn't exist, and that await never settles: every
+// permission check / request / start hung, so the mic card's "Allow" did
+// nothing. Always pass it around inside this box.
+interface NativePluginBox { plugin: NativePlugin }
+
+async function loadNativePlugin(): Promise<NativePluginBox | null> {
   try {
     const mod = await import('@capacitor-community/speech-recognition');
-    return (
-      (mod as unknown as { SpeechRecognition?: NativePlugin }).SpeechRecognition ?? null
-    );
+    const plugin = (mod as unknown as { SpeechRecognition?: NativePlugin }).SpeechRecognition;
+    return plugin ? { plugin } : null;
   } catch {
     return null;
   }
@@ -427,9 +434,9 @@ class NativeSpeechEngine implements SpeechEngine {
   private listener: { remove: () => void } | null = null;
   private turn = 0;
 
-  private async getPlugin(): Promise<NativePlugin | null> {
-    if (!this.plugin) this.plugin = await loadNativePlugin();
-    return this.plugin;
+  private async getPlugin(): Promise<NativePluginBox | null> {
+    if (!this.plugin) this.plugin = (await loadNativePlugin())?.plugin ?? null;
+    return this.plugin ? { plugin: this.plugin } : null;
   }
 
   isSupported(): boolean {
@@ -438,8 +445,9 @@ class NativeSpeechEngine implements SpeechEngine {
   }
 
   async checkPermission(): Promise<MicPermissionState> {
-    const p = await this.getPlugin();
-    if (!p) return 'unknown';
+    const box = await this.getPlugin();
+    if (!box) return 'unknown';
+    const p = box.plugin;
     try {
       if (p.checkPermissions) {
         const r = await p.checkPermissions();
@@ -458,8 +466,9 @@ class NativeSpeechEngine implements SpeechEngine {
   }
 
   async requestPermission(): Promise<boolean> {
-    const p = await this.getPlugin();
-    if (!p) return false;
+    const box = await this.getPlugin();
+    if (!box) return false;
+    const p = box.plugin;
     try {
       if (p.requestPermissions) {
         const r = await p.requestPermissions();
@@ -477,8 +486,9 @@ class NativeSpeechEngine implements SpeechEngine {
   }
 
   async start(opts: SpeechListenOptions): Promise<void> {
-    const p = await this.getPlugin();
-    if (!p) { opts.onError('not-supported'); return; }
+    const box = await this.getPlugin();
+    if (!box) { opts.onError('not-supported'); return; }
+    const p = box.plugin;
     try {
       const avail = await p.available();
       if (!avail.available) { opts.onError('not-supported'); return; }
