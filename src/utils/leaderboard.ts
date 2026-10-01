@@ -10,14 +10,19 @@
 import { supabase } from './supabase';
 import type { HistoryEntry } from './music';
 
+export type LeaderboardScope = 'allTime' | 'thisWeek';
+
+const WEEKLY_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
 export interface LeaderboardRow {
   userId: string;
   displayName: string;
   xp: number;
+  weeklyXp: number;
   questions: number;
   accuracy: number; // 0-100
   updatedAt: string;
-  /** 1-based position in the returned, xp-sorted list. */
+  /** 1-based position in the returned list, ranked by the requested scope. */
   rank: number;
   /** True when this row belongs to the signed-in viewer. */
   mine: boolean;
@@ -27,6 +32,7 @@ interface EntryRow {
   user_id: string;
   display_name: string;
   xp: number;
+  weekly_xp: number;
   questions: number;
   accuracy: number;
   updated_at: string;
@@ -34,6 +40,7 @@ interface EntryRow {
 
 export interface MyStats {
   xp: number;
+  weeklyXp: number;
   questions: number;
   accuracy: number; // 0-100
 }
@@ -42,13 +49,23 @@ export interface MyStats {
  * A player's leaderboard figures, derived from their instrument-scoped
  * practice history. XP is simply the count of correct answers — one point
  * each, difficulty-agnostic, so the number is transparent and matches what
- * the Stats screen already shows as lifetime totals.
+ * the Stats screen already shows as lifetime totals. `weeklyXp` is the same
+ * count restricted to a trailing 7-day window (rolling, not calendar-week),
+ * recomputed from local/synced history each time it's pushed — same
+ * best-effort, refresh-on-open cadence as the all-time figure. Legacy rows
+ * with no `createdAt` (pre-dating that field) can't be dated, so they're
+ * excluded from the weekly count, same precedent as the day-based badges.
  */
 export function computeMyStats(instrumentEntries: HistoryEntry[]): MyStats {
   const questions = instrumentEntries.length;
   const correct = instrumentEntries.filter((e) => e.correct === true).length;
+  const cutoff = Date.now() - WEEKLY_WINDOW_MS;
+  const weeklyXp = instrumentEntries.filter(
+    (e) => e.correct === true && e.createdAt && Date.parse(e.createdAt) >= cutoff,
+  ).length;
   return {
     xp: correct,
+    weeklyXp,
     questions,
     accuracy: questions > 0 ? Math.round((correct / questions) * 100) : 0,
   };
@@ -74,14 +91,16 @@ export function leaderboardName(
 export async function fetchLeaderboard(
   instrument: string,
   viewerId: string | null,
+  scope: LeaderboardScope = 'allTime',
   limit = 100,
 ): Promise<LeaderboardRow[]> {
   if (!supabase) return [];
+  const rankField = scope === 'thisWeek' ? 'weekly_xp' : 'xp';
   const { data, error } = await supabase
     .from('leaderboard_entries')
-    .select('user_id, display_name, xp, questions, accuracy, updated_at')
+    .select('user_id, display_name, xp, weekly_xp, questions, accuracy, updated_at')
     .eq('instrument', instrument)
-    .order('xp', { ascending: false })
+    .order(rankField, { ascending: false })
     .order('updated_at', { ascending: true })
     .limit(limit);
   if (error) throw error;
@@ -91,6 +110,7 @@ export async function fetchLeaderboard(
       userId: row.user_id,
       displayName: row.display_name,
       xp: row.xp,
+      weeklyXp: row.weekly_xp,
       questions: row.questions,
       accuracy: row.accuracy,
       updatedAt: row.updated_at,
@@ -114,6 +134,7 @@ export async function upsertMyEntry(
       instrument,
       display_name: displayName,
       xp: stats.xp,
+      weekly_xp: stats.weeklyXp,
       questions: stats.questions,
       accuracy: stats.accuracy,
       updated_at: new Date().toISOString(),

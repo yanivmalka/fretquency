@@ -70,92 +70,90 @@ export default function TunerScreen({ onClose }: Props) {
         <div className="settings-page-body tn-body">
           <p className="set-card-help">{t('Tune your strings using the microphone.')}</p>
 
-          {status === 'idle' && (
-            <button className="tn-btn tn-btn-primary" onClick={() => void start()}>
-              {t('Start listening')}
-            </button>
-          )}
-          {status === 'requesting' && <p className="tn-status">{t('Requesting microphone permission…')}</p>}
-          {status === 'denied' && (
-            <div className="tn-status">
-              <p>{t('Microphone access was denied. Allow it in your browser settings, then try again.')}</p>
-              <button className="tn-btn tn-btn-primary" onClick={() => void start()}>{t('Try again')}</button>
-            </div>
-          )}
-          {status === 'error' && (
-            <div className="tn-status">
-              <p>{t("Couldn't start the microphone.")}</p>
-              <button className="tn-btn tn-btn-primary" onClick={() => void start()}>{t('Try again')}</button>
-            </div>
-          )}
+          <div className="tn-live">
+            <p className="tn-hint">
+              {t("Tap a note on the wheel to lock it as the string you're tuning. Tap it again to switch back to auto-detect.")}
+            </p>
 
-          {status === 'listening' && (
-            <div className="tn-live">
-              <p className="tn-hint">
-                {t("Tap a note on the wheel to lock it as the string you're tuning. Tap it again to switch back to auto-detect.")}
-              </p>
-
-              {targetNote && (
-                <div className="tn-target-line">
-                  {pinnedNote ? t('Tuning') : t('Detected')}: <strong>{targetNote}</strong>
-                  {stringNumbers && (
-                    <>
-                      {' — '}
-                      {t('String {n}').replace('{n}', stringNumbers.join(` ${t('or')} `))}
-                    </>
-                  )}
-                  {pinnedNote && (
-                    <button className="tn-unpin" onClick={() => { playClickSound(); haptic.tap(); setPinnedNote(null); }}>
-                      {t('Unpin')}
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <div className="tn-wheel-wrap">
-                <NoteWheel
-                  targetNote={targetNote}
-                  pinnedNote={pinnedNote}
-                  cents={cents}
-                  onSelectNote={handleSelectNote}
-                  pinLabel={t("Tap to lock this note at 12 o'clock")}
-                  unpinLabel={t('Tap to unpin')}
-                />
+            {targetNote && (
+              <div className="tn-target-line">
+                {pinnedNote ? t('Tuning') : t('Detected')}: <strong>{targetNote}</strong>
+                {stringNumbers && (
+                  <>
+                    {' — '}
+                    {t('String {n}').replace('{n}', stringNumbers.join(` ${t('or')} `))}
+                  </>
+                )}
+                {pinnedNote && (
+                  <button className="tn-unpin" onClick={() => { playClickSound(); haptic.tap(); setPinnedNote(null); }}>
+                    {t('Unpin')}
+                  </button>
+                )}
               </div>
+            )}
 
-              {reading ? (
-                <div className="tn-readout">
-                  <div className="tn-readout-note">
-                    {reading.note.name}
-                    <sub>{reading.note.octave}</sub>
-                  </div>
-                  <div className="tn-readout-hz">{reading.frequency.toFixed(1)} Hz</div>
-                  {cents !== null && zone && (
-                    <div className="tn-readout-cents" style={{ color: zoneColor(zone) }}>
-                      {cents > 0 ? '+' : ''}
-                      {cents}¢
-                      {' — '}
-                      {isInTune(cents)
-                        ? t('In tune')
-                        : cents < 0 ? t('Tighten (raise pitch)') : t('Loosen (lower pitch)')}
-                      {(zone === 'noticeable' || zone === 'off') && (
-                        <span className="tn-readout-pct">
-                          {' · '}
-                          {t('~{pct}% of the audible threshold').replace('{pct}', String(audibleErrorPercent(cents)))}
-                        </span>
-                      )}
-                    </div>
-                  )}
+            <div className="tn-wheel-wrap">
+              <NoteWheel
+                targetNote={targetNote}
+                pinnedNote={pinnedNote}
+                cents={cents}
+                onSelectNote={handleSelectNote}
+                pinLabel={t("Tap to lock this note at 12 o'clock")}
+                unpinLabel={t('Tap to unpin')}
+              />
+            </div>
+
+            {reading && (
+              <div className="tn-readout">
+                <div className="tn-readout-note">
+                  {reading.note.name}
+                  <sub>{reading.note.octave}</sub>
                 </div>
-              ) : (
-                <p className="tn-status">{t('Listening… play a note.')}</p>
-              )}
+                <div className="tn-readout-hz">{reading.frequency.toFixed(1)} Hz</div>
+                {cents !== null && zone && (
+                  <div className="tn-readout-cents" style={{ color: zoneColor(zone) }}>
+                    {cents > 0 ? '+' : ''}
+                    {cents}¢
+                    {' — '}
+                    {isInTune(cents)
+                      ? t('In tune')
+                      : cents < 0 ? t('Tighten (raise pitch)') : t('Loosen (lower pitch)')}
+                    {(zone === 'noticeable' || zone === 'off') && (
+                      <span className="tn-readout-pct">
+                        {' · '}
+                        {t('~{pct}% of the audible threshold').replace('{pct}', String(audibleErrorPercent(cents)))}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
+            {status === 'idle' && (
+              <button className="tn-btn tn-btn-primary" onClick={() => void start()}>
+                {t('Start listening')}
+              </button>
+            )}
+            {status === 'requesting' && <p className="tn-status">{t('Requesting microphone permission…')}</p>}
+            {status === 'denied' && (
+              <div className="tn-status">
+                <p>{t('Microphone access was denied. Allow it in your browser settings, then try again.')}</p>
+                <button className="tn-btn tn-btn-primary" onClick={() => void start()}>{t('Try again')}</button>
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="tn-status">
+                <p>{t("Couldn't start the microphone.")}</p>
+                <button className="tn-btn tn-btn-primary" onClick={() => void start()}>{t('Try again')}</button>
+              </div>
+            )}
+            {status === 'listening' && !reading && <p className="tn-status">{t('Listening… play a note.')}</p>}
+            {status === 'listening' && (
               <button className="tn-btn tn-btn-ghost" onClick={() => { playClickSound(); haptic.tap(); stop(); }}>
                 {t('Stop')}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

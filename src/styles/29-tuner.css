@@ -104,3 +104,20 @@
   font-weight: 400;
   color: var(--text-2);
 }
+
+/* ── Tuning scale (src/tuner/TunerCompass.tsx) ───────────────────────────
+   A quiet faint track + ticks mark the needle's full range; the only
+   accent is a small dot at dead center that hops in place — a little
+   spring-loaded "got it!" bounce — while the needle is actually resting
+   on it. */
+.tn-compass-perfect-active {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tn-compass-perfect-pop 700ms cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+@keyframes tn-compass-perfect-pop {
+  0% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 0 transparent); }
+  30% { transform: scale(1.8) translateY(-3px); filter: drop-shadow(0 0 6px var(--success)); }
+  55% { transform: scale(0.9) translateY(1px); filter: drop-shadow(0 0 2px var(--success)); }
+  100% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 0 transparent); }
+}

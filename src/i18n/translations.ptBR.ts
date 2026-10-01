@@ -501,6 +501,9 @@ export const ptBR: Record<string, string> = {
   'unlocked': 'desbloqueadas',
   'Max': 'Máx.',
   'Earned': 'Conquistada',
+  // Player profile card (leaderboard)
+  'Achievements': 'Conquistas',
+  'No badges earned yet.': 'Ainda nenhum emblema conquistado.',
   // Admin test controls
   'Grant': 'Conceder',
   'Reset': 'Redefinir',

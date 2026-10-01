@@ -186,6 +186,10 @@ export function useGameEngine(
   const timerRef = useRef<number | null>(null);
   const countdownRef = useRef<number | null>(null);
   const runningRef = useRef(false);
+  // Whether the run now ending reached its last question on its own, as
+  // opposed to a manual Stop — read once, right when `running` falls to
+  // false, by the caller that decides what the end-of-round card says.
+  const completedNaturallyRef = useRef(false);
   const pausedRef = useRef(false);
   const countRef = useRef(0);
   const answeredRef = useRef(false);
@@ -472,6 +476,7 @@ export function useGameEngine(
     if (!runningRef.current || countRef.current >= maxQuestionsRef.current) {
       const completedNaturally = runningRef.current && countRef.current >= maxQuestionsRef.current;
       setRunning(false); runningRef.current = false;
+      completedNaturallyRef.current = completedNaturally;
       if (completedNaturally) { noteRoundEnded(); onComplete?.(); }
       return;
     }
@@ -681,6 +686,7 @@ export function useGameEngine(
     if (!runningRef.current || countRef.current >= maxQuestionsRef.current) {
       const completedNaturally = runningRef.current && countRef.current >= maxQuestionsRef.current;
       setRunning(false); runningRef.current = false;
+      completedNaturallyRef.current = completedNaturally;
       if (completedNaturally) { noteRoundEnded(); onComplete?.(); }
       return;
     }
@@ -870,6 +876,7 @@ export function useGameEngine(
     setPaused(false);
     runningRef.current = true;
     pausedRef.current = false;
+    completedNaturallyRef.current = false;
     countRef.current = 0;
     setQuestionNumber(0);
     coveragePoolRef.current = [];
@@ -902,6 +909,7 @@ export function useGameEngine(
     advanceMetaRef.current = null;
     runningRef.current = false;
     pausedRef.current = false;
+    completedNaturallyRef.current = false;
     answeredRef.current = true; // prevent any pending callbacks
     setRunning(false);
     setPaused(false);
@@ -970,6 +978,10 @@ export function useGameEngine(
     running, paused, currentFret, currentNote, askedFret, remaining, feedback,
     correctCofNote, wrongCofNote, wrongInterval, answered, remainingFrets, foundFrets, wrongFret,
     questionTime, questionStart, questionSeq, questionNumber, intervalPrompt,
+    // Whether the run that just stopped (running just went true → false)
+    // reached its last question on its own, vs. a manual Stop — read at
+    // that moment, before the next start() resets it.
+    completedNaturally: completedNaturallyRef.current,
     // actions
     start, stop, pause, resume, selectFret, selectAnswer,
     selectInterval, replayIntervalQuestion,

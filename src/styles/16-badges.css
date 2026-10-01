@@ -26,7 +26,7 @@
   gap: 9px;
   padding: 14px 16px;
   border-radius: 14px;
-  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  background: var(--tile-shade), var(--bg-2);
   border: 1px solid var(--surface-border);
 }
 .badge-collection-top {
@@ -93,7 +93,7 @@
   padding: 13px 10px 11px;
   border-radius: 14px;
   text-align: center;
-  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  background: var(--tile-shade), var(--bg-2);
   border: 1px solid var(--surface-border);
   overflow: hidden;
 }
@@ -229,7 +229,7 @@
   box-shadow: 0 0 0 1px rgba(255, 236, 179, 0.44), 0 0 30px -2px rgba(240, 201, 74, 0.65), 0 10px 32px -10px rgba(240, 201, 74, 0.65);
 }
 .badge-tile.locked {
-  background: var(--bg-1);
+  background: var(--tile-shade), var(--bg-1);
   border-style: dashed;
   border-color: var(--border-soft);
 }
@@ -633,7 +633,7 @@
   padding: 10px 12px;
   font: inherit;
   color: var(--text-0);
-  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  background: var(--tile-shade), var(--bg-2);
   border: 1px solid var(--surface-border);
   border-radius: 14px;
   cursor: pointer;
@@ -680,7 +680,7 @@
   flex-direction: column;
   gap: 14px;
   padding: 18px;
-  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  background: var(--tile-shade), var(--bg-1);
   border: 1px solid var(--surface-border);
   border-radius: 18px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
@@ -714,7 +714,7 @@
   align-items: center;
   justify-content: center;
   padding: 8px;
-  background: var(--bg-3);
+  background: var(--tile-shade), var(--bg-3);
   border: 1px solid var(--surface-border);
   border-radius: 12px;
   cursor: pointer;

@@ -1,6 +1,14 @@
 -- Interval Learning: a separate daily goal + a capped answer history
 -- (intervals-learning-spec.md §14 / §15.2 / §17, decisions OD-5 and OD-6).
 --
+-- Numbered 0021 (after 0020), not 0015, even though it documents a change
+-- from the 0015 era: this file originally shared the "0015" prefix with
+-- 0015_user_game_progress.sql, which the Supabase CLI's migration history
+-- (a numeric `version` column) can't track two ways. Since this file is
+-- doc-only — nothing below actually runs — moving it to a free slot was the
+-- safe fix; it carries no schema change and was already live in production
+-- under the 0015 numbering when this rename happened.
+--
 -- NO DDL. Both new fields live inside the SAME per-user JSONB blob that
 -- 0012_user_learning_state.sql created (public.user_learning_state.data),
 -- alongside the note SRS schedule + daily goal (0012), the Learning Path

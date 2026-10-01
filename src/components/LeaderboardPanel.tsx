@@ -12,7 +12,9 @@ import {
   computeMyStats,
   leaderboardName,
   type LeaderboardRow,
+  type LeaderboardScope,
 } from '../utils/leaderboard';
+import { PlayerProfileCard } from './PlayerProfileCard';
 
 /**
  * The leaderboard, rendered as a hamburger settings sub-page (the wrapper in
@@ -63,10 +65,18 @@ export function LeaderboardPanel({
 }) {
   const { t, lang } = useTranslation();
   const [view, setView] = useState<InstrumentId>(activeInstrumentId);
+  const [scope, setScope] = useState<LeaderboardScope>('allTime');
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [xpOpen, setXpOpen] = useState(false);
+  const [profileRow, setProfileRow] = useState<LeaderboardRow | null>(null);
+
+  const openProfile = (r: LeaderboardRow) => {
+    playClickSound();
+    haptic.tap();
+    setProfileRow(r);
+  };
 
   const instrument = getInstrument(view);
   const userId = user?.id ?? null;
@@ -90,7 +100,7 @@ export function LeaderboardPanel({
             await upsertMyEntry(userId, view, myName, myStats);
           } catch { /* keep going — show whatever is on the board */ }
         }
-        const list = await fetchLeaderboard(view, userId);
+        const list = await fetchLeaderboard(view, userId, scope);
         if (alive) setRows(list);
       } catch {
         if (alive) setError(t('Couldn’t load the leaderboard. Check your connection and try again.'));
@@ -101,7 +111,7 @@ export function LeaderboardPanel({
     return () => { alive = false; };
     // myStats / myName are snapshots captured at open; intentionally not deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, userId]);
+  }, [view, userId, scope]);
 
   const switchView = (next: InstrumentId) => {
     if (next === view) return;
@@ -110,6 +120,14 @@ export function LeaderboardPanel({
     setView(next);
   };
 
+  const switchScope = (next: LeaderboardScope) => {
+    if (next === scope) return;
+    playClickSound();
+    haptic.tap();
+    setScope(next);
+  };
+
+  const xpOf = (r: LeaderboardRow) => (scope === 'thisWeek' ? r.weeklyXp : r.xp);
   const mine = rows.find((r) => r.mine);
   const podium = rows.length >= 3 ? rows.slice(0, 3) : [];
   const listRows = podium.length ? rows.slice(3) : rows;
@@ -138,8 +156,16 @@ export function LeaderboardPanel({
         ))}
       </div>
       <div className="sp2-scope lb-scope">
-        <button className="sp2-scope-btn sp2-scope-active">{t('All-time')}</button>
-        <button className="sp2-scope-btn lb-scope-soon" disabled title={t('Coming soon')}>
+        <button
+          className={`sp2-scope-btn${scope === 'allTime' ? ' sp2-scope-active' : ''}`}
+          onClick={() => switchScope('allTime')}
+        >
+          {t('All-time')}
+        </button>
+        <button
+          className={`sp2-scope-btn${scope === 'thisWeek' ? ' sp2-scope-active' : ''}`}
+          onClick={() => switchScope('thisWeek')}
+        >
           {t('This week')}
         </button>
       </div>
@@ -161,7 +187,9 @@ export function LeaderboardPanel({
           </div>
         </div>
         <div className="lb-standing-xp">
-          <div className="lb-standing-xp-n">{myStats.xp.toLocaleString()}</div>
+          <div className="lb-standing-xp-n">
+            {(scope === 'thisWeek' ? myStats.weeklyXp : myStats.xp).toLocaleString()}
+          </div>
           <div className="lb-standing-xp-l">XP</div>
         </div>
       </div>
@@ -191,9 +219,11 @@ export function LeaderboardPanel({
   const podiumBlock = podium.length === 3 && (
     <div className="lb-podium">
       {[podium[1], podium[0], podium[2]].map((r) => (
-        <div
+        <button
           key={r.userId}
+          type="button"
           className={`lb-pod lb-pod-${r.rank}${r.mine ? ' lb-pod-me' : ''}`}
+          onClick={() => openProfile(r)}
         >
           <div className="lb-pod-av" style={{ background: medalColor(r.rank) }}>
             {initialOf(r.displayName)}
@@ -203,9 +233,9 @@ export function LeaderboardPanel({
             <span>{r.rank}</span>
           </div>
           <div className="lb-pod-name">{r.displayName}</div>
-          <div className="lb-pod-xp">{r.xp.toLocaleString()}</div>
+          <div className="lb-pod-xp">{xpOf(r).toLocaleString()}</div>
           <div className="lb-pod-acc">{r.accuracy}% {t('acc')}</div>
-        </div>
+        </button>
       ))}
     </div>
   );
@@ -214,18 +244,20 @@ export function LeaderboardPanel({
     <ol className="lb-list">
       {listRows.map((r) => (
         <li key={r.userId} className={`lb-item${r.mine ? ' lb-item-me' : ''}`}>
-          <span className="lb-rk" style={r.rank <= 3 ? { color: medalColor(r.rank) } : undefined}>
-            {r.rank}
-          </span>
-          <span className="lb-av">{initialOf(r.displayName)}</span>
-          <span className="lb-name">
-            {r.displayName}
-            {r.mine && <span className="lb-you"> {t('(you)')}</span>}
-          </span>
-          <span className="lb-stat">
-            <span className="lb-xp">{r.xp.toLocaleString()}</span>
-            <span className="lb-acc">{r.accuracy}% {t('acc')}</span>
-          </span>
+          <button type="button" className="lb-item-btn" onClick={() => openProfile(r)}>
+            <span className="lb-rk" style={r.rank <= 3 ? { color: medalColor(r.rank) } : undefined}>
+              {r.rank}
+            </span>
+            <span className="lb-av">{initialOf(r.displayName)}</span>
+            <span className="lb-name">
+              {r.displayName}
+              {r.mine && <span className="lb-you"> {t('(you)')}</span>}
+            </span>
+            <span className="lb-stat">
+              <span className="lb-xp">{xpOf(r).toLocaleString()}</span>
+              <span className="lb-acc">{r.accuracy}% {t('acc')}</span>
+            </span>
+          </button>
         </li>
       ))}
     </ol>
@@ -324,6 +356,14 @@ export function LeaderboardPanel({
         </>
       )}
       {xpExplainer}
+      {profileRow && (
+        <PlayerProfileCard
+          row={profileRow}
+          scope={scope}
+          instrument={instrument}
+          onClose={() => setProfileRow(null)}
+        />
+      )}
     </div>
   );
 }

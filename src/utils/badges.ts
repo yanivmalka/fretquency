@@ -340,9 +340,25 @@ function isInstrumentScoped(id: BadgeId): boolean {
 // Level 1 (Bronze) keeps the exact key shape the pre-levels system used, so
 // every badge already earned transfers untouched as "Bronze earned" — no
 // migration. Silver/Gold/Platinum append `::{tier}` to that same base.
-function storeKey(id: BadgeId, instrumentId?: string, tier: Tier = 'bronze'): string {
+export function storeKey(id: BadgeId, instrumentId?: string, tier: Tier = 'bronze'): string {
   const base = isInstrumentScoped(id) && instrumentId ? `${id}@${instrumentId}` : id;
   return tier === 'bronze' ? base : `${base}::${tier}`;
+}
+
+// Pure, store-agnostic version of `earnedTier` — reads an arbitrary
+// `BadgeStore` (e.g. another player's, fetched from `user_badges`) instead of
+// this device's localStorage copy.
+export function earnedTierFrom(store: BadgeStore, id: BadgeId, instrumentId?: string): Tier | null {
+  let best: Tier | null = null;
+  for (const t of TIERS) {
+    if (storeKey(id, instrumentId, t) in store) best = t;
+  }
+  return best;
+}
+
+// Pure, store-agnostic version of `earnedAt`.
+export function earnedAtFrom(store: BadgeStore, id: BadgeId, instrumentId?: string, tier: Tier = 'bronze'): string | null {
+  return store[storeKey(id, instrumentId, tier)]?.earnedAt ?? null;
 }
 
 export function loadBadges(): BadgeStore {

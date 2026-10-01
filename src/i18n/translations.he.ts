@@ -412,6 +412,9 @@ export const he: Record<string, string> = {
   'unlocked': 'נפתחו',
   'Max': 'שיא',
   'Earned': 'הושג',
+  // Player profile card (leaderboard)
+  'Achievements': 'הישגים',
+  'No badges earned yet.': 'עדיין לא הושגו תגים.',
   // Admin test controls
   'Grant': 'הענק',
   'Reset': 'אפס',

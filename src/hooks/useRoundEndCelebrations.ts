@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction, type MutableRefObject } from 'react';
 import { celebrateTier3 } from '../utils/feedback';
 import { loadBest, saveBest } from '../utils/personalBest';
+import { suggestAdjustment } from '../utils/progress';
 import { historyForInstrument, flattenHistory } from '../utils/mastery';
+import type { StageStep } from '../utils/stageSequence';
 import { computeMyStats, leaderboardName, upsertMyEntry } from '../utils/leaderboard';
 import { mergeCelebrated } from '../utils/badgeCelebration';
 import {
@@ -18,10 +20,19 @@ import type { TeacherPlan } from '../learning/planner';
 import type { DrillConfig, SessionResult } from '../drill/DrillConfig';
 import type { HistoryEntry } from '../utils/music';
 
+/** What the end-of-round card offers as a one-tap "what's next". */
+export type RoundSuggestion =
+  | { kind: 'nextStage'; step: StageStep }
+  | { kind: 'exploreLearn' };
+
 interface Params {
   running: boolean;
   paused: boolean;
   pendingAutoAdvance: boolean;
+  /** Whether the run now ending reached its last question on its own, rather
+   *  than a manual Stop — read once when `running` falls to false, decides the
+   *  end-of-round card's title. */
+  completedNaturally: boolean;
   scoring: ReturnType<typeof useScoring>;
   selector: ReturnType<typeof useSelector>;
   sessionResult: SessionResult;
@@ -49,7 +60,7 @@ interface Params {
  * toast queue, PB guard) — called by `start()` and on a historyKey change.
  */
 export function useRoundEndCelebrations({
-  running, paused, pendingAutoAdvance, scoring, selector, sessionResult,
+  running, paused, pendingAutoAdvance, completedNaturally, scoring, selector, sessionResult,
   historyOps, instrument, showScore, histKey,
   wasTeacherRunRef, wasIntervalRunRef, teacherPlanRef, intervalPlanRef,
   auth, allHistoryEntries,
@@ -67,6 +78,13 @@ export function useRoundEndCelebrations({
   useEffect(() => { newBadgesRef.current = newBadges; }, [newBadges]);
   // Pending top-of-screen toasts (one shown at a time).
   const [toastQueue, setToastQueue] = useState<CelebratedBadge[]>([]);
+  // Whether the round the end-of-round card is about to describe reached its
+  // last question on its own — captured once when `gameEnded` is raised, so
+  // the card's title doesn't flip if `completedNaturally` changes afterward.
+  const [roundCompletedNaturally, setRoundCompletedNaturally] = useState(true);
+  // The "what's next" nudge the end-of-round card offers, or null when recent
+  // accuracy on this combination doesn't clear the bar.
+  const [suggestion, setSuggestion] = useState<RoundSuggestion | null>(null);
   // Last answered-question count a mid-game badge sweep ran at, so each answer
   // triggers at most one sweep. A per-run running id for celebrated badges.
   const midSweepCountRef = useRef(0);
@@ -81,6 +99,7 @@ export function useRoundEndCelebrations({
     midSweepCountRef.current = 0;
     setToastQueue([]);
     setRevealBadges([]);
+    setSuggestion(null);
   }, [wasTeacherRunRef, wasIntervalRunRef, setRevealBadges]);
 
   // Evaluate this run's session badges plus a retroactive pass over all-time
@@ -155,6 +174,21 @@ export function useRoundEndCelebrations({
   useEffect(() => {
     if (wasRunningRef.current && !running && !paused && scoring.session.questionsAnswered > 0 && !pendingAutoAdvance) {
       setGameEnded(true);
+      setRoundCompletedNaturally(completedNaturally);
+
+      // "What's next" nudge: only for a plain Selector run (never a fixed
+      // Teacher/interval plan, which doesn't live on the stage curriculum) that
+      // just posted strong recent accuracy on this exact combination. A stage
+      // to move into offers that stage; nothing left in the curriculum at this
+      // difficulty offers the Learn hub instead.
+      if (!wasTeacherRunRef.current && !wasIntervalRunRef.current
+        && suggestAdjustment(historyOps.getEntriesForKey(histKey)) === 'harder') {
+        const next = selector.nextStage();
+        setSuggestion(next ? { kind: 'nextStage', step: next } : { kind: 'exploreLearn' });
+      } else {
+        setSuggestion(null);
+      }
+
       // A Teacher / interval session stays armed after the round so pressing
       // Play runs another plan question instead of falling back to the
       // Selector's note drill. Both plans are torn down when the user actually
@@ -202,7 +236,7 @@ export function useRoundEndCelebrations({
       }
     }
     wasRunningRef.current = running;
-  }, [running, paused, pendingAutoAdvance, scoring.session.questionsAnswered, scoring.session.score, scoring.session.longestStreak, sessionResult, histKey, historyOps.allHistory, instrument, selector.state.difficulty, selector.state.autoAdvance, showScore, sweepBadges]);
+  }, [running, paused, pendingAutoAdvance, completedNaturally, scoring.session.questionsAnswered, scoring.session.score, scoring.session.longestStreak, sessionResult, histKey, historyOps.allHistory, historyOps.getEntriesForKey, instrument, selector, showScore, sweepBadges]);
 
   // Push the signed-in player's leaderboard row after each completed run.
   useEffect(() => {
@@ -220,5 +254,8 @@ export function useRoundEndCelebrations({
     );
   }, [gameEnded, auth.user, auth.profile, instrument.id, allHistoryEntries]);
 
-  return { newBadges, setNewBadges, toastQueue, setToastQueue, beginRun };
+  return {
+    newBadges, setNewBadges, toastQueue, setToastQueue, beginRun,
+    roundCompletedNaturally, suggestion, setSuggestion,
+  };
 }

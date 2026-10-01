@@ -89,6 +89,15 @@
   --btn-lift-shade: rgba(0, 0, 0, 0.42);
   --btn-lip: 4px;
   --depth-press: 2px;
+
+  /* Badge-tile surface shade: a top-down darkening laid over a flat surface
+     colour, so every medal tile reads as "dark top → lit bottom" the same
+     way in every palette. A plain `--bg-3 → --bg-2` gradient used to do this
+     job, but which of the two is lighter flips between the dark/night
+     palettes (bg-3 lighter) and the day ones (bg-3 darker), so the same rule
+     brightened downward only in day mode. A translucent black overlay over
+     the surface colour is direction-stable regardless of that. */
+  --tile-shade: linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0) 55%, rgba(255, 255, 255, 0.05) 100%);
 }
 
 /* Day: a light surface leaves almost no colour contrast, so the depth

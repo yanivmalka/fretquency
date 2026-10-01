@@ -499,6 +499,9 @@ export const it: Record<string, string> = {
   'unlocked': 'sbloccate',
   'Max': 'Max',
   'Earned': 'Ottenuta',
+  // Player profile card (leaderboard)
+  'Achievements': 'Obiettivi',
+  'No badges earned yet.': 'Nessun badge ottenuto ancora.',
   // Admin test controls
   'Grant': 'Assegna',
   'Reset': 'Azzera',

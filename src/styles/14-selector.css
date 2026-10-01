@@ -43,7 +43,6 @@
   font-size: 0.7em;
 }
 .string-pill-pro-tag {
-  margin-inline-start: 6px;
   padding: 1px 6px;
   border-radius: 10px;
   font-size: 0.62rem;
@@ -52,6 +51,17 @@
   background: #4af;
   color: #04121f;
   vertical-align: middle;
+}
+/* Stack the "Pro 1–N" tag under the "Multi" label instead of beside it. With
+   solfège note names (longer than single letters) the string-pill row is
+   already tight; keeping this tag inline pushed the whole button past the
+   edge and wrapped it alone onto a second line. */
+.string-pill-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.1;
 }
 
 /* Mode cards */

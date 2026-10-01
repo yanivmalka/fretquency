@@ -501,6 +501,9 @@ export const fr: Record<string, string> = {
   'unlocked': 'débloqués',
   'Max': 'Max',
   'Earned': 'Obtenu',
+  // Player profile card (leaderboard)
+  'Achievements': 'Succès',
+  'No badges earned yet.': 'Aucun badge obtenu pour l’instant.',
   // Admin test controls
   'Grant': 'Accorder',
   'Reset': 'Réinitialiser',

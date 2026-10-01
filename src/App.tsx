@@ -505,6 +505,7 @@ export default function App() {
     running, paused, currentFret, currentNote, askedFret, remaining, feedback,
     correctCofNote, wrongCofNote, wrongInterval, answered, remainingFrets, foundFrets, wrongFret,
     questionTime, questionStart, questionSeq, questionNumber, intervalPrompt,
+    completedNaturally,
     start: engineStart, stop, pause, resume, selectFret, selectAnswer,
     selectInterval, replayIntervalQuestion,
     // The tidy end-of-drill snapshot (score / accuracy / streak / counts) the
@@ -699,8 +700,9 @@ export default function App() {
   // the historyKey reset effect above.
   const {
     newBadges, setNewBadges, toastQueue, setToastQueue, beginRun: celebrationsBeginRun,
+    roundCompletedNaturally, suggestion,
   } = useRoundEndCelebrations({
-    running, paused, pendingAutoAdvance, scoring, selector, sessionResult,
+    running, paused, pendingAutoAdvance, completedNaturally, scoring, selector, sessionResult,
     historyOps, instrument, showScore, histKey,
     wasTeacherRunRef, wasIntervalRunRef, teacherPlanRef, intervalPlanRef,
     auth, allHistoryEntries,
@@ -1096,6 +1098,24 @@ export default function App() {
     setSettingsOpen(true);
     setDrawerSection('learn');
   };
+
+  // Clears the end-of-round card's state — shared by its "OK" and by the
+  // "what's next" suggestion buttons, which dismiss the card after acting on
+  // it. Dismissing ends an armed Teacher / interval session; pressing Play
+  // (instead of OK) keeps it for another question.
+  const dismissRoundEnd = () => {
+    setGameEnded(false); setNewBadges([]); setToastQueue([]); setRevealBadges([]);
+    setTeacherPlan(null); setIntervalPlan(null);
+  };
+  // The end-of-round "what's next" nudge: move straight into the next stage
+  // of the ordered curriculum, or open the Learn hub when there's nothing
+  // harder left to offer on this combination (see useRoundEndCelebrations).
+  const applyRoundSuggestion = () => {
+    if (suggestion?.kind === 'nextStage') selector.applyStage(suggestion.step);
+    else if (suggestion?.kind === 'exploreLearn') { setSettingsOpen(true); setDrawerSection('learn'); }
+    dismissRoundEnd();
+  };
+
   if (activeDomain === 'daily' && can('premiumTeacher', auth.tier)
       && onboardingDone && !gameActive && !gameEnded) {
     // Keep the Daily page mounted through the 3-2-1 count-in (with the shared
@@ -1447,19 +1467,16 @@ export default function App() {
             <GameEndSummary
               t={t}
               showScore={showScore}
+              completed={roundCompletedNaturally}
               score={scoring.session.score}
               longestStreak={scoring.session.longestStreak}
               questionsCorrect={sessionResult.questionsCorrect}
               questionsAnswered={sessionResult.questionsAnswered}
               newBadges={newBadges}
               instrument={instrument}
-              onOk={() => {
-                setGameEnded(false); setNewBadges([]); setToastQueue([]); setRevealBadges([]);
-                // Dismissing the summary ends an armed Teacher / interval
-                // session; pressing Play (instead of OK) keeps it for another
-                // question.
-                setTeacherPlan(null); setIntervalPlan(null);
-              }}
+              suggestion={suggestion}
+              onApplySuggestion={applyRoundSuggestion}
+              onOk={dismissRoundEnd}
             />
           )}
           <DrillControls

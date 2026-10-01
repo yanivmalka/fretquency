@@ -42,7 +42,7 @@ const STORE_KEY = 'badges';
 const RETIRED_KEY = 'badgesRetired';
 
 type EarnedBadge = { earnedAt: string };
-type BadgeStore = Record<string, EarnedBadge>;
+export type BadgeStore = Record<string, EarnedBadge>;
 // familyId -> ISO timestamp of the admin reset. Earned keys in that family at
 // or before it are retired; a Grant afterwards (newer earnedAt) survives.
 type Retired = Record<string, string>;
@@ -204,6 +204,27 @@ export function retireBadgeFamily(familyId: string): void {
   const retired = loadLocalRetired();
   retired[familyId] = new Date().toISOString();
   writeLocalRetired(retired);
+}
+
+// ── Public read (another player's profile) ────────────────────────────
+// Read-only fetch of ANY player's earned badges (migration 0022 adds a public
+// SELECT policy alongside the self-only write policy). Retirements are
+// applied so an admin-cleared family doesn't show as earned. Returns {} for a
+// guest build, a player with no row yet, or on any error — a profile view
+// should degrade to "no badges yet", never throw.
+export async function fetchPublicBadges(userId: string): Promise<BadgeStore> {
+  if (!supabase) return {};
+  try {
+    const { data, error } = await supabase
+      .from('user_badges')
+      .select('badges, retired')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error || !data) return {};
+    return applyRetired((data.badges ?? {}) as BadgeStore, (data.retired ?? {}) as Retired);
+  } catch {
+    return {};
+  }
 }
 
 // ── Bootstrap on sign-in ─────────────────────────────────────────────

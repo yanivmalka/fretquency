@@ -11,6 +11,9 @@
 export const PERFECT_CENTS = 5;
 export const AUDIBLE_THRESHOLD_CENTS = 8; // ~ the human-ear just-noticeable-difference
 export const CLEARLY_OFF_CENTS = 20;
+// Beyond this, both the compass needle and the spectrum marker pin at their
+// max swing/position; the cents number shown in text is still the real value.
+export const MAX_DISPLAY_CENTS = 50;
 
 export type TuningZone = 'perfect' | 'acceptable' | 'noticeable' | 'off';
 
