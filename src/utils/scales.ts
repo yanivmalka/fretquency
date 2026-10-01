@@ -260,6 +260,28 @@ export function scalePositionsFor(scaleTypeId: string, stringCount: number): Sca
     .filter((p) => p.rootString >= 1 && p.rootString <= stringCount);
 }
 
+/** A synthetic "position" spanning box 1 and box 2 of the same scale type,
+ *  rooted on box 1's string, with a window widened to cover box 2's span too
+ *  — the "connect the boxes" exercise's neck section (product-owner decision,
+ *  2026-10-01, scales-learning-spec.md Session 8): a wider window counted off
+ *  the SAME root, not a second, independently-anchored box geometry. Reuses
+ *  `shapeAtRoot` unchanged — widening the window is all this needs. Returns
+ *  `null` if either authored box is missing on this instrument. */
+export function connectBoxesPosition(scaleTypeId: string, stringCount: number): ScalePositionDef | null {
+  const positions = scalePositionsFor(scaleTypeId, stringCount);
+  const box1 = positions.find((p) => p.positionIndex === 1);
+  const box2 = positions.find((p) => p.positionIndex === 2);
+  if (!box1 || !box2) return null;
+  return {
+    scaleTypeId,
+    // Reserved: 0 means "spans box 1 into box 2," never an authored box —
+    // `scaleItemId`/`parseScaleItemId` treat it as a distinct, valid item id.
+    positionIndex: 0,
+    rootString: box1.rootString,
+    window: { from: box1.window.from, to: box1.window.to + (box2.window.to - box2.window.from) },
+  };
+}
+
 /** Every pitch class of `scale` rooted at `rootName`, mapped to its degree
  *  label ('1' for the root itself) — the lookup a whole-neck "meet the
  *  scale" view needs, as opposed to `shapeAtRoot`'s single fretted position.
