@@ -965,7 +965,7 @@ Does not exist yet; needs to be built to justify a price above Pro. Justified on
 - **New game modes**: chords, scales, intervals, staff notation reading, triads on a string set
 - **Structured training plan / course**: daily goals, a guided path stage to stage
 - **Automatic weakness-targeted drills**: engine reads the mastery map and builds a session from what the user gets wrong, plus spaced repetition (SRS) for notes
-- **Real pitch detection from the microphone** — play the note on the guitar instead of tapping / speaking
+- **Real pitch detection from the microphone** — play the note on the guitar instead of tapping / speaking. **Partly built, admin-only:** Practice "by fret" (`useGuitarAnswer`) and, since 2026-10-01, Scales → "Tap the scale in order" (`usePitchStream`, a continuous listener; Answer mode switch on the Scales screen, `ssel_order_guitar`; an octave off counts). Verified only with a simulated microphone (an oscillator), **not yet on a real guitar or in a noisy room** — the go/no-go in `src/pitchSpike/README.md` still stands before it opens to Premium. Still open: answering the other Scales exercises, a Staff phrase or a Tab riff by playing.
 - Instruments from other families (ukulele, mandolin, violin) — **partially overtaken: ukulele, mandolin and banjo have shipped** (see §4's Built & Shipped note), but gated at **Pro**, not Premium (`extraInstruments`). Violin remains unbuilt and undecided.
 - Daily challenge / friends — (the leaderboard itself has shipped, as a free feature — see Free tier above; only per-friend / daily-challenge framing around it remains undone)
 

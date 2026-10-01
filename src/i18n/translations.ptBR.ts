@@ -947,6 +947,9 @@ export const ptBR: Record<string, string> = {
     'O app toca cada escala primeiro, acendendo as notas uma a uma — depois é a sua vez de tocar.',
   'Watch and listen…': 'Assista e ouça…',
   'Your turn — play it back': 'Sua vez — toque de volta',
+  'Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.':
+    'Toque a escala no seu violão, nota por nota — o app ouve pelo microfone. Uma nota uma oitava acima ou abaixo também conta. Tocar na tela continua funcionando.',
+  '🎸 Play the scale on your guitar': '🎸 Toque a escala no seu violão',
   'Identify the scale': 'Identifique a escala',
   'Name the degree': 'Diga o grau',
   'The app plays the scale up or down. Pick which scale you heard.':

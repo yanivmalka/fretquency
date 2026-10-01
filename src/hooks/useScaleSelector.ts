@@ -182,6 +182,11 @@ export function useScaleSelector(stringCount: number) {
   // lighting its notes in turn, and the learner plays it after.
   const [orderDemo, setOrderDemoState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_demo', false) === true);
   const setOrderDemo = (on: boolean) => { setOrderDemoState(on); saveSetting('ssel_order_demo', on); };
+  // "Tap the scale in order" answered by playing the guitar (pitch detection)
+  // instead of tapping. The screen offers it only where answer-by-guitar is
+  // offered at all (admins, like Practice's answer mode).
+  const [orderGuitar, setOrderGuitarState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_guitar', false) === true);
+  const setOrderGuitar = (on: boolean) => { setOrderGuitarState(on); saveSetting('ssel_order_guitar', on); };
 
   const setSpeedLevel = (l: FallSpeedLevel) => { setSpeedLevelState(l); saveSetting('ssel_fall_speed', l); };
   const setDistanceUnit = (u: DistanceUnit) => { setDistanceUnitState(u); saveSetting('ssel_distance_unit', u); };
@@ -202,6 +207,7 @@ export function useScaleSelector(stringCount: number) {
     speedLevel, setSpeedLevel,
     distanceUnit, setDistanceUnit,
     orderDemo, setOrderDemo,
+    orderGuitar, setOrderGuitar,
     exercise, setExercise,
     scaleChoice: scaleChoiceStored, setScaleChoice, shippedScaleTypeIds: SHIPPED_SCALE_TYPE_IDS,
     positionMode, setPositionMode, positionChoiceAvailable,

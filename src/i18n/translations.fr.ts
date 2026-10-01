@@ -954,6 +954,9 @@ export const fr: Record<string, string> = {
     'L’app joue d’abord chaque gamme en allumant ses notes une à une — puis c’est à toi de la jouer.',
   'Watch and listen…': 'Regarde et écoute…',
   'Your turn — play it back': 'À toi — rejoue-la',
+  'Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.':
+    'Joue la gamme sur ta guitare, note par note — l’app écoute par le micro. Une note une octave plus haut ou plus bas compte aussi. Tu peux toujours toucher l’écran.',
+  '🎸 Play the scale on your guitar': '🎸 Joue la gamme sur ta guitare',
   'Identify the scale': 'Identifie la gamme',
   'Name the degree': 'Nomme le degré',
   'The app plays the scale up or down. Pick which scale you heard.':

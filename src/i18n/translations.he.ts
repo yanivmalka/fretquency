@@ -890,6 +890,9 @@ export const he: Record<string, string> = {
     'האפליקציה מנגנת קודם כל סולם ומאירה את התווים שלו אחד אחרי השני — ואז אתם מנגנים אחריה.',
   'Watch and listen…': 'צפו והקשיבו…',
   'Your turn — play it back': 'תורכם — נגנו את מה ששמעתם',
+  'Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.':
+    'נגנו את הסולם על הגיטרה, תו אחרי תו — האפליקציה מקשיבה דרך המיקרופון. תו גבוה או נמוך באוקטבה נחשב גם הוא. אפשר עדיין גם להקיש.',
+  '🎸 Play the scale on your guitar': '🎸 נגנו את הסולם על הגיטרה',
   'Identify the scale': 'זהו את הסולם',
   'Name the degree': 'ציינו את הדרגה',
   'The app plays the scale up or down. Pick which scale you heard.':

@@ -1232,6 +1232,7 @@ export default function App() {
           notation={notation}
           showMenuButton={!settingsOpen}
           onOpenMenu={() => { setDrawerSection(null); setSettingsOpen(true); }}
+          isAdmin={auth.admin}
         />
         {settingsOpen && drawerSection === null && (
           <SettingsDrawerNav

@@ -17,6 +17,9 @@
 //   lighting each note in turn, and only then hands over — the learner plays
 //   it after the app. Taps during the demo are ignored, and the time taken is
 //   measured from the end of the demo.
+// - Answer by playing: `hear(midi)` takes a note played on the guitar (from
+//   `usePitchStream`) the way `tap` takes a tile — same hit/miss rules, judged
+//   by pitch instead of by place.
 //
 // Timer-read values live in refs, state only for rendering (CLAUDE.md
 // "Conventions").
@@ -195,47 +198,38 @@ export function useScaleOrderEngine({
     clearTimers();
   }, [clearTimers]);
 
-  /** The learner tapped the tile at `(string, fret)`. */
-  const tap = useCallback((string: number, fret: number) => {
+  /** The step being looked for was answered. */
+  const hit = useCallback(() => {
     const q = questionRef.current;
     const b = boardRef.current;
-    if (!runningRef.current || !q || !b) return;
-    // Learning mode: the app is still playing the scale — watch first.
-    if (demoRunningRef.current) return;
-    // Every tile is a playable note, right or wrong.
-    playNoteSingle(string, fret);
+    if (!q || !b) return;
     const total = b.runMidi.length;
-    if (stepRef.current >= total) return; // scale done, waiting for the next
-
-    const midi = b.tileMidi.get(`${string}:${fret}`);
-    // A second tap on the note just played is not a mistake.
-    if (midi != null && stepRef.current > 0 && midi === b.runMidi[stepRef.current - 1]) { haptic.tap(); return; }
-    if (midi != null && midi === b.runMidi[stepRef.current]) {
-      const now = Date.now();
-      onCorrect((now - lastHitRef.current) / 1000, noteTime);
-      lastHitRef.current = now;
-      haptic.tap();
-      stepRef.current += 1;
-      setStep(stepRef.current);
-      if (stepRef.current >= total) {
-        const slipped = slipsRef.current.filter(Boolean).length;
-        const correct = isScaleCorrect(total, slipped);
-        if (correct) playCorrectChime();
-        onAnswerRef.current?.({
-          scaleTypeId: q.scaleTypeId,
-          positionIndex: q.positionIndex,
-          correct,
-          seconds: (now - questionStartRef.current) / 1000,
-        });
-        const mySession = sessionRef.current;
-        nextTimeoutRef.current = setTimeout(() => {
-          if (sessionRef.current === mySession) nextQuestion();
-        }, NEXT_SCALE_MS);
-      }
-      return;
+    const now = Date.now();
+    onCorrect((now - lastHitRef.current) / 1000, noteTime);
+    lastHitRef.current = now;
+    haptic.tap();
+    stepRef.current += 1;
+    setStep(stepRef.current);
+    if (stepRef.current >= total) {
+      const slipped = slipsRef.current.filter(Boolean).length;
+      const correct = isScaleCorrect(total, slipped);
+      if (correct) playCorrectChime();
+      onAnswerRef.current?.({
+        scaleTypeId: q.scaleTypeId,
+        positionIndex: q.positionIndex,
+        correct,
+        seconds: (now - questionStartRef.current) / 1000,
+      });
+      const mySession = sessionRef.current;
+      nextTimeoutRef.current = setTimeout(() => {
+        if (sessionRef.current === mySession) nextQuestion();
+      }, NEXT_SCALE_MS);
     }
+  }, [onCorrect, noteTime, nextQuestion]);
 
-    // Out of order, or not in the scale — charged to the step being looked for.
+  /** A wrong note — out of order, or not in the scale. It is charged to the
+   *  step being looked for; `tile`, when known, flashes red. */
+  const miss = useCallback((tile: OrderTile | null) => {
     if (!slipsRef.current[stepRef.current]) {
       const next = [...slipsRef.current];
       next[stepRef.current] = true;
@@ -244,16 +238,59 @@ export function useScaleOrderEngine({
     }
     onWrong();
     haptic.wrong();
-    setWrongTile({ string, fret });
+    if (!tile) return;
+    setWrongTile(tile);
     if (wrongTimeoutRef.current != null) clearTimeout(wrongTimeoutRef.current);
     wrongTimeoutRef.current = setTimeout(() => setWrongTile(null), WRONG_FLASH_MS);
-  }, [onCorrect, onWrong, noteTime, nextQuestion]);
+  }, [onWrong]);
+
+  /** The learner tapped the tile at `(string, fret)`. */
+  const tap = useCallback((string: number, fret: number) => {
+    const b = boardRef.current;
+    if (!runningRef.current || !questionRef.current || !b) return;
+    // Learning mode: the app is still playing the scale — watch first.
+    if (demoRunningRef.current) return;
+    // Every tile is a playable note, right or wrong.
+    playNoteSingle(string, fret);
+    if (stepRef.current >= b.runMidi.length) return; // scale done, waiting for the next
+
+    const midi = b.tileMidi.get(`${string}:${fret}`);
+    // A second tap on the note just played is not a mistake.
+    if (midi != null && stepRef.current > 0 && midi === b.runMidi[stepRef.current - 1]) { haptic.tap(); return; }
+    if (midi != null && midi === b.runMidi[stepRef.current]) { hit(); return; }
+    miss({ string, fret });
+  }, [hit, miss]);
+
+  /** A note was played on the guitar (answer by playing, `usePitchStream`).
+   *  A pitch says which note was played, not where, so any tile with the
+   *  step's pitch answers it. An octave off still counts — pitch detection
+   *  on a low string often reads the octave above. Nothing is played back:
+   *  the learner's own guitar already sounded it. */
+  const hear = useCallback((midi: number) => {
+    const b = boardRef.current;
+    if (!runningRef.current || !questionRef.current || !b) return;
+    if (demoRunningRef.current) return;
+    const step = stepRef.current;
+    if (step >= b.runMidi.length) return; // scale done, waiting for the next
+    const same = (a: number, c: number) => a === c || Math.abs(a - c) === 12;
+    // The note just played, still ringing or plucked again, is not a mistake.
+    if (step > 0 && same(midi, b.runMidi[step - 1])) return;
+    if (same(midi, b.runMidi[step])) { hit(); return; }
+    let tile: OrderTile | null = null;
+    for (const [key, m] of b.tileMidi) {
+      if (m !== midi) continue;
+      const [string, fret] = key.split(':').map(Number);
+      tile = { string, fret };
+      break;
+    }
+    miss(tile);
+  }, [hit, miss]);
 
   useEffect(() => clearTimers, [clearTimers]);
 
   return {
     running, question, board, step, slips, wrongTile, demoStep,
     questionNumber, questionCount,
-    session, start, stop, tap,
+    session, start, stop, tap, hear,
   };
 }

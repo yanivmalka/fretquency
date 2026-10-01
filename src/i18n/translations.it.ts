@@ -949,6 +949,9 @@ export const it: Record<string, string> = {
     'L’app suona prima ogni scala, illuminando le note una alla volta — poi la suoni tu.',
   'Watch and listen…': 'Guarda e ascolta…',
   'Your turn — play it back': 'Tocca a te — suonala',
+  'Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.':
+    'Suona la scala sulla tua chitarra, nota per nota — l’app ascolta dal microfono. Anche una nota un’ottava sopra o sotto vale. Puoi sempre anche toccare lo schermo.',
+  '🎸 Play the scale on your guitar': '🎸 Suona la scala sulla tua chitarra',
   'Identify the scale': 'Riconosci la scala',
   'Name the degree': 'Indica il grado',
   'The app plays the scale up or down. Pick which scale you heard.':

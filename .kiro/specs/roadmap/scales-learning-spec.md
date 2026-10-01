@@ -7,6 +7,32 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 7 (2026-10-01) — answer "Tap the scale in order" by playing
+
+The product owner asked to start improving Scales with answering by playing
+the guitar, beginning with "Tap the scale in order" (a run is one note at a
+time in a known order, so pitch alone is enough to judge it).
+
+- `src/hooks/usePitchStream.ts` — a continuous listener on the tuner's
+  detector: the mic stays open while the learner's turn lasts and each new
+  note (stable for two ticks) is reported once; a ringing string is not
+  reported again, and nothing is read while the app itself is sounding.
+  `useGuitarAnswer` (one note per question, then the mic closes) is unchanged.
+- `useScaleOrderEngine.hear(midi)` — same hit/miss rules as `tap`, judged by
+  pitch: any tile with the step's pitch answers it, an octave off counts
+  (low-string octave errors), the note just played is never a mistake, and
+  nothing is played back. Tapping keeps working alongside it.
+- Screen: an "Answer mode" switch (Tap / 🎸 Guitar, `ssel_order_guitar`,
+  cloud-synced with the other `ssel_` picks) and a live status line. Shown
+  to **admins only**, like Practice's answer-by-guitar, until the pitch
+  go/no-go. The mic is off during the "Watch, then play" demo.
+
+Verified in a real browser with a simulated microphone (an oscillator fed
+through a stubbed `getUserMedia`): full runs complete and are recorded as
+`orderScale`, a wrong note breaks the streak and slips the step, an
+octave-high note is accepted, the mic never opens during the demo, English
+and Hebrew. **Not yet tried on a real guitar.**
+
 ## Session 6 (2026-09-25) — a fourth exercise, "Tap the scale in order"
 
 The product owner asked for **one more** scales exercise, in addition to the

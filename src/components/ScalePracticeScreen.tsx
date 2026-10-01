@@ -31,6 +31,7 @@ import type { InstrumentConfig } from '../utils/instruments';
 import { useScaleFallEngine, type ScaleFallAnswer } from '../hooks/useScaleFallEngine';
 import { useScaleChipEngine, type ScaleChipAnswer } from '../hooks/useScaleChipEngine';
 import { useScaleOrderEngine, type ScaleOrderAnswer } from '../hooks/useScaleOrderEngine';
+import { usePitchStream } from '../hooks/usePitchStream';
 import { useScaleSelector, FALL_SPEED_LEVELS, DISTANCE_UNITS } from '../hooks/useScaleSelector';
 import { scaleTypeById, SCALE_TYPES, BASIC_SCALE_TYPE_IDS, MORE_SCALE_GROUPS } from '../utils/scales';
 import { SCALE_BLURBS } from '../utils/scaleBlurbs';
@@ -59,9 +60,12 @@ interface Props {
   showMenuButton?: boolean;
   /** Open the hamburger drawer (the host owns the drawer state + nav). */
   onOpenMenu: () => void;
+  /** Answering by playing the guitar is offered only where Practice offers
+   *  it — admins, until pitch detection has its go/no-go. */
+  isAdmin?: boolean;
 }
 
-export default function ScalePracticeScreen({ instrument, accidental, notation, showMenuButton = true, onOpenMenu }: Props) {
+export default function ScalePracticeScreen({ instrument, accidental, notation, showMenuButton = true, onOpenMenu, isAdmin = false }: Props) {
   const { t, lang } = useTranslation();
   const [finished, setFinished] = useState(false);
   const [tab, setTab] = useState<'practice' | 'progress'>('practice');
@@ -199,6 +203,14 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     onComplete: () => setFinished(true),
     onAnswer: (a: ScaleOrderAnswer) =>
       recordAnswer(scaleItemId(a.scaleTypeId, a.positionIndex), 'orderScale', a.correct, a.seconds),
+  });
+
+  // Answer by playing: while a scale is the learner's to play (not during the
+  // demo), every note heard on the guitar goes to the engine like a tap.
+  const orderByGuitar = isAdmin && sel.orderGuitar;
+  const pitch = usePitchStream({
+    enabled: orderByGuitar && exercise === 'orderScale' && orderEngine.running && orderEngine.demoStep == null,
+    onNote: orderEngine.hear,
   });
 
   const running = exercise === 'buildScale' ? buildEngine.running
@@ -578,6 +590,32 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 </p>
               </div>
             )}
+            {!running && tab === 'practice' && exercise === 'orderScale' && isAdmin && (
+              <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
+                <span className="set-card-label">{t('Answer mode')}</span>
+                <div className="scale-difficulty-row">
+                  <button
+                    type="button"
+                    className={`set-card-btn${!sel.orderGuitar ? ' set-card-btn-primary' : ''}`}
+                    onClick={() => { playClickSound(); haptic.tap(); sel.setOrderGuitar(false); }}
+                  >
+                    {t('Tap')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`set-card-btn${sel.orderGuitar ? ' set-card-btn-primary' : ''}`}
+                    onClick={() => { playClickSound(); haptic.tap(); sel.setOrderGuitar(true); }}
+                  >
+                    🎸 {t('Guitar')}
+                  </button>
+                </div>
+                {sel.orderGuitar && (
+                  <p className="set-card-help">
+                    {t('Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.')}
+                  </p>
+                )}
+              </div>
+            )}
 
             {!running && tab === 'practice' && !finished && exercise === 'orderScale' && (
               <div className="set-card">
@@ -654,6 +692,22 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   {sel.orderDemo && (
                     <span className="scale-order-status" aria-live="polite">
                       {orderEngine.demoStep != null ? t('Watch and listen…') : t('Your turn — play it back')}
+                    </span>
+                  )}
+                  {orderByGuitar && orderEngine.demoStep == null && (
+                    <span className={`voice-status guitar-status guitar-${pitch.status}`} role="status" aria-live="polite">
+                      {pitch.error === 'no-permission'
+                        ? t('🎸 Microphone blocked — enable it or switch to tap')
+                        : pitch.error === 'not-supported' || !pitch.supported
+                          ? t('🎸 Pitch detection isn’t available on this device — use tap')
+                          : pitch.status === 'listening'
+                            ? `🎸 ${t('Listening…')}${pitch.partial ? ` “${pitch.partial}”` : ''}`
+                            : t('🎸 Play the scale on your guitar')}
+                      {pitch.status === 'error' && (
+                        <button type="button" className="clear-btn voice-retry" onClick={() => { playClickSound(); haptic.tap(); pitch.retry(); }}>
+                          {t('Retry')}
+                        </button>
+                      )}
                     </span>
                   )}
                 </div>
