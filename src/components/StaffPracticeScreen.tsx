@@ -341,6 +341,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                     key={e}
                     type="button"
                     className={`set-card-btn${exercise === e ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={exercise === e}
                     onClick={() => setExercise(e)}
                   >
                     {t(EXERCISE_LABEL[e])}
@@ -358,6 +359,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                       key={r}
                       type="button"
                       className={`set-card-btn${range === r ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={range === r}
                       onClick={() => setRange(r)}
                     >
                       {rangeLabel(r)}
@@ -376,6 +378,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                       key={k}
                       type="button"
                       className={`set-card-btn${keyId === k ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={keyId === k}
                       onClick={() => setKey(k)}
                     >
                       {keyLabel(k)}
@@ -397,6 +400,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                   <button
                     type="button"
                     className={`set-card-btn${inKeyOnly ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={inKeyOnly}
                     onClick={() => setInKeyOnly(true)}
                   >
                     {keyId === 'C' ? t('Natural notes only') : t('Notes of the key only')}
@@ -404,6 +408,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                   <button
                     type="button"
                     className={`set-card-btn${!inKeyOnly ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={!inKeyOnly}
                     onClick={() => setInKeyOnly(false)}
                   >
                     {keyId === 'C' ? t('With sharps and flats') : t('With accidentals')}
@@ -487,6 +492,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                         key={s}
                         type="button"
                         className={`set-card-btn staff-sign-btn${placement?.sign === s ? ' set-card-btn-primary' : ''}`}
+                        aria-pressed={placement?.sign === s}
                         onClick={() => chooseSign(s)}
                         disabled={answered}
                       >

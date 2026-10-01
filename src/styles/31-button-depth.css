@@ -211,3 +211,41 @@
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
 :root[data-depth='on'] .learn-tile--current .learn-tile__state { color: var(--text-1); }
+
+/* The Learn screens' pickers (Scales / Staff / Tab: exercise, scale,
+   position, range, key, topic…) mark the picked one with the accent
+   .set-card-btn-primary — the same class as their real Start buttons, so
+   the pickers are matched by aria-pressed. Held down on the plain
+   .set-card-btn surface, never lit. */
+:root[data-depth='on'] .set-card-btn.set-card-btn-primary[aria-pressed='true'] {
+  transform: translateY(var(--depth-press));
+  background: var(--bg-3);
+  border-color: var(--surface-border);
+  color: var(--text-0);
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
+}
+/* The scale chips' "?" badge sits over its chip as a sibling: back to its
+   own colours, and it travels down with a held-down chip. */
+:root[data-depth='on'] .set-card-btn-primary[aria-pressed='true'] + .scale-more-info {
+  color: var(--accent);
+  border-color: var(--border-soft);
+  transform: translateY(calc(-50% + var(--depth-press)));
+}
+:root[data-depth='on'] .set-card-btn-primary[aria-pressed='true'] + :is(.scale-more-info:hover, .scale-more-info-open) {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
+}
+
+/* Section tabs (Practice / Progress on the Learn screens, the Stats tabs):
+   raised, and the open one held down — not lit. */
+:root[data-depth='on'] .stats-tab {
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 calc(-1 * var(--btn-lip)) 0 var(--btn-lift-shade);
+  transition: box-shadow 0.08s, transform 0.08s;
+}
+:root[data-depth='on'] .stats-tab.stats-tab-active {
+  transform: translateY(var(--depth-press));
+  background: var(--bg-0);
+  border-color: var(--border-soft);
+  color: var(--text-0);
+  box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
+}

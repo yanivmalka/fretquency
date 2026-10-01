@@ -259,6 +259,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                         <button
                           type="button"
                           className={`set-card-btn scale-more-btn${sel.scaleChoice === id ? ' set-card-btn-primary' : ''}`}
+                          aria-pressed={sel.scaleChoice === id}
                           onClick={() => { playClickSound(); haptic.tap(); sel.setScaleChoice(id); setMorePage(false); }}
                         >
                           <span>{t(type?.nameKey ?? id)}</span>
@@ -348,6 +349,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 <button
                   type="button"
                   className={`set-card-btn${exercise === 'buildScale' ? ' set-card-btn-primary' : ''}`}
+                  aria-pressed={exercise === 'buildScale'}
                   onClick={() => pickExercise('buildScale')}
                 >
                   {t('Build the scale')}
@@ -355,6 +357,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 <button
                   type="button"
                   className={`set-card-btn${exercise === 'orderScale' ? ' set-card-btn-primary' : ''}`}
+                  aria-pressed={exercise === 'orderScale'}
                   onClick={() => pickExercise('orderScale')}
                 >
                   {t('Tap the scale in order')}
@@ -362,6 +365,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 <button
                   type="button"
                   className={`set-card-btn${exercise === 'identifyScale' ? ' set-card-btn-primary' : ''}`}
+                  aria-pressed={exercise === 'identifyScale'}
                   onClick={() => pickExercise('identifyScale')}
                 >
                   {t('Identify the scale')}
@@ -369,6 +373,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 <button
                   type="button"
                   className={`set-card-btn${exercise === 'nameDegree' ? ' set-card-btn-primary' : ''}`}
+                  aria-pressed={exercise === 'nameDegree'}
                   onClick={() => pickExercise('nameDegree')}
                 >
                   {t('Name the degree')}
@@ -386,6 +391,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                         key={id}
                         type="button"
                         className={`set-card-btn${sel.scaleChoice === id ? ' set-card-btn-primary' : ''}`}
+                        aria-pressed={sel.scaleChoice === id}
                         onClick={() => { playClickSound(); haptic.tap(); sel.setScaleChoice(id); }}
                       >
                         {id === 'all' ? t('All scales') : t(scaleTypeById(id)?.nameKey ?? id)}
@@ -413,6 +419,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                     <button
                       type="button"
                       className={`set-card-btn${moreChosen ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={moreChosen}
                       onClick={() => { playClickSound(); haptic.tap(); setMorePage(true); }}
                     >
                       {moreChosen ? t(scaleTypeById(sel.scaleChoice)?.nameKey ?? sel.scaleChoice) : t('More scales')}
@@ -435,6 +442,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   <button
                     type="button"
                     className={`set-card-btn${sel.positionMode === 'all' ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={sel.positionMode === 'all'}
                     onClick={() => { playClickSound(); haptic.tap(); sel.setPositionMode('all'); }}
                   >
                     {t('All positions')}
@@ -444,6 +452,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                       key={p.positionIndex}
                       type="button"
                       className={`set-card-btn${sel.positionMode === 'one' && sel.positionIndex === p.positionIndex ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={sel.positionMode === 'one' && sel.positionIndex === p.positionIndex}
                       onClick={() => {
                         playClickSound(); haptic.tap();
                         sel.setPositionIndex(p.positionIndex);
@@ -466,6 +475,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                       key={d}
                       type="button"
                       className={`set-card-btn${sel.difficultyStored === d ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={sel.difficultyStored === d}
                       disabled={sel.positionMode === 'one'}
                       onClick={() => { playClickSound(); haptic.tap(); sel.setDifficulty(d); }}
                     >
@@ -518,6 +528,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                       key={level}
                       type="button"
                       className={`set-card-btn${sel.speedLevel === level ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={sel.speedLevel === level}
                       onClick={() => { playClickSound(); haptic.tap(); sel.setSpeedLevel(level); }}
                     >
                       {level}
@@ -540,6 +551,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                       key={u}
                       type="button"
                       className={`set-card-btn${sel.distanceUnit === u ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={sel.distanceUnit === u}
                       onClick={() => { playClickSound(); haptic.tap(); sel.setDistanceUnit(u); }}
                     >
                       {t(u === 'tones' ? 'Tones' : 'Frets')}
@@ -569,6 +581,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   <button
                     type="button"
                     className={`set-card-btn${!sel.orderDemo ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={!sel.orderDemo}
                     onClick={() => { playClickSound(); haptic.tap(); sel.setOrderDemo(false); }}
                   >
                     {t('Play on my own')}
@@ -576,6 +589,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   <button
                     type="button"
                     className={`set-card-btn${sel.orderDemo ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={sel.orderDemo}
                     onClick={() => { playClickSound(); haptic.tap(); sel.setOrderDemo(true); }}
                   >
                     {t('Watch, then play')}
@@ -593,6 +607,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   <button
                     type="button"
                     className={`set-card-btn${!sel.orderGuitar ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={!sel.orderGuitar}
                     onClick={() => { playClickSound(); haptic.tap(); sel.setOrderGuitar(false); }}
                   >
                     {t('Tap')}
@@ -600,6 +615,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   <button
                     type="button"
                     className={`set-card-btn${sel.orderGuitar ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={sel.orderGuitar}
                     onClick={() => { playClickSound(); haptic.tap(); sel.setOrderGuitar(true); }}
                   >
                     🎸 {t('Guitar')}

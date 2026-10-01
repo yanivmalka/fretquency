@@ -529,6 +529,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                       key={tp}
                       type="button"
                       className={`set-card-btn${topic === tp ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={topic === tp}
                       onClick={() => setTopic(tp)}
                     >
                       {t(TOPIC_LABEL[tp])}
@@ -545,6 +546,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                     key={e}
                     type="button"
                     className={`set-card-btn${exercise === e ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={exercise === e}
                     onClick={() => setExercise(e)}
                   >
                     {t(EXERCISE_LABEL[e])}
@@ -562,6 +564,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                       key={r}
                       type="button"
                       className={`set-card-btn${range === r ? ' set-card-btn-primary' : ''}`}
+                      aria-pressed={range === r}
                       onClick={() => setRange(r)}
                     >
                       {rangeLabel(r)}
@@ -578,6 +581,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                   <button
                     type="button"
                     className={`set-card-btn${naturalsOnly ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={naturalsOnly}
                     onClick={() => setNaturalsOnly(true)}
                   >
                     {t('Natural notes only')}
@@ -585,6 +589,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                   <button
                     type="button"
                     className={`set-card-btn${!naturalsOnly ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={!naturalsOnly}
                     onClick={() => setNaturalsOnly(false)}
                   >
                     {t('With sharps and flats')}
@@ -704,6 +709,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                           key={f}
                           type="button"
                           className={`set-card-btn tab-fret-btn${current.fret === f ? ' set-card-btn-primary' : ''}`}
+                          aria-pressed={current.fret === f}
                           onClick={() => { playClickSound(); haptic.tap(); write({ fret: f }); }}
                           disabled={answered}
                         >
