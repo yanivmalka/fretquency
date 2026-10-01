@@ -236,8 +236,12 @@ part of it. CSS: `src/styles/32-staff-reading.css`.
 
 1. **Rhythm** — phrases are plain quarter notes; reading rhythm (and a time
    signature) is its own step.
-2. **Play what you read** — answering a phrase by playing it on the guitar
-   (needs pitch detection from the microphone).
+2. ~~**Play what you read**~~ — done: "Name the note" and "Read a phrase" can
+   be answered by playing the guitar (`useReadingEngine.hear`, `usePitchStream`,
+   an Answer mode card per screen, like Scales' "Tap the scale in order").
+   Unlike Scales/Tab, the octave must match exactly (`pitchOctaveStrict`) —
+   the staff is testing the written pitch, octave included, not just the
+   letter name.
 3. **8va** — the top frets are written with many ledger lines, as a learner
    reads them; real music often uses an 8va line there.
 4. **Longer phrases** (6–8 notes, two bars) and keys beyond four sharps/flats

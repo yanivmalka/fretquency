@@ -30,6 +30,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { InstrumentConfig } from '../utils/instruments';
 import { useReadingEngine, type ReadingAnswer, type ReadingQuestion } from '../hooks/useReadingEngine';
+import { usePitchStream } from '../hooks/usePitchStream';
 import {
   buildTabPool, buildTabRiff, pickTabQuestion, tabBottomFret, tabNameOptions, tabTopFret,
   TAB_RANGES, type TabPoolItem, type TabRange,
@@ -200,6 +201,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
   const topic = topicOf(exercise);
   const [range, setRangeState] = useState<TabRange>(() => loadOneOf('tab_range', TAB_RANGES, 'open'));
   const [naturalsOnly, setNaturalsOnlyState] = useState<boolean>(() => loadSetting<boolean>('tab_naturalsOnly', true) !== false);
+  const [guitarAnswer, setGuitarAnswerState] = useState<boolean>(() => loadSetting<boolean>('tab_guitarAnswer', false));
   // What the learner has entered for the current question, tagged with the
   // question it belongs to so a new question starts clean: a note written
   // in the tab, a chord name being picked, the places of a chord played.
@@ -295,6 +297,16 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
   });
   const { running, question, cursor, results, answered } = engine;
 
+  // Answer by playing: a note heard on the guitar goes to the engine like a
+  // name pick. A tab item is a place, not just a pitch — a played note can't
+  // say which string it came from, so this only applies to the "notes" topic
+  // exercises that are judged by name (not findOnNeck/writeTab, which already
+  // ask for the place itself).
+  const pitch = usePitchStream({
+    enabled: guitarAnswer && (exercise === 'nameNote' || exercise === 'readRiff') && running,
+    onNote: engine.hear,
+  });
+
   const current: Written = written && written.q === question ? written.w : { string: null, fret: null };
   const write = (patch: Partial<Written>) => {
     if (!question || answered) return;
@@ -320,6 +332,11 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
   };
   const setRange = (r: TabRange) => pick(() => { setRangeState(r); saveSetting('tab_range', r); });
   const setNaturalsOnly = (v: boolean) => pick(() => { setNaturalsOnlyState(v); saveSetting('tab_naturalsOnly', v); });
+  const setGuitarAnswer = (v: boolean) => {
+    playClickSound(); haptic.tap();
+    setGuitarAnswerState(v);
+    saveSetting('tab_guitarAnswer', v);
+  };
 
   const startSession = () => {
     playClickSound(); haptic.tap();
@@ -598,6 +615,35 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
               </div>
             )}
 
+            {!running && tab === 'practice' && (exercise === 'nameNote' || exercise === 'readRiff') && pitch.supported && (
+              <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
+                <span className="set-card-label">{t('Answer mode')}</span>
+                <div className="scale-difficulty-row">
+                  <button
+                    type="button"
+                    className={`set-card-btn${!guitarAnswer ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={!guitarAnswer}
+                    onClick={() => setGuitarAnswer(false)}
+                  >
+                    {t('Tap')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`set-card-btn${guitarAnswer ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={guitarAnswer}
+                    onClick={() => setGuitarAnswer(true)}
+                  >
+                    🎸 {t('Guitar')}
+                  </button>
+                </div>
+                {guitarAnswer && (
+                  <p className="set-card-help">
+                    {t('Play it on your guitar instead of naming it — the app listens through the microphone. A pitch can’t say which string it came from, so any place that plays the right note counts — an octave either way too. Tapping still works.')}
+                  </p>
+                )}
+              </div>
+            )}
+
             {!running && tab === 'progress' && (
               <div className="set-card">
                 {topic === 'notes' && (
@@ -664,6 +710,23 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                   {exercise === 'readRiff' ? t('Riff') : t('Question')} {engine.questionNumber} / {engine.questionCount}
                   {' · '}{t('Score')}: {engine.session.score}
                 </p>
+
+                {guitarAnswer && pitch.supported && (exercise === 'nameNote' || exercise === 'readRiff') && (
+                  <span className={`voice-status guitar-status guitar-${pitch.status}`} role="status" aria-live="polite">
+                    {pitch.error === 'no-permission'
+                      ? t('🎸 Microphone blocked — enable it or switch to tap')
+                      : pitch.error === 'not-supported' || !pitch.supported
+                        ? t('🎸 Pitch detection isn’t available on this device — use tap')
+                        : pitch.status === 'listening'
+                          ? `🎸 ${t('Listening…')}${pitch.partial ? ` “${pitch.partial}”` : ''}`
+                          : exercise === 'readRiff' ? t('🎸 Play the riff on your guitar') : t('🎸 Play the note on your guitar')}
+                    {pitch.status === 'error' && (
+                      <button type="button" className="clear-btn voice-retry" onClick={() => { playClickSound(); haptic.tap(); pitch.retry(); }}>
+                        {t('Retry')}
+                      </button>
+                    )}
+                  </span>
+                )}
 
                 {exercise === 'writeTab' && (
                   <StaffNeckBoard

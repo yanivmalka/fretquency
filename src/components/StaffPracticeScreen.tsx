@@ -21,6 +21,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { InstrumentConfig } from '../utils/instruments';
 import { useReadingEngine, type ReadingAnswer, type ReadingQuestion } from '../hooks/useReadingEngine';
+import { usePitchStream } from '../hooks/usePitchStream';
 import {
   buildStaffPhrase, buildStaffPool, pickStaffQuestion, staffBottomFret, staffNameOptions, staffTopFret,
   STAFF_RANGES, type StaffPoolItem, type StaffRange,
@@ -101,6 +102,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
   const [keyId, setKeyState] = useState<KeyId>(() => loadOneOf('staff_key', KEY_IDS, 'C'));
   // Stored under its Slice 1 name: "naturals only" is "the notes of the key" in C.
   const [inKeyOnly, setInKeyOnlyState] = useState<boolean>(() => loadSetting<boolean>('staff_naturalsOnly', true) !== false);
+  const [guitarAnswer, setGuitarAnswerState] = useState<boolean>(() => loadSetting<boolean>('staff_guitarAnswer', false));
   // The note placed on the staff ("Where is it written?"), tagged with the
   // question it belongs to so a new question starts with a clean staff.
   const [placed, setPlaced] = useState<{ q: StaffQuestion; p: Placement } | null>(null);
@@ -184,11 +186,20 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
     notesPerQuestion,
     timeLimit: TIME_LIMIT[exercise],
     markPosition: exercise === 'findOnStaff',
+    pitchOctaveStrict: true,
     getSrs,
     onComplete: () => setFinished(true),
     onAnswer: recordAnswer,
   });
   const { running, question, cursor, results, answered } = engine;
+
+  // Answer by playing: a note heard on the guitar goes to the engine like a
+  // name pick. The staff is testing the exact pitch, octave included — unlike
+  // Scales/Tab, `pitchOctaveStrict` above keeps an octave slip a mistake.
+  const pitch = usePitchStream({
+    enabled: guitarAnswer && (exercise === 'nameNote' || exercise === 'readPhrase') && running,
+    onNote: engine.hear,
+  });
 
   const placement = placed && placed.q === question ? placed.p : null;
   const setPlacement = (fn: (p: Placement | null) => Placement) => {
@@ -206,6 +217,11 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
   const setRange = (r: StaffRange) => pick(() => { setRangeState(r); saveSetting('staff_range', r); });
   const setKey = (k: KeyId) => pick(() => { setKeyState(k); saveSetting('staff_key', k); });
   const setInKeyOnly = (v: boolean) => pick(() => { setInKeyOnlyState(v); saveSetting('staff_naturalsOnly', v); });
+  const setGuitarAnswer = (v: boolean) => {
+    playClickSound(); haptic.tap();
+    setGuitarAnswerState(v);
+    saveSetting('staff_guitarAnswer', v);
+  };
 
   const startSession = () => {
     playClickSound(); haptic.tap();
@@ -417,6 +433,35 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
+            {!running && tab === 'practice' && (exercise === 'nameNote' || exercise === 'readPhrase') && pitch.supported && (
+              <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
+                <span className="set-card-label">{t('Answer mode')}</span>
+                <div className="scale-difficulty-row">
+                  <button
+                    type="button"
+                    className={`set-card-btn${!guitarAnswer ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={!guitarAnswer}
+                    onClick={() => setGuitarAnswer(false)}
+                  >
+                    {t('Tap')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`set-card-btn${guitarAnswer ? ' set-card-btn-primary' : ''}`}
+                    aria-pressed={guitarAnswer}
+                    onClick={() => setGuitarAnswer(true)}
+                  >
+                    🎸 {t('Guitar')}
+                  </button>
+                </div>
+                {guitarAnswer && (
+                  <p className="set-card-help">
+                    {t('Play it on your guitar instead of naming it — the app listens through the microphone. Play the exact note you see, including its octave: that’s what this exercise is testing. Tapping still works.')}
+                  </p>
+                )}
+              </div>
+            )}
+
             {!running && tab === 'progress' && (
               <div className="set-card">
                 <StaffProgressBoard
@@ -446,6 +491,23 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                   {exercise === 'readPhrase' ? t('Phrase') : t('Question')} {engine.questionNumber} / {engine.questionCount}
                   {' · '}{t('Score')}: {engine.session.score}
                 </p>
+
+                {guitarAnswer && pitch.supported && (exercise === 'nameNote' || exercise === 'readPhrase') && (
+                  <span className={`voice-status guitar-status guitar-${pitch.status}`} role="status" aria-live="polite">
+                    {pitch.error === 'no-permission'
+                      ? t('🎸 Microphone blocked — enable it or switch to tap')
+                      : pitch.error === 'not-supported' || !pitch.supported
+                        ? t('🎸 Pitch detection isn’t available on this device — use tap')
+                        : pitch.status === 'listening'
+                          ? `🎸 ${t('Listening…')}${pitch.partial ? ` “${pitch.partial}”` : ''}`
+                          : exercise === 'readPhrase' ? t('🎸 Play the phrase on your guitar') : t('🎸 Play the note on your guitar')}
+                    {pitch.status === 'error' && (
+                      <button type="button" className="clear-btn voice-retry" onClick={() => { playClickSound(); haptic.tap(); pitch.retry(); }}>
+                        {t('Retry')}
+                      </button>
+                    )}
+                  </span>
+                )}
 
                 {exercise === 'findOnStaff' && (
                   <StaffNeckBoard

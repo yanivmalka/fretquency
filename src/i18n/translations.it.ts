@@ -218,6 +218,11 @@ export const it: Record<string, string> = {
     '🎤 La voce non funziona in questo browser — prova Chrome o usa il tocco',
   '🎤 Didn’t catch that': '🎤 Non ho capito',
   'Round Complete!': 'Round completato!',
+  'Session Stopped': 'Sessione interrotta',
+  "You're ready for the next stage:": 'Sei pronto per la prossima fase:',
+  "You've mastered this — ready to learn something new?": 'Lo padroneggi — pronto a imparare qualcosa di nuovo?',
+  'Move on': 'Vai avanti',
+  'Explore Learn': 'Vai a Impara',
   'pts': 'pt',
   'OK': 'OK',
   'Start': 'Inizia',
@@ -940,6 +945,10 @@ export const it: Record<string, string> = {
   'Practice again': 'Esercitati di nuovo',
   'Build the scale': 'Costruisci la scala',
   'Tap the scale in order': 'Tocca la scala in ordine',
+  'Connect the boxes': 'Collega gli schemi',
+  'Boxes 1–2': 'Schemi 1–2',
+  'A wider section of the neck is shown, spanning box 1 and box 2 of the scale together. Tap the notes in order to play a run that crosses from one box into the next and back — the same rules as "Tap the scale in order".':
+    'Viene mostrata una sezione più ampia del manico, che comprende insieme lo schema 1 e lo schema 2 della scala. Tocca le note in ordine per suonare una sequenza che passa da uno schema all’altro e torna indietro — le stesse regole di "Tocca la scala in ordine".',
   'A section of the neck is shown with every note of the scale lit. Tap them in order to play the scale: start on the root (gold ring), go to one end of the section, then to the other end, and back to the root — up first or down first, as the arrow shows.':
     'Viene mostrata una sezione del manico con tutte le note della scala illuminate. Toccale in ordine per suonare la scala: parti dalla tonica (anello dorato), arriva a un’estremità della sezione, poi all’altra, e torna alla tonica — prima salendo o prima scendendo, come indica la freccia.',
   'Learning mode': 'Modalità di apprendimento',
@@ -1051,6 +1060,12 @@ export const it: Record<string, string> = {
   'Progress': 'Progressi',
   'Scales mastered': 'Scale padroneggiate',
   'No scales shipped yet.': 'Ancora nessuna scala disponibile.',
+  'Meet the scale': 'Scopri la scala',
+  'What does this scale look like?': 'Com’è fatta questa scala?',
+  'Play the scale': 'Suona la scala',
+  'Start practicing': 'Inizia a esercitarti',
+  'More options': 'Altre opzioni',
+  'Fewer options': 'Meno opzioni',
   // Intervals Learning — exercises, questions and interval names
   'Identify the interval': 'Riconoscere l’intervallo',
   'Find the note': 'Trovare la nota',
@@ -1236,6 +1251,9 @@ export const it: Record<string, string> = {
   'Read a round of notes on the staff — the notes that are due come first.':
     'Leggi un round di note sul pentagramma — prima quelle da ripassare.',
   'Open staff reading': 'Apri la lettura dello spartito',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. Play the exact note you see, including its octave: that’s what this exercise is testing. Tapping still works.':
+    'Suonala sulla tua chitarra invece di scegliere il nome — l’app ascolta dal microfono. Suona la nota esatta che vedi, inclusa la sua ottava: è proprio questo che l’esercizio verifica. Puoi sempre anche toccare lo schermo.',
+  '🎸 Play the phrase on your guitar': '🎸 Suona la frase sulla tua chitarra',
   // Tab reading (TabPracticeScreen)
   'Tab reading': 'Lettura della tablatura',
   'Write it in tab': 'Scriverla in tablatura',
@@ -1262,6 +1280,9 @@ export const it: Record<string, string> = {
   'Read a round of tab — the places that are due come first.':
     'Leggi un round di tablatura — prima i punti da ripassare.',
   'Open tab reading': 'Apri la lettura della tablatura',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. A pitch can’t say which string it came from, so any place that plays the right note counts — an octave either way too. Tapping still works.':
+    'Suonala sulla tua chitarra invece di scegliere il nome — l’app ascolta dal microfono. Una nota suonata non può dire da quale corda arriva, quindi conta qualsiasi punto che suona la nota giusta — anche un’ottava sopra o sotto. Puoi sempre anche toccare lo schermo.',
+  '🎸 Play the riff on your guitar': '🎸 Suona il riff sulla tua chitarra',
   // Tab reading, Slice 2: chords and technique symbols
   'Topic': 'Argomento',
   'Single notes': 'Note singole',

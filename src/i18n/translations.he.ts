@@ -216,6 +216,11 @@ export const he: Record<string, string> = {
   '🎤 Didn’t catch that': '🎤 לא הצלחתי לזהות',
   '🎤 …': '🎤 …',
   'Round Complete!': 'הסיבוב הושלם!',
+  'Session Stopped': 'התרגול הופסק',
+  "You're ready for the next stage:": 'אתה מוכן לשלב הבא:',
+  "You've mastered this — ready to learn something new?": 'שלטת בזה — מוכן ללמוד משהו חדש?',
+  'Move on': 'המשך הלאה',
+  'Explore Learn': 'לעמוד הלמידה',
   'pts': 'נק׳',
   'OK': 'אישור',
   'Start': 'התחל',
@@ -883,6 +888,10 @@ export const he: Record<string, string> = {
   'Tap the scale in order': 'הקישו את הסולם לפי הסדר',
   'A section of the neck is shown with every note of the scale lit. Tap them in order to play the scale: start on the root (gold ring), go to one end of the section, then to the other end, and back to the root — up first or down first, as the arrow shows.':
     'מוצג מקטע של הצוואר ובו כל תווי הסולם מוארים. הקישו עליהם לפי הסדר כדי לנגן את הסולם: מתחילים בתו הבסיס (המסגרת הזהובה), ממשיכים עד קצה אחד של המקטע, משם עד הקצה השני, וחוזרים לתו הבסיס — קודם עולים או קודם יורדים, לפי החץ.',
+  'Connect the boxes': 'חברו בין התבניות',
+  'Boxes 1–2': 'תבניות 1–2',
+  'A wider section of the neck is shown, spanning box 1 and box 2 of the scale together. Tap the notes in order to play a run that crosses from one box into the next and back — the same rules as "Tap the scale in order".':
+    'מוצג מקטע רחב יותר של הצוואר, שחובק גם את תבנית 1 וגם את תבנית 2 של הסולם. הקישו על התווים לפי הסדר כדי לנגן ריצה שעוברת מתבנית אחת לשנייה וחוזרת — אותם כללים כמו ב"הקישו את הסולם לפי הסדר".',
   'Learning mode': 'מצב למידה',
   'Play on my own': 'לנגן לבד',
   'Watch, then play': 'לצפות ואז לנגן',
@@ -992,6 +1001,14 @@ export const he: Record<string, string> = {
   'Progress': 'התקדמות',
   'Scales mastered': 'סולמות בשליטה',
   'No scales shipped yet.': 'עדיין לא הושקו סולמות.',
+  // "Meet the scale" — a beginner-facing view shown before practicing: the
+  // scale across the whole neck, a root picker, a play button and the blurb.
+  'Meet the scale': 'הכר את הסולם',
+  'What does this scale look like?': 'איך הסולם הזה נראה?',
+  'Play the scale': 'נגן את הסולם',
+  'Start practicing': 'התחל לתרגל',
+  'More options': 'עוד אפשרויות',
+  'Fewer options': 'פחות אפשרויות',
   // Intervals Learning — the two MVP exercises + the identify-the-interval
   // question (intervals-learning-spec §8.1, task T5).
   'Identify the interval': 'לזהות את האינטרוול',
@@ -1263,6 +1280,9 @@ export const he: Record<string, string> = {
   "Today's staff reading": 'קריאת תווים היום',
   'Read a round of notes on the staff — the notes that are due come first.': 'קראו סבב תווים על החמשה — התווים שהגיע זמנם לחזרה באים ראשונים.',
   'Open staff reading': 'לקריאת תווים',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. Play the exact note you see, including its octave: that’s what this exercise is testing. Tapping still works.':
+    'נגנו את זה על הגיטרה במקום לבחור את השם — האפליקציה מקשיבה דרך המיקרופון. נגנו את התו המדויק שאתם רואים, כולל האוקטבה שלו: זה בדיוק מה שהתרגיל הזה בודק. אפשר עדיין גם להקיש.',
+  '🎸 Play the phrase on your guitar': '🎸 נגנו את המשפט על הגיטרה',
 
   // Tab reading (TabPracticeScreen). 'Name the note', 'Find it on the neck',
   // the range / notes chips and the board statuses reuse the keys above.
@@ -1284,6 +1304,9 @@ export const he: Record<string, string> = {
   "Today's tab reading": 'קריאת טאבים היום',
   'Read a round of tab — the places that are due come first.': 'קראו סבב טאבים — המקומות שהגיע זמנם לחזרה באים ראשונים.',
   'Open tab reading': 'לקריאת טאבים',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. A pitch can’t say which string it came from, so any place that plays the right note counts — an octave either way too. Tapping still works.':
+    'נגנו את זה על הגיטרה במקום לבחור את השם — האפליקציה מקשיבה דרך המיקרופון. תו שמנגנים לא יכול להעיד על המיתר שממנו הגיע, אז כל מקום שמנגן את התו הנכון נחשב — גם תו גבוה או נמוך באוקטבה. אפשר עדיין גם להקיש.',
+  '🎸 Play the riff on your guitar': '🎸 נגנו את הריף על הגיטרה',
 
   // Tab reading, Slice 2: chords and technique symbols. 'Chords' and 'Major'
   // reuse the keys above.

@@ -156,7 +156,13 @@ written). With `onPickString` a tap selects the nearest line. CSS:
    tapping (t), let ring.
 4. **Rhythm** — tabs usually omit it; a later step could pair tab with the
    staff's rhythm.
-5. **Play what you read** — answer a riff by playing it (pitch detection).
+5. ~~**Play what you read**~~ — done: "Name the note" and "Read a riff" can
+   be answered by playing the guitar (`useReadingEngine.hear`, `usePitchStream`,
+   an Answer mode card, like Staff reading and Scales' "Tap the scale in
+   order"). A played pitch can't say which string it came from, so this only
+   covers the exercises already judged by name, not `findOnNeck`/`writeTab`
+   (which ask for the place itself); the octave is folded (same as Scales),
+   not strict (unlike Staff), since a tab item is a place, not a tested pitch.
 6. **Teacher integration** — a planned "today's tab" session with a "why
    these?" list.
 

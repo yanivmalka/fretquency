@@ -220,6 +220,11 @@ export const ptBR: Record<string, string> = {
     '🎤 A voz não funciona neste navegador — tente o Chrome ou use o toque',
   '🎤 Didn’t catch that': '🎤 Não entendi',
   'Round Complete!': 'Rodada concluída!',
+  'Session Stopped': 'Sessão interrompida',
+  "You're ready for the next stage:": 'Você está pronto para a próxima etapa:',
+  "You've mastered this — ready to learn something new?": 'Você já domina isso — pronto para aprender algo novo?',
+  'Move on': 'Avançar',
+  'Explore Learn': 'Ir para Aprender',
   'pts': 'pts',
   'OK': 'OK',
   'Start': 'Começar',
@@ -940,6 +945,10 @@ export const ptBR: Record<string, string> = {
   'Tap the scale in order': 'Toque a escala em ordem',
   'A section of the neck is shown with every note of the scale lit. Tap them in order to play the scale: start on the root (gold ring), go to one end of the section, then to the other end, and back to the root — up first or down first, as the arrow shows.':
     'Uma parte do braço aparece com todas as notas da escala acesas. Toque nelas em ordem para tocar a escala: comece na tônica (anel dourado), vá até uma ponta da parte, depois até a outra, e volte à tônica — subindo primeiro ou descendo primeiro, como mostra a seta.',
+  'Connect the boxes': 'Conecte os desenhos',
+  'Boxes 1–2': 'Desenhos 1–2',
+  'A wider section of the neck is shown, spanning box 1 and box 2 of the scale together. Tap the notes in order to play a run that crosses from one box into the next and back — the same rules as "Tap the scale in order".':
+    'Uma parte mais larga do braço aparece, unindo o desenho 1 e o desenho 2 da escala. Toque as notas em ordem para tocar uma sequência que passa de um desenho para o outro e volta — as mesmas regras de "Toque a escala em ordem".',
   'Learning mode': 'Modo de aprendizado',
   'Play on my own': 'Tocar sozinho',
   'Watch, then play': 'Assistir e depois tocar',
@@ -1048,6 +1057,12 @@ export const ptBR: Record<string, string> = {
   'Progress': 'Progresso',
   'Scales mastered': 'Escalas dominadas',
   'No scales shipped yet.': 'Ainda não há escalas disponíveis.',
+  'Meet the scale': 'Conheça a escala',
+  'What does this scale look like?': 'Como é essa escala?',
+  'Play the scale': 'Tocar a escala',
+  'Start practicing': 'Começar a praticar',
+  'More options': 'Mais opções',
+  'Fewer options': 'Menos opções',
   // Intervals Learning — exercises, questions and interval names
   'Identify the interval': 'Identificar o intervalo',
   'Find the note': 'Encontrar a nota',
@@ -1233,6 +1248,9 @@ export const ptBR: Record<string, string> = {
   'Read a round of notes on the staff — the notes that are due come first.':
     'Leia uma rodada de notas na pauta — as que estão na hora de revisar vêm primeiro.',
   'Open staff reading': 'Abrir a leitura de partitura',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. Play the exact note you see, including its octave: that’s what this exercise is testing. Tapping still works.':
+    'Toque no seu violão em vez de escolher o nome — o app ouve pelo microfone. Toque a nota exata que você vê, incluindo a oitava: é exatamente isso que este exercício testa. Tocar na tela continua funcionando.',
+  '🎸 Play the phrase on your guitar': '🎸 Toque a frase no seu violão',
   // Tab reading (TabPracticeScreen)
   'Tab reading': 'Leitura de tablatura',
   'Write it in tab': 'Escrevê-la na tablatura',
@@ -1259,6 +1277,9 @@ export const ptBR: Record<string, string> = {
   'Read a round of tab — the places that are due come first.':
     'Leia uma rodada de tablatura — os lugares que estão na hora de revisar vêm primeiro.',
   'Open tab reading': 'Abrir a leitura de tablatura',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. A pitch can’t say which string it came from, so any place that plays the right note counts — an octave either way too. Tapping still works.':
+    'Toque no seu violão em vez de escolher o nome — o app ouve pelo microfone. Uma nota tocada não diz de qual corda ela veio, então qualquer lugar que toque a nota certa conta — uma oitava acima ou abaixo também. Tocar na tela continua funcionando.',
+  '🎸 Play the riff on your guitar': '🎸 Toque o riff no seu violão',
   // Tab reading, Slice 2: chords and technique symbols
   'Topic': 'Tema',
   'Single notes': 'Notas soltas',

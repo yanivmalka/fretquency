@@ -37,8 +37,8 @@ const SYNCED_KEYS = new Set([
   // Precise Pro fret window (global, clamped to the active neck on read).
   'sel_useFretRange', 'sel_fretLo', 'sel_fretHi',
   // Staff / Tab reading screen picks (each validated on read by loadOneOf).
-  'staff_exercise', 'staff_range', 'staff_key', 'staff_naturalsOnly',
-  'tab_exercise', 'tab_range', 'tab_naturalsOnly',
+  'staff_exercise', 'staff_range', 'staff_key', 'staff_naturalsOnly', 'staff_guitarAnswer',
+  'tab_exercise', 'tab_range', 'tab_naturalsOnly', 'tab_guitarAnswer',
   // The last exercise picked in each Tab reading topic (also via loadOneOf).
   'tab_exercise_notes', 'tab_exercise_chords', 'tab_exercise_techniques',
 ]);

@@ -81,6 +81,12 @@ export interface ReadingEngineOptions<F extends string, T extends ReadingItem> {
   markPosition: boolean;
   /** A neck tap must be the item's own place, not merely the same pitch (tab). */
   exactPosition?: boolean;
+  /** `hear` requires the exact octave, not just the pitch class (staff: the
+   *  exercise is reading a specific written octave). Off by default — an
+   *  octave either way still counts, since pitch detection on a low string
+   *  often reads the octave above (tab: a place, not a pitch, so the octave
+   *  the written fret happens to sound is not itself what's being tested). */
+  pitchOctaveStrict?: boolean;
   /** Read fresh on every pick, so the answers of this session steer the rest of it. */
   getSrs: () => SrsMap;
   onComplete?: () => void;
@@ -91,7 +97,7 @@ const PHRASE_NOTE_GAP_MS = 420;
 
 export function useReadingEngine<F extends string, T extends ReadingItem>({
   exercise, pickItems, openMidi, questionCount, notesPerQuestion, timeLimit, markPosition, exactPosition = false,
-  getSrs, onComplete, onAnswer,
+  pitchOctaveStrict = false, getSrs, onComplete, onAnswer,
 }: ReadingEngineOptions<F, T>) {
   const { session, reset, beginRun, onCorrect, onWrong, onTimeout, getQuestionTime } = useScoring();
 
@@ -288,6 +294,19 @@ export function useReadingEngine<F extends string, T extends ReadingItem>({
     resolve(value === pitchClassName(item.midi), { picked: value });
   }, [resolve]);
 
+  /** A note was heard on the guitar (answer by playing, `usePitchStream`).
+   *  Mirrors `useScaleOrderEngine.hear`: nothing is played back (the
+   *  learner's own guitar already sounded it), and the note just answered,
+   *  still ringing, is never scored as a mistake. */
+  const hear = useCallback((midi: number) => {
+    const q = questionRef.current;
+    if (!runningRef.current || answeredRef.current || !q) return;
+    const i = cursorRef.current;
+    const matches = (a: number, b: number) => pitchOctaveStrict ? a === b : a === b || Math.abs(a - b) === 12;
+    if (i > 0 && matches(midi, q.items[i - 1].midi)) return;
+    resolve(matches(midi, q.items[i].midi));
+  }, [resolve, pitchOctaveStrict]);
+
   /** A place on the neck was tapped for the (single) written note. */
   const tapPosition = useCallback((string: number, fret: number) => {
     const q = questionRef.current;
@@ -328,6 +347,6 @@ export function useReadingEngine<F extends string, T extends ReadingItem>({
   return {
     running, question, cursor, results, tapped, answered,
     questionNumber, questionCount, questionTime, questionStart,
-    session, start, stop, selectName, tapPosition, answerPitch, answerPosition, answerWith,
+    session, start, stop, selectName, tapPosition, answerPitch, answerPosition, answerWith, hear,
   };
 }

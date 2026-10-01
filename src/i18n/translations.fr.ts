@@ -220,6 +220,11 @@ export const fr: Record<string, string> = {
     '🎤 La voix ne fonctionne pas dans ce navigateur — essaie Chrome ou utilise le toucher',
   '🎤 Didn’t catch that': '🎤 Pas compris',
   'Round Complete!': 'Manche terminée !',
+  'Session Stopped': 'Session arrêtée',
+  "You're ready for the next stage:": "Vous êtes prêt pour l'étape suivante :",
+  "You've mastered this — ready to learn something new?": 'Vous maîtrisez ça — prêt à apprendre autre chose ?',
+  'Move on': 'Continuer',
+  'Explore Learn': 'Aller à Apprendre',
   'pts': 'pts',
   'OK': 'OK',
   'Start': 'Commencer',
@@ -945,6 +950,10 @@ export const fr: Record<string, string> = {
   'Practice again': 'S’entraîner encore',
   'Build the scale': 'Construis la gamme',
   'Tap the scale in order': 'Touche la gamme dans l’ordre',
+  'Connect the boxes': 'Relie les motifs',
+  'Boxes 1–2': 'Motifs 1–2',
+  'A wider section of the neck is shown, spanning box 1 and box 2 of the scale together. Tap the notes in order to play a run that crosses from one box into the next and back — the same rules as "Tap the scale in order".':
+    'Une section plus large du manche s’affiche, réunissant le motif 1 et le motif 2 de la gamme. Touche les notes dans l’ordre pour jouer un enchaînement qui passe d’un motif à l’autre puis revient — les mêmes règles que « Touche la gamme dans l’ordre ».',
   'A section of the neck is shown with every note of the scale lit. Tap them in order to play the scale: start on the root (gold ring), go to one end of the section, then to the other end, and back to the root — up first or down first, as the arrow shows.':
     'Une section du manche s’affiche avec toutes les notes de la gamme allumées. Touche-les dans l’ordre pour jouer la gamme : commence sur la fondamentale (anneau doré), va jusqu’à un bout de la section, puis jusqu’à l’autre, et reviens à la fondamentale — en montant d’abord ou en descendant d’abord, comme l’indique la flèche.',
   'Learning mode': 'Mode d’apprentissage',
@@ -1055,6 +1064,12 @@ export const fr: Record<string, string> = {
   'Progress': 'Progrès',
   'Scales mastered': 'Gammes maîtrisées',
   'No scales shipped yet.': 'Aucune gamme disponible pour l’instant.',
+  'Meet the scale': 'Découvrir la gamme',
+  'What does this scale look like?': 'À quoi ressemble cette gamme ?',
+  'Play the scale': 'Jouer la gamme',
+  'Start practicing': 'Commencer à pratiquer',
+  'More options': 'Plus d’options',
+  'Fewer options': 'Moins d’options',
   // Intervals Learning — exercises, questions and interval names
   'Identify the interval': 'Identifier l’intervalle',
   'Find the note': 'Trouver la note',
@@ -1240,6 +1255,9 @@ export const fr: Record<string, string> = {
   'Read a round of notes on the staff — the notes that are due come first.':
     'Lis une manche de notes sur la portée — celles à réviser passent en premier.',
   'Open staff reading': 'Ouvrir la lecture de partition',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. Play the exact note you see, including its octave: that’s what this exercise is testing. Tapping still works.':
+    'Joue-la sur ta guitare au lieu de choisir son nom — l’app écoute par le micro. Joue la note exacte que tu vois, avec son octave : c’est justement ce que cet exercice teste. Tu peux toujours aussi toucher l’écran.',
+  '🎸 Play the phrase on your guitar': '🎸 Joue la phrase sur ta guitare',
   // Tab reading (TabPracticeScreen)
   'Tab reading': 'Lecture de tablature',
   'Write it in tab': 'L’écrire en tablature',
@@ -1266,6 +1284,9 @@ export const fr: Record<string, string> = {
   'Read a round of tab — the places that are due come first.':
     'Lis une manche de tablature — les endroits à réviser passent en premier.',
   'Open tab reading': 'Ouvrir la lecture de tablature',
+  'Play it on your guitar instead of naming it — the app listens through the microphone. A pitch can’t say which string it came from, so any place that plays the right note counts — an octave either way too. Tapping still works.':
+    'Joue-la sur ta guitare au lieu de choisir son nom — l’app écoute par le micro. Une note jouée ne peut pas dire de quelle corde elle vient, donc n’importe quelle position qui joue la bonne note compte — une octave plus haut ou plus bas aussi. Tu peux toujours aussi toucher l’écran.',
+  '🎸 Play the riff on your guitar': '🎸 Joue le riff sur ta guitare',
   // Tab reading, Slice 2: chords and technique symbols
   'Topic': 'Thème',
   'Single notes': 'Notes isolées',
