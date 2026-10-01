@@ -196,7 +196,9 @@ export default function AccountSection({
       {/* App version — moved here from the bottom of the main screen so the
           footer stays clean; this is the one place it now lives. */}
       <div className="build-info account-build-info">
-        {__COMMIT_HASH__} · {__COMMIT_DATE__.slice(0, 16)}
+        {/* The APK shows its versionName (1.0.N, same as Android's app info);
+            the web build, which has none, shows the commit. */}
+        {import.meta.env.VITE_APP_VERSION ?? __COMMIT_HASH__} · {__COMMIT_DATE__.slice(0, 16)}
         <button
           className="refresh-btn"
           onClick={() => { void (window.__applyUpdate?.() ?? window.location.reload()); }}

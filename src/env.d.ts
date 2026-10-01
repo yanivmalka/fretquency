@@ -15,6 +15,8 @@ interface Window {
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL: string;
   readonly VITE_SUPABASE_ANON_KEY: string;
+  /** "1.0.<run>" — set only by the Android APK workflow (the APK's versionName). */
+  readonly VITE_APP_VERSION?: string;
 }
 
 interface ImportMeta {

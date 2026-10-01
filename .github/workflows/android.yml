@@ -56,6 +56,8 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
           VITE_ADMOB_ANDROID_BANNER_ID: ${{ vars.VITE_ADMOB_ANDROID_BANNER_ID }}
           VITE_ADS_TESTING: ${{ vars.VITE_ADS_TESTING }}
+          # Shown in Account as the version, matching the versionName stamped below.
+          VITE_APP_VERSION: 1.0.${{ github.run_number }}
 
       # android/ is gitignored and generated, so recreate it in the runner.
       - run: npx cap add android
