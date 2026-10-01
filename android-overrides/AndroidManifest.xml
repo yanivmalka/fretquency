@@ -16,9 +16,8 @@
   intent-filter and the permission below.
 
   Second addition: REQUEST_INSTALL_PACKAGES, for the in-app APK self-update
-  (android-overrides/AppUpdaterPlugin.java). The stock FileProvider below
-  already maps <cache-path path="."/>, which is where that plugin saves the
-  downloaded APK before handing it to the system installer.
+  (android-overrides/AppUpdaterPlugin.java). The FileProvider below maps the
+  plugin's download folder through android-overrides/xml/file_paths.xml.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 

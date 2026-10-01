@@ -68,7 +68,9 @@ export async function findUpdate(): Promise<AppUpdate | null> {
 }
 
 /**
- * Downloads the APK and opens the system install dialog. `onProgress` gets
+ * Downloads the APK (in Android's DownloadManager, so it carries on when the
+ * app is left; the installer opens once the app is back in front) and opens
+ * the system install dialog. `onProgress` gets
  * 0–100 (-1 when the size is unknown). Rejects with an Error whose message is
  * "busy", "bad url", "download", "not an update", "permission" or
  * "no installer" (from the plugin), or "sign" when no URL could be signed.
@@ -77,18 +79,41 @@ export async function installUpdate(
   update: AppUpdate,
   onProgress?: (percent: number) => void,
 ): Promise<void> {
-  if (!supabase) throw new Error('sign');
-  // Short-lived: it only has to outlive the download that starts right away.
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(update.path, 600);
-  if (error || !data?.signedUrl) throw new Error('sign');
+  const url = await signedApkUrl(update.path);
   const listener = onProgress
     ? await AppUpdater.addListener('progress', (e) => onProgress(e.percent))
     : null;
   try {
-    await AppUpdater.downloadAndInstall({ url: data.signedUrl });
+    await AppUpdater.downloadAndInstall({ url });
   } finally {
     await listener?.remove();
   }
+}
+
+// A signed URL lives this long, and is reused while at least REUSE_MIN_MS of
+// it is left. The plugin downloads through Android's DownloadManager, which
+// keeps going after the app is left or closed, and a second tap on "Update"
+// resumes that same download only when it is handed the SAME url — so a fresh
+// URL per tap would throw away a half-finished download.
+const SIGNED_URL_SECONDS = 2 * 60 * 60;
+const REUSE_MIN_MS = 30 * 60 * 1000;
+const SIGNED_URL_KEY = 'appUpdateSignedUrl';
+
+async function signedApkUrl(path: string): Promise<string> {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SIGNED_URL_KEY) ?? 'null') as
+      { path: string; url: string; expires: number } | null;
+    if (saved && saved.path === path && saved.expires - Date.now() > REUSE_MIN_MS) {
+      return saved.url;
+    }
+  } catch { /* a corrupt entry — sign a new one */ }
+  if (!supabase) throw new Error('sign');
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrl(path, SIGNED_URL_SECONDS);
+  if (error || !data?.signedUrl) throw new Error('sign');
+  localStorage.setItem(SIGNED_URL_KEY, JSON.stringify({
+    path, url: data.signedUrl, expires: Date.now() + SIGNED_URL_SECONDS * 1000,
+  }));
+  return data.signedUrl;
 }

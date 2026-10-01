@@ -32,7 +32,7 @@ SQL lives in `supabase/migrations/` (`0001`…`0019`, applied via the Supabase S
 
 ### Android (Capacitor)
 
-The `android/` project is generated, not committed (it's in `.gitignore`). Config in `capacitor.config.ts` (`appId: com.guitarfretpractice.app`); native overrides that survive a regen live in `android-overrides/` (`AndroidManifest.xml`, `MainActivity.java`, `AppUpdaterPlugin.java`, a committed `debug.keystore`).
+The `android/` project is generated, not committed (it's in `.gitignore`). Config in `capacitor.config.ts` (`appId: com.guitarfretpractice.app`); native overrides that survive a regen live in `android-overrides/` (`AndroidManifest.xml`, `MainActivity.java`, `AppUpdaterPlugin.java`, `xml/file_paths.xml`, a committed `debug.keystore`).
 
 - `npx cap add android` — one-time, regenerates `android/`
 - `npm run cap:sync` — `npm run build` then `npx cap sync android`
@@ -41,7 +41,7 @@ The `android/` project is generated, not committed (it's in `.gitignore`). Confi
 
 Native plugins: `@capacitor/app`, `@capacitor/browser` (deep-link OAuth callback so Google sign-in stays inside the APK), `@capacitor/splash-screen`, `@capacitor-community/speech-recognition`. The speech plugin's library manifest contributes `RECORD_AUDIO` + the `RecognitionService` `<queries>` entry through Gradle manifest merging.
 
-**In-app self-update** (`android-overrides/AppUpdaterPlugin.java` — a local Capacitor plugin `AppUpdater` registered in `MainActivity` — plus `src/utils/appUpdate.ts` and the Account section's `AppUpdateCard`): downloads a newer APK inside the app and opens the system installer (manifest adds `REQUEST_INSTALL_PACKAGES`). The APK is deliberately **not** public — no GitHub Releases (the repo is public). The workflow uploads each build to the **private** Supabase Storage bucket `app-releases` (`apk/app-<versionCode>.apk` + a `latest.json` pointer) with the `SUPABASE_SERVICE_ROLE_KEY` repository **secret** (skipped with a warning if it is missing); storage RLS lets only admins and `public.apk_testers` read it, and the app signs a 10-minute URL for the download. Everyone else never sees the card.
+**In-app self-update** (`android-overrides/AppUpdaterPlugin.java` — a local Capacitor plugin `AppUpdater` registered in `MainActivity` — plus `src/utils/appUpdate.ts` and the Account section's `AppUpdateCard`): downloads a newer APK inside the app and opens the system installer (manifest adds `REQUEST_INSTALL_PACKAGES`). The APK is deliberately **not** public — no GitHub Releases (the repo is public). The workflow uploads each build to the **private** Supabase Storage bucket `app-releases` (`apk/app-<versionCode>.apk` + a `latest.json` pointer) with the `SUPABASE_SERVICE_ROLE_KEY` repository **secret** (skipped with a warning if it is missing); storage RLS lets only admins and `public.apk_testers` read it, and the app signs a 2-hour URL for the download (reused across taps so a DownloadManager download that outlived the app resumes instead of restarting); the plugin downloads into `app-update/` under the external files dir, mapped by `android-overrides/xml/file_paths.xml`. Everyone else never sees the card.
 
 ### Build/deploy notes
 

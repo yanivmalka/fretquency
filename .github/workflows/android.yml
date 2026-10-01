@@ -87,6 +87,8 @@ jobs:
       - run: cp android-overrides/MainActivity.java android/app/src/main/java/com/guitarfretpractice/app/MainActivity.java
       # The in-app self-update plugin (registered by that MainActivity).
       - run: cp android-overrides/AppUpdaterPlugin.java android/app/src/main/java/com/guitarfretpractice/app/AppUpdaterPlugin.java
+      # ...and the FileProvider path its downloaded APK lives under.
+      - run: cp android-overrides/xml/file_paths.xml android/app/src/main/res/xml/file_paths.xml
       # Swap in the manifest with the OAuth-callback deep-link intent-filter.
       - run: cp android-overrides/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
       # Monotonic versionCode + a matching visible versionName, so every new

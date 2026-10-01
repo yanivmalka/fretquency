@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Overrides res/xml/file_paths.xml from `npx cap add android`: the stock
+  Capacitor 8 paths PLUS `app-update/` under the app's external files dir,
+  where AppUpdaterPlugin's DownloadManager download lands. The FileProvider
+  must map it, or handing the APK to the system installer fails.
+  The APK workflow copies this file in after `cap add`.
+-->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-path name="my_images" path="." />
+    <cache-path name="my_cache_images" path="." />
+    <external-files-path name="app_update" path="app-update/" />
+</paths>
