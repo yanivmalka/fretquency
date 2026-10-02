@@ -613,6 +613,36 @@
   color: var(--text-2);
 }
 
+/* ── Task A: Recall mode ("play the box from memory") ──
+   A shape tile left dim (only the tonic lit / an empty neck) keeps the muted
+   text of a non-scale tile until it is found; a found one reads clearly on
+   its green. The level picker sits in RecallLevelCard.tsx. */
+.scale-order-tile-found {
+  color: var(--text-0);
+}
+.scale-recall-progress {
+  font-weight: 700;
+  color: var(--text-1);
+}
+.scale-recall-auto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-1);
+  cursor: pointer;
+}
+.scale-recall-auto input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex: none;
+}
+.scale-recall-levelup {
+  font-weight: 800;
+  color: var(--success);
+}
+
 /* ── Task D: finger numbers on the box ──
    A small inverted dot in the tile's bottom-start corner (the run step sits
    top-end). Text is never transformed, so it stays readable when the
@@ -793,36 +823,6 @@
 }
 .scale-relative-count {
   margin: 4px 0 8px;
-}
-
-/* ── Task A: Recall mode ("play the box from memory") ──
-   A shape tile left dim (only the tonic lit / an empty neck) keeps the muted
-   text of a non-scale tile until it is found; a found one reads clearly on
-   its green. The level picker sits in RecallLevelCard.tsx. */
-.scale-order-tile-found {
-  color: var(--text-0);
-}
-.scale-recall-progress {
-  font-weight: 700;
-  color: var(--text-1);
-}
-.scale-recall-auto {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  color: var(--text-1);
-  cursor: pointer;
-}
-.scale-recall-auto input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent);
-  flex: none;
-}
-.scale-recall-levelup {
-  font-weight: 800;
-  color: var(--success);
 }
 
 /* ── Task B: metronome + tempo ("Tap the scale in order") ──

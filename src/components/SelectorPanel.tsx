@@ -226,7 +226,7 @@ export default function SelectorPanel({
           that many are picked, the remaining pills read as locked and a tap on
           one opens the Pro upsell instead of selecting it (the same guard lives
           in useSelector, this is just the visual cue). */}
-      <div className="selector-strings">
+      <div className={`selector-strings ${notation === 'solfege' ? 'selector-strings-compact' : ''}`}>
         {strings.map(({ label, num }) => {
           const selected = selector.selectedStrings.includes(num);
           const capped = !isPro && selector.multiMode && !selected

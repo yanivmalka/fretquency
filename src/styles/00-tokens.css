@@ -83,32 +83,36 @@
   /* "Raised" button look: a light rim along the top and ONE darker band along
      the bottom lip of the button itself. Translucent white / black so they sit
      on any palette's surface without retinting it; the light 'day' modes
-     override them just below. --btn-lip is that band's height at rest and
-     --depth-press how far a pressed / selected button travels down. */
+     override them just below. --btn-lip is that band's height at rest; on
+     press/selected it just thins to 1px (no movement, so nothing shifts
+     position or overlaps a neighbour). */
   --btn-lift-hi: rgba(255, 255, 255, 0.3);
   --btn-lift-shade: rgba(0, 0, 0, 0.42);
   --btn-lip: 4px;
-  --depth-press: 2px;
 
-  /* Badge-tile surface shade: a top-down darkening laid over a flat surface
-     colour, so every medal tile reads as "dark top → lit bottom" the same
-     way in every palette. A plain `--bg-3 → --bg-2` gradient used to do this
-     job, but which of the two is lighter flips between the dark/night
-     palettes (bg-3 lighter) and the day ones (bg-3 darker), so the same rule
-     brightened downward only in day mode. A translucent black overlay over
-     the surface colour is direction-stable regardless of that. */
-  --tile-shade: linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0) 55%, rgba(255, 255, 255, 0.05) 100%);
+  /* Badge-tile surface shade: a top-down "dark → lit" wash laid over a flat
+     surface colour, so every medal tile reads the same way in every palette.
+     A plain `--bg-3 → --bg-2` gradient used to do this job, but which of the
+     two is lighter flips between the dark/night palettes (bg-3 lighter) and
+     the day ones (bg-3 darker), so the same rule only brightened downward in
+     day mode. Both ends of this one are translucent rather than tied to
+     either surface token, each doing the half of the job the base colour
+     can't: the black top darkens visibly against a light (day) surface where
+     it would barely read against an already-dark one, and the white-tinted
+     bottom lightens visibly against a dark (dark/night) surface where it
+     would barely read against an already-light one — so the same rule shows
+     a real top-to-bottom shift everywhere, not just where bg-3/bg-2 happened
+     to contrast. */
+  --tile-shade: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0) 50%, rgba(255, 255, 255, 0.14) 100%);
 }
 
 /* Day: a light surface leaves almost no colour contrast, so the depth
-   itself carries the raised / pressed difference — a darker, taller lip
-   and a deeper press. */
+   itself carries the raised / pressed difference — a darker, taller lip. */
 [data-theme$='-day'],
 [data-theme='day'] {
   --btn-lift-hi: rgba(255, 255, 255, 0.8);
   --btn-lift-shade: rgba(0, 0, 0, 0.3);
   --btn-lip: 6px;
-  --depth-press: 4px;
 }
 
 /* ────────────────────────────────────────────────────────────────

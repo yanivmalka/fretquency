@@ -16,6 +16,17 @@
   justify-content: center;
   flex-wrap: wrap;
 }
+/* Solfège names (Do/Re/Mi/Fá/Sol/Lá/Si) run wider than single letters, which
+   on a 6/7-string instrument plus the "Multi" pill was enough to wrap the row
+   onto a second line and push the rest of the page down. Shrink the pills so
+   the full row still fits on one line instead. */
+.selector-strings-compact {
+  gap: 3px;
+}
+.selector-strings-compact .string-pill {
+  padding: 8px 8px;
+  font-size: 0.8rem;
+}
 .string-pill {
   padding: 8px 14px;
   border-radius: 20px;

@@ -1349,7 +1349,6 @@ export const ptBR: Record<string, string> = {
     'Nota abafada: encoste na corda sem pressioná-la e palhete — um estalo curto sem altura definida.',
   'Palm mute: rest the side of the picking hand on the strings by the bridge, for a short, muffled sound.':
     'Palm mute: apoie a lateral da mão que palheta sobre as cordas perto da ponte, para um som curto e abafado.',
-
   // Task D — Scales fingering ("Show fingers" on the box).
   'Show fingers': 'Mostrar dedos',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
@@ -1401,7 +1400,6 @@ export const ptBR: Record<string, string> = {
     'Contar os graus a partir de',
   'Back to the path':
     'Voltar ao caminho',
-
 
   // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
   'Metronome': 'Metrônomo',

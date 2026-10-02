@@ -127,7 +127,7 @@
 .difficulty-road .auto-advance-toggle.stats-icon-on:active {
   border-color: var(--accent);
   color: var(--accent);
-  background: #1a2a3a;
+  background: rgba(var(--accent-rgb), 0.12);
 }
 /* No UA focus ring after a pointer/touch tap (keyboard :focus-visible keeps one). */
 .difficulty-road .auto-advance-toggle:focus:not(:focus-visible) { outline: none; }

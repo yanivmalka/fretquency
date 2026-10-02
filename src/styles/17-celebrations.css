@@ -16,7 +16,7 @@
   margin-left: 4px;
 }
 .stats-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
-.stats-icon-on { border-color: var(--accent); color: var(--accent); background: #1a2a3a; }
+.stats-icon-on { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.12); }
 
 /* Stats header row with clear */
 .stats-header-row {

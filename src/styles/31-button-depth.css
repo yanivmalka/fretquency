@@ -4,7 +4,8 @@
      • a light rim along the top edge,
      • ONE darker band along the bottom lip, inside the button (nothing is
        drawn outside it, so nothing can be clipped by a parent),
-     • on press the button sinks 2px and the band thins.
+     • on press the band thins — no movement, so nothing shifts position
+       or overlaps a neighbour.
    Uses `box-shadow`, never `filter: drop-shadow` — a drop-shadow follows
    the rendered pixels, so on a translucent button it also shadows the
    label and blurs the text. The whole rule sits in `:where()` (zero
@@ -47,11 +48,7 @@
   .desc-question-btn, .desc-question-btn-bottom,
   .play-btn, .pro-cta, .ap-tile, .level-seg
 ):active:not(:disabled) {
-  transform: translateY(var(--depth-press));
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
-}
-@media (prefers-reduced-motion: reduce) {
-  :root { --depth-press: 0px; }
 }
 
 /* Accent-filled buttons: the neutral rim is invisible on a solid accent, so
@@ -97,15 +94,15 @@
 /* Selected = held down, never lit. With depth on the two looks are not
    mixed: a toggle / segment / picker that is ON keeps its own resting
    surface (no accent fill, accent border, ring or glow) and simply stays
-   in the pressed position — exactly the look of a finger on it (:active
-   above): pushed down 2px, the bottom lip thinned to 1px, the top rim
-   kept. Pushed, not sunk: no darker well, no shade along the top. The
-   flat look (depth off) keeps the lit accent fill. Covers each button's
-   own "on" class plus any button carrying aria-pressed="true" (the
-   exercise toggles reuse .teacher-btn-primary for "on", which also marks
-   real Start buttons, so they are matched by aria-pressed, not by that
-   class). These carry real specificity so they beat each button's own
-   "on" colours. */
+   in the pressed look — exactly like a finger on it (:active above): the
+   bottom lip thinned to 1px, the top rim kept, no movement so it never
+   shifts position or overlaps a neighbour. Pushed, not sunk: no darker
+   well, no shade along the top. The flat look (depth off) keeps the lit
+   accent fill. Covers each button's own "on" class plus any button
+   carrying aria-pressed="true" (the exercise toggles reuse
+   .teacher-btn-primary for "on", which also marks real Start buttons, so
+   they are matched by aria-pressed, not by that class). These carry real
+   specificity so they beat each button's own "on" colours. */
 :root[data-depth='on'] :is(
   .set-seg-btn.set-seg-on, .pick-btn.pick-btn-on, .diff-btn.active,
   .string-pill.active, .mode-card.active, .order-chip.order-chip-active,
@@ -114,7 +111,6 @@
   .interval-choice-btn.is-selected, .ap-tile.ap-tile-on,
   .teacher-btn[aria-pressed='true'], .teacher-btn-primary[aria-pressed='true']
 ) {
-  transform: translateY(var(--depth-press));
   color: var(--text-0);
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
@@ -153,7 +149,6 @@
   transition: box-shadow 0.08s, transform 0.08s;
 }
 :root[data-depth='on'] .difficulty-road .auto-advance-toggle.stats-icon-on:is(*, :hover, :focus, :focus-visible, :active) {
-  transform: translateY(var(--depth-press));
   border-color: var(--border-soft);
   color: var(--text-0);
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
@@ -187,19 +182,6 @@
 :root[data-depth='on'] .fret-btn.fret-glow {
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
-:root[data-depth='on'] .fret-btn.fret-found,
-:root[data-depth='on'] .fret-btn.fret-glow {
-  transform: translateY(var(--depth-press));
-}
-
-/* The Alpha / Fifths / By String column clips its overflow (10-stages.css),
-   so give it room below for a held-down chip's travel. It is centred on the
-   mode cards' row and never drives its height, so nothing shifts. */
-:root[data-depth='on'] .mode-order-show {
-  padding-bottom: var(--depth-press);
-  max-height: calc(96px + var(--depth-press));
-}
-
 /* Learn tiles: the current domain is held down, its label says "Current",
    and neither it nor a hovered tile gets the accent border (keyboard focus
    keeps it, as the focus indicator). */
@@ -207,7 +189,6 @@
   border-color: var(--surface-border);
 }
 :root[data-depth='on'] .learn-tile.learn-tile--current {
-  transform: translateY(var(--depth-press));
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
 :root[data-depth='on'] .learn-tile--current .learn-tile__state { color: var(--text-1); }
@@ -218,18 +199,16 @@
    the pickers are matched by aria-pressed. Held down on the plain
    .set-card-btn surface, never lit. */
 :root[data-depth='on'] .set-card-btn.set-card-btn-primary[aria-pressed='true'] {
-  transform: translateY(var(--depth-press));
   background: var(--bg-3);
   border-color: var(--surface-border);
   color: var(--text-0);
   box-shadow: inset 0 1px 0 var(--btn-lift-hi), inset 0 -1px 0 var(--btn-lift-shade);
 }
 /* The scale chips' "?" badge sits over its chip as a sibling: back to its
-   own colours, and it travels down with a held-down chip. */
+   own colours. */
 :root[data-depth='on'] .set-card-btn-primary[aria-pressed='true'] + .scale-more-info {
   color: var(--accent);
   border-color: var(--border-soft);
-  transform: translateY(calc(-50% + var(--depth-press)));
 }
 :root[data-depth='on'] .set-card-btn-primary[aria-pressed='true'] + :is(.scale-more-info:hover, .scale-more-info-open) {
   border-color: var(--accent);
@@ -243,7 +222,6 @@
   transition: box-shadow 0.08s, transform 0.08s;
 }
 :root[data-depth='on'] .stats-tab.stats-tab-active {
-  transform: translateY(var(--depth-press));
   background: var(--bg-0);
   border-color: var(--border-soft);
   color: var(--text-0);

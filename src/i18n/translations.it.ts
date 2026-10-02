@@ -1352,7 +1352,6 @@ export const it: Record<string, string> = {
     'Nota stoppata: tocca la corda senza premerla e pizzicala — un breve clic senza intonazione.',
   'Palm mute: rest the side of the picking hand on the strings by the bridge, for a short, muffled sound.':
     'Palm mute: appoggia il taglio della mano che pizzica sulle corde vicino al ponte, per un suono breve e smorzato.',
-
   // Task D — Scales fingering ("Show fingers" on the box).
   'Show fingers': 'Mostra le dita',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
@@ -1404,7 +1403,6 @@ export const it: Record<string, string> = {
     'Contare i gradi da',
   'Back to the path':
     'Torna al percorso',
-
 
   // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
   'Metronome': 'Metronomo',
