@@ -24,6 +24,7 @@ import { buildScalePool, type ScalePoolItem, type ScaleDirection } from '../lear
 import { scalePositionsFor, SCALE_TYPES, type ScalePositionDef } from '../utils/scales';
 import type { ScaleChipExercise } from './useScaleChipEngine';
 import type { FallSpeed } from '../learning/scaleFall';
+import { RECALL_LEVELS, type RecallLevel } from '../learning/scaleOrder';
 
 /** Every row in `SCALE_TYPES` is offered — adding a scale type there is all
  *  it takes for the Selector to show it. */
@@ -192,6 +193,26 @@ export function useScaleSelector(stringCount: number) {
   const [orderGuitar, setOrderGuitarState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_guitar', false) === true);
   const setOrderGuitar = (on: boolean) => { setOrderGuitarState(on); saveSetting('ssel_order_guitar', on); };
 
+  // Task A — Recall mode for "Tap the scale in order": how much of the box is
+  // lit (0 all / 1 only the tonic / 2 none), whether a run of clean scales
+  // raises it by itself, and when the level was last set (only runs since then
+  // count toward the next level-up — `scaleRecall.ts`).
+  const [recallLevel, setRecallLevelState] = useState<RecallLevel>(() => {
+    const raw = loadSetting<number>('ssel_order_recall', 0);
+    return (RECALL_LEVELS as readonly number[]).includes(raw) ? (raw as RecallLevel) : 0;
+  });
+  const [recallAuto, setRecallAutoState] = useState<boolean>(() => loadSetting<boolean>('ssel_order_recall_auto', false) === true);
+  const [recallSince, setRecallSinceState] = useState<number>(() => {
+    const raw = loadSetting<number>('ssel_order_recall_since', 0);
+    return typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
+  });
+  const markRecallSince = () => { const ts = Date.now(); setRecallSinceState(ts); saveSetting('ssel_order_recall_since', ts); };
+  const setRecallLevel = (l: RecallLevel) => { setRecallLevelState(l); saveSetting('ssel_order_recall', l); markRecallSince(); };
+  const setRecallAuto = (on: boolean) => {
+    setRecallAutoState(on); saveSetting('ssel_order_recall_auto', on);
+    if (on) markRecallSince();
+  };
+
   const setSpeedLevel = (l: FallSpeedLevel) => { setSpeedLevelState(l); saveSetting('ssel_fall_speed', l); };
   const setDistanceUnit = (u: DistanceUnit) => { setDistanceUnitState(u); saveSetting('ssel_distance_unit', u); };
 
@@ -217,6 +238,7 @@ export function useScaleSelector(stringCount: number) {
     distanceUnit, setDistanceUnit,
     orderDemo, setOrderDemo,
     orderGuitar, setOrderGuitar,
+    recallLevel, setRecallLevel, recallAuto, setRecallAuto, recallSince,
     exercise, setExercise,
     scaleChoice: scaleChoiceStored, setScaleChoice, shippedScaleTypeIds: SHIPPED_SCALE_TYPE_IDS,
     // "Connect the boxes" has no position to choose between — it needs just

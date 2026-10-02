@@ -966,6 +966,19 @@ export const fr: Record<string, string> = {
     'L’app joue d’abord chaque gamme en allumant ses notes une à une — puis c’est à toi de la jouer.',
   'Watch and listen…': 'Regarde et écoute…',
   'Your turn — play it back': 'À toi — rejoue-la',
+  // Task A — Scales Recall mode ("play the box from memory").
+  'Play from memory': 'Jouer de mémoire',
+  'All notes lit': 'Toutes les notes allumées',
+  'Only the root lit': 'Seule la fondamentale allumée',
+  'Empty neck': 'Manche vide',
+  'Every note of the box is lit — learn the shape by seeing it.': 'Toutes les notes du motif sont allumées — apprends la forme en la regardant.',
+  'Only the root is lit. Play the rest of the box from memory — a dim note of the box still counts.':
+    'Seule la fondamentale est allumée. Joue le reste du motif de mémoire — une note éteinte du motif compte quand même.',
+  'Nothing is lit. Find the root and play the whole box from memory.': 'Rien n’est allumé. Trouve la fondamentale et joue tout le motif de mémoire.',
+  'Move up a level by itself after 3 good runs in a row': 'Monter de niveau tout seul après 3 gammes réussies d’affilée',
+  'Good runs toward the next level:': 'Gammes réussies vers le niveau suivant :',
+  'Level up — the neck is empty now': 'Niveau supérieur — le manche est vide maintenant',
+  'Level up — only the root is lit now': 'Niveau supérieur — seule la fondamentale est allumée maintenant',
   'Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.':
     'Joue la gamme sur ta guitare, note par note — l’app écoute par le micro. Une note une octave plus haut ou plus bas compte aussi. Tu peux toujours toucher l’écran.',
   '🎸 Play the scale on your guitar': '🎸 Joue la gamme sur ta guitare',

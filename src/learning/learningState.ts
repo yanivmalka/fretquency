@@ -128,13 +128,16 @@ export interface ScaleHistoryRow {
   itemId: string;
   /** Which exercise produced the answer (§8; `connectBoxes` is Session 8's
    *  "Connect the boxes", itemId's positionIndex always `0`). */
-  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes';
+  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes' | 'orderRecall';
   /** A timeout folds in here as `false`, matching the SRS treatment. */
   correct: boolean;
   /** Seconds taken; `0` when unknown. */
   seconds: number;
   /** Epoch ms — the dedupe / cap-by-recency key on merge. */
   createdAt: number;
+  /** `orderRecall` only ("Tap the scale in order" played from memory): 1 =
+   *  only the tonic was lit, 2 = an empty neck. Required on that form. */
+  recallLevel?: 1 | 2;
 }
 
 export type StaffForm = 'nameNote' | 'findOnNeck' | 'findOnStaff' | 'readPhrase';
@@ -361,15 +364,19 @@ export function normalizeScaleHistory(raw: unknown): ScaleHistoryRow[] {
     if (!Number.isFinite(createdAt)) continue;
     const form =
       r.form === 'buildScale' || r.form === 'orderScale' || r.form === 'identifyScale'
-        || r.form === 'nameDegree' || r.form === 'connectBoxes'
+        || r.form === 'nameDegree' || r.form === 'connectBoxes' || r.form === 'orderRecall'
         ? r.form
         : null;
     if (form == null) continue;
+    const recallLevel = r.recallLevel === 1 || r.recallLevel === 2 ? r.recallLevel : null;
+    if (form === 'orderRecall' && recallLevel == null) continue;
     const seconds =
       typeof r.seconds === 'number' && Number.isFinite(r.seconds) && r.seconds >= 0
         ? r.seconds
         : 0;
-    rows.push({ itemId, form, correct: r.correct === true, seconds, createdAt });
+    rows.push(form === 'orderRecall'
+      ? { itemId, form, correct: r.correct === true, seconds, createdAt, recallLevel: recallLevel ?? 1 }
+      : { itemId, form, correct: r.correct === true, seconds, createdAt });
   }
   rows.sort((a, b) => a.createdAt - b.createdAt);
   return rows.length > SCALE_HISTORY_CAP
@@ -737,6 +744,7 @@ export function recordScaleAnswer(
   correct: boolean,
   seconds: number,
   now: number,
+  recallLevel?: 1 | 2,
 ): InstrumentLearningState {
   const srsItem = getOrCreate(st.scaleSrs, itemId, now);
   const nextItem = reviewSrsItem(srsItem, correct, now);
@@ -747,6 +755,7 @@ export function recordScaleAnswer(
     seconds: Number.isFinite(seconds) && seconds >= 0 ? seconds : 0,
     createdAt: now,
   };
+  if (form === 'orderRecall') row.recallLevel = recallLevel ?? 1;
   const history = [...st.scaleHistory, row];
   return {
     ...st,

@@ -64,9 +64,12 @@ export default function ScaleOrderBoard({
             // already played on this pitch.
             const tileStep = !lit ? -1 : demoing ? demoStep : lastStepOf(board.runMidi, midi, step);
             const found = lit && !demoing && tileStep >= 0;
+            // Recall mode: a shape tile outside `board.lit` is drawn dim but
+            // still answers its step.
+            const shown = lit && (board.lit?.has(`${s}:${f}`) ?? true);
             let cls = 'scale-order-tile';
-            if (lit) cls += ' scale-order-tile-lit';
-            if (lit && name === rootName) cls += ' scale-order-tile-root';
+            if (shown) cls += ' scale-order-tile-lit';
+            if (shown && name === rootName) cls += ' scale-order-tile-root';
             if (found) cls += ' scale-order-tile-found';
             if (demoing) cls += ' scale-order-tile-demo';
             if (found && slips[tileStep]) cls += ' scale-order-tile-slip';

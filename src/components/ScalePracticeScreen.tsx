@@ -44,6 +44,9 @@ import { loadLearningState, saveLearningStateLocal, getInstrumentState, withInst
 import { cloudPushLearning } from '../learning/learningSync';
 import ScaleFallBoard from './ScaleFallBoard';
 import ScaleOrderBoard from './ScaleOrderBoard';
+import RecallLevelCard from './RecallLevelCard';
+import { recallFormFor, recallPromotion, recallStreak, recallLevelUpText, RECALL_LEVEL_LABEL } from '../learning/scaleRecall';
+import type { RecallLevel } from '../learning/scaleOrder';
 import ScaleMeetScreen from './ScaleMeetScreen';
 import ScalePathCard from './ScalePathCard';
 import ScaleRelativeScreen from './ScaleRelativeScreen';
@@ -236,6 +239,33 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
       recordAnswer(scaleItemId(a.scaleTypeId, a.positionIndex), a.form, a.correct, a.seconds),
   });
 
+  // Task A — Recall mode. A run at level 0 is an ordinary `orderScale` row; at
+  // level 1/2 an `orderRecall` row with its level. With auto level-up on, a
+  // few good runs in a row of one item raise the level for the next scale.
+  const [recallLevelUp, setRecallLevelUp] = useState<RecallLevel | null>(null);
+  const recordOrderRun = useCallback((a: ScaleOrderAnswer) => {
+    const itemId = scaleItemId(a.scaleTypeId, a.positionIndex);
+    const ts = Date.now();
+    const state = loadLearningState(ts);
+    const inst = getInstrumentState(state, instrument.id, ts);
+    const next = recordScaleAnswer(
+      inst, itemId, recallFormFor(a.fadeLevel), a.correct, a.seconds, ts, a.fadeLevel === 0 ? undefined : a.fadeLevel,
+    );
+    saveLearningStateLocal(withInstrumentState(state, instrument.id, next));
+    cloudPushLearning();
+    setNow(ts);
+    const up = sel.recallAuto && a.fadeLevel === sel.recallLevel
+      ? recallPromotion(next.scaleHistory, itemId, a.fadeLevel, sel.recallSince)
+      : null;
+    if (up != null) sel.setRecallLevel(up);
+    setRecallLevelUp(up);
+  }, [instrument.id, sel]);
+  const recallStreakNow = useMemo(() => {
+    const inst = getInstrumentState(loadLearningState(now), instrument.id, now);
+    return Math.max(0, ...pool.map((p) =>
+      recallStreak(inst.scaleHistory, scaleItemId(p.scaleTypeId, p.positionIndex), sel.recallLevel, sel.recallSince)));
+  }, [now, instrument.id, pool, sel.recallLevel, sel.recallSince]);
+
   // "Tap the scale in order": a still box with every note lit, tapped in the
   // run's order. No clock per scale; a note tapped within `noteTime` of the
   // previous one still earns the speed bonus.
@@ -247,9 +277,9 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     demo: sel.orderDemo,
     naturalsOnly: buildEnvelope.naturalsOnlyRoot,
     direction: sel.direction,
+    fadeLevel: sel.recallLevel,
     onComplete: () => setFinished(true),
-    onAnswer: (a: ScaleOrderAnswer) =>
-      recordAnswer(scaleItemId(a.scaleTypeId, a.positionIndex), 'orderScale', a.correct, a.seconds),
+    onAnswer: recordOrderRun,
   });
 
   // "Connect the boxes": the same still-board mechanic as "Tap the scale in
@@ -788,6 +818,15 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 </p>
               </div>
             )}
+            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
+              <RecallLevelCard
+                level={sel.recallLevel}
+                onLevel={sel.setRecallLevel}
+                auto={sel.recallAuto}
+                onAuto={sel.setRecallAuto}
+                streak={recallStreakNow}
+              />
+            )}
             {!running && tab === 'practice' && moreOpen && (exercise === 'orderScale' || exercise === 'connectBoxes') && pitch.supported && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
                 <span className="set-card-label">{t('Answer mode')}</span>
@@ -826,6 +865,11 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 <p className="set-card-help">
                   {t('A section of the neck is shown with every note of the scale lit. Tap them in order to play the scale: start on the root (gold ring), go to one end of the section, then to the other end, and back to the root — up first or down first, as the arrow shows.')}
                 </p>
+                {sel.recallLevel > 0 && (
+                  <p className="set-card-help scale-recall-progress">
+                    {t('Play from memory')}: {t(RECALL_LEVEL_LABEL[sel.recallLevel])}
+                  </p>
+                )}
                 <button type="button" className="set-card-btn set-card-btn-primary" onClick={startSession}>
                   {t('Start')}
                 </button>
@@ -903,6 +947,9 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                     {t('Scale')} {orderEngine.questionNumber} / {orderEngine.questionCount}
                     {' · '}{t('Score')}: {orderEngine.session.score}
                   </span>
+                  {recallLevelUp != null && (
+                    <span className="scale-recall-levelup" role="status">⬆ {t(recallLevelUpText(recallLevelUp))}</span>
+                  )}
                   {sel.orderDemo && (
                     <span className="scale-order-status" aria-live="polite">
                       {orderEngine.demoStep != null ? t('Watch and listen…') : t('Your turn — play it back')}
@@ -1055,6 +1102,9 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 <p className="set-card-help">
                   {t('Session complete!')} {t('Score')}: {score}
                 </p>
+                {exercise === 'orderScale' && recallLevelUp != null && (
+                  <p className="set-card-help scale-recall-levelup">⬆ {t(recallLevelUpText(recallLevelUp))}</p>
+                )}
                 <button type="button" className="set-card-btn set-card-btn-primary" onClick={startSession}>
                   {t('Practice again')}
                 </button>

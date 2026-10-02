@@ -902,6 +902,19 @@ export const he: Record<string, string> = {
     'האפליקציה מנגנת קודם כל סולם ומאירה את התווים שלו אחד אחרי השני — ואז אתם מנגנים אחריה.',
   'Watch and listen…': 'צפו והקשיבו…',
   'Your turn — play it back': 'תורכם — נגנו את מה ששמעתם',
+  // Task A — Scales Recall mode ("play the box from memory").
+  'Play from memory': 'לנגן מהזיכרון',
+  'All notes lit': 'כל התווים מוארים',
+  'Only the root lit': 'רק תו הבסיס מואר',
+  'Empty neck': 'צוואר ריק',
+  'Every note of the box is lit — learn the shape by seeing it.': 'כל תווי התבנית מוארים — לומדים את הצורה מתוך התבוננות.',
+  'Only the root is lit. Play the rest of the box from memory — a dim note of the box still counts.':
+    'רק תו הבסיס מואר. נגנו את שאר התבנית מהזיכרון — תו כבוי של התבנית עדיין נחשב.',
+  'Nothing is lit. Find the root and play the whole box from memory.': 'שום תו לא מואר. מצאו את תו הבסיס ונגנו את כל התבנית מהזיכרון.',
+  'Move up a level by itself after 3 good runs in a row': 'לעלות רמה לבד אחרי 3 ריצות טובות ברצף',
+  'Good runs toward the next level:': 'ריצות טובות לקראת הרמה הבאה:',
+  'Level up — the neck is empty now': 'עליתם רמה — עכשיו הצוואר ריק',
+  'Level up — only the root is lit now': 'עליתם רמה — עכשיו רק תו הבסיס מואר',
   'Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.':
     'נגנו את הסולם על הגיטרה, תו אחרי תו — האפליקציה מקשיבה דרך המיקרופון. תו גבוה או נמוך באוקטבה נחשב גם הוא. אפשר עדיין גם להקיש.',
   '🎸 Play the scale on your guitar': '🎸 נגנו את הסולם על הגיטרה',

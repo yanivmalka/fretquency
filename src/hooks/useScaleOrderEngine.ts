@@ -26,7 +26,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { pickScaleQuestion, type ScaleQuestion, type ScalePoolItem, type ScaleDirection } from '../learning/scaleDrill';
-import { buildOrderBoard, type ScaleOrderBoard } from '../learning/scaleOrder';
+import { buildOrderBoard, type ScaleOrderBoard, type RecallLevel } from '../learning/scaleOrder';
 import { isScaleCorrect } from '../learning/scaleFall';
 import { playNoteSingle } from '../utils/audio';
 import { haptic, playCorrectChime } from '../utils/feedback';
@@ -54,6 +54,8 @@ export interface ScaleOrderAnswer {
   positionIndex: number;
   correct: boolean;
   seconds: number;
+  /** Recall mode level this scale was played at. */
+  fadeLevel: RecallLevel;
 }
 
 export interface ScaleOrderOptions {
@@ -70,6 +72,9 @@ export interface ScaleOrderOptions {
    *  reuses this engine/board unchanged by swapping only this. Defaults to
    *  the single-box picker every other caller already used. */
   pickQuestion?: typeof pickScaleQuestion;
+  /** Recall mode: how many of the box's notes are drawn lit (`scaleOrder.ts`).
+   *  Read when each scale is laid out, so a change applies from the next one. */
+  fadeLevel?: RecallLevel;
   onComplete?: () => void;
   onAnswer?: (answer: ScaleOrderAnswer) => void;
 }
@@ -81,8 +86,13 @@ export interface OrderTile {
 
 export function useScaleOrderEngine({
   instrument, pool, questionCount, noteTime, demo = false, naturalsOnly = false, direction = 'up',
-  pickQuestion = pickScaleQuestion, onComplete, onAnswer,
+  pickQuestion = pickScaleQuestion, fadeLevel = 0, onComplete, onAnswer,
 }: ScaleOrderOptions) {
+  const fadeLevelRef = useRef<RecallLevel>(fadeLevel);
+  useEffect(() => { fadeLevelRef.current = fadeLevel; }, [fadeLevel]);
+  /** The level the scale on screen was laid out at. */
+  const boardLevelRef = useRef<RecallLevel>(0);
+
   const { session, reset, beginRun, onCorrect, onWrong } = useScoring();
 
   const [running, setRunning] = useState(false);
@@ -142,7 +152,8 @@ export function useScaleOrderEngine({
     if (!q) { finish(); return; }
     countRef.current += 1;
     setQuestionNumber(countRef.current);
-    const b = buildOrderBoard(q, instrument.openMidi);
+    boardLevelRef.current = fadeLevelRef.current;
+    const b = buildOrderBoard(q, instrument.openMidi, boardLevelRef.current);
     questionRef.current = q;
     boardRef.current = b;
     stepRef.current = 0;
@@ -224,6 +235,7 @@ export function useScaleOrderEngine({
         positionIndex: q.positionIndex,
         correct,
         seconds: (now - questionStartRef.current) / 1000,
+        fadeLevel: boardLevelRef.current,
       });
       const mySession = sessionRef.current;
       nextTimeoutRef.current = setTimeout(() => {

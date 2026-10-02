@@ -961,6 +961,19 @@ export const it: Record<string, string> = {
     'L’app suona prima ogni scala, illuminando le note una alla volta — poi la suoni tu.',
   'Watch and listen…': 'Guarda e ascolta…',
   'Your turn — play it back': 'Tocca a te — suonala',
+  // Task A — Scales Recall mode ("play the box from memory").
+  'Play from memory': 'Suonare a memoria',
+  'All notes lit': 'Tutte le note accese',
+  'Only the root lit': 'Solo la tonica accesa',
+  'Empty neck': 'Manico vuoto',
+  'Every note of the box is lit — learn the shape by seeing it.': 'Tutte le note dello schema sono accese — impara la forma guardandola.',
+  'Only the root is lit. Play the rest of the box from memory — a dim note of the box still counts.':
+    'Solo la tonica è accesa. Suona il resto dello schema a memoria — una nota spenta dello schema conta comunque.',
+  'Nothing is lit. Find the root and play the whole box from memory.': 'Niente è acceso. Trova la tonica e suona tutto lo schema a memoria.',
+  'Move up a level by itself after 3 good runs in a row': 'Salire di livello da solo dopo 3 scale riuscite di fila',
+  'Good runs toward the next level:': 'Scale riuscite verso il livello successivo:',
+  'Level up — the neck is empty now': 'Livello superiore — ora il manico è vuoto',
+  'Level up — only the root is lit now': 'Livello superiore — ora è accesa solo la tonica',
   'Play the scale on your guitar, note by note — the app listens through the microphone. A note an octave higher or lower also counts. Tapping still works.':
     'Suona la scala sulla tua chitarra, nota per nota — l’app ascolta dal microfono. Anche una nota un’ottava sopra o sotto vale. Puoi sempre anche toccare lo schermo.',
   '🎸 Play the scale on your guitar': '🎸 Suona la scala sulla tua chitarra',

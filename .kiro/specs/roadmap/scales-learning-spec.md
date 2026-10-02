@@ -7,6 +7,82 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 10 (2026-10-02) — task A: Recall mode, play the box from memory
+
+From the expert-teacher review (product-wishlist, Scales, item A, the
+highest priority of the four): every exercise showed the box lit, so the
+learner *recognised* the shape instead of *recalling* it. "Tap the scale in
+order" now has a **Play from memory** pick (under More options, this
+exercise only): **All notes lit** (0, the old behaviour and the default) /
+**Only the root lit** (1) / **Empty neck** (2).
+
+- **Board (`scaleOrder.ts`)** — `buildOrderBoard(q, openMidi, fadeLevel = 0)`
+  adds an optional `lit` set: absent at level 0 (every existing caller and
+  board is unchanged), the tonic's tiles in every octave at level 1, empty at
+  level 2. `tileMidi` and the run never change with the level, so a dim shape
+  tile still answers its step — by tap or by pitch (`hear` is untouched, so
+  the 🎸 Guitar answer mode works the same). `ScaleOrderBoard.tsx` draws a
+  shape tile outside `lit` like a non-scale tile (note name still shown, no
+  ring) until it is found; the demo of "Watch, then play" still lights each
+  note as it plays, so watch-then-play becomes "watch, then play it from
+  memory". Note names stay on every tile at every level: level 2 asks for the
+  shape, and finding the root by name is Notes' skill (OD-S2's reasoning).
+- **Engine** — `useScaleOrderEngine` takes `fadeLevel` and reads it through a
+  ref when each scale is laid out, so a level change applies from the next
+  scale, mid-session included; `ScaleOrderAnswer.fadeLevel` reports the level
+  the run was actually played at. "Connect the boxes" doesn't pass it (stays
+  fully lit) — recall is scoped to one box for now.
+- **History** — a new `ScaleHistoryRow.form` `'orderRecall'` with a required
+  `recallLevel: 1 | 2` (`learningState.ts`: the type, `normalizeScaleHistory`
+  — an `orderRecall` row without a valid level is dropped, a level on any
+  other form is stripped — and an optional last parameter on
+  `recordScaleAnswer`). A level-0 run is still a plain `orderScale` row. Same
+  item id and SRS lane as before: recall is a harder way to review the same
+  `(scaleType, position)` item, not a new item. Merges ride the existing
+  `mergeScaleHistory` union unchanged.
+- **Auto level-up (`scaleRecall.ts`, optional, off by default)** — a checkbox
+  "Move up a level by itself after 3 good runs in a row". Rule: the last
+  `RECALL_PROMOTE_RUNS` (3) runs of one item at the current level are all
+  correct (the app's own `isScaleCorrect` judge, ≤ 1 slip in 5 — not "zero
+  slips", because the row only stores `correct`), counting only runs since the
+  level was last set. That moment is `ssel_order_recall_since`, stamped on
+  every level change and when the checkbox is switched on, so dropping back a
+  level by hand, or switching auto on over a long old streak, never jumps
+  straight up again. Runs of another item or level are skipped, neither
+  counted nor breaking the streak. The card shows "Good runs toward the next
+  level: n / 3"; a level-up shows "⬆ Level up — …" on the board header and the
+  session-complete card.
+- **Picks** — `ssel_order_recall` (0/1/2), `ssel_order_recall_auto`,
+  `ssel_order_recall_since` in `useScaleSelector.ts` (own block), cloud-synced
+  by the existing `ssel_` prefix in `settingsSync.ts` — nothing new to wire.
+  UI in a new `RecallLevelCard.tsx`; CSS in `30-scale-board.css` (task A
+  block). 11 new strings in he/es/pt-BR/fr/it.
+
+**Verified:** `scripts/check-scale-recall.mts` (new, 27 checks — the three
+fade levels on 300 random boards × guitar/bass × up/down with pitches and run
+unchanged; `orderRecall` through record/normalise/merge; every branch of the
+level-up rule, plus end to end through `recordScaleAnswer`). Every other
+`check-scale-*` script and `check-learning` still pass; `tsc -b` clean;
+eslint clean on every file this task touched. **Live** (Playwright/Chromium,
+420×900, a dev-mode snapshot build served by `vite preview` because the
+shared dev server's hot reloads — other sessions editing the same tree —
+kept reloading the page mid-test), English and Hebrew, `devSimulateTier =
+'premium'`: the run order was recorded from the "Watch, then play" demo and
+tapped back on the faded board. Level 1 shows exactly the 3 tonic tiles with
+the gold ring; two runs land as `orderRecall/1/true`; switching auto on shows
+"0 / 3"; after three good runs the next board has 0 lit tiles with the
+level-up line, `ssel_order_recall` is `2`, and that empty-neck run lands as
+`orderRecall/2/true`. Hebrew: card fully translated, page RTL, the board
+`dir="ltr"` with the lowest string on top; no horizontal overflow; no app
+console errors.
+
+**Not verified / still open:** the 🎸 Guitar answer mode on a faded board was
+not driven with a simulated microphone this session — it is covered only by
+`hear` being unchanged and the check proving `tileMidi` identical at every
+level; try it on a real guitar. Recall for "Connect the boxes" and for the
+Piano-Tiles "Build the scale" is not built. The level is one global pick, not
+per item (auto level-up is decided per item, but raises the one pick).
+
 ## Session 10 (2026-10-02) — task C: a guided beginner path
 
 From the 2026-10-02 expert-teacher review (product-wishlist.md, Scales,
