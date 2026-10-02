@@ -1341,4 +1341,52 @@ export const ptBR: Record<string, string> = {
   'Show fingers': 'Mostrar dedos',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'O número pequeno em cada nota é o dedo que a toca: 1 indicador, 2 médio, 3 anelar, 4 mindinho, 0 corda solta. Um dedo por casa — a mão fica parada e cada dedo cuida da sua casa.',
+  // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
+  'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
+    'Cinco notas em um desenho pequeno perto da tônica: a forma com que a maioria dos solos começa. Assista uma vez e depois toque você.',
+  'The same five notes, one box further: the root moves to the next string.':
+    'As mesmas cinco notas, um desenho adiante: a tônica passa para a corda seguinte.',
+  'One run that crosses from box 1 into box 2 and back, so the two boxes become one stretch of the neck.':
+    'Uma única passada que cruza do desenho 1 para o desenho 2 e volta, para que os dois desenhos virem um só trecho do braço.',
+  'The box you know is also a major pentatonic — only the home note changes.':
+    'O desenho que você já conhece também é uma pentatônica maior: só a nota de repouso muda.',
+  'Play the box you already know, but start and end on its major home note — three frets above the minor root on the thickest string.':
+    'Toque o desenho que você já conhece, mas comece e termine na nota de repouso maior: três casas acima da tônica menor, na corda mais grossa.',
+  'Box 1 of the minor pentatonic plus one extra note — the flat 5th, the "blue note".':
+    'O desenho 1 da pentatônica menor mais uma nota extra: a quinta diminuta, a "blue note".',
+  'The full seven-note minor scale: the minor pentatonic box with two more notes filled in.':
+    'A escala menor completa de sete notas: o desenho da pentatônica menor com mais duas notas preenchendo os espaços.',
+  'The seven-note major scale — the one every other scale is compared to.':
+    'A escala maior de sete notas: aquela com a qual todas as outras são comparadas.',
+  'One shape, two names':
+    'Uma forma, dois nomes',
+  'Same box, new home note':
+    'Mesmo desenho, nova nota de repouso',
+  'Your path':
+    'Seu caminho',
+  'Step passed! Next up:':
+    'Etapa concluída! A seguir:',
+  'Step passed!':
+    'Etapa concluída!',
+  'Not passed yet — one more clean session usually does it.':
+    'Ainda não concluída: normalmente basta mais uma sessão limpa.',
+  'Start this step':
+    'Começar esta etapa',
+  'Path complete! Practise any step again, or open More options for every scale.':
+    'Caminho concluído! Pratique de novo qualquer etapa ou abra Mais opções para ver todas as escalas.',
+  'Hide steps':
+    'Ocultar etapas',
+  'All steps':
+    'Todas as etapas',
+  'Finish the steps before it to unlock this one.':
+    'Conclua as etapas anteriores para desbloquear esta.',
+  'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
+    'As mesmas cinco notas, a mesma forma. Comece e termine em {minor} e elas soam como uma pentatônica menor: escura e com cara de blues. Comece e termine em {major} e exatamente as mesmas notas soam como uma pentatônica maior: brilhante e doce.',
+  'On the thickest string, the major home note sits three frets above the minor one.':
+    'Na corda mais grossa, a nota de repouso maior fica três casas acima da menor.',
+  'Count the degrees from':
+    'Contar os graus a partir de',
+  'Back to the path':
+    'Voltar ao caminho',
+
 };

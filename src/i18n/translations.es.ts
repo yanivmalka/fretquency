@@ -1344,4 +1344,52 @@ export const es: Record<string, string> = {
   'Show fingers': 'Mostrar dedos',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'El número pequeño de cada nota es el dedo que la toca: 1 índice, 2 medio, 3 anular, 4 meñique, 0 cuerda al aire. Un dedo por traste: la mano se queda quieta y cada dedo se encarga de su traste.',
+  // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
+  'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
+    'Cinco notas en un patrón pequeño cerca de la tónica: la forma con la que empiezan la mayoría de los solos. Mírala una vez y luego tócala tú.',
+  'The same five notes, one box further: the root moves to the next string.':
+    'Las mismas cinco notas, un patrón más allá: la tónica pasa a la siguiente cuerda.',
+  'One run that crosses from box 1 into box 2 and back, so the two boxes become one stretch of the neck.':
+    'Una sola pasada que cruza del patrón 1 al patrón 2 y vuelve, para que los dos patrones se conviertan en un solo tramo del mástil.',
+  'The box you know is also a major pentatonic — only the home note changes.':
+    'El patrón que ya conoces también es una pentatónica mayor: solo cambia la nota de reposo.',
+  'Play the box you already know, but start and end on its major home note — three frets above the minor root on the thickest string.':
+    'Toca el patrón que ya conoces, pero empieza y termina en su nota de reposo mayor: tres trastes por encima de la tónica menor, en la cuerda más gruesa.',
+  'Box 1 of the minor pentatonic plus one extra note — the flat 5th, the "blue note".':
+    'El patrón 1 de la pentatónica menor más una nota extra: la quinta disminuida, la "blue note".',
+  'The full seven-note minor scale: the minor pentatonic box with two more notes filled in.':
+    'La escala menor completa de siete notas: el patrón de la pentatónica menor con dos notas más que rellenan los huecos.',
+  'The seven-note major scale — the one every other scale is compared to.':
+    'La escala mayor de siete notas: la que se usa para comparar todas las demás.',
+  'One shape, two names':
+    'Una forma, dos nombres',
+  'Same box, new home note':
+    'Mismo patrón, nueva nota de reposo',
+  'Your path':
+    'Tu camino',
+  'Step passed! Next up:':
+    '¡Paso superado! Lo siguiente:',
+  'Step passed!':
+    '¡Paso superado!',
+  'Not passed yet — one more clean session usually does it.':
+    'Aún no superado: normalmente basta con una sesión limpia más.',
+  'Start this step':
+    'Empezar este paso',
+  'Path complete! Practise any step again, or open More options for every scale.':
+    '¡Camino completado! Practica de nuevo cualquier paso o abre Más opciones para ver todas las escalas.',
+  'Hide steps':
+    'Ocultar pasos',
+  'All steps':
+    'Todos los pasos',
+  'Finish the steps before it to unlock this one.':
+    'Termina los pasos anteriores para desbloquear este.',
+  'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
+    'Las mismas cinco notas, la misma forma. Empieza y termina en {minor} y suenan como una pentatónica menor: oscura y bluesera. Empieza y termina en {major} y esas mismas notas suenan como una pentatónica mayor: brillante y dulce.',
+  'On the thickest string, the major home note sits three frets above the minor one.':
+    'En la cuerda más gruesa, la nota de reposo mayor está tres trastes por encima de la menor.',
+  'Count the degrees from':
+    'Contar los grados desde',
+  'Back to the path':
+    'Volver al camino',
+
 };

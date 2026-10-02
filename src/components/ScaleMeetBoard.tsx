@@ -21,11 +21,14 @@ interface Props {
   noteTable: readonly (readonly string[])[];
   stringCount: number;
   maxFret: number;
+  /** A second home note to ring (the relative major/minor's tonic), drawn
+   *  apart from the gold root ring. */
+  secondRootName?: string;
   /** One box outlined on the neck, a finger number on each of its notes. */
   box?: MeetBox | null;
 }
 
-export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount, maxFret, box }: Props) {
+export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount, maxFret, secondRootName, box }: Props) {
   const labels = degreeLabelMap(scale, rootName);
   const frets = Array.from({ length: maxFret + 1 }, (_, f) => f);
   // Lowest (thickest) string on top, like every other neck board here.
@@ -47,6 +50,7 @@ export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount
               let cls = 'scale-meet-tile';
               if (label != null) cls += ' scale-meet-tile-lit';
               if (isRoot) cls += ' scale-meet-tile-root';
+              if (secondRootName != null && name === secondRootName) cls += ' scale-meet-tile-root2';
               const finger = box?.fingers.get(`${s}:${f}`);
               if (box && f >= box.from && f <= box.to) cls += ' scale-meet-tile-box';
               if (finger != null) cls += ' scale-meet-tile-fingered';

@@ -45,6 +45,8 @@ import { cloudPushLearning } from '../learning/learningSync';
 import ScaleFallBoard from './ScaleFallBoard';
 import ScaleOrderBoard from './ScaleOrderBoard';
 import ScaleMeetScreen from './ScaleMeetScreen';
+import ScalePathCard from './ScalePathCard';
+import ScaleRelativeScreen from './ScaleRelativeScreen';
 import ScaleProgressBoard from './ScaleProgressBoard';
 import FingersCard from './FingersCard';
 import { questionFingering } from '../learning/scaleFingering';
@@ -97,6 +99,10 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   // with its degree, a play button and the scale's blurb.
   const [moreOpen, setMoreOpen] = useState(false);
   const [meetOpen, setMeetOpen] = useState(false);
+  // Task C — the guided path card runs its own steps; while one runs, the
+  // rest of the screen hides as for any other exercise.
+  const [pathRunning, setPathRunning] = useState(false);
+  const [relativeOpen, setRelativeOpen] = useState(false);
   // "Meet the scale" always shows one concrete scale type — 'all' (the
   // Selector's "every shipped scale" pick) has no single shape to show, so it
   // falls back to the same beginner default the Selector itself now opens on.
@@ -272,7 +278,8 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     onNote: exercise === 'connectBoxes' ? connectEngine.hear : orderEngine.hear,
   });
 
-  const running = exercise === 'buildScale' ? buildEngine.running
+  const running = pathRunning ? true
+    : exercise === 'buildScale' ? buildEngine.running
     : exercise === 'orderScale' ? orderEngine.running
     : exercise === 'connectBoxes' ? connectEngine.running
     : chipEngine.running;
@@ -360,6 +367,18 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     );
   }
 
+  if (relativeOpen && !running) {
+    return (
+      <ScaleRelativeScreen
+        instrument={instrument}
+        accidental={accidental}
+        notation={notation}
+        lang={lang}
+        onBack={() => { playClickSound(); haptic.tap(); setRelativeOpen(false); }}
+      />
+    );
+  }
+
   if (meetOpen && !running) {
     return (
       <ScaleMeetScreen
@@ -425,6 +444,23 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               <div className="set-card">
                 <ScaleProgressBoard rows={boardRows} />
               </div>
+            )}
+
+            {tab === 'practice' && (
+              <ScalePathCard
+                instrument={instrument}
+                accidental={accidental}
+                notation={notation}
+                lang={lang}
+                now={now}
+                demo={sel.orderDemo}
+                guitar={sel.orderGuitar}
+                direction={sel.direction}
+                hidden={running && !pathRunning}
+                onRunningChange={setPathRunning}
+                onOpenExplain={() => setRelativeOpen(true)}
+                onAnswer={recordAnswer}
+              />
             )}
 
             {/* Beginner-facing simplification: the current pick + a way to see

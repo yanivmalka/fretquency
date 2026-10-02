@@ -7,6 +7,79 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 10 (2026-10-02) — task C: a guided beginner path
+
+From the 2026-10-02 expert-teacher review (product-wishlist.md, Scales,
+item C): 22 scale types is far too many for a beginner to choose from.
+
+**This overrides §6's and §12's "not rendered as a path, no unlock
+thresholds".** The product owner's review asked for an ordered path that
+unlocks in order. §6's ranking is still the order. It is now also shown on
+screen.
+
+- **`src/learning/scaleCurriculum.ts` (pure).** `SCALE_PATH` has eight steps:
+  Minor Pentatonic box 1 → box 2 → connect the boxes → "one shape, two names"
+  (explanation) → Major Pentatonic in the same box with a new home note →
+  Blues box 1 → Natural Minor box 1 → Major box 1. Every practice step is a
+  "Tap the scale in order" run. A step passes when its item is mastered
+  (`isScaleMastered`, the same rule as the Progress board). In practice that
+  is one good focused session of 6 runs, or 3 clean runs in a row.
+  `scalePathProgress` derives the whole state from `scaleSrs` +
+  `scaleHistory`. **No new persistence field, and no `learningState.ts`
+  change.** The explanation step gates nothing. It counts as done once its
+  practice step has an answer, and the practice step unlocks at the same time
+  as the explanation. A later step practised early (through More options)
+  shows ✓ but does not unlock the steps before it.
+- **"Same box, new home note" is literally the same frets.**
+  `relativeBoxPosition` takes the relative minor's box 1 window and shifts it
+  down 3 frets onto the major root, on the same string. The app's own Major
+  Pentatonic box 1 is a different shape: it is generated from its own root.
+  The relative step is tracked as its own item at the reserved
+  `RELATIVE_BOX_INDEX = 9`, like connect's `0`. 9 stays clear of any future
+  authored box (5 CAGED, 7 three-notes-per-string). `parseScaleItemId`
+  already accepts it, so older builds keep its history rows.
+  `pickRelativeBoxQuestion` plugs into `useScaleOrderEngine`'s
+  `pickQuestion`. Major ↔ Natural Minor is in `RELATIVE_MINOR_OF` too, but
+  the path does not use it yet.
+- **`ScalePathCard.tsx`** sits at the top of the Practice tab, above the
+  current-pick card. It shows the path's progress dots, the next step with a
+  one-line "why", Start, and an "All steps" list. Steps show ✓ passed,
+  ● current, ○ available or 🔒 locked; locked steps are disabled, and a passed
+  step can be picked again. The card runs its steps on its own
+  `useScaleOrderEngine` + `ScaleOrderBoard`. It follows the Selector's "Watch,
+  then play", guitar answer mode and direction, at the `focused` envelope.
+  The host only hides its other cards while the card runs
+  (`pathRunning` in `ScalePracticeScreen.tsx`). More options and the
+  0014cd1 "Start with: Minor Pentatonic / Major" picker are unchanged below
+  it.
+- **`ScaleRelativeScreen.tsx` ("one shape, two names")** shows the whole neck
+  on `ScaleMeetBoard`, with A (gold) and C both ringed through the new
+  optional `secondRootName` prop. A switch re-counts the degree labels from
+  either home note; the lit cells never move. Two buttons play the run from A
+  and from C, octave included, so the learner hears that the home note
+  changes the sound.
+- **Verified:** `scripts/check-scale-curriculum.mts` (new) checks guitar and
+  bass. The relative box is fret-for-fret the minor box 1 at every root.
+  300 random relative questions per direction start and end on the tonic.
+  The script also checks the path order and every unlock/pass transition.
+  Every other `check-scale-*`, `check-learning` and `check-learning-path`
+  script passes, except task B's in-progress `check-scale-timing`. `tsc -b`
+  and eslint are clean.
+  - Live in Chromium (Playwright, 420×900, `devSimulateTier='premium'`), in
+    English and in Hebrew. Checked: a fresh path, the locked list, the
+    explanation (board `dir="ltr"`, re-counting keeps the same lit cells, no
+    page overflow), and a full 6-run relative session. That session recorded
+    6 `orderScale` rows for `scale:majorPentatonic:9`, passed the step and
+    moved to Blues box 1. There were no app console errors. Hebrew had no
+    untranslated strings.
+  - A note for testing: a **guest's** learning blob is wiped on every load
+    (`useCloudSync.ts`, signed-out branch). A guest with a simulated Premium
+    tier therefore loses path progress on reload. A signed-in Premium user
+    does not.
+- **Open:** whether the 0014cd1 start picker should fold into the path (for
+  example, a Major-first path) or stay as it is (product decision). The
+  Major ↔ Natural Minor relative explanation is also not built yet.
+
 ## Session 10 (2026-10-02) — fingering on the box (wishlist task D)
 
 From the expert-teacher review (product-wishlist, Scales, item D): no screen

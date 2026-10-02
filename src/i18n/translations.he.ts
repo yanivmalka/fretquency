@@ -1356,4 +1356,52 @@ export const he: Record<string, string> = {
   'Show fingers': 'הצג אצבעות',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'המספר הקטן על כל תו הוא האצבע שמנגנת אותו: 1 אצבע מורה, 2 אמה, 3 קמיצה, 4 זרת, 0 מיתר פתוח. אצבע אחת לכל סריג — היד נשארת במקומה וכל אצבע אחראית על הסריג שלה.',
+  // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
+  'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
+    'חמישה תווים בתבנית קטנה אחת ליד השורש — הצורה שממנה מתחילים רוב הסולואים. צפו בה פעם אחת, ואז נגנו אותה בחזרה.',
+  'The same five notes, one box further: the root moves to the next string.':
+    'אותם חמישה תווים, תבנית אחת הלאה: השורש עובר למיתר הבא.',
+  'One run that crosses from box 1 into box 2 and back, so the two boxes become one stretch of the neck.':
+    'ריצה אחת שעוברת מתבנית 1 לתבנית 2 וחזרה, כך ששתי התבניות הופכות לקטע אחד של הצוואר.',
+  'The box you know is also a major pentatonic — only the home note changes.':
+    'התבנית שאתם כבר מכירים היא גם פנטטוני מז\'ורי — רק תו הבית משתנה.',
+  'Play the box you already know, but start and end on its major home note — three frets above the minor root on the thickest string.':
+    'נגנו את התבנית שאתם כבר מכירים, אבל התחילו וסיימו על תו הבית המז\'ורי שלה — שלושה סריגים מעל השורש המינורי, על המיתר העבה ביותר.',
+  'Box 1 of the minor pentatonic plus one extra note — the flat 5th, the "blue note".':
+    'תבנית 1 של הפנטטוני המינורי ועוד תו אחד — הקווינטה המוקטנת, "התו הכחול".',
+  'The full seven-note minor scale: the minor pentatonic box with two more notes filled in.':
+    'סולם המינור המלא, בן שבעה תווים: התבנית של הפנטטוני המינורי עם עוד שני תווים שממלאים את הרווחים.',
+  'The seven-note major scale — the one every other scale is compared to.':
+    'סולם המז\'ור בן שבעה התווים — הסולם שאליו משווים את כל השאר.',
+  'One shape, two names':
+    'צורה אחת, שני שמות',
+  'Same box, new home note':
+    'אותה תבנית, תו בית חדש',
+  'Your path':
+    'המסלול שלך',
+  'Step passed! Next up:':
+    'השלב עבר! הבא בתור:',
+  'Step passed!':
+    'השלב עבר!',
+  'Not passed yet — one more clean session usually does it.':
+    'עוד לא עבר — בדרך כלל עוד סשן נקי אחד מספיק.',
+  'Start this step':
+    'התחילו את השלב',
+  'Path complete! Practise any step again, or open More options for every scale.':
+    'המסלול הושלם! אפשר לתרגל שוב כל שלב, או לפתוח את "אפשרויות נוספות" בשביל כל הסולמות.',
+  'Hide steps':
+    'הסתר שלבים',
+  'All steps':
+    'כל השלבים',
+  'Finish the steps before it to unlock this one.':
+    'סיימו את השלבים שלפניו כדי לפתוח אותו.',
+  'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
+    'אותם חמישה תווים, אותה צורה. התחילו וסיימו על {minor} והם נשמעים כמו פנטטוני מינורי — כהה ובלוזי. התחילו וסיימו על {major} ואותם תווים בדיוק נשמעים כמו פנטטוני מז\'ורי — בהיר ומתוק.',
+  'On the thickest string, the major home note sits three frets above the minor one.':
+    'על המיתר העבה ביותר, תו הבית המז\'ורי נמצא שלושה סריגים מעל המינורי.',
+  'Count the degrees from':
+    'לספור את הדרגות מ־',
+  'Back to the path':
+    'חזרה למסלול',
+
 };

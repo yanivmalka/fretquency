@@ -1348,4 +1348,52 @@ export const fr: Record<string, string> = {
   'Show fingers': 'Afficher les doigts',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'Le petit chiffre sur chaque note est le doigt qui la joue : 1 index, 2 majeur, 3 annulaire, 4 auriculaire, 0 corde à vide. Un doigt par case — la main reste en place et chaque doigt garde sa case.',
+  // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
+  'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
+    'Cinq notes dans un petit motif près de la fondamentale : la forme par laquelle commencent la plupart des solos. Regarde-la une fois, puis rejoue-la.',
+  'The same five notes, one box further: the root moves to the next string.':
+    'Les cinq mêmes notes, un motif plus loin : la fondamentale passe sur la corde suivante.',
+  'One run that crosses from box 1 into box 2 and back, so the two boxes become one stretch of the neck.':
+    'Un seul passage qui va du motif 1 au motif 2 et revient, pour que les deux motifs ne fassent plus qu\'une seule portion du manche.',
+  'The box you know is also a major pentatonic — only the home note changes.':
+    'Le motif que tu connais est aussi une pentatonique majeure : seule la note de repos change.',
+  'Play the box you already know, but start and end on its major home note — three frets above the minor root on the thickest string.':
+    'Joue le motif que tu connais déjà, mais commence et termine sur sa note de repos majeure : trois cases au-dessus de la fondamentale mineure, sur la corde la plus grave.',
+  'Box 1 of the minor pentatonic plus one extra note — the flat 5th, the "blue note".':
+    'Le motif 1 de la pentatonique mineure plus une note : la quinte diminuée, la « blue note ».',
+  'The full seven-note minor scale: the minor pentatonic box with two more notes filled in.':
+    'La gamme mineure complète de sept notes : le motif de la pentatonique mineure avec deux notes de plus qui comblent les trous.',
+  'The seven-note major scale — the one every other scale is compared to.':
+    'La gamme majeure de sept notes : celle à laquelle on compare toutes les autres.',
+  'One shape, two names':
+    'Une forme, deux noms',
+  'Same box, new home note':
+    'Même motif, nouvelle note de repos',
+  'Your path':
+    'Ton parcours',
+  'Step passed! Next up:':
+    'Étape réussie ! Ensuite :',
+  'Step passed!':
+    'Étape réussie !',
+  'Not passed yet — one more clean session usually does it.':
+    'Pas encore réussie : en général, une session propre de plus suffit.',
+  'Start this step':
+    'Commencer cette étape',
+  'Path complete! Practise any step again, or open More options for every scale.':
+    'Parcours terminé ! Refais n\'importe quelle étape, ou ouvre Plus d\'options pour toutes les gammes.',
+  'Hide steps':
+    'Masquer les étapes',
+  'All steps':
+    'Toutes les étapes',
+  'Finish the steps before it to unlock this one.':
+    'Termine les étapes précédentes pour débloquer celle-ci.',
+  'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
+    'Les cinq mêmes notes, la même forme. Commence et termine sur {minor} et elles sonnent comme une pentatonique mineure : sombre et bluesy. Commence et termine sur {major} et exactement les mêmes notes sonnent comme une pentatonique majeure : lumineuse et douce.',
+  'On the thickest string, the major home note sits three frets above the minor one.':
+    'Sur la corde la plus grave, la note de repos majeure se trouve trois cases au-dessus de la mineure.',
+  'Count the degrees from':
+    'Compter les degrés depuis',
+  'Back to the path':
+    'Retour au parcours',
+
 };

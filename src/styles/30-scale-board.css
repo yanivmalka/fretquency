@@ -664,3 +664,133 @@
 .scale-meet-box-caption {
   margin: 0 0 8px;
 }
+
+/* ── Task C: the guided beginner path (ScalePathCard.tsx) + the
+   "one shape, two names" view (ScaleRelativeScreen.tsx) ── */
+.scale-path-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.scale-path-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.scale-path-count {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text-1);
+  direction: ltr;
+}
+.scale-path-dots {
+  display: flex;
+  gap: 4px;
+}
+.scale-path-dot {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-2);
+  border: 1px solid var(--surface-border);
+}
+.scale-path-dot-done {
+  background: var(--accent);
+  border-color: transparent;
+}
+.scale-path-dot-current,
+.scale-path-dot-available {
+  background: color-mix(in srgb, var(--accent) 35%, var(--bg-2));
+}
+.scale-path-next {
+  font-weight: 800;
+  font-size: 1.02rem;
+  color: var(--text-0);
+}
+.scale-path-summary {
+  font-weight: 700;
+  color: var(--text-1);
+}
+.scale-path-explain-new {
+  box-shadow: inset 0 0 0 2px var(--pick-accent);
+}
+.scale-path-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scale-path-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  text-align: start;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  background: var(--bg-1);
+  color: var(--text-0);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.scale-path-step-icon {
+  flex: none;
+  width: 1.4em;
+  text-align: center;
+  font-weight: 800;
+}
+.scale-path-step-done .scale-path-step-icon {
+  color: var(--accent);
+}
+.scale-path-step-current {
+  border-color: var(--accent);
+}
+.scale-path-step-locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.scale-path-step-selected {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.scale-meet-tile-root2 {
+  box-shadow: inset 0 0 0 2px var(--pick-accent);
+  background: color-mix(in srgb, var(--pick-accent) 25%, var(--bg-2));
+}
+.scale-relative-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.scale-relative-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.scale-relative-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  flex: none;
+}
+.scale-relative-swatch-root {
+  box-shadow: inset 0 0 0 2px var(--gold);
+  background: color-mix(in srgb, var(--gold) 25%, var(--bg-2));
+}
+.scale-relative-swatch-root2 {
+  box-shadow: inset 0 0 0 2px var(--pick-accent);
+  background: color-mix(in srgb, var(--pick-accent) 25%, var(--bg-2));
+}
+.scale-relative-count {
+  margin: 4px 0 8px;
+}
