@@ -46,6 +46,8 @@ import ScaleFallBoard from './ScaleFallBoard';
 import ScaleOrderBoard from './ScaleOrderBoard';
 import ScaleMeetScreen from './ScaleMeetScreen';
 import ScaleProgressBoard from './ScaleProgressBoard';
+import FingersCard from './FingersCard';
+import { questionFingering } from '../learning/scaleFingering';
 import IntervalChoiceRow from './IntervalChoiceRow';
 import { ProGate } from './ProGate';
 import { useTranslation } from '../i18n/useTranslation';
@@ -368,6 +370,9 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
         scaleTypeId={meetScaleTypeId}
         onBack={() => { playClickSound(); haptic.tap(); setMeetOpen(false); }}
         onStart={() => { playClickSound(); haptic.tap(); setMeetOpen(false); }}
+        fingers={sel.fingers}
+        onFingersChange={sel.setFingers}
+        positionIndex={sel.positionMode === 'one' ? sel.positionIndex : 1}
       />
     );
   }
@@ -776,6 +781,10 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
               </div>
             )}
 
+            {/* Task D — finger numbers on the box. */}
+            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
+              <FingersCard on={sel.fingers} onChange={sel.setFingers} />
+            )}
             {!running && tab === 'practice' && !finished && exercise === 'orderScale' && (
               <div className="set-card">
                 <p className="set-card-help">
@@ -892,6 +901,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   accidental={accidental}
                   notation={notation}
                   onTap={orderEngine.tap}
+                  fingers={sel.fingers ? questionFingering(orderEngine.question, instrument.stringCount) : null}
                 />
                 <button
                   type="button"

@@ -1343,4 +1343,9 @@ export const fr: Record<string, string> = {
     'Note étouffée : effleure la corde sans appuyer et joue-la — un clic bref sans hauteur.',
   'Palm mute: rest the side of the picking hand on the strings by the bridge, for a short, muffled sound.':
     'Palm mute : pose le tranchant de la main qui joue sur les cordes près du chevalet, pour un son bref et étouffé.',
+
+  // Task D — Scales fingering ("Show fingers" on the box).
+  'Show fingers': 'Afficher les doigts',
+  'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
+    'Le petit chiffre sur chaque note est le doigt qui la joue : 1 index, 2 majeur, 3 annulaire, 4 auriculaire, 0 corde à vide. Un doigt par case — la main reste en place et chaque doigt garde sa case.',
 };

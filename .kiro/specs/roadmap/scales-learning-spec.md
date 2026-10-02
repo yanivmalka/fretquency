@@ -7,6 +7,78 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 10 (2026-10-02) — fingering on the box (wishlist task D)
+
+From the expert-teacher review (product-wishlist, Scales, item D): no screen
+said which finger plays each note, so beginners build bad habits early.
+This supersedes §1.2's and §8.5's "fingering guidance is out of scope".
+
+- **The rule was researched, not invented.** The standard position-playing
+  rule (one finger per fret; William Leavitt's *Modern Method for Guitar*
+  positions): the hand sits on four "home" frets, finger n on home fret n,
+  and a note one fret outside that zone is reached by an index stretch back
+  or a pinky stretch forward. Index stretches are preferred when both work
+  (the 1–2 stretch is the easier one). It reproduces the published charts
+  exactly. Minor pentatonic box 1 is 1-4 / 1-3 / 1-3 / 1-3 / 1-4 / 1-4. The
+  5th-string minor pentatonic box is 1-4 / 1-4 / 1-3 / 1-3 / 2-4 / 1-4. Major
+  with the root under finger 2 is 1-2-4 / 1-2-4 / 1-3-4 / 1-3-4 / 2-4 /
+  1-2-4. Major pentatonic from finger 2 is 2-4 / 1-4 / 1-4 / 1-3 / 2-4 / 2-4.
+  One refinement came from those charts: a string's notes keep one finger
+  per fret, with the hand moving a fret for that string, rather than two
+  fingers squeezing (natural minor's 4-5-7 is 1-2-4, not 1-2-3). Only a
+  string whose own notes span five frets takes a real stretch.
+- **`fingeringFor(shape, window)`** (`src/utils/scales.ts`, pure, appended):
+  finger per `"<string>:<fret>"` (0 = open string). It picks the home frets
+  that need the fewest stretches; on a tie it puts the index on the box's
+  root fret. It returns `null` when the notes span more than six frets (one
+  hand position can't hold them). "Connect the boxes" always hits this, so
+  that board shows no fingers.
+- **`src/learning/scaleFingering.ts`** — `questionFingering(question)` for
+  the order board, `meetBox(...)` for the box "Meet the scale" outlines (box
+  1, or the box picked under Position, at the lowest fret where the root
+  fits).
+- **"Show fingers"** (`ssel_fingers`, **on by default** so a beginner meets
+  the fingering with the shape; cloud-synced by the existing `ssel_` prefix
+  in `settingsSync.ts`). The toggle is a new `FingersCard.tsx`, shown under
+  "More options" for "Tap the scale in order" and on "Meet the scale".
+- **Drawing.** `ScaleOrderBoard` takes one optional `fingers` prop and draws
+  a small inverted dot in the bottom-start corner of each scale tile (the
+  run step stays top-end). `ScaleMeetBoard` takes one optional `box` prop:
+  it outlines the box's frets and stacks the finger under the degree (the
+  26px tile has no room for a corner badge). The text is never transformed,
+  so numbers stay readable when the left-handed setting mirrors the rows.
+  **Recall mode (task A):** a shape tile left dim keeps its finger hidden
+  (CSS) until found, since the finger would give the note away.
+- **Verified.**
+  - `scripts/check-scale-fingering.mts` checks the published fingerings
+    above. Across every instrument variant (37) × every scale type (22) ×
+    every box × every root fret (30,448 boxes, 1,446 with open strings):
+    every note gets a finger, fretted notes only 1–4, open strings 0, and
+    fingers non-decreasing (in fact strictly increasing) with the fret on
+    each string. Connect-the-boxes is null whenever it needs a shift.
+    1,184,507 checks pass.
+  - `tsc -b` and eslint are clean, and every other `check-scale-*` passes.
+    `check-scale-timing` was failing from task B's in-progress work, not
+    this change.
+  - Live in Chromium (Playwright, 420×900, `devSimulateTier='premium'`,
+    zero console errors):
+    - English guitar: Meet and order board, with Off saved and hiding every
+      finger.
+    - Hebrew bass, left-handed: order board mirrored, numbers readable.
+    - Hebrew guitar with Recall level 1: only lit tiles show fingers.
+    - Hebrew bass Meet: the box caption's fret range is isolated as LTR
+      after the first check showed it reversed.
+    - Both boards stay `dir="ltr"`.
+- **Still open.**
+  - Fingers for "Connect the boxes": it needs a shift fingering (where the
+    hand moves between boxes), a different rule.
+  - The Meet board's horizontal scroll doesn't bring the box into view. A
+    box above fret 12 starts off-screen in English (in an RTL page the
+    scroll starts at the high end). This was already the case before this
+    change.
+  - No alternative fingerings (e.g. finger 3 on the top strings for blues
+    bends).
+
 ## Session 9 (2026-10-01) — simplify the home screen + "Meet the scale"
 
 The product owner had fed back (via the real app) that the Scales screen was
@@ -1435,7 +1507,7 @@ first release, mirroring how Intervals shipped with exactly two.
 | ~~**Connect-the-boxes**~~ | ~~A drill that spans two adjacent positions as one shape~~ | **Shipped, Session 8** — a fifth exercise, "Connect the boxes" (see Session 8 above) |
 | **Auto Advance + scale stage sequence** | Guided walk through the curriculum groups automatically | `scaleStageSequence.ts`; a Selector toggle |
 | **Scale-over-chord application** | "Which scale fits this chord?" | Chord content (premium-product-plan.md P6) |
-| **Fingering / technique guidance** | Recommended fingering overlay | Out of scope for a note-recognition-first app |
+| ~~**Fingering / technique guidance**~~ | ~~Recommended fingering overlay~~ | **Fingering shipped, Session 10** ("Show fingers"); technique guidance still open |
 
 ---
 

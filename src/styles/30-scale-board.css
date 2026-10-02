@@ -612,3 +612,55 @@
   font-weight: 600;
   color: var(--text-2);
 }
+
+/* ── Task D: finger numbers on the box ──
+   A small inverted dot in the tile's bottom-start corner (the run step sits
+   top-end). Text is never transformed, so it stays readable when the
+   left-handed setting mirrors the rows. A shape tile left dim by Recall mode
+   keeps its finger hidden until it is found — the finger would give it away. */
+.scale-finger {
+  position: absolute;
+  bottom: 2px;
+  inset-inline-start: 3px;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 0.15em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--text-0);
+  color: var(--bg-1);
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+.scale-order-tile:not(.scale-order-tile-lit):not(.scale-order-tile-found):not(.scale-order-tile-demo) .scale-finger {
+  display: none;
+}
+/* A 26px tile is too small for a corner badge beside the degree: stack them,
+   the degree on top and the finger under it. */
+.scale-meet-tile-fingered {
+  flex-direction: column;
+  gap: 1px;
+}
+.scale-meet-tile-fingered .scale-meet-degree { line-height: 1; }
+.scale-meet-tile .scale-finger {
+  position: static;
+  min-width: 0;
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  font-size: 0.5rem;
+}
+/* The box "Meet the scale" outlines: its frets, every string. */
+.scale-meet-tile-box {
+  border-color: var(--text-2);
+}
+.scale-meet-tile-box:not(.scale-meet-tile-lit) {
+  background: var(--bg-2);
+}
+.scale-meet-box-caption {
+  margin: 0 0 8px;
+}

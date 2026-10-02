@@ -1339,4 +1339,9 @@ export const it: Record<string, string> = {
     'Nota stoppata: tocca la corda senza premerla e pizzicala — un breve clic senza intonazione.',
   'Palm mute: rest the side of the picking hand on the strings by the bridge, for a short, muffled sound.':
     'Palm mute: appoggia il taglio della mano che pizzica sulle corde vicino al ponte, per un suono breve e smorzato.',
+
+  // Task D — Scales fingering ("Show fingers" on the box).
+  'Show fingers': 'Mostra le dita',
+  'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
+    'Il numerino su ogni nota è il dito che la suona: 1 indice, 2 medio, 3 anulare, 4 mignolo, 0 corda a vuoto. Un dito per tasto: la mano resta ferma e ogni dito si occupa del suo tasto.',
 };

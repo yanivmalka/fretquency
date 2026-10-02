@@ -206,6 +206,11 @@ export function useScaleSelector(stringCount: number) {
 
   const buildEnvelope = (isChipExercise: boolean): ScaleEnvelope => envelopeFor(difficulty, isChipExercise, speedLevel);
 
+  // Task D — "Show fingers": a finger number on every note of the box. On by
+  // default so a beginner learns the fingering with the shape.
+  const [fingers, setFingersState] = useState<boolean>(() => loadSetting<boolean>('ssel_fingers', true) !== false);
+  const setFingers = (on: boolean) => { setFingersState(on); saveSetting('ssel_fingers', on); };
+
   return {
     direction, dirUp, dirDown, toggleDirection,
     speedLevel, setSpeedLevel,
@@ -222,5 +227,6 @@ export function useScaleSelector(stringCount: number) {
     difficulty, difficultyStored, setDifficulty,
     pool,
     buildEnvelope,
+    fingers, setFingers,
   };
 }

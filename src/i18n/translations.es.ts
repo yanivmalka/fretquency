@@ -1339,4 +1339,9 @@ export const es: Record<string, string> = {
     'Nota apagada: toca la cuerda sin presionarla y púlsala — un clic corto sin altura.',
   'Palm mute: rest the side of the picking hand on the strings by the bridge, for a short, muffled sound.':
     'Palm mute: apoya el canto de la mano que pulsa sobre las cuerdas junto al puente, para un sonido corto y apagado.',
+
+  // Task D — Scales fingering ("Show fingers" on the box).
+  'Show fingers': 'Mostrar dedos',
+  'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
+    'El número pequeño de cada nota es el dedo que la toca: 1 índice, 2 medio, 3 anular, 4 meñique, 0 cuerda al aire. Un dedo por traste: la mano se queda quieta y cada dedo se encarga de su traste.',
 };

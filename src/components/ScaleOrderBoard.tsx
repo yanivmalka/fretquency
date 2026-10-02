@@ -32,10 +32,12 @@ interface Props {
   accidental: AccidentalMode;
   notation: NotationMode;
   onTap: (string: number, fret: number) => void;
+  /** Finger per scale note (`"<string>:<fret>"`, 0 = open), or none. */
+  fingers?: ReadonlyMap<string, number> | null;
 }
 
 export default function ScaleOrderBoard({
-  board, step, slips, wrongTile, demoStep, rootName, noteTable, stringCount, accidental, notation, onTap,
+  board, step, slips, wrongTile, demoStep, rootName, noteTable, stringCount, accidental, notation, onTap, fingers,
 }: Props) {
   const frets: number[] = [];
   for (let f = board.fromFret; f <= board.toFret; f++) frets.push(f);
@@ -78,6 +80,7 @@ export default function ScaleOrderBoard({
               >
                 <span className="scale-order-note">{displayNote(name, accidental, notation)}</span>
                 {(found || demoing) && <span className="scale-order-step">{tileStep + 1}</span>}
+                {lit && fingers?.has(`${s}:${f}`) && <span className="scale-finger">{fingers.get(`${s}:${f}`)}</span>}
               </button>
             );
           })}

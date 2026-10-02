@@ -24,6 +24,8 @@ import { playNoteSequence } from '../utils/audio';
 import { useTranslation } from '../i18n/useTranslation';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import { playClickSound, haptic } from '../utils/feedback';
+import { meetBox } from '../learning/scaleFingering';
+import FingersCard from './FingersCard';
 
 const ROOT_KEY = 'ssel_info_root';
 
@@ -35,9 +37,16 @@ interface Props {
   scaleTypeId: string;
   onBack: () => void;
   onStart: () => void;
+  /** "Show fingers": outline this box on the neck with its fingering. */
+  fingers?: boolean;
+  onFingersChange?: (on: boolean) => void;
+  positionIndex?: number;
 }
 
-export default function ScaleMeetScreen({ instrument, accidental, notation, lang, scaleTypeId, onBack, onStart }: Props) {
+export default function ScaleMeetScreen({
+  instrument, accidental, notation, lang, scaleTypeId, onBack, onStart,
+  fingers = false, onFingersChange, positionIndex = 1,
+}: Props) {
   const { t } = useTranslation();
   const [root, setRootState] = useState<string>(() => {
     const raw = loadSetting<string>(ROOT_KEY, 'A');
@@ -62,6 +71,10 @@ export default function ScaleMeetScreen({ instrument, accidental, notation, lang
   };
 
   if (!scale) return null;
+
+  const box = fingers
+    ? meetBox(scaleTypeId, positionIndex, root, instrument.notes, instrument.stringCount, instrument.maxFret)
+    : null;
 
   return (
     <div className="app settings-page">
@@ -106,11 +119,19 @@ export default function ScaleMeetScreen({ instrument, accidental, notation, lang
               noteTable={instrument.notes}
               stringCount={instrument.stringCount}
               maxFret={instrument.maxFret}
+              box={box}
             />
+            {box && (
+              <p className="set-card-help scale-meet-box-caption">
+                {t('Box')} {positionIndex} · {t('frets')} <bdi dir="ltr">{box.from}–{box.to}</bdi>
+              </p>
+            )}
             <button type="button" className="set-card-btn" onClick={play}>
               ▶ {t('Play the scale')}
             </button>
           </div>
+
+          {onFingersChange && <FingersCard on={fingers} onChange={onFingersChange} />}
 
           <div className="set-card">
             <button type="button" className="set-card-btn set-card-btn-primary" onClick={onStart}>

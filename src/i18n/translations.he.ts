@@ -1351,4 +1351,9 @@ export const he: Record<string, string> = {
   'Vibrato: let the note ring and shake its pitch slightly by moving the string.': 'ויברטו: נותנים לתו להדהד ומנענעים מעט את גובה הצליל בתנועה של המיתר.',
   'Muted note: touch the string without pressing it down and pick — a short click with no pitch.': 'צליל מושתק: נוגעים במיתר בלי ללחוץ אותו ופורטים — נקישה קצרה בלי גובה צליל.',
   'Palm mute: rest the side of the picking hand on the strings by the bridge, for a short, muffled sound.': 'פאלם־מיוט: מניחים את צד כף היד הפורטת על המיתרים ליד הגשר, לצליל קצר ועמום.',
+
+  // Task D — Scales fingering ("Show fingers" on the box).
+  'Show fingers': 'הצג אצבעות',
+  'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
+    'המספר הקטן על כל תו הוא האצבע שמנגנת אותו: 1 אצבע מורה, 2 אמה, 3 קמיצה, 4 זרת, 0 מיתר פתוח. אצבע אחת לכל סריג — היד נשארת במקומה וכל אצבע אחראית על הסריג שלה.',
 };

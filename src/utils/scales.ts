@@ -333,3 +333,93 @@ export function shapeAtRoot(
   }
   return out;
 }
+
+// ── Fingering (task D, 2026-10-02) ───────────────────────────────────────
+//
+// Fretting-hand finger per note of a box: 1 index, 2 middle, 3 ring,
+// 4 pinky, 0 an open string. Follows the standard position-playing rule
+// (one finger per fret; Leavitt's "Modern Method" positions): the hand sits
+// on four "home" frets, finger n on home fret n, and a note one fret outside
+// that zone is reached by stretching the index back or the pinky forward.
+// That reproduces the published box fingerings (minor pentatonic box 1:
+// 1-4 / 1-3 / 1-3 / 1-3 / 1-4 / 1-4; major with the root under finger 2).
+
+/** Two notes on one string under the same finger cost more than any stretch. */
+const SAME_FINGER_COST = 3;
+
+/** One string's fingers with the hand's home on `home` (index's fret).
+ *  Notes that fit in four frets keep one finger per fret, the hand moving
+ *  by the fewest frets from home (cost = frets moved) — e.g. frets 4-5-7
+ *  with home 5 are 1-2-4, not a squeezed 1-2-3. Only a string whose own
+ *  notes span five frets needs a real index or pinky stretch. */
+function stringFingers(frets: readonly number[], home: number): { fingers: number[]; cost: number } {
+  const lo = frets[0];
+  const hi = frets[frets.length - 1];
+  if (hi - lo <= 3) {
+    let anchor = hi - 3;
+    for (let a = hi - 3; a <= lo; a++) if (Math.abs(a - home) < Math.abs(anchor - home)) anchor = a;
+    return { fingers: frets.map((f) => f - anchor + 1), cost: Math.abs(anchor - home) };
+  }
+  return stretchFingers(frets.map((f) => f - home + 1));
+}
+
+function stretchFingers(desired: readonly number[]): { fingers: number[]; cost: number } {
+  let best: { fingers: number[]; cost: number } = { fingers: [], cost: Infinity };
+  const walk = (i: number, prev: number, acc: number[], cost: number) => {
+    if (cost >= best.cost) return;
+    if (i === desired.length) { best = { fingers: [...acc], cost }; return; }
+    for (let f = Math.max(1, prev); f <= 4; f++) {
+      acc.push(f);
+      walk(i + 1, f, acc, cost + Math.abs(f - desired[i]) + (f === prev ? SAME_FINGER_COST : 0));
+      acc.pop();
+    }
+  };
+  walk(0, 0, [], 0);
+  return best;
+}
+
+/** Finger per note of `shape` (keyed `"<string>:<fret>"`), for a box whose
+ *  window is the absolute frets `window.from..window.to`. The four home
+ *  frets are chosen to need the fewest stretches; on a tie the index sits
+ *  on the fret after `window.from` (a box's root fret), so the stretch is
+ *  the index reaching back — the easier one. Returns `null` when the
+ *  fretted notes span more than six frets: one hand position cannot hold
+ *  them (e.g. "Connect the boxes", which needs a shift). */
+export function fingeringFor(
+  shape: readonly NeckPos[],
+  window: { from: number; to: number },
+): Map<string, number> | null {
+  const out = new Map<string, number>();
+  const fretted = shape.filter((p) => p.fret > 0);
+  for (const p of shape) if (p.fret === 0) out.set(`${p.string}:0`, 0);
+  if (fretted.length === 0) return out;
+  const lo = Math.min(...fretted.map((p) => p.fret));
+  const hi = Math.max(...fretted.map((p) => p.fret));
+  if (hi - lo > 5) return null;
+
+  const byString = new Map<number, number[]>();
+  for (const p of fretted) byString.set(p.string, [...(byString.get(p.string) ?? []), p.fret]);
+  for (const frets of byString.values()) frets.sort((a, b) => a - b);
+
+  const preferredHome = window.from + 1;
+  let chosen: { home: number; cost: number; perString: Map<number, number[]> } | null = null;
+  for (let home = hi - 4; home <= lo + 1; home++) {
+    let cost = 0;
+    const perString = new Map<number, number[]>();
+    for (const [s, frets] of byString) {
+      const r = stringFingers(frets, home);
+      cost += r.cost;
+      perString.set(s, r.fingers);
+    }
+    const better = !chosen
+      || cost < chosen.cost
+      || (cost === chosen.cost
+        && Math.abs(home - preferredHome) < Math.abs(chosen.home - preferredHome));
+    if (better) chosen = { home, cost, perString };
+  }
+  for (const [s, frets] of byString) {
+    const fingers = chosen!.perString.get(s)!;
+    frets.forEach((f, i) => out.set(`${s}:${f}`, fingers[i]));
+  }
+  return out;
+}
