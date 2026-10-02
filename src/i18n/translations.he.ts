@@ -1417,4 +1417,26 @@ export const he: Record<string, string> = {
   'Back to the path':
     'חזרה למסלול',
 
+
+  // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
+  'Metronome': 'מטרונום',
+  'Slower': 'לאט יותר',
+  'Faster': 'מהר יותר',
+  'Tempo': 'טמפו',
+  'Play one note on each click. After a clean run — no wrong notes and nearly every note on the click — the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'נגנו תו אחד על כל קליק. אחרי ריצה נקייה — בלי תווים שגויים וכמעט כל תו על הקליק — הטמפו עולה ב־4 BPM. לכל סולם ולכל תבנית יש טמפו משלהם.',
+  'The scales and boxes you picked have different tempos — this sets them all.':
+    'לסולמות ולתבניות שבחרתם יש טמפו שונה — השינוי כאן קובע את כולם.',
+  'On time': 'בזמן',
+  'Early': 'מוקדם',
+  'Late': 'מאוחר',
+  'Last run': 'הריצה האחרונה',
+  'on the click': 'על הקליק',
+  'early': 'מוקדם',
+  'late': 'מאוחר',
+  'You are rushing — wait for the click.': 'אתם ממהרים — חכו לקליק.',
+  'You are dragging — play right on the click.': 'אתם נגררים — נגנו בדיוק על הקליק.',
+  'Clean run! Tempo up to': 'ריצה נקייה! הטמפו החדש:',
+  'Clean run at the top tempo!': 'ריצה נקייה בטמפו המרבי!',
+  'Not clean yet — the tempo stays at': 'עוד לא נקי — הטמפו נשאר',
 };

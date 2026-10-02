@@ -58,6 +58,9 @@ import { ProGate } from './ProGate';
 import { useTranslation } from '../i18n/useTranslation';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import { playClickSound, haptic } from '../utils/feedback';
+import { useScaleTempo } from '../hooks/useScaleTempo';
+import { ScaleTempoCard, ScaleTimingStrip, ScaleRunSummary } from './ScaleTempo';
+import { tempoFor } from '../learning/scaleTiming';
 
 interface Props {
   instrument: InstrumentConfig;
@@ -266,10 +269,22 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
       recallStreak(inst.scaleHistory, scaleItemId(p.scaleTypeId, p.positionIndex), sel.recallLevel, sel.recallSince)));
   }, [now, instrument.id, pool, sel.recallLevel, sel.recallSince]);
 
+  // Task B — the metronome on "Tap the scale in order": each scale clicked at
+  // its own stored tempo, every note judged against the click, +4 BPM after a
+  // clean run (`useScaleTempo`). Off, the engine and listener are unchanged.
+  const metronomeOn = sel.orderMetronome && exercise === 'orderScale';
+  const tempo = useScaleTempo({ enabled: metronomeOn, tempoMap: sel.orderTempo, setTempo: sel.setOrderTempo });
+  const tempoItemIds = useMemo(() => pool.map((p) => scaleItemId(p.scaleTypeId, p.positionIndex)), [pool]);
+  const tempoValues = tempoItemIds.map((id) => tempoFor(sel.orderTempo, id));
+  const metronomeOptions = metronomeOn
+    ? { onQuestionStart: tempo.onQuestionStart, onStepHit: tempo.onStepHit, demoTiming: tempo.demoTiming }
+    : {};
+
   // "Tap the scale in order": a still box with every note lit, tapped in the
   // run's order. No clock per scale; a note tapped within `noteTime` of the
   // previous one still earns the speed bonus.
   const orderEngine = useScaleOrderEngine({
+    ...metronomeOptions,
     instrument: fallInstrument,
     pool,
     questionCount: buildEnvelope.questionCount,
@@ -281,6 +296,9 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     onComplete: () => setFinished(true),
     onAnswer: recordOrderRun,
   });
+
+  const { stop: stopClick } = tempo;
+  useEffect(() => { if (!orderEngine.running) stopClick(); }, [orderEngine.running, stopClick]);
 
   // "Connect the boxes": the same still-board mechanic as "Tap the scale in
   // order", fed a section spanning box 1 and box 2 instead of one box.
@@ -306,6 +324,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     enabled: sel.orderGuitar && (exercise === 'orderScale' || exercise === 'connectBoxes')
       && orderOrConnectRunning && orderOrConnectDemoStep == null,
     onNote: exercise === 'connectBoxes' ? connectEngine.hear : orderEngine.hear,
+    timing: metronomeOn,
   });
 
   const running = pathRunning ? true
@@ -317,6 +336,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   const startSession = () => {
     playClickSound(); haptic.tap();
     setFinished(false);
+    tempo.prime();
     if (exercise === 'buildScale') buildEngine.start();
     else if (exercise === 'orderScale') orderEngine.start();
     else if (exercise === 'connectBoxes') connectEngine.start();
@@ -855,6 +875,16 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 )}
               </div>
             )}
+            {/* Task B — metronome + tempo for "Tap the scale in order". */}
+            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
+              <ScaleTempoCard
+                on={sel.orderMetronome}
+                onToggle={sel.setOrderMetronome}
+                bpm={Math.min(...tempoValues)}
+                mixed={new Set(tempoValues).size > 1}
+                onBpm={(bpm) => sel.setOrderTempo(tempoItemIds, bpm)}
+              />
+            )}
 
             {/* Task D — finger numbers on the box. */}
             {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
@@ -972,6 +1002,15 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                     </span>
                   )}
                 </div>
+                {metronomeOn && (
+                  <ScaleTimingStrip
+                    bpm={tempo.bpm}
+                    beat={tempo.beat}
+                    judgements={tempo.judgements}
+                    lastNote={tempo.lastNote}
+                    lastRun={tempo.lastRun}
+                  />
+                )}
                 <ScaleOrderBoard
                   board={orderEngine.board}
                   step={orderEngine.step}
@@ -1105,6 +1144,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 {exercise === 'orderScale' && recallLevelUp != null && (
                   <p className="set-card-help scale-recall-levelup">⬆ {t(recallLevelUpText(recallLevelUp))}</p>
                 )}
+                {metronomeOn && tempo.lastRun && <ScaleRunSummary run={tempo.lastRun} />}
                 <button type="button" className="set-card-btn set-card-btn-primary" onClick={startSession}>
                   {t('Practice again')}
                 </button>

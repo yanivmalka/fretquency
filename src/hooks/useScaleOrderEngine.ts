@@ -84,10 +84,42 @@ export interface OrderTile {
   fret: number;
 }
 
+/** One step of the run answered — for the metronome's timing judgement. */
+export interface ScaleStepHit {
+  /** The step just answered (0-based) and the run's length. */
+  step: number;
+  runLength: number;
+  /** When the note was played, on the `performance.now()` clock: the tap
+   *  itself, or the pluck's start as `usePitchStream` timed it. */
+  at: number;
+  source: 'tap' | 'guitar';
+  /** Steps of this run that have slipped so far. */
+  slipped: number;
+}
+
+/** Metronome options, all optional — without them the engine is unchanged. */
+export interface ScaleOrderTimingOptions {
+  /** Every answered step. */
+  onStepHit?: (hit: ScaleStepHit) => void;
+  /** Each new scale, as it is laid out (before any demo). */
+  onQuestionStart?: (question: ScaleQuestion, runLength: number) => void;
+  /** Learning mode in time: asked as each demo starts — the wait before its
+   *  first note and the gap between notes. `null` keeps the default pace. */
+  demoTiming?: () => { leadMs: number; noteMs: number } | null;
+}
+
 export function useScaleOrderEngine({
   instrument, pool, questionCount, noteTime, demo = false, naturalsOnly = false, direction = 'up',
   pickQuestion = pickScaleQuestion, fadeLevel = 0, onComplete, onAnswer,
-}: ScaleOrderOptions) {
+  onStepHit, onQuestionStart, demoTiming,
+}: ScaleOrderOptions & ScaleOrderTimingOptions) {
+  const onStepHitRef = useRef(onStepHit);
+  useEffect(() => { onStepHitRef.current = onStepHit; }, [onStepHit]);
+  const onQuestionStartRef = useRef(onQuestionStart);
+  useEffect(() => { onQuestionStartRef.current = onQuestionStart; }, [onQuestionStart]);
+  const demoTimingRef = useRef(demoTiming);
+  useEffect(() => { demoTimingRef.current = demoTiming; }, [demoTiming]);
+
   const fadeLevelRef = useRef<RecallLevel>(fadeLevel);
   useEffect(() => { fadeLevelRef.current = fadeLevel; }, [fadeLevel]);
   /** The level the scale on screen was laid out at. */
@@ -166,9 +198,15 @@ export function useScaleOrderEngine({
     questionStartRef.current = Date.now();
     lastHitRef.current = questionStartRef.current;
 
+    onQuestionStartRef.current?.(q, b.runMidi.length);
+
     if (!demo) { setDemoStep(null); return; }
     // Learning mode: light and play each note of the run in turn, then hand
-    // over. The clock for this scale starts when the demo ends.
+    // over. The clock for this scale starts when the demo ends. With the
+    // metronome on, the demo plays one note per click.
+    const paced = demoTimingRef.current?.() ?? null;
+    const leadMs = paced?.leadMs ?? DEMO_LEAD_MS;
+    const noteMs = paced?.noteMs ?? DEMO_NOTE_MS;
     const mySession = sessionRef.current;
     const later = (ms: number, fn: () => void) => {
       demoTimeoutsRef.current.push(setTimeout(() => { if (sessionRef.current === mySession) fn(); }, ms));
@@ -177,11 +215,11 @@ export function useScaleOrderEngine({
     demoTimeoutsRef.current = [];
     demoRunningRef.current = true;
     setDemoStep(-1);
-    b.run.forEach((p, i) => later(DEMO_LEAD_MS + i * DEMO_NOTE_MS, () => {
+    b.run.forEach((p, i) => later(leadMs + i * noteMs, () => {
       setDemoStep(i);
       playNoteSingle(p.string, p.fret);
     }));
-    later(DEMO_LEAD_MS + b.run.length * DEMO_NOTE_MS, () => {
+    later(leadMs + b.run.length * noteMs, () => {
       demoRunningRef.current = false;
       demoTimeoutsRef.current = [];
       setDemoStep(null);
@@ -214,8 +252,9 @@ export function useScaleOrderEngine({
     clearTimers();
   }, [clearTimers]);
 
-  /** The step being looked for was answered. */
-  const hit = useCallback(() => {
+  /** The step being looked for was answered — played at `at`
+   *  (`performance.now()` clock). */
+  const hit = useCallback((at: number, source: ScaleStepHit['source']) => {
     const q = questionRef.current;
     const b = boardRef.current;
     if (!q || !b) return;
@@ -226,6 +265,10 @@ export function useScaleOrderEngine({
     haptic.tap();
     stepRef.current += 1;
     setStep(stepRef.current);
+    onStepHitRef.current?.({
+      step: stepRef.current - 1, runLength: total, at, source,
+      slipped: slipsRef.current.filter(Boolean).length,
+    });
     if (stepRef.current >= total) {
       const slipped = slipsRef.current.filter(Boolean).length;
       const correct = isScaleCorrect(total, slipped);
@@ -263,6 +306,7 @@ export function useScaleOrderEngine({
 
   /** The learner tapped the tile at `(string, fret)`. */
   const tap = useCallback((string: number, fret: number) => {
+    const at = performance.now();
     const b = boardRef.current;
     if (!runningRef.current || !questionRef.current || !b) return;
     // Learning mode: the app is still playing the scale — watch first.
@@ -274,7 +318,7 @@ export function useScaleOrderEngine({
     const midi = b.tileMidi.get(`${string}:${fret}`);
     // A second tap on the note just played is not a mistake.
     if (midi != null && stepRef.current > 0 && midi === b.runMidi[stepRef.current - 1]) { haptic.tap(); return; }
-    if (midi != null && midi === b.runMidi[stepRef.current]) { hit(); return; }
+    if (midi != null && midi === b.runMidi[stepRef.current]) { hit(at, 'tap'); return; }
     miss({ string, fret });
   }, [hit, miss]);
 
@@ -282,8 +326,9 @@ export function useScaleOrderEngine({
    *  A pitch says which note was played, not where, so any tile with the
    *  step's pitch answers it. An octave off still counts — pitch detection
    *  on a low string often reads the octave above. Nothing is played back:
-   *  the learner's own guitar already sounded it. */
-  const hear = useCallback((midi: number) => {
+   *  the learner's own guitar already sounded it. `info.at` is when the note
+   *  was plucked (`usePitchStream`), for the metronome's timing. */
+  const hear = useCallback((midi: number, info?: { at: number }) => {
     const b = boardRef.current;
     if (!runningRef.current || !questionRef.current || !b) return;
     if (demoRunningRef.current) return;
@@ -292,7 +337,7 @@ export function useScaleOrderEngine({
     const same = (a: number, c: number) => a === c || Math.abs(a - c) === 12;
     // The note just played, still ringing or plucked again, is not a mistake.
     if (step > 0 && same(midi, b.runMidi[step - 1])) return;
-    if (same(midi, b.runMidi[step])) { hit(); return; }
+    if (same(midi, b.runMidi[step])) { hit(info?.at ?? performance.now(), 'guitar'); return; }
     let tile: OrderTile | null = null;
     for (const [key, m] of b.tileMidi) {
       if (m !== midi) continue;

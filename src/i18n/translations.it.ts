@@ -1405,4 +1405,26 @@ export const it: Record<string, string> = {
   'Back to the path':
     'Torna al percorso',
 
+
+  // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
+  'Metronome': 'Metronomo',
+  'Slower': 'Più lento',
+  'Faster': 'Più veloce',
+  'Tempo': 'Tempo',
+  'Play one note on each click. After a clean run — no wrong notes and nearly every note on the click — the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'Suona una nota a ogni clic. Dopo un giro pulito — nessuna nota sbagliata e quasi tutte sul clic — il tempo sale di 4 BPM. Ogni scala e ogni schema tiene il proprio tempo.',
+  'The scales and boxes you picked have different tempos — this sets them all.':
+    'Le scale e gli schemi scelti hanno tempi diversi: questo li imposta tutti.',
+  'On time': 'A tempo',
+  'Early': 'In anticipo',
+  'Late': 'In ritardo',
+  'Last run': 'Ultimo giro',
+  'on the click': 'sul clic',
+  'early': 'in anticipo',
+  'late': 'in ritardo',
+  'You are rushing — wait for the click.': 'Stai correndo: aspetta il clic.',
+  'You are dragging — play right on the click.': 'Stai rallentando: suona proprio sul clic.',
+  'Clean run! Tempo up to': 'Giro pulito! Il tempo sale a',
+  'Clean run at the top tempo!': 'Giro pulito al tempo massimo!',
+  'Not clean yet — the tempo stays at': 'Non ancora pulito: il tempo resta a',
 };

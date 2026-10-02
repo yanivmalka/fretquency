@@ -20,6 +20,7 @@
 
 import { useMemo, useState } from 'react';
 import { loadSetting, saveSetting } from '../utils/settings';
+import { clampTempo, normalizeTempoMap, type TempoMap } from '../learning/scaleTiming';
 import { buildScalePool, type ScalePoolItem, type ScaleDirection } from '../learning/scaleDrill';
 import { scalePositionsFor, SCALE_TYPES, type ScalePositionDef } from '../utils/scales';
 import type { ScaleChipExercise } from './useScaleChipEngine';
@@ -178,6 +179,27 @@ export function useScaleSelector(stringCount: number) {
   // `focused` when "One scale" is picked (§5.4).
   const difficulty: ScaleDifficulty = positionMode === 'one' ? 'focused' : difficultyStored;
 
+  // Task B — metronome for "Tap the scale in order", and its tempo per
+  // scale/box (`scale:<type>:<position>` → BPM), raised by `TEMPO_STEP` after
+  // each clean run (`scaleTiming.ts`). Both are `ssel_` keys, so they ride the
+  // settings cloud sync with the other picks.
+  const [orderMetronome, setOrderMetronomeState] = useState<boolean>(
+    () => loadSetting<boolean>('ssel_order_metronome', false) === true,
+  );
+  const setOrderMetronome = (on: boolean) => { setOrderMetronomeState(on); saveSetting('ssel_order_metronome', on); };
+  const [orderTempo, setOrderTempoState] = useState<TempoMap>(
+    () => normalizeTempoMap(loadSetting<unknown>('ssel_order_tempo', {})),
+  );
+  /** Set the tempo of every item in `itemIds` to `bpm`. */
+  const setOrderTempo = (itemIds: readonly string[], bpm: number) => {
+    setOrderTempoState((prev) => {
+      const next = { ...prev };
+      for (const id of itemIds) next[id] = clampTempo(bpm);
+      saveSetting('ssel_order_tempo', next);
+      return next;
+    });
+  };
+
   const setExercise = (e: ScaleExercise) => { setExerciseState(e); saveSetting('ssel_exercise', e); };
   const setScaleChoice = (c: ScaleChoice) => { setScaleChoiceState(c); saveSetting('ssel_scale', c); };
   const setPositionMode = (m: ScalePositionMode) => { setPositionModeState(m); saveSetting('ssel_position_mode', m); };
@@ -235,6 +257,7 @@ export function useScaleSelector(stringCount: number) {
   return {
     direction, dirUp, dirDown, toggleDirection,
     speedLevel, setSpeedLevel,
+    orderMetronome, setOrderMetronome, orderTempo, setOrderTempo,
     distanceUnit, setDistanceUnit,
     orderDemo, setOrderDemo,
     orderGuitar, setOrderGuitar,

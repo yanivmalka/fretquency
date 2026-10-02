@@ -7,6 +7,102 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 10 (2026-10-02) — task B: metronome + gradual tempo, judged from the guitar
+
+From the expert-teacher review (product-wishlist, Scales, item B): Piano
+Tiles and timers train reaction speed, not playing in time. The standard
+method is slow and steady with a click, and the tempo goes up only after a
+clean pass. Built on "Tap the scale in order" only (not "Connect the boxes";
+see "Still open").
+
+- **What the learner gets.** More options → **Metronome** (Off/On, off by
+  default) with a tempo control (−/+ 4, a 40–160 BPM slider). With it on,
+  each scale is clicked at **its own tempo, kept per scale/box** (map
+  `scale:<type>:<position>` → BPM, default 60, `ssel_order_tempo`, plus
+  `ssel_order_metronome`). Both are `ssel_` keys, so they ride the settings
+  cloud sync; nothing was added to `learningState.ts`. During the run, a
+  strip above the board shows the beat (four dots, the first beat accented
+  and gold), ♩ = BPM, the verdict on the last note (On time / Early / Late),
+  where it fell in the beat (an early ← → late meter with the ±⅙-beat zone
+  shaded), and one mark per note of the run. After each run comes a
+  summary: on the click n/m · early · late, "You are rushing / dragging"
+  when the average leans ≥ 1/12 beat, and the tempo outcome. A **clean run**
+  (no slipped step, every step judged, ≥ 90% on time) raises that scale/box's
+  tempo by 4 (capped at 160), applied from the next scale in the same
+  session. "Watch, then play" with the click on plays the demo on the beat,
+  one note per click, starting on a click. Taps are judged too (the tap's own
+  time), so the metronome also works without a microphone.
+- **Pure logic, checked:** `src/learning/scaleTiming.ts` covers tempo clamp
+  and step, judging against the nearest click (±⅙ beat; the beat length is
+  the gap to the neighbouring click, so a tempo change mid-session is judged
+  at the tempo actually heard), the run summary and tendency, the clean-run
+  rule, and the stored map. `scripts/check-scale-timing.mts` is new.
+- **Metronome** (`src/utils/metronome.ts`): a Web Audio look-ahead scheduler
+  (25 ms timer, 120 ms ahead) on the app's one playback context
+  (`audio.ts` gained `getAudioContext()`). It reports every click as
+  *heard*, on the `performance.now()` clock (`getOutputTimestamp`, else
+  `outputLatency`). It starts inside the Start tap, so mobile lets it sound.
+  It is not routed through Silent mode: the click is an explicit opt-in
+  without which the exercise has no beat.
+- **The click is never an answer.** The click is not a tone but a 30 ms burst
+  of seeded, high-passed noise (≥ 2.5 kHz, `renderClick`, pure). Noise fails
+  the detector's periodicity test, and with the metronome on, the listener
+  (`usePitchStream`'s new `timing` option) low-passes the mic to the guitar
+  band (two biquads at 1.5 kHz) before anything reads it. The check script
+  runs the real `detectPitch` over the exact click samples at every offset in
+  its window (no pitch), over ringing notes from E2 to C6 with clicks on top
+  (same note read), and over clicks alone through the band (no pitch). Live,
+  16 s of clicks fed into a simulated mic advanced nothing.
+- **When was the note played?** `usePitchStream` reports a note only after it
+  holds for two 120 ms ticks, which is far too coarse for a ±⅙-beat window
+  (±62 ms at 160 BPM). New pure `src/utils/onset.ts` (plus `biquad.ts`) gives
+  each note its pluck time. An energy-onset tracker reads every animation
+  frame and locates the attack sample by a variance change-point, and a comb
+  locator tuned to the new pitch catches a note that replaces one as loud
+  (where energy doesn't jump). `chooseNoteOnset` picks between them, falling
+  back to the detector's own time. The mic's reported input latency is
+  subtracted. With timing on, the analyser keeps 32768 samples (~680 ms) of
+  history so the pluck is still in view when the note is reported. The
+  check's end-to-end listener simulation (the same frame/tick/streak loop,
+  E1–G♯5 scale steps, 40–160 BPM, clicks on every beat) reports ≥ 90% of
+  plucks, ≥ 90% timed within 30 ms (most within 10 ms), every one within
+  62 ms, and no onset from a click. The comb path runs ~20–28 ms late (the old
+  note's damping tail). That bias is left uncorrected, not tuned away.
+- **A bug found live and fixed:** a detector window that straddles two notes a
+  minor third apart can read their shared period, a note two octaves and a
+  fifth below that nobody played (E5→G5 read as C3). The engine took it for
+  a wrong note and the run was never clean. With timing on, a reading now
+  counts only if the newest ~85 ms (`agreesWithRecent`) reads the same note
+  or an octave of it. `pitchDetect.ts` (shared with the tuner, Staff and Tab)
+  is untouched.
+- **Engine/listener changes are additive.** `useScaleOrderEngine` gained
+  optional `onStepHit` (step, time, tap/guitar, slips so far),
+  `onQuestionStart`, `demoTiming`, and `hear(midi, info?)`; without them it
+  behaves as before. `usePitchStream`'s `onNote` now also receives
+  `{ at, source }`; with `timing` off the listener is unchanged.
+- **Verified:** `tsc -b`, eslint on every touched file, and every
+  `check-scale-*` plus `check-learning`/`check-learning-path` pass. Live in
+  Chromium (Playwright, 420×900, `devSimulateTier='premium'`, a simulated mic
+  via stubbed `getUserMedia` fed by a harmonic oscillator, with the real click
+  samples looped into the mic at every scheduled beat), in English and
+  Hebrew:
+  - Playing on the click: 23/23 on time, the run clean, tempo 60 → 64 → 68
+    over two runs (the click sped up mid-session).
+  - Playing a quarter beat late: 23/23 late, "dragging", tempo unchanged.
+  - Clicks only: nothing heard.
+  - No console errors and no horizontal overflow.
+  - Hebrew is fully translated. The live check also caught the early/late
+    labels sitting on the wrong ends of the LTR meter in RTL; the meter row
+    is now pinned `dir="ltr"`.
+- **Still open:** a per-device latency calibration (a Bluetooth speaker or
+  headset adds latency the browser may not report, which would read as
+  "late"); the metronome on "Connect the boxes" (same engine, one wiring
+  line plus an item id); a count-in bar before the first scale; and a check
+  on a real guitar and a real Android device. The simulated guitar is a clean
+  harmonic tone, and real strings, room noise and the phone speaker leaking
+  into its own mic are rougher.
+
+
 ## Session 10 (2026-10-02) — task A: Recall mode, play the box from memory
 
 From the expert-teacher review (product-wishlist, Scales, item A, the

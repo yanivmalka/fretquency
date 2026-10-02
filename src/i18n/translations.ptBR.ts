@@ -1402,4 +1402,26 @@ export const ptBR: Record<string, string> = {
   'Back to the path':
     'Voltar ao caminho',
 
+
+  // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
+  'Metronome': 'Metrônomo',
+  'Slower': 'Mais devagar',
+  'Faster': 'Mais rápido',
+  'Tempo': 'Andamento',
+  'Play one note on each click. After a clean run — no wrong notes and nearly every note on the click — the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'Toque uma nota a cada clique. Depois de uma passada limpa — sem notas erradas e quase todas no clique — o andamento sobe 4 BPM. Cada escala e desenho guarda seu próprio andamento.',
+  'The scales and boxes you picked have different tempos — this sets them all.':
+    'As escalas e desenhos escolhidos têm andamentos diferentes — isto ajusta todos.',
+  'On time': 'No tempo',
+  'Early': 'Adiantada',
+  'Late': 'Atrasada',
+  'Last run': 'Última passada',
+  'on the click': 'no clique',
+  'early': 'adiantadas',
+  'late': 'atrasadas',
+  'You are rushing — wait for the click.': 'Você está correndo — espere o clique.',
+  'You are dragging — play right on the click.': 'Você está arrastando — toque bem no clique.',
+  'Clean run! Tempo up to': 'Passada limpa! O andamento sobe para',
+  'Clean run at the top tempo!': 'Passada limpa no andamento máximo!',
+  'Not clean yet — the tempo stays at': 'Ainda não ficou limpa — o andamento continua em',
 };

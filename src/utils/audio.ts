@@ -60,6 +60,12 @@ function getCtx(): AudioContext {
   return audioCtx;
 }
 
+/** The app's one playback context, for sound scheduled on the audio clock
+ *  (the metronome). */
+export function getAudioContext(): AudioContext {
+  return getCtx();
+}
+
 // The soundfont MP3 samples are mastered quiet, so every drill note runs
 // through a shared makeup-gain stage: a boost (>1×) followed by a limiter that
 // catches the peaks the boost would otherwise clip. Route note playback into

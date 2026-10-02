@@ -824,3 +824,160 @@
   font-weight: 800;
   color: var(--success);
 }
+
+/* ── Task B: metronome + tempo ("Tap the scale in order") ──
+   ScaleTempoCard (the BPM control) and ScaleTimingStrip (beat, verdict,
+   early/late meter, a mark per note). The meter and the beat dots are a time
+   line, pinned dir="ltr" in the markup. */
+.scale-tempo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.scale-tempo-step {
+  min-width: 44px;
+  font-size: 1.2rem;
+}
+.scale-tempo-value {
+  min-width: 96px;
+  text-align: center;
+  color: var(--text-1);
+}
+.scale-tempo-value strong {
+  font-size: 1.4rem;
+  color: var(--text-0);
+}
+.scale-tempo-slider {
+  width: 100%;
+  margin: 8px 0 4px;
+  accent-color: var(--accent);
+}
+
+.scale-timing {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+.scale-timing-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.scale-timing-beats {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.scale-timing-beat {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 1px solid var(--surface-border);
+}
+.scale-timing-beat-accent {
+  width: 14px;
+  height: 14px;
+}
+.scale-timing-beat-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  animation: scale-timing-pulse 160ms ease-out;
+}
+.scale-timing-beat-accent.scale-timing-beat-on {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+@keyframes scale-timing-pulse {
+  from { transform: scale(1.5); }
+  to { transform: scale(1); }
+}
+.scale-timing-bpm {
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.scale-timing-verdict {
+  font-weight: 700;
+  margin-inline-start: auto;
+}
+.scale-timing-verdict.scale-timing-onTime,
+.scale-timing-summary .scale-timing-onTime { color: var(--success); }
+.scale-timing-verdict.scale-timing-early { color: var(--amber); }
+.scale-timing-verdict.scale-timing-late { color: var(--danger); }
+
+.scale-timing-meter-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scale-timing-end {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.scale-timing-meter {
+  position: relative;
+  flex: 1;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--bg-2);
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+}
+/* The ±⅙-beat "on time" zone around the click. */
+.scale-timing-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--zone);
+  right: var(--zone);
+  background: color-mix(in srgb, var(--success) 30%, transparent);
+}
+.scale-timing-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text-2);
+}
+.scale-timing-needle {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 3px;
+  transition: left 120ms ease-out;
+}
+.scale-timing-needle.scale-timing-onTime { background: var(--success); }
+.scale-timing-needle.scale-timing-early { background: var(--amber); }
+.scale-timing-needle.scale-timing-late { background: var(--danger); }
+
+.scale-timing-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.scale-timing-note {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--bg-2);
+  border: 1px solid var(--surface-border);
+}
+.scale-timing-note.scale-timing-onTime { background: var(--success); border-color: var(--success); }
+.scale-timing-note.scale-timing-early { background: var(--amber); border-color: var(--amber); }
+.scale-timing-note.scale-timing-late { background: var(--danger); border-color: var(--danger); }
+
+.scale-timing-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
