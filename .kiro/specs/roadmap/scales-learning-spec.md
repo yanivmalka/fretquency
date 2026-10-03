@@ -7,6 +7,117 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 11 (2026-10-03) — short licks per box (wishlist update 2026-10-03, item 7)
+
+The teacher/beginner dialogue: "I play three notes, you play them back.
+… Then a small lick." Item 4 shipped the first half ("Play it back by ear",
+made-up phrases). This adds the second: **standard licks**, demoed and played
+back through the same card and engine.
+
+- **Researched, not invented.** Every lick comes from a published beginner
+  lesson, recorded in its `source` field:
+  - "The blues opening": 12bar.de, "Blues licks", "A typical Blues opening
+    – step by step", basic notes (G7 – B5 – e5).
+  - "Turn for home": 12bar.de, "All-Time Standard EC Licks (A Blues Scale)",
+    lick 1 (G7 bend-release – G5 – D7).
+  - "The rolling triplet": 12bar.de, "Repeating Pattern Examples", pattern 2
+    (e8p5 – B5, repeated; two rounds kept).
+  - "Pull-offs down the box": guitarchalk.com, "10 Easy Blues Guitar Licks
+    for Beginners", lick 4 (e8p5 – B8p5 – G7 bend – G5).
+
+  Only the plain notes are kept. Three of the four have a bend in the
+  original, and the app can neither play nor judge a bend yet. Each says so
+  on screen under the board ("The full version bends … Here it is played
+  without the bend."). The opening's repeated last A is kept once: the
+  engine's "note just played" guard and `usePitchStream`'s "same pitch only
+  after a silence" rule would both swallow an immediate repeat. Other sources
+  tried (JustinGuitar's "5 Blues Licks from Pattern 1", Fender, Blackstar,
+  musicradar) either blocked the fetch or gave no exact notes, so none of
+  their licks are used.
+- **Pure logic: `src/learning/scaleLicks.ts`.** A lick is box-relative: each
+  step is a string (1 = thinnest) and a degree (`1 b3 4 b5 5 b7`). In a
+  pentatonic / blues box each string holds notes of different degrees, so
+  (string, degree) names exactly one tile, at any root (`resolveLick`;
+  `null` if a step has no tile). `lickBoard` is `buildOrderBoard` (Recall
+  level 1 when dim) with the lick as `run`/`runMidi`, the same trick as
+  `echoBoard`. Licks are attached to **Minor Pentatonic and Blues**. The
+  Blues box is the pentatonic box plus the b5, so the same four fit both.
+- **Which box.** The licks are the standard "box 1", which is the box rooted
+  on the **6th string** (`LICK_ROOT_STRING`). On a 6-string that is box 1. On
+  a 7-string the app's box 1 is rooted on the low B, and its top strings fall
+  elsewhere: the first check run found every lick failing there. So
+  `licksFor` / `lickPool` pick the box rooted on string 6: box 2 on a
+  7-string, nothing on an 8- or 9-string. Guitar only: on a bass the same
+  string numbers are other strings, so the same steps would be another
+  melody.
+- **Card: `ScaleEchoCard.tsx`, a "Short phrases / Licks" pick**
+  (`ssel_echo_licks`, default phrases, cloud-synced by the `ssel_` prefix).
+  It is shown only when the instrument has a lick box. In Licks:
+  - The card names the box and lists the licks.
+  - A session is one box (the learner's scale pick if it has licks, else
+    Minor Pentatonic) and **one key** (the first question is reused, so the
+    second try and the next lick sit under the same hand). Each lick is
+    asked twice in a row, in the authored order (`lickIndexFor`,
+    `LICK_TRIES`), so 8 questions for 4 licks.
+  - The demo is **lit** (`demoLit: true`), "👀 Watch and listen…": a lick
+    is longer than a phrase, and the teacher shows it. The board pick (all
+    lit / only the root) still applies.
+  - The run header gives the lick's name, "Lick n / 4 · Try t / 2" and one
+    how-to line in string numbers (not string names, which would differ
+    between letter and Do-Re-Mi notation).
+  - After the session, each lick shows its best result (✓ clean, ≈ slip,
+    ✗ missed) and the summary counts the clean ones.
+  - Phrase mode is unchanged: no growth logic runs in Licks.
+- **History:** each lick played back is an `echo` row on the box's own item
+  id, as item 4 decided: it does not review the box in `scaleSrs` and does
+  not count toward mastery. `learningState.ts` is unchanged.
+- 19 new strings in he / es / pt-BR / fr / it ("Watch and listen…"
+  reused). CSS in `30-scale-board.css` (licks block). **RTL gotcha found
+  live:** under the global `unicode-bidi: plaintext` (`01-base.css`) a list
+  item whose only content is a `<span>` reads as LTR, since the span is
+  isolated and the `<li>` has no strong characters of its own. In Hebrew the
+  names sat at the far side from their numbers. The name is now the item's
+  own text.
+- **Verified.**
+  - New `scripts/check-scale-licks.mts` (44 checks):
+    - In A minor pentatonic and A blues box 1 (6th string, 5th fret), every
+      lick resolves to exactly its source's frets.
+    - Every lick resolves at every root on every guitar variant with a box
+      on the 6th string (acoustic/electric, 6 and 7 strings, every fret
+      count; 200 questions each, lit and dim). The run is on the board with
+      its pitches, the section and tiles are unchanged, dim lights exactly
+      the root, and no note repeats straight away.
+    - Box selection per string count (6 → box 1, 7 → box 2, 8/9/4 → none).
+    - 3–5 licks per box, unique ids, and the session order.
+  - Every other `check-scale-*`, `check-learning` and `check-learning-path`
+    passes. `tsc -b` is clean, and eslint is clean on every touched file.
+  - Live (Playwright/Chromium, 420×900, Vite dev server,
+    `devSimulateTier='premium'`), English and Hebrew:
+    - Full tapped Licks sessions on the dim board: the script read each
+      demoed tile off the board and tapped it back, with one deliberate
+      wrong tap on lick 3, try 1.
+    - Results were 4 × 2 tries, all in one key, licks in order. Lick 3,
+      try 1 read "Found it, with a slip", and try 2 was clean, so the
+      summary showed ✓ for all four and "Licks played clean: 4 / 4".
+    - 8 `echo` rows were saved on `scale:minorPentatonic:1`.
+    - "Short phrases" is unchanged: unlit demo, "Phrase 1 / 8".
+    - Hebrew is fully translated, with the card `dir="rtl"` and the board
+      `dir="ltr"`. No horizontal overflow and no app console errors.
+- **Still open.**
+  - Bends (and slides, double stops) are left out. The app can't sound a
+    bend, and `usePitchStream` reading a bend's target pitch is untested.
+    The full versions are the obvious next step once a real-guitar spike
+    shows a bend can be judged.
+  - No rhythm: notes are evenly spaced (650 ms), so the triplet feel of
+    "The rolling triplet" is lost. The same open item as phrases.
+  - Licks for other boxes (box 2) and other scales (major pentatonic,
+    natural minor) need their own researched sources.
+  - Not tried with the 🎸 answer mode on a real guitar or a simulated mic.
+    It is the same `hear` path item 4 verified with a simulated mic.
+  - No per-lick progress is kept beyond the session (the rows are per
+    box). A "licks learned" list would need a `lick` field on the `echo`
+    row.
+
 ## Session 11 (2026-10-03) — the picking hand: stroke marks + 2 notes per click (wishlist update 2026-10-03, item 8)
 
 The teacher/beginner dialogue: "Your picking hand. Down, up, down, up, from

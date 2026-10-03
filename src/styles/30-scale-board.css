@@ -1332,6 +1332,47 @@ li.scale-seq-rung-current:not(:has(> .scale-seq-rung-btn)) {
   .scale-echo-listen { animation: none; }
 }
 
+/* ── Wishlist item 7: short licks per box ──
+   ScaleEchoCard.tsx in "Licks": the lick's name and how-to line in the run
+   header, what the app left out (the bend) under the board, and on the card
+   the numbered list of the box's licks with each one's result after a
+   session. */
+.scale-lick-name {
+  font-weight: 800;
+  color: var(--text-0);
+}
+.scale-lick-how {
+  font-weight: 600;
+}
+.scale-lick-note {
+  margin: 0;
+  font-style: italic;
+}
+.scale-lick-box {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.scale-lick-list {
+  margin: 0;
+  padding-inline-start: 1.4em;
+  color: var(--text-1);
+}
+.scale-lick-item {
+  font-weight: 600;
+}
+.scale-lick-item + .scale-lick-item {
+  margin-top: 4px;
+}
+.scale-lick-score {
+  display: inline-block;
+  margin-inline-start: 10px;
+  font-weight: 800;
+}
+.scale-lick-score-clean { color: var(--success); }
+.scale-lick-score-slip { color: var(--gold); }
+.scale-lick-score-missed { color: var(--danger); }
+
 /* ── Wishlist item 8: the picking hand ──
    A ↓ / ↑ stroke in the scale tile's bottom-end corner, opposite the finger
    dot (bottom-start). Never transformed, so it reads the same when the

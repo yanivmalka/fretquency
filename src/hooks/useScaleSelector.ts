@@ -261,6 +261,10 @@ export function useScaleSelector(stringCount: number) {
   // home note lit, so the ear finds the notes rather than the eye.
   const [echoDim, setEchoDimState] = useState<boolean>(() => loadSetting<boolean>('ssel_echo_dim', false) === true);
   const setEchoDim = (on: boolean) => { setEchoDimState(on); saveSetting('ssel_echo_dim', on); };
+  // Wishlist item 7 — what the echo card plays: made-up phrases (default) or
+  // standard licks (`scaleLicks.ts`).
+  const [echoLicks, setEchoLicksState] = useState<boolean>(() => loadSetting<boolean>('ssel_echo_licks', false) === true);
+  const setEchoLicks = (on: boolean) => { setEchoLicksState(on); saveSetting('ssel_echo_licks', on); };
 
   // Wishlist item 8 — the picking hand: a ↓/↑ stroke on every note of the box
   // (alternate picking from the first note; on by default, like the fingers),
@@ -291,7 +295,7 @@ export function useScaleSelector(stringCount: number) {
     pool,
     buildEnvelope,
     fingers, setFingers,
-    echoDim, setEchoDim,
+    echoDim, setEchoDim, echoLicks, setEchoLicks,
     strokes, setStrokes, orderPerClick, setOrderPerClick,
   };
 }

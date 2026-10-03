@@ -990,6 +990,8 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 fingers={sel.fingers}
                 dim={sel.echoDim}
                 onDim={sel.setEchoDim}
+                licks={sel.echoLicks}
+                onLicks={sel.setEchoLicks}
                 hidden={running && !echoRunning}
                 onRunningChange={setEchoRunning}
                 onRecorded={setNow}
