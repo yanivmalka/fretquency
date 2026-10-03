@@ -47,6 +47,80 @@ thing the sentence names.
   from this change), so the box highlight on frets 4–8 can be off-screen until
   the learner scrolls.
 
+## Session 11 (2026-10-03) — step 0 of the path: "One string, four fingers" + "Make it ring"
+
+From the teacher ↔ beginner dialogue (product-wishlist, Scales, 2026-10-03,
+item 2). The teacher's never-skip: before any scale, the learner checks that
+one note rings and uses one finger per fret on one string.
+
+- **A new first `SCALE_PATH` step** (`scaleCurriculum.ts`, kind
+  `fourFingers`, id `fourFingers`), before Minor Pentatonic box 1. Every
+  other step is unchanged and in the same order. The step gates like any
+  practice step: box 1 unlocks once it is mastered (`isScaleMastered`, the
+  same rule, so one good session of 6 runs or 3 clean runs in a row). The
+  path now counts 8 practice steps.
+- **The run is a synthetic one-string shape.** `fourFingersQuestion(runIndex,
+  …)` returns frets 5-6-7-8 on one string (frets 1–4 on a neck shorter than
+  8 frets). Run 0 is on the lowest string, and each next run moves one string
+  up (guitar: strings 6, 5, 4, 3, 2, 1 over the 6 runs). The existing
+  `tonicRun` turns it into 5-6-7-8-7-6-5, so up and back. It is tracked under
+  the reserved `FOUR_FINGERS_INDEX = 8` on the Minor Pentatonic
+  (`scale:minorPentatonic:8`), the same trick as connect's `0` and
+  `RELATIVE_BOX_INDEX = 9`. Answers record as `orderScale`. The Progress
+  board is pool-driven, so the item doesn't appear there.
+  `parseScaleItemId` already accepts it. Nothing was added to
+  `learningState.ts`.
+- **Fingers come from `fingeringFor` unchanged** (`fourFingersFingering`):
+  four frets in a row get 1-2-3-4. They are drawn on `ScaleOrderBoard`
+  through its existing `fingers` prop and follow "Show fingers"
+  (`ssel_fingers`). The other path steps still draw no fingers, as before.
+- **"Make it ring" card** (`ScaleRingTips.tsx`, static SVG + CSS in
+  `30-scale-board.css`). It is shown on the path card while step 0 is the
+  selected step. It has two drawings: the fretboard from above (the
+  fingertip just behind the fret wire, a crossed-out dot on top of the wire)
+  and the neck in cross-section (an arched finger landing on its tip, the
+  string next to it free, the thumb behind the neck). Under them are four
+  numbered tips. The drawings hold no text. The fretboard one is mirrored by
+  the left-handed setting, so "behind the fret" stays on the headstock side.
+  During the run, one line under the header repeats the cue: fingertip just
+  behind the fret, let each note ring.
+- **Reused as-is:** Watch-then-play, the 🎸 guitar answer mode, and the
+  metronome. `ScalePathCard` gained optional `fingers` / `metronome` /
+  `tempoMap` / `setTempo` props (passed from the Selector). With the
+  metronome on, step 0 runs `useScaleTempo` exactly as "Tap the scale in
+  order" does: the timing strip, per-note judging, the run summary, and +4
+  BPM after a clean run, at its own stored tempo. The other path steps still
+  run without the click, as before.
+- **Verified.**
+  - `scripts/check-scale-curriculum.mts` checks step 0's place and order, the
+    reserved id, and every instrument variant. Each run is 5-6-7-8 on one
+    string, up and back, fingers 1-2-3-4, lowest string first. It also checks
+    the unlock rule and the path total. The existing order/unlock checks now
+    run on the path without step 0. Every `check-scale-*`, `check-learning`
+    and `check-learning-path` passes. `tsc -b` and eslint are clean.
+  - Live in Chrome (`devSimulateTier='premium'`, a dev server from a clean
+    worktree, so other sessions' edits weren't loaded), first in Hebrew and
+    then in English:
+    - A fresh path shows step 0 current and every scale locked.
+    - The card and its tips are fully translated.
+    - A 6-run tapped session went string 6 → 1 with fingers 1-2-3-4. It
+      recorded `scale:minorPentatonic:8` rows, passed the step (1 / 8) and
+      moved the path to box 1.
+    - English with the left-handed setting and the metronome on: the board
+      and the fretboard drawing are mirrored. The timing strip judges each
+      tap, and a clean run raised the tempo 60 → 64.
+    - No console errors and no horizontal overflow.
+- **Still open.**
+  - "Make it ring" is advice only: nothing checks that the note rang (item 3,
+    deferred until a real-guitar spike).
+  - The guitar answer mode on step 0 was not driven with a simulated
+    microphone this session. It is the same `hear` path as every other run.
+  - The metronome and fingers are wired for step 0 only, not the other path
+    steps.
+  - The page was not checked at a real phone width (the browser window
+    wouldn't resize). The drawings sit in a two-column grid that shrinks with
+    the card.
+
 ## Session 10 (2026-10-02) — task B: metronome + gradual tempo, judged from the guitar
 
 From the expert-teacher review (product-wishlist, Scales, item B): Piano

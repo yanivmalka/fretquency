@@ -1415,6 +1415,27 @@ export const he: Record<string, string> = {
     'לספור את הדרגות מ־',
   'Back to the path':
     'חזרה למסלול',
+  // Scales path step 0 — "One string, four fingers" + "Make it ring" (ScaleRingTips).
+  'Before any scale: one finger per fret on one string, up and back. Press just behind the fret and let every note ring.':
+    'לפני כל סולם: אצבע אחת לכל סריג על מיתר אחד, למעלה וחזרה. לחצו ממש מאחורי הסריג ותנו לכל תו לצלצל.',
+  'One string, four fingers':
+    'מיתר אחד, ארבע אצבעות',
+  'Make it ring':
+    'תנו לתו לצלצל',
+  'Where the fingertip goes':
+    'איפה שמים את קצה האצבע',
+  'Arch the finger, thumb behind the neck':
+    'אצבע מקומרת, אגודל מאחורי הצוואר',
+  'Thumb behind the neck, about behind your middle finger — not wrapped over the top.':
+    'האגודל מאחורי הצוואר, בערך מול האצבע האמצעית — לא עוטף אותו מלמעלה.',
+  'Fingertip just behind the fret wire, not on top of it.':
+    'קצה האצבע ממש מאחורי פס הסריג, לא עליו.',
+  'Arch the finger so only the tip touches: the string next to it must still ring.':
+    'קמרו את האצבע כך שרק הקצה נוגע: המיתר שלידו חייב להמשיך לצלצל.',
+  'One finger per fret: finger 1 on fret 5, 2 on 6, 3 on 7, 4 on 8. Let each note ring before the next.':
+    'אצבע אחת לכל סריג: אצבע 1 על סריג 5, 2 על 6, 3 על 7, 4 על 8. תנו לכל תו לצלצל לפני הבא.',
+  'Fingertip just behind the fret. Let each note ring before the next.':
+    'קצה האצבע ממש מאחורי הסריג. תנו לכל תו לצלצל לפני הבא.',
 
   // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
   'Metronome': 'מטרונום',

@@ -18,8 +18,14 @@
 // root on the same string). `relativeBoxPosition` builds it as a synthetic
 // position, the way `connectBoxesPosition` builds "connect the boxes", and it
 // is tracked as its own item under the reserved `RELATIVE_BOX_INDEX`.
+//
+// Step 0, "One string, four fingers" (product-wishlist.md, Scales, 2026-10-03
+// item 2), comes before any scale: frets 5-6-7-8 on one string, fingers
+// 1-2-3-4, up and back, then the next string. `fourFingersQuestion` builds it
+// as a synthetic one-string shape, tracked under the reserved
+// `FOUR_FINGERS_INDEX`, and `fingeringFor` gives it its fingers unchanged.
 
-import { scaleTypeById, scalePositionsFor, shapeAtRoot, type ScalePositionDef } from '../utils/scales';
+import { scaleTypeById, scalePositionsFor, shapeAtRoot, fingeringFor, type ScalePositionDef } from '../utils/scales';
 import { pickConnectQuestion, type ScaleDirection, type ScalePoolItem, type ScaleQuestion } from './scaleDrill';
 import { isScaleMastered } from './scaleMastery';
 import { scaleItemId } from './scaleItem';
@@ -31,6 +37,15 @@ import type { SrsMap } from './srs';
  *  (5 CAGED boxes, 7 three-notes-per-string positions) or with `0`
  *  ("connect the boxes"). */
 export const RELATIVE_BOX_INDEX = 9;
+
+/** Reserved `positionIndex` for step 0, "One string, four fingers". Clear of
+ *  1–7 (authored boxes), `0` (connect) and `RELATIVE_BOX_INDEX`. Tracked
+ *  under the Minor Pentatonic, the scale it prepares the hand for. */
+export const FOUR_FINGERS_INDEX = 8;
+const FOUR_FINGERS_TYPE_ID = 'minorPentatonic';
+/** The run's first fret: 5-6-7-8, where the frets are narrow enough for one
+ *  finger per fret and the string is still easy to press. */
+const FOUR_FINGERS_FROM_FRET = 5;
 
 /** Major-side scale type → the minor scale type whose box it borrows. */
 export const RELATIVE_MINOR_OF: Readonly<Record<string, string>> = {
@@ -120,7 +135,41 @@ export function pickRelativeBoxQuestion(
 export const pickConnectFromPool: typeof pickRelativeBoxQuestion = (pool, ...rest) =>
   pickConnectQuestion([...new Set(pool.map((p) => p.scaleTypeId))], ...rest);
 
-export type ScalePathStepKind = 'box' | 'connect' | 'explain' | 'relativeBox';
+/** The `runIndex`-th run (0-based) of "One string, four fingers": four frets
+ *  on one string, one finger per fret. Run 0 is on the lowest string, and
+ *  each next run moves one string up, wrapping round. The run (`tonicRun`
+ *  from its lowest note) goes up to the 4th finger and back. `null` if the
+ *  neck is too short for four frets. */
+export function fourFingersQuestion(
+  runIndex: number,
+  noteTable: readonly (readonly string[])[],
+  stringCount: number,
+  maxFret: number,
+): ScaleQuestion | null {
+  if (stringCount < 1) return null;
+  const from = maxFret >= FOUR_FINGERS_FROM_FRET + 3 ? FOUR_FINGERS_FROM_FRET : 1;
+  if (from + 3 > maxFret) return null;
+  const rootString = stringCount - (((runIndex % stringCount) + stringCount) % stringCount);
+  const rootName = noteTable[rootString - 1]?.[from];
+  if (!rootName) return null;
+  return {
+    scaleTypeId: FOUR_FINGERS_TYPE_ID,
+    positionIndex: FOUR_FINGERS_INDEX,
+    rootString,
+    rootFret: from,
+    rootName,
+    shape: [0, 1, 2, 3].map((i) => ({ string: rootString, fret: from + i })),
+    direction: 'up',
+  };
+}
+
+/** A four-fingers run's fingers, from `fingeringFor` (one finger per fret,
+ *  1-2-3-4). The window follows the box convention: one fret below the root. */
+export function fourFingersFingering(q: ScaleQuestion): Map<string, number> | null {
+  return fingeringFor(q.shape, { from: q.rootFret - 1, to: q.rootFret + 3 });
+}
+
+export type ScalePathStepKind = 'box' | 'connect' | 'explain' | 'relativeBox' | 'fourFingers';
 
 export interface ScalePathStep {
   /** Stable id (not shown). */
@@ -128,7 +177,8 @@ export interface ScalePathStep {
   kind: ScalePathStepKind;
   scaleTypeId: string;
   /** 1/2 = an authored box, 0 = connect the boxes, `RELATIVE_BOX_INDEX` =
-   *  the relative minor's box. For an `explain` step, the step it explains. */
+   *  the relative minor's box, `FOUR_FINGERS_INDEX` = step 0's one-string
+   *  run. For an `explain` step, the step it explains. */
   positionIndex: number;
   /** The item whose mastery passes this step. An `explain` step points at the
    *  item of the practice step it introduces. */
@@ -146,6 +196,8 @@ function step(
 }
 
 export const SCALE_PATH: readonly ScalePathStep[] = [
+  step('fourFingers', 'fourFingers', FOUR_FINGERS_TYPE_ID, FOUR_FINGERS_INDEX,
+    'Before any scale: one finger per fret on one string, up and back. Press just behind the fret and let every note ring.'),
   step('minorPent-box1', 'box', 'minorPentatonic', 1,
     'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.'),
   step('minorPent-box2', 'box', 'minorPentatonic', 2,
@@ -182,6 +234,7 @@ export interface ScalePathProgress {
 
 /** Whether a step's practice could even be drawn on this instrument. */
 function stepAvailable(s: ScalePathStep, stringCount: number): boolean {
+  if (s.kind === 'fourFingers') return stringCount >= 1;
   if (s.positionIndex === RELATIVE_BOX_INDEX) return relativeBoxPosition(s.scaleTypeId, stringCount) != null;
   if (s.positionIndex === 0) return scalePositionsFor(s.scaleTypeId, stringCount).length >= 2;
   return scalePositionsFor(s.scaleTypeId, stringCount).some((p) => p.positionIndex === s.positionIndex);

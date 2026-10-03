@@ -1400,6 +1400,27 @@ export const ptBR: Record<string, string> = {
     'Contar os graus a partir de',
   'Back to the path':
     'Voltar ao caminho',
+  // Scales path step 0 — "One string, four fingers" + "Make it ring" (ScaleRingTips).
+  'Before any scale: one finger per fret on one string, up and back. Press just behind the fret and let every note ring.':
+    'Antes de qualquer escala: um dedo por casa em uma só corda, subindo e voltando. Aperte logo atrás do traste e deixe cada nota soar.',
+  'One string, four fingers':
+    'Uma corda, quatro dedos',
+  'Make it ring':
+    'Deixe soar',
+  'Where the fingertip goes':
+    'Onde vai a ponta do dedo',
+  'Arch the finger, thumb behind the neck':
+    'Dedo arqueado, polegar atrás do braço',
+  'Thumb behind the neck, about behind your middle finger — not wrapped over the top.':
+    'O polegar atrás do braço, mais ou menos atrás do dedo médio, sem abraçar o braço por cima.',
+  'Fingertip just behind the fret wire, not on top of it.':
+    'A ponta do dedo logo atrás do traste de metal, não em cima dele.',
+  'Arch the finger so only the tip touches: the string next to it must still ring.':
+    'Arqueie o dedo para que só a ponta encoste: a corda ao lado precisa continuar soando.',
+  'One finger per fret: finger 1 on fret 5, 2 on 6, 3 on 7, 4 on 8. Let each note ring before the next.':
+    'Um dedo por casa: dedo 1 na casa 5, 2 na 6, 3 na 7, 4 na 8. Deixe cada nota soar antes da próxima.',
+  'Fingertip just behind the fret. Let each note ring before the next.':
+    'A ponta do dedo logo atrás do traste. Deixe cada nota soar antes da próxima.',
 
   // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
   'Metronome': 'Metrônomo',

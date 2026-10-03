@@ -1403,6 +1403,27 @@ export const it: Record<string, string> = {
     'Contare i gradi da',
   'Back to the path':
     'Torna al percorso',
+  // Scales path step 0 — "One string, four fingers" + "Make it ring" (ScaleRingTips).
+  'Before any scale: one finger per fret on one string, up and back. Press just behind the fret and let every note ring.':
+    'Prima di ogni scala: un dito per tasto su una sola corda, salendo e tornando. Premi appena dietro la barretta e lascia suonare ogni nota.',
+  'One string, four fingers':
+    'Una corda, quattro dita',
+  'Make it ring':
+    'Falla suonare',
+  'Where the fingertip goes':
+    'Dove va il polpastrello',
+  'Arch the finger, thumb behind the neck':
+    'Dito arcuato, pollice dietro il manico',
+  'Thumb behind the neck, about behind your middle finger — not wrapped over the top.':
+    'Il pollice dietro il manico, più o meno dietro il dito medio, senza scavalcarlo da sopra.',
+  'Fingertip just behind the fret wire, not on top of it.':
+    'Il polpastrello appena dietro la barretta, non sopra.',
+  'Arch the finger so only the tip touches: the string next to it must still ring.':
+    'Arcua il dito in modo che tocchi solo la punta: la corda accanto deve continuare a suonare.',
+  'One finger per fret: finger 1 on fret 5, 2 on 6, 3 on 7, 4 on 8. Let each note ring before the next.':
+    'Un dito per tasto: il dito 1 sul tasto 5, il 2 sul 6, il 3 sul 7, il 4 sull’8. Lascia suonare ogni nota prima della successiva.',
+  'Fingertip just behind the fret. Let each note ring before the next.':
+    'Il polpastrello appena dietro la barretta. Lascia suonare ogni nota prima della successiva.',
 
   // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
   'Metronome': 'Metronomo',

@@ -515,6 +515,10 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 onRunningChange={setPathRunning}
                 onOpenExplain={() => setRelativeOpen(true)}
                 onAnswer={recordAnswer}
+                fingers={sel.fingers}
+                metronome={sel.orderMetronome}
+                tempoMap={sel.orderTempo}
+                setTempo={sel.setOrderTempo}
               />
             )}
 

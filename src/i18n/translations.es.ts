@@ -1403,6 +1403,27 @@ export const es: Record<string, string> = {
     'Contar los grados desde',
   'Back to the path':
     'Volver al camino',
+  // Scales path step 0 — "One string, four fingers" + "Make it ring" (ScaleRingTips).
+  'Before any scale: one finger per fret on one string, up and back. Press just behind the fret and let every note ring.':
+    'Antes de cualquier escala: un dedo por traste en una sola cuerda, subiendo y volviendo. Pisa justo detrás del traste y deja sonar cada nota.',
+  'One string, four fingers':
+    'Una cuerda, cuatro dedos',
+  'Make it ring':
+    'Que suene limpio',
+  'Where the fingertip goes':
+    'Dónde va la yema del dedo',
+  'Arch the finger, thumb behind the neck':
+    'Dedo arqueado, pulgar detrás del mástil',
+  'Thumb behind the neck, about behind your middle finger — not wrapped over the top.':
+    'El pulgar detrás del mástil, más o menos a la altura del dedo medio, sin asomar por encima.',
+  'Fingertip just behind the fret wire, not on top of it.':
+    'La yema justo detrás del traste metálico, no encima de él.',
+  'Arch the finger so only the tip touches: the string next to it must still ring.':
+    'Arquea el dedo para que solo toque la yema: la cuerda de al lado tiene que seguir sonando.',
+  'One finger per fret: finger 1 on fret 5, 2 on 6, 3 on 7, 4 on 8. Let each note ring before the next.':
+    'Un dedo por traste: el dedo 1 en el traste 5, el 2 en el 6, el 3 en el 7 y el 4 en el 8. Deja sonar cada nota antes de la siguiente.',
+  'Fingertip just behind the fret. Let each note ring before the next.':
+    'La yema justo detrás del traste. Deja sonar cada nota antes de la siguiente.',
 
   // Task B — Scales metronome + gradual tempo ("Tap the scale in order").
   'Metronome': 'Metrónomo',

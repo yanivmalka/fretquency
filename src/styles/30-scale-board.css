@@ -789,6 +789,102 @@
   box-shadow: inset 0 0 0 2px var(--accent);
 }
 
+/* ── Step 0 of the path: "One string, four fingers" + "Make it ring"
+   (ScaleRingTips.tsx, wishlist 2026-10-03 item 2). Two static drawings with
+   no text; the fretboard one mirrors for the left-handed setting. ── */
+.scale-ring {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.scale-ring-title {
+  margin-top: 2px;
+}
+.scale-ring-figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.scale-ring-figure {
+  margin: 0;
+  padding: 6px;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  background: var(--bg-1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scale-ring-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.scale-ring-figure figcaption {
+  font-size: 0.78rem;
+  color: var(--text-1);
+  text-align: center;
+  line-height: 1.25;
+}
+[data-hand="left"] .scale-ring-top svg {
+  transform: scaleX(-1);
+}
+.scale-ring-wood {
+  fill: var(--bg-2);
+  stroke: var(--surface-border);
+  stroke-width: 1;
+}
+.scale-ring-fret {
+  stroke: var(--text-2);
+  stroke-width: 3;
+}
+.scale-ring-string {
+  stroke: var(--text-1);
+  stroke-width: 1.2;
+}
+.scale-ring-string-dot {
+  fill: var(--text-1);
+}
+.scale-ring-good {
+  fill: var(--success);
+  stroke: var(--bg-0);
+  stroke-width: 1.5;
+}
+.scale-ring-bad {
+  fill: none;
+  stroke: var(--danger);
+  stroke-width: 2;
+  stroke-dasharray: 3 2;
+}
+.scale-ring-bad-x {
+  stroke: var(--danger);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.scale-ring-finger {
+  fill: none;
+  stroke: var(--pick-accent);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.scale-ring-thumb {
+  fill: var(--pick-accent);
+}
+.scale-ring-tips {
+  margin: 0;
+  padding-inline-start: 1.3em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+  color: var(--text-0);
+  line-height: 1.35;
+}
+.scale-ring-reminder {
+  font-weight: 700;
+}
+
 .scale-meet-tile-root2 {
   box-shadow: inset 0 0 0 2px var(--pick-accent);
   background: color-mix(in srgb, var(--pick-accent) 25%, var(--bg-2));

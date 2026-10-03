@@ -29,6 +29,11 @@ import { termHighlight, type ScaleTermId } from '../learning/scaleTerms';
 import { useTranslation } from '../i18n/useTranslation';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import { playClickSound, haptic } from '../utils/feedback';
+import { fourFingersQuestion, fourFingersFingering, FOUR_FINGERS_INDEX } from '../learning/scaleCurriculum';
+import type { TempoMap } from '../learning/scaleTiming';
+import { useScaleTempo } from '../hooks/useScaleTempo';
+import { ScaleTimingStrip, ScaleRunSummary } from './ScaleTempo';
+import ScaleRingTips from './ScaleRingTips';
 
 /** The path runs every step at the `focused` envelope (one box, natural
  *  roots): `useScaleSelector`'s numbers for a single position. */
@@ -51,16 +56,26 @@ interface Props {
   onRunningChange: (running: boolean) => void;
   onOpenExplain: () => void;
   onAnswer: (itemId: string, form: 'orderScale' | 'connectBoxes', correct: boolean, seconds: number) => void;
+  /** Step 0 ("One string, four fingers"): the Selector's "Show fingers" pick,
+   *  and its metronome with the per-scale tempo map. */
+  fingers?: boolean;
+  metronome?: boolean;
+  tempoMap?: TempoMap;
+  setTempo?: (itemIds: readonly string[], bpm: number) => void;
 }
 
 /** Steps whose title names a box — the ones that get the "Box" ⓘ. */
 const BOX_STEP_KINDS: readonly string[] = ['box', 'connect', 'relativeBox', 'sequence'];
+
+const NO_TEMPOS: TempoMap = {};
+const noSetTempo = () => {};
 
 const STATUS_ICON: Record<ScalePathStatus, string> = { done: '✓', current: '●', available: '○', locked: '🔒' };
 
 export default function ScalePathCard({
   instrument, accidental, notation, lang, now, demo, guitar, direction, hidden,
   onRunningChange, onOpenExplain, onAnswer,
+  fingers = true, metronome = false, tempoMap = NO_TEMPOS, setTempo = noSetTempo,
 }: Props) {
   const { t } = useTranslation();
 
@@ -96,7 +111,22 @@ export default function ScalePathCard({
     () => (runStep ? [{ scaleTypeId: runStep.scaleTypeId, positionIndex: runStep.positionIndex }] : []),
     [runStep],
   );
-  const pickQuestion = runStep?.kind === 'relativeBox' ? pickRelativeBoxQuestion
+  // Step 0: one string per run, lowest first; the counter restarts on Start.
+  const fourFingersRunRef = useRef(0);
+  const pickFourFingers = useCallback<typeof pickScaleQuestion>(
+    (_pool, notes, stringCount, maxFret) => fourFingersQuestion(fourFingersRunRef.current++, notes, stringCount, maxFret),
+    [],
+  );
+  const fourFingersStep = runStep?.kind === 'fourFingers';
+  // Step 0 runs the Selector's metronome, judged and stepped up as on "Tap
+  // the scale in order" (its own tempo, item `scale:minorPentatonic:8`).
+  const warmupTempoOn = metronome && fourFingersStep;
+  const tempo = useScaleTempo({ enabled: warmupTempoOn, tempoMap, setTempo });
+  const warmupTiming = warmupTempoOn
+    ? { onQuestionStart: tempo.onQuestionStart, onStepHit: tempo.onStepHit, demoTiming: tempo.demoTiming }
+    : {};
+  const pickQuestion = fourFingersStep ? pickFourFingers
+    : runStep?.kind === 'relativeBox' ? pickRelativeBoxQuestion
     : runStep?.kind === 'connect' ? pickConnectFromPool
     : pickScaleQuestion;
   const orderInstrument = useMemo(
@@ -106,6 +136,7 @@ export default function ScalePathCard({
 
   const activeRef = useRef<string | null>(null);
   const engine = useScaleOrderEngine({
+    ...warmupTiming,
     instrument: orderInstrument,
     pool,
     questionCount: PATH_QUESTION_COUNT,
@@ -127,14 +158,18 @@ export default function ScalePathCard({
   });
 
   useEffect(() => { onRunningChange(engine.running); }, [engine.running, onRunningChange]);
+  const { stop: stopClick } = tempo;
+  useEffect(() => { if (!engine.running) stopClick(); }, [engine.running, stopClick]);
 
   const pitch = usePitchStream({
     enabled: guitar && engine.running && engine.demoStep == null,
     onNote: engine.hear,
+    timing: warmupTempoOn,
   });
 
   const stepTitle = useCallback((s: ScalePathStep) => {
     const name = t(scaleTypeById(s.scaleTypeId)?.nameKey ?? s.scaleTypeId);
+    if (s.kind === 'fourFingers') return t('One string, four fingers');
     if (s.kind === 'explain') return t('One shape, two names');
     if (s.kind === 'connect') return `${name} · ${t('Connect the boxes')}`;
     if (s.kind === 'relativeBox') return `${name} · ${t('Same box, new home note')}`;
@@ -149,6 +184,8 @@ export default function ScalePathCard({
     setSummary(null);
     setActiveId(selected.step.id);
     activeRef.current = selected.step.id;
+    fourFingersRunRef.current = 0;
+    tempo.prime();
     engine.start();
   };
   const stop = () => {
@@ -163,16 +200,24 @@ export default function ScalePathCard({
     const posLabel = q.positionIndex === 0 ? t('Boxes 1–2')
       : q.positionIndex === RELATIVE_BOX_INDEX ? t('Same box, new home note')
       : `${t('Box')} ${q.positionIndex}`;
+    // Step 0: no scale and no box, just the string, up and back.
+    const warmupRun = q.positionIndex === FOUR_FINGERS_INDEX;
+    const warmupTitle = warmupRun ? `${t('One string, four fingers')} · ${t('String')} ${q.rootString} ↑↓` : null;
     return (
       <div className="set-card scale-order-card scale-path-run">
         <div className="scale-order-header">
           <span className="scale-order-title">
-            {`${t(scaleTypeById(q.scaleTypeId)?.nameKey ?? q.scaleTypeId)} · ${displayNote(q.rootName, accidental, notation)} · ${posLabel} ${q.direction === 'down' ? '↓' : '↑'}`}
+            {warmupTitle ?? `${t(scaleTypeById(q.scaleTypeId)?.nameKey ?? q.scaleTypeId)} · ${displayNote(q.rootName, accidental, notation)} · ${posLabel} ${q.direction === 'down' ? '↓' : '↑'}`}
           </span>
           <span className="set-card-help">
             {t('Scale')} {engine.questionNumber} / {engine.questionCount}
             {' · '}{t('Score')}: {engine.session.score}
           </span>
+          {warmupRun && (
+            <span className="set-card-help scale-ring-reminder">
+              {t('Fingertip just behind the fret. Let each note ring before the next.')}
+            </span>
+          )}
           {demo && (
             <span className="scale-order-status" aria-live="polite">
               {engine.demoStep != null ? t('Watch and listen…') : t('Your turn — play it back')}
@@ -196,7 +241,17 @@ export default function ScalePathCard({
           )}
         </div>
         <ScaleTermStrip terms={['root', 'box', 'string', 'fret']} active={term} onToggle={setTerm} />
+        {warmupTempoOn && (
+          <ScaleTimingStrip
+            bpm={tempo.bpm}
+            beat={tempo.beat}
+            judgements={tempo.judgements}
+            lastNote={tempo.lastNote}
+            lastRun={tempo.lastRun}
+          />
+        )}
         <ScaleOrderBoard
+          fingers={warmupRun && fingers ? fourFingersFingering(q) : undefined}
           board={engine.board}
           step={engine.step}
           slips={engine.slips}
@@ -241,6 +296,7 @@ export default function ScalePathCard({
           {!summaryPassed ? ` · ${t('Not passed yet — one more clean session usually does it.')}` : ''}
         </p>
       )}
+      {summaryEntry?.step.kind === 'fourFingers' && metronome && tempo.lastRun && <ScaleRunSummary run={tempo.lastRun} />}
 
       {selected ? (
         <>
@@ -252,6 +308,12 @@ export default function ScalePathCard({
           </span>
           {term === 'box' && BOX_STEP_KINDS.includes(selected.step.kind) && <ScaleTermNote term={term} />}
           <p className="set-card-help">{t(selected.step.whyKey)}</p>
+          {selected.step.kind === 'fourFingers' && (
+            <>
+              <span className="set-card-label scale-ring-title">{t('Make it ring')}</span>
+              <ScaleRingTips stringCount={instrument.stringCount} />
+            </>
+          )}
           {offerExplain && explainEntry && (
             <>
               <p className="set-card-help">{t(explainEntry.step.whyKey)}</p>
