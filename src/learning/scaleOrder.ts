@@ -30,6 +30,10 @@ export interface ScaleOrderBoard {
    *  A shape tile left out looks like a non-scale tile but still answers its
    *  step (`tileMidi` is unchanged). */
   lit?: ReadonlySet<string>;
+  /** Sequences (`scaleSequence.ts`): per run step, the number a found tile
+   *  shows — the note's place in the box, low to high. Absent = the step's
+   *  own number. */
+  stepLabels?: readonly number[];
 }
 
 /** Recall mode ("play the box from memory"): 0 = every note of the box lit,

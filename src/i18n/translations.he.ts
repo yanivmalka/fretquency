@@ -1407,6 +1407,31 @@ export const he: Record<string, string> = {
     'כל השלבים',
   'Finish the steps before it to unlock this one.':
     'סיימו את השלבים שלפניו כדי לפתוח אותו.',
+  // Scales — sequences, a ladder after Recall (wishlist 2026-10-03 item 6).
+  'Sequences':
+    'רצפים',
+  'Groups of 3':
+    'קבוצות של 3',
+  'Groups of 4':
+    'קבוצות של 4',
+  'Thirds':
+    'טרצות',
+  'Play 1-2-3, then 2-3-4, then 3-4-5… one note further each time.':
+    'נגנו 1-2-3, אחר כך 2-3-4, אחר כך 3-4-5… בכל פעם תו אחד הלאה.',
+  'Play 1-2-3-4, then 2-3-4-5… one note further each time.':
+    'נגנו 1-2-3-4, אחר כך 2-3-4-5… בכל פעם תו אחד הלאה.',
+  'Skip a note, then step back: 1-3, 2-4, 3-5…':
+    'דלגו על תו וחזרו צעד אחורה: 1-3, 2-4, 3-5…',
+  'Box 1 in groups of 3, groups of 4, then thirds, up and down — so you know each note’s neighbour, not only the whole line. It opens once you can play box 1 from memory.':
+    'תבנית 1 בקבוצות של 3, בקבוצות של 4 ואז בטרצות, למעלה ולמטה — כדי שתכירו את השכן של כל תו, לא רק את הקו כולו. השלב נפתח כשתדעו לנגן את תבנית 1 מהזיכרון.',
+  'First, play the box from memory: only the root is lit.':
+    'קודם נגנו את התבנית מהזיכרון: רק תו הבסיס מואר.',
+  'Good runs in a row:':
+    'ריצות טובות ברצף:',
+  'Play the box from memory':
+    'לנגן את התבנית מהזיכרון',
+  'Finish the rung before it to unlock this one.':
+    'סיימו את השלב שלפניו כדי לפתוח אותו.',
   'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
     'אותם חמישה תווים, אותה צורה. התחילו וסיימו על {minor} והם נשמעים כמו פנטטוני מינורי — כהה ובלוזי. התחילו וסיימו על {major} ואותם תווים בדיוק נשמעים כמו פנטטוני מז\'ורי — בהיר ומתוק.',
   'On the thickest string, the major home note sits three frets above the minor one.':

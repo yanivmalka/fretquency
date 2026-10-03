@@ -28,6 +28,8 @@
 import { scaleTypeById, scalePositionsFor, shapeAtRoot, fingeringFor, type ScalePositionDef } from '../utils/scales';
 import { pickConnectQuestion, type ScaleDirection, type ScalePoolItem, type ScaleQuestion } from './scaleDrill';
 import { isScaleMastered } from './scaleMastery';
+import { pickScaleQuestion } from './scaleDrill';
+import { sequenceLadder } from './scaleSequence';
 import { scaleItemId } from './scaleItem';
 import type { ScaleHistoryRow } from './learningState';
 import type { SrsMap } from './srs';
@@ -135,6 +137,14 @@ export function pickRelativeBoxQuestion(
 export const pickConnectFromPool: typeof pickRelativeBoxQuestion = (pool, ...rest) =>
   pickConnectQuestion([...new Set(pool.map((p) => p.scaleTypeId))], ...rest);
 
+/** Sequences: the box's own question, but going up and down in turn so a
+ *  session plays each pattern both ways. `counter.current` is the next run's
+ *  index; the caller sets it to 0 when a session starts. */
+export function sequencePicker(counter: { current: number }): typeof pickRelativeBoxQuestion {
+  return (pool, noteTable, stringCount, maxFret, rng, naturalsOnly) =>
+    pickScaleQuestion(pool, noteTable, stringCount, maxFret, rng, naturalsOnly, counter.current++ % 2 === 0 ? 'up' : 'down');
+}
+
 /** The `runIndex`-th run (0-based) of "One string, four fingers": four frets
  *  on one string, one finger per fret. Run 0 is on the lowest string, and
  *  each next run moves one string up, wrapping round. The run (`tonicRun`
@@ -169,7 +179,7 @@ export function fourFingersFingering(q: ScaleQuestion): Map<string, number> | nu
   return fingeringFor(q.shape, { from: q.rootFret - 1, to: q.rootFret + 3 });
 }
 
-export type ScalePathStepKind = 'box' | 'connect' | 'explain' | 'relativeBox' | 'fourFingers';
+export type ScalePathStepKind = 'box' | 'connect' | 'explain' | 'relativeBox' | 'fourFingers' | 'sequence';
 
 export interface ScalePathStep {
   /** Stable id (not shown). */
@@ -204,6 +214,8 @@ export const SCALE_PATH: readonly ScalePathStep[] = [
     'The same five notes, one box further: the root moves to the next string.'),
   step('minorPent-connect', 'connect', 'minorPentatonic', 0,
     'One run that crosses from box 1 into box 2 and back, so the two boxes become one stretch of the neck.'),
+  step('minorPent-sequences', 'sequence', 'minorPentatonic', 1,
+    'Box 1 in groups of 3, groups of 4, then thirds, up and down — so you know each note’s neighbour, not only the whole line. It opens once you can play box 1 from memory.'),
   step('pent-relative-explain', 'explain', 'majorPentatonic', RELATIVE_BOX_INDEX,
     'The box you know is also a major pentatonic — only the home note changes.'),
   step('majorPent-relative', 'relativeBox', 'majorPentatonic', RELATIVE_BOX_INDEX,
@@ -258,7 +270,9 @@ export function scalePathProgress(
   for (const s of steps) {
     const done = s.kind === 'explain'
       ? scaleSrs[s.itemId] != null || historyRows.some((r) => r.itemId === s.itemId)
-      : isScaleMastered(s.itemId, scaleSrs, historyRows, now);
+      : s.kind === 'sequence'
+        ? sequenceLadder(historyRows, s.itemId).done
+        : isScaleMastered(s.itemId, scaleSrs, historyRows, now);
     let status: ScalePathStatus;
     if (done) status = 'done';
     else if (blocked) status = 'locked';

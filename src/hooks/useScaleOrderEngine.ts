@@ -28,6 +28,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { pickScaleQuestion, type ScaleQuestion, type ScalePoolItem, type ScaleDirection } from '../learning/scaleDrill';
 import { buildOrderBoard, type ScaleOrderBoard, type RecallLevel } from '../learning/scaleOrder';
 import { isScaleCorrect } from '../learning/scaleFall';
+import { sequenceBoard, type SequencePattern } from '../learning/scaleSequence';
 import { playNoteSingle } from '../utils/audio';
 import { haptic, playCorrectChime } from '../utils/feedback';
 import { useScoring } from './useScoring';
@@ -56,6 +57,8 @@ export interface ScaleOrderAnswer {
   seconds: number;
   /** Recall mode level this scale was played at. */
   fadeLevel: RecallLevel;
+  /** The sequence this scale was played as, or `null` for the plain run. */
+  pattern: SequencePattern | null;
 }
 
 export interface ScaleOrderOptions {
@@ -75,6 +78,10 @@ export interface ScaleOrderOptions {
   /** Recall mode: how many of the box's notes are drawn lit (`scaleOrder.ts`).
    *  Read when each scale is laid out, so a change applies from the next one. */
   fadeLevel?: RecallLevel;
+  /** Sequences (`scaleSequence.ts`): play the box as this pattern instead of
+   *  the plain run, up or down per the question's direction. Read when each
+   *  scale is laid out, like `fadeLevel`. */
+  sequence?: SequencePattern | null;
   onComplete?: () => void;
   onAnswer?: (answer: ScaleOrderAnswer) => void;
 }
@@ -111,8 +118,14 @@ export interface ScaleOrderTimingOptions {
 export function useScaleOrderEngine({
   instrument, pool, questionCount, noteTime, demo = false, naturalsOnly = false, direction = 'up',
   pickQuestion = pickScaleQuestion, fadeLevel = 0, onComplete, onAnswer,
-  onStepHit, onQuestionStart, demoTiming,
+  onStepHit, onQuestionStart, demoTiming, sequence = null,
 }: ScaleOrderOptions & ScaleOrderTimingOptions) {
+  const sequenceRef = useRef<SequencePattern | null>(sequence);
+  useEffect(() => { sequenceRef.current = sequence; }, [sequence]);
+  /** The sequence the scale on screen was laid out as. */
+  const boardPatternRef = useRef<SequencePattern | null>(null);
+  const [boardPattern, setBoardPattern] = useState<SequencePattern | null>(null);
+
   const onStepHitRef = useRef(onStepHit);
   useEffect(() => { onStepHitRef.current = onStepHit; }, [onStepHit]);
   const onQuestionStartRef = useRef(onQuestionStart);
@@ -185,7 +198,10 @@ export function useScaleOrderEngine({
     countRef.current += 1;
     setQuestionNumber(countRef.current);
     boardLevelRef.current = fadeLevelRef.current;
-    const b = buildOrderBoard(q, instrument.openMidi, boardLevelRef.current);
+    boardPatternRef.current = sequenceRef.current;
+    setBoardPattern(boardPatternRef.current);
+    const laid = buildOrderBoard(q, instrument.openMidi, boardLevelRef.current);
+    const b = boardPatternRef.current ? sequenceBoard(laid, boardPatternRef.current, q.direction) : laid;
     questionRef.current = q;
     boardRef.current = b;
     stepRef.current = 0;
@@ -279,6 +295,7 @@ export function useScaleOrderEngine({
         correct,
         seconds: (now - questionStartRef.current) / 1000,
         fadeLevel: boardLevelRef.current,
+        pattern: boardPatternRef.current,
       });
       const mySession = sessionRef.current;
       nextTimeoutRef.current = setTimeout(() => {
@@ -352,7 +369,7 @@ export function useScaleOrderEngine({
 
   return {
     running, question, board, step, slips, wrongTile, demoStep,
-    questionNumber, questionCount,
+    questionNumber, questionCount, boardPattern,
     session, start, stop, tap, hear,
   };
 }

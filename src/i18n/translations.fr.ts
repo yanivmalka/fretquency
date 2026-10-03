@@ -1399,6 +1399,31 @@ export const fr: Record<string, string> = {
     'Toutes les étapes',
   'Finish the steps before it to unlock this one.':
     'Termine les étapes précédentes pour débloquer celle-ci.',
+  // Scales — sequences, a ladder after Recall (wishlist 2026-10-03 item 6).
+  'Sequences':
+    'Séquences',
+  'Groups of 3':
+    'Groupes de 3',
+  'Groups of 4':
+    'Groupes de 4',
+  'Thirds':
+    'Tierces',
+  'Play 1-2-3, then 2-3-4, then 3-4-5… one note further each time.':
+    'Joue 1-2-3, puis 2-3-4, puis 3-4-5… une note plus loin à chaque fois.',
+  'Play 1-2-3-4, then 2-3-4-5… one note further each time.':
+    'Joue 1-2-3-4, puis 2-3-4-5… une note plus loin à chaque fois.',
+  'Skip a note, then step back: 1-3, 2-4, 3-5…':
+    'Saute une note, puis reviens d’un pas : 1-3, 2-4, 3-5…',
+  'Box 1 in groups of 3, groups of 4, then thirds, up and down — so you know each note’s neighbour, not only the whole line. It opens once you can play box 1 from memory.':
+    'Le motif 1 en groupes de 3, en groupes de 4, puis en tierces, en montant et en descendant — pour connaître la voisine de chaque note, pas seulement la ligne entière. L’étape s’ouvre quand tu sais jouer le motif 1 de mémoire.',
+  'First, play the box from memory: only the root is lit.':
+    'D’abord, joue le motif de mémoire : seule la fondamentale est allumée.',
+  'Good runs in a row:':
+    'Gammes réussies d’affilée :',
+  'Play the box from memory':
+    'Jouer le motif de mémoire',
+  'Finish the rung before it to unlock this one.':
+    'Termine l’échelon précédent pour débloquer celui-ci.',
   'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
     'Les cinq mêmes notes, la même forme. Commence et termine sur {minor} et elles sonnent comme une pentatonique mineure : sombre et bluesy. Commence et termine sur {major} et exactement les mêmes notes sonnent comme une pentatonique majeure : lumineuse et douce.',
   'On the thickest string, the major home note sits three frets above the minor one.':

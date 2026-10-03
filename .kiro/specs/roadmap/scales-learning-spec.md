@@ -7,6 +7,86 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 11 (2026-10-03) — sequences: a ladder after Recall (wishlist update 2026-10-03, item 6)
+
+From the teacher/beginner dialogue: once a box can be played from memory, the
+next step is not "faster" but groups of 3, groups of 4 and thirds, so the
+learner knows each note's neighbour, not only the whole line. "Sequences on a
+shaky box just confuse", so they open only after Recall.
+
+- **Pure logic, `src/learning/scaleSequence.ts`.** `sequenceRun(run, runMidi,
+  pattern, direction)` takes the box's existing run, keeps each distinct pitch
+  once on the tile the run already uses for it, sorts them low to high (the
+  "line"), and walks the pattern over the line: up from the lowest note, or
+  the mirror image down from the highest. `sequenceBoard` swaps that into an
+  order board and adds `stepLabels` (the note's place in the line, so the
+  found tiles show 1-2-3, 2-3-4…). `tileMidi`, the section and Recall's `lit`
+  set are unchanged, so tap, guitar answering, fingers and the metronome need
+  nothing new. Lengths on guitar minor pentatonic box 1 (12 notes): groups of
+  3 = 30 steps, groups of 4 = 36, thirds = 20 (a plain run is 23).
+- **The ladder** (`sequenceLadder`, derived from `scaleHistory` only): locked
+  until the box's last `SEQUENCE_UNLOCK_RUNS` (3, Recall's own level-up count)
+  Recall runs at level ≥ 1 are all good; open for good once any sequence has
+  been played on it. Rungs in a fixed order, groups of 3 → groups of 4 →
+  thirds; a rung passes after `SEQUENCE_PASS_RUNS` (3) good runs of it in a row
+  (the app's own `isScaleCorrect` judge) and then stays passed.
+- **History:** a new form `orderSequence` with a required `pattern`
+  (`learningState.ts`: the type, `normalizeScaleHistory` drops an
+  `orderSequence` row without a valid pattern, and `recordScaleAnswer` takes an
+  optional last `pattern`). Same item id as the box (`scale:minorPentatonic:1`)
+  and the same SRS lane — Recall's precedent: a harder way to review the same
+  item. Sequence rows never count toward Recall's streak (`recallStreak` only
+  reads `orderRecall`).
+- **Engine:** `useScaleOrderEngine` takes an optional `sequence` pattern, read
+  through a ref when each scale is laid out (like `fadeLevel`), applied on top
+  of `layoutBoard`; `ScaleOrderAnswer.pattern` and `boardPattern` report it.
+  Without it the engine is unchanged. `ScaleOrderBoard` shows
+  `board.stepLabels` when present (one expression).
+- **The path step** (`scaleCurriculum.ts`): `minorPent-sequences`, kind
+  `sequence`, right after "Connect the boxes", on Minor Pentatonic box 1. It
+  passes when every rung has. `ScalePathCard` runs it in one place: until the
+  ladder opens, Start plays box 1 at Recall level 1 (only the root lit,
+  recorded as `orderRecall`); once open, the current rung, up and down in
+  turn (`sequencePicker`), 4 runs per session instead of 6 because a run is up
+  to twice as long. Both the Recall level and the pattern are read at layout,
+  so the step climbs mid-session (3 good Recall runs → the 4th run is already
+  groups of 3). The card lists the ladder (✓ / ● n/3 / 🔒); a passed or current
+  rung can be tapped to practise it again. The run header names the pattern
+  and says how to play it in one line. The Selector's metronome (step 0's
+  wiring, now also on for this step, at box 1's own tempo) and "Show fingers"
+  (on sequence runs) work unchanged. The generic "Not passed yet" line is
+  hidden after a sequences session, since the ladder shows the progress.
+- 12 new strings in he/es/pt-BR/fr/it; CSS in `30-scale-board.css`
+  (sequences block).
+
+**Verified:** `scripts/check-scale-sequence.mts` (new): hand-written index
+lists for each pattern/direction; 300 random boxes × guitar/bass × up/down ×
+3 Recall levels × 3 patterns (order, every step a box tile with its own pitch,
+labels, section/tiles/`lit` unchanged); the history form through record /
+normalise / merge; every branch of the ladder; the path position and the
+picker's alternation. `check-scale-curriculum.mts` updated for the new step
+(its order string and status strings; the step now sits between connect and
+the explanation). `check-scale-recall`, `-timing`, `-fingering` still pass;
+`tsc -b` and eslint clean. **Live** (Playwright/Chromium, 420×900, a dev-mode
+snapshot build on `vite preview`, `devSimulateTier='premium'`, the learning
+blob seeded after the guest wipe with the path passed up to connect), English
+and Hebrew: 3 Recall runs with exactly the 3 root tiles lit, then the 4th run
+already groups of 3 (30 steps, labels 12-11-10, 11-10-9… going down); a second
+session's 3 good groups-of-3 runs moved runs 3–4 to groups of 4; the rows
+landed as `orderRecall/1` then `orderSequence/groups3|groups4`; the card's
+ladder showed ✓ / ✓ / ● 2/3 / 🔒. With the metronome on: the timing strip and
+12 finger dots on the sequence board. Hebrew fully translated, card RTL, board
+`dir="ltr"`, no horizontal overflow, no app console errors. The live check
+caught the rung count sitting next to the label in RTL; fixed.
+
+**Still open:** sequences on other boxes (the logic is per box, only box 1 is
+on the path; no More options entry, by the "not a Direction option" brief);
+**the step gates the rest of the path** (the relative major, Blues, Natural
+Minor, Major wait behind three rungs) — a product call, it could be made
+non-gating; the metronome uses box 1's tempo for sequences too, so a clean
+sequence run speeds up the plain box (a per-pattern tempo is one id away); the
+guitar answer mode on a sequence was not driven with a simulated mic.
+
 ## Session 11 (2026-10-03) — "Plain words, in place" (wishlist update 2026-10-03, item 1)
 
 The teacher/beginner dialogue found the first give-up point: "Box 1",

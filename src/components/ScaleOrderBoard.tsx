@@ -86,7 +86,7 @@ export default function ScaleOrderBoard({
                 onClick={() => onTap(s, f)}
               >
                 <span className="scale-order-note">{displayNote(name, accidental, notation)}</span>
-                {(found || demoing) && <span className="scale-order-step">{tileStep + 1}</span>}
+                {(found || demoing) && <span className="scale-order-step">{board.stepLabels?.[tileStep] ?? tileStep + 1}</span>}
                 {lit && fingers?.has(`${s}:${f}`) && <span className="scale-finger">{fingers.get(`${s}:${f}`)}</span>}
               </button>
             );

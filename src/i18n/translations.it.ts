@@ -1395,6 +1395,31 @@ export const it: Record<string, string> = {
     'Tutti i passi',
   'Finish the steps before it to unlock this one.':
     'Completa i passi precedenti per sbloccare questo.',
+  // Scales — sequences, a ladder after Recall (wishlist 2026-10-03 item 6).
+  'Sequences':
+    'Sequenze',
+  'Groups of 3':
+    'Gruppi di 3',
+  'Groups of 4':
+    'Gruppi di 4',
+  'Thirds':
+    'Terze',
+  'Play 1-2-3, then 2-3-4, then 3-4-5… one note further each time.':
+    'Suona 1-2-3, poi 2-3-4, poi 3-4-5… una nota più avanti ogni volta.',
+  'Play 1-2-3-4, then 2-3-4-5… one note further each time.':
+    'Suona 1-2-3-4, poi 2-3-4-5… una nota più avanti ogni volta.',
+  'Skip a note, then step back: 1-3, 2-4, 3-5…':
+    'Salta una nota, poi torna indietro di un passo: 1-3, 2-4, 3-5…',
+  'Box 1 in groups of 3, groups of 4, then thirds, up and down — so you know each note’s neighbour, not only the whole line. It opens once you can play box 1 from memory.':
+    'Lo schema 1 in gruppi di 3, gruppi di 4 e poi terze, in salita e in discesa — per conoscere la vicina di ogni nota, non solo la linea intera. Si apre quando sai suonare lo schema 1 a memoria.',
+  'First, play the box from memory: only the root is lit.':
+    'Prima suona lo schema a memoria: è accesa solo la tonica.',
+  'Good runs in a row:':
+    'Scale riuscite di fila:',
+  'Play the box from memory':
+    'Suonare lo schema a memoria',
+  'Finish the rung before it to unlock this one.':
+    'Completa il gradino precedente per sbloccare questo.',
   'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
     'Le stesse cinque note, la stessa forma. Inizia e finisci su {minor} e suonano come una pentatonica minore: scura e blues. Inizia e finisci su {major} e le stesse identiche note suonano come una pentatonica maggiore: luminosa e dolce.',
   'On the thickest string, the major home note sits three frets above the minor one.':

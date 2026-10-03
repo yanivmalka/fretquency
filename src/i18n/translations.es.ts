@@ -1395,6 +1395,31 @@ export const es: Record<string, string> = {
     'Todos los pasos',
   'Finish the steps before it to unlock this one.':
     'Termina los pasos anteriores para desbloquear este.',
+  // Scales — sequences, a ladder after Recall (wishlist 2026-10-03 item 6).
+  'Sequences':
+    'Secuencias',
+  'Groups of 3':
+    'Grupos de 3',
+  'Groups of 4':
+    'Grupos de 4',
+  'Thirds':
+    'Terceras',
+  'Play 1-2-3, then 2-3-4, then 3-4-5… one note further each time.':
+    'Toca 1-2-3, luego 2-3-4, luego 3-4-5… una nota más allá cada vez.',
+  'Play 1-2-3-4, then 2-3-4-5… one note further each time.':
+    'Toca 1-2-3-4, luego 2-3-4-5… una nota más allá cada vez.',
+  'Skip a note, then step back: 1-3, 2-4, 3-5…':
+    'Salta una nota y vuelve un paso: 1-3, 2-4, 3-5…',
+  'Box 1 in groups of 3, groups of 4, then thirds, up and down — so you know each note’s neighbour, not only the whole line. It opens once you can play box 1 from memory.':
+    'El patrón 1 en grupos de 3, grupos de 4 y luego terceras, subiendo y bajando, para conocer la vecina de cada nota y no solo la línea entera. Se abre cuando puedas tocar el patrón 1 de memoria.',
+  'First, play the box from memory: only the root is lit.':
+    'Primero, toca el patrón de memoria: solo la tónica está encendida.',
+  'Good runs in a row:':
+    'Escalas bien tocadas seguidas:',
+  'Play the box from memory':
+    'Tocar el patrón de memoria',
+  'Finish the rung before it to unlock this one.':
+    'Termina el peldaño anterior para desbloquear este.',
   'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
     'Las mismas cinco notas, la misma forma. Empieza y termina en {minor} y suenan como una pentatónica menor: oscura y bluesera. Empieza y termina en {major} y esas mismas notas suenan como una pentatónica mayor: brillante y dulce.',
   'On the thickest string, the major home note sits three frets above the minor one.':

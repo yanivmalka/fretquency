@@ -135,15 +135,15 @@ check('every step names a real scale type', SCALE_PATH.every((s) => scaleTypeByI
 check('the scales start on Minor Pentatonic box 1',
   PATH[0].scaleTypeId === 'minorPentatonic' && PATH[0].positionIndex === 1 && PATH[0].kind === 'box');
 const order = PATH.map((s) => `${s.kind}:${s.scaleTypeId}:${s.positionIndex}`);
-check('order: box1 → box2 → connect → explain → relative major pent → blues → natural minor → major',
+check('order: box1 → box2 → connect → sequences → explain → relative major pent → blues → natural minor → major',
   order.join(',') === [
-    'box:minorPentatonic:1', 'box:minorPentatonic:2', 'connect:minorPentatonic:0',
+    'box:minorPentatonic:1', 'box:minorPentatonic:2', 'connect:minorPentatonic:0', 'sequence:minorPentatonic:1',
     `explain:majorPentatonic:${RELATIVE_BOX_INDEX}`, `relativeBox:majorPentatonic:${RELATIVE_BOX_INDEX}`,
     'box:blues:1', 'box:naturalMinor:1', 'box:major:1',
   ].join(','), order.join(','));
 check('only the explanation step is non-gating', SCALE_PATH.every((s) => s.gating === (s.kind !== 'explain')));
 check('the explanation points at the relative practice step',
-  PATH[3].itemId === PATH[4].itemId);
+  PATH[PATH.findIndex((s) => s.kind === 'explain') + 1].itemId === PATH.find((s) => s.kind === 'explain')!.itemId);
 
 console.log('scalePathProgress: unlock + pass rules');
 const t0 = Date.UTC(2026, 9, 2, 12);
@@ -156,37 +156,51 @@ const prog = () => scalePathProgress(st.scaleSrs, st.scaleHistory, clock, 6, PAT
 const statuses = () => prog().entries.map((e) => e.status).join(',');
 
 let p = prog();
-check('fresh: step 1 current, the rest locked', statuses() === 'current,locked,locked,locked,locked,locked,locked,locked', statuses());
-check('fresh: 0 / 7 passed', p.passed === 0 && p.total === 7 && p.currentIndex === 0);
+check('fresh: step 1 current, the rest locked', statuses() === 'current,locked,locked,locked,locked,locked,locked,locked,locked', statuses());
+check('fresh: 0 / 8 passed', p.passed === 0 && p.total === 8 && p.currentIndex === 0);
 
 clock += 60_000;
 st = recordScaleAnswer(st, scaleItemId('minorPentatonic', 1), 'orderScale', true, 20, clock);
 check('one correct run does not pass a step', prog().entries[0].status === 'current');
 
 master(scaleItemId('minorPentatonic', 1));
-check('box 1 mastered → box 2 current', statuses() === 'done,current,locked,locked,locked,locked,locked,locked', statuses());
+check('box 1 mastered → box 2 current', statuses() === 'done,current,locked,locked,locked,locked,locked,locked,locked', statuses());
 master(scaleItemId('minorPentatonic', 2));
 master(scaleItemId('minorPentatonic', 0));
-check('connect mastered → explanation current, relative step available (explanation gates nothing)',
-  statuses() === 'done,done,done,current,available,locked,locked,locked', statuses());
+check('connect mastered → sequences current, the rest locked',
+  statuses() === 'done,done,done,current,locked,locked,locked,locked,locked', statuses());
+// Sequences (scaleSequence.ts): box 1 from memory a few times, then every
+// rung of the ladder — checked in full by check-scale-sequence.mts.
+for (let i = 0; i < 3; i++) {
+  clock += 60_000;
+  st = recordScaleAnswer(st, scaleItemId('minorPentatonic', 1), 'orderRecall', true, 20, clock, 1);
+}
+for (const pattern of ['groups3', 'groups4', 'thirds'] as const) {
+  for (let i = 0; i < 3; i++) {
+    clock += 60_000;
+    st = recordScaleAnswer(st, scaleItemId('minorPentatonic', 1), 'orderSequence', true, 40, clock, undefined, pattern);
+  }
+}
+check('sequences passed → explanation current, relative step available (explanation gates nothing)',
+  statuses() === 'done,done,done,done,current,available,locked,locked,locked', statuses());
 
 clock += 60_000;
 st = recordScaleAnswer(st, relId, 'orderScale', false, 30, clock);
 check('a first relative answer → explanation done, relative current',
-  statuses() === 'done,done,done,done,current,locked,locked,locked', statuses());
+  statuses() === 'done,done,done,done,done,current,locked,locked,locked', statuses());
 
-const afterMiss = prog().entries[4].status;
+const afterMiss = prog().entries[5].status;
 master(relId);
-check('a miss then three clean runs still passes the relative step', afterMiss === 'current' && prog().entries[4].status === 'done', statuses());
+check('a miss then three clean runs still passes the relative step', afterMiss === 'current' && prog().entries[5].status === 'done', statuses());
 
 master(scaleItemId('major', 1));
 check('a later step practised early shows done but does not unlock the ones before it',
-  statuses() === 'done,done,done,done,done,current,locked,done', statuses());
+  statuses() === 'done,done,done,done,done,done,current,locked,done', statuses());
 
 master(scaleItemId('blues', 1));
 master(scaleItemId('naturalMinor', 1));
 p = prog();
-check('everything mastered → complete', p.currentIndex === -1 && p.passed === 7 && p.entries.every((e) => e.status === 'done'));
+check('everything mastered → complete', p.currentIndex === -1 && p.passed === 8 && p.entries.every((e) => e.status === 'done'));
 
 const free = scalePathProgress(st.scaleSrs, st.scaleHistory, clock, 6, PATH);
 check('derived only from the inputs (pure)', JSON.stringify(free) === JSON.stringify(p));

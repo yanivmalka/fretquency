@@ -41,6 +41,7 @@ import { scaleItemId } from '../learning/scaleItem';
 import { buildScalePool, pickConnectQuestion, pickScaleQuestion, type ScaleQuestion, type ScalePoolItem } from '../learning/scaleDrill';
 import { buildScaleBoard } from '../learning/scaleMastery';
 import { loadLearningState, saveLearningStateLocal, getInstrumentState, withInstrumentState, recordScaleAnswer } from '../learning/learningState';
+import type { ScaleHistoryRow } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
 import ScaleFallBoard from './ScaleFallBoard';
 import ScaleOrderBoard from './ScaleOrderBoard';
@@ -167,11 +168,19 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   // to the cloud (§15 — a no-op for a guest / offline; the reconcile merges
   // per item, so another device's scale reviews are never lost).
   const recordAnswer = useCallback(
-    (itemId: string, form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes', correct: boolean, seconds: number) => {
+    (
+      itemId: string,
+      form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes' | 'orderRecall' | 'orderSequence',
+      correct: boolean,
+      seconds: number,
+      // The path's sequences step (`ScalePathCard`): its Recall runs and its
+      // sequence runs carry their level / pattern.
+      extra?: { recallLevel?: 1 | 2; pattern?: ScaleHistoryRow['pattern'] },
+    ) => {
       const ts = Date.now();
       const state = loadLearningState(ts);
       const inst = getInstrumentState(state, instrument.id, ts);
-      const next = recordScaleAnswer(inst, itemId, form, correct, seconds, ts);
+      const next = recordScaleAnswer(inst, itemId, form, correct, seconds, ts, extra?.recallLevel, extra?.pattern);
       saveLearningStateLocal(withInstrumentState(state, instrument.id, next));
       cloudPushLearning();
       setNow(ts);

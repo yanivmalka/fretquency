@@ -128,7 +128,7 @@ export interface ScaleHistoryRow {
   itemId: string;
   /** Which exercise produced the answer (§8; `connectBoxes` is Session 8's
    *  "Connect the boxes", itemId's positionIndex always `0`). */
-  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes' | 'orderRecall';
+  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes' | 'orderRecall' | 'orderSequence';
   /** A timeout folds in here as `false`, matching the SRS treatment. */
   correct: boolean;
   /** Seconds taken; `0` when unknown. */
@@ -138,6 +138,9 @@ export interface ScaleHistoryRow {
   /** `orderRecall` only ("Tap the scale in order" played from memory): 1 =
    *  only the tonic was lit, 2 = an empty neck. Required on that form. */
   recallLevel?: 1 | 2;
+  /** `orderSequence` only (a box played as a sequence, `scaleSequence.ts`):
+   *  which pattern. Required on that form. */
+  pattern?: 'groups3' | 'groups4' | 'thirds';
 }
 
 export type StaffForm = 'nameNote' | 'findOnNeck' | 'findOnStaff' | 'readPhrase';
@@ -365,18 +368,23 @@ export function normalizeScaleHistory(raw: unknown): ScaleHistoryRow[] {
     const form =
       r.form === 'buildScale' || r.form === 'orderScale' || r.form === 'identifyScale'
         || r.form === 'nameDegree' || r.form === 'connectBoxes' || r.form === 'orderRecall'
+        || r.form === 'orderSequence'
         ? r.form
         : null;
     if (form == null) continue;
     const recallLevel = r.recallLevel === 1 || r.recallLevel === 2 ? r.recallLevel : null;
     if (form === 'orderRecall' && recallLevel == null) continue;
+    const pattern = r.pattern === 'groups3' || r.pattern === 'groups4' || r.pattern === 'thirds' ? r.pattern : null;
+    if (form === 'orderSequence' && pattern == null) continue;
     const seconds =
       typeof r.seconds === 'number' && Number.isFinite(r.seconds) && r.seconds >= 0
         ? r.seconds
         : 0;
     rows.push(form === 'orderRecall'
       ? { itemId, form, correct: r.correct === true, seconds, createdAt, recallLevel: recallLevel ?? 1 }
-      : { itemId, form, correct: r.correct === true, seconds, createdAt });
+      : form === 'orderSequence'
+        ? { itemId, form, correct: r.correct === true, seconds, createdAt, pattern: pattern ?? 'groups3' }
+        : { itemId, form, correct: r.correct === true, seconds, createdAt });
   }
   rows.sort((a, b) => a.createdAt - b.createdAt);
   return rows.length > SCALE_HISTORY_CAP
@@ -745,6 +753,7 @@ export function recordScaleAnswer(
   seconds: number,
   now: number,
   recallLevel?: 1 | 2,
+  pattern?: ScaleHistoryRow['pattern'],
 ): InstrumentLearningState {
   const srsItem = getOrCreate(st.scaleSrs, itemId, now);
   const nextItem = reviewSrsItem(srsItem, correct, now);
@@ -756,6 +765,7 @@ export function recordScaleAnswer(
     createdAt: now,
   };
   if (form === 'orderRecall') row.recallLevel = recallLevel ?? 1;
+  if (form === 'orderSequence') row.pattern = pattern ?? 'groups3';
   const history = [...st.scaleHistory, row];
   return {
     ...st,

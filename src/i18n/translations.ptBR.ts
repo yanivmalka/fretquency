@@ -1392,6 +1392,31 @@ export const ptBR: Record<string, string> = {
     'Todas as etapas',
   'Finish the steps before it to unlock this one.':
     'Conclua as etapas anteriores para desbloquear esta.',
+  // Scales — sequences, a ladder after Recall (wishlist 2026-10-03 item 6).
+  'Sequences':
+    'Sequências',
+  'Groups of 3':
+    'Grupos de 3',
+  'Groups of 4':
+    'Grupos de 4',
+  'Thirds':
+    'Terças',
+  'Play 1-2-3, then 2-3-4, then 3-4-5… one note further each time.':
+    'Toque 1-2-3, depois 2-3-4, depois 3-4-5… uma nota adiante a cada vez.',
+  'Play 1-2-3-4, then 2-3-4-5… one note further each time.':
+    'Toque 1-2-3-4, depois 2-3-4-5… uma nota adiante a cada vez.',
+  'Skip a note, then step back: 1-3, 2-4, 3-5…':
+    'Pule uma nota e volte um passo: 1-3, 2-4, 3-5…',
+  'Box 1 in groups of 3, groups of 4, then thirds, up and down — so you know each note’s neighbour, not only the whole line. It opens once you can play box 1 from memory.':
+    'O desenho 1 em grupos de 3, grupos de 4 e depois terças, subindo e descendo, para conhecer a vizinha de cada nota e não só a linha inteira. Abre quando você conseguir tocar o desenho 1 de memória.',
+  'First, play the box from memory: only the root is lit.':
+    'Primeiro, toque o desenho de memória: só a tônica está acesa.',
+  'Good runs in a row:':
+    'Escalas bem tocadas seguidas:',
+  'Play the box from memory':
+    'Tocar o desenho de memória',
+  'Finish the rung before it to unlock this one.':
+    'Conclua o degrau anterior para desbloquear este.',
   'Same five notes, same shape. Start and end on {minor} and they sound like a minor pentatonic — dark and bluesy. Start and end on {major} and the very same notes sound like a major pentatonic — bright and sweet.':
     'As mesmas cinco notas, a mesma forma. Comece e termine em {minor} e elas soam como uma pentatônica menor: escura e com cara de blues. Comece e termine em {major} e exatamente as mesmas notas soam como uma pentatônica maior: brilhante e doce.',
   'On the thickest string, the major home note sits three frets above the minor one.':

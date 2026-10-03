@@ -1204,3 +1204,75 @@
   .scale-term-hl-box,
   .scale-term-note { animation: none; }
 }
+
+/* ── Sequences: a ladder after Recall (ScalePathCard.tsx, wishlist
+   2026-10-03 item 6). The rungs reuse the path list's look. ── */
+.scale-seq-ladder {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scale-seq-rung {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  background: var(--bg-1);
+  color: var(--text-0);
+  font-size: 0.9rem;
+}
+.scale-seq-rung:has(> .scale-seq-rung-btn) {
+  padding: 0;
+  border: none;
+  background: none;
+}
+.scale-seq-rung-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 4px 10px;
+  text-align: start;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  background: var(--bg-1);
+  color: var(--text-0);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.scale-seq-rung-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.scale-seq-rung-current > .scale-seq-rung-btn,
+li.scale-seq-rung-current:not(:has(> .scale-seq-rung-btn)) {
+  border-color: var(--accent);
+}
+.scale-seq-rung-chosen {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.scale-seq-rung-icon {
+  flex: none;
+  width: 1.4em;
+  text-align: center;
+  font-weight: 800;
+}
+.scale-seq-rung-passed .scale-seq-rung-icon {
+  color: var(--accent);
+}
+.scale-seq-rung-count {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+.scale-seq-how {
+  font-weight: 600;
+}
