@@ -1484,4 +1484,17 @@ export const ptBR: Record<string, string> = {
     'As cordas são numeradas da mais fina (1) à mais grossa, então a mais grossa — a fileira acesa no topo — tem o número mais alto.',
   'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
     'Um traste é uma casa numerada ao longo do braço — aperte logo atrás do fio de metal; os números embaixo do tabuleiro são os trastes.',
+  // Scales — "I play, you play it back" (call and response by ear).
+  'Play it back by ear': 'Toque de ouvido',
+  'The app plays a few notes from the box — nothing lights up, so listen. Then play them back on your guitar or tap them. Every phrase starts on the root (gold ring). Two clean phrases in a row and the next one is a note longer.': 'O app toca algumas notas do desenho — nada acende, então escute. Depois toque-as de volta no violão ou toque na tela. Toda frase começa na tônica (anel dourado). Duas frases limpas seguidas e a próxima ganha mais uma nota.',
+  'The box on the board': 'O desenho no tabuleiro',
+  'With only the root lit, your ear finds the notes, not your eye.': 'Só com a tônica acesa, quem acha as notas é o seu ouvido, não o olho.',
+  'Notes in the phrase': 'Notas na frase',
+  'Listen…': 'Escute…',
+  '✓ Clean — the next phrase is one note longer.': '✓ Limpa — a próxima frase tem uma nota a mais.',
+  '✓ Clean!': '✓ Limpa!',
+  'Found it, with a slip.': 'Achou, com um deslize.',
+  'Missed — the next phrase is one note shorter.': 'Errou — a próxima frase tem uma nota a menos.',
+  'Longest phrase played back': 'Frase mais longa que você repetiu',
+  '🎸 Play the notes back on your guitar': '🎸 Toque as notas de volta no violão',
 };

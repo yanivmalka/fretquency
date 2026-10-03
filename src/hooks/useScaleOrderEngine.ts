@@ -82,6 +82,14 @@ export interface ScaleOrderOptions {
    *  the plain run, up or down per the question's direction. Read when each
    *  scale is laid out, like `fadeLevel`. */
   sequence?: SequencePattern | null;
+  /** Override how a question is laid out as a board — "I play, you play it
+   *  back" (`scaleEcho.ts`) keeps the box but swaps the run for a short
+   *  fragment. Defaults to `buildOrderBoard`. */
+  layoutBoard?: (q: ScaleQuestion, openMidi: readonly number[], fadeLevel: RecallLevel) => ScaleOrderBoard;
+  /** Learning mode: light each note as the demo plays it (default). `false`
+   *  plays the demo by ear only — `demoStep` stays `-1` until the learner's
+   *  turn. */
+  demoLit?: boolean;
   onComplete?: () => void;
   onAnswer?: (answer: ScaleOrderAnswer) => void;
 }
@@ -117,7 +125,7 @@ export interface ScaleOrderTimingOptions {
 
 export function useScaleOrderEngine({
   instrument, pool, questionCount, noteTime, demo = false, naturalsOnly = false, direction = 'up',
-  pickQuestion = pickScaleQuestion, fadeLevel = 0, onComplete, onAnswer,
+  pickQuestion = pickScaleQuestion, fadeLevel = 0, layoutBoard = buildOrderBoard, demoLit = true, onComplete, onAnswer,
   onStepHit, onQuestionStart, demoTiming, sequence = null,
 }: ScaleOrderOptions & ScaleOrderTimingOptions) {
   const sequenceRef = useRef<SequencePattern | null>(sequence);
@@ -200,7 +208,7 @@ export function useScaleOrderEngine({
     boardLevelRef.current = fadeLevelRef.current;
     boardPatternRef.current = sequenceRef.current;
     setBoardPattern(boardPatternRef.current);
-    const laid = buildOrderBoard(q, instrument.openMidi, boardLevelRef.current);
+    const laid = layoutBoard(q, instrument.openMidi, boardLevelRef.current);
     const b = boardPatternRef.current ? sequenceBoard(laid, boardPatternRef.current, q.direction) : laid;
     questionRef.current = q;
     boardRef.current = b;
@@ -232,7 +240,7 @@ export function useScaleOrderEngine({
     demoRunningRef.current = true;
     setDemoStep(-1);
     b.run.forEach((p, i) => later(leadMs + i * noteMs, () => {
-      setDemoStep(i);
+      if (demoLit) setDemoStep(i);
       playNoteSingle(p.string, p.fret);
     }));
     later(leadMs + b.run.length * noteMs, () => {
@@ -242,7 +250,7 @@ export function useScaleOrderEngine({
       questionStartRef.current = Date.now();
       lastHitRef.current = questionStartRef.current;
     });
-  }, [questionCount, pool, instrument, naturalsOnly, direction, demo, pickQuestion, finish]);
+  }, [questionCount, pool, instrument, naturalsOnly, direction, demo, pickQuestion, layoutBoard, demoLit, finish]);
 
   const start = useCallback(() => {
     clearTimers();

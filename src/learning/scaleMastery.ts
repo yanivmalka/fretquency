@@ -55,6 +55,13 @@ export type ScaleStatus = 'notStarted' | 'learning' | 'mastered';
 
 // ── Weighted recent stats for one item (the classification engine) ─────
 
+/** An `echo` phrase ("I play, you play it back", 2–4 notes by ear) is kept
+ *  in the box's history but is not evidence that the whole box is known, so
+ *  it never counts toward the box's mastery (or a path step it gates). */
+export function countsForMastery(r: ScaleHistoryRow): boolean {
+  return r.form !== 'echo';
+}
+
 interface WeightedStats {
   accuracy: number;
   effectiveN: number;
@@ -67,7 +74,7 @@ function weightedStats(
   now: number,
 ): WeightedStats {
   const cutoff = now - SCALE_MASTERY_MAX_AGE_DAYS * DAY_MS;
-  const rows = historyRows.filter((r) => r.itemId === itemId && r.createdAt >= cutoff);
+  const rows = historyRows.filter((r) => r.itemId === itemId && r.createdAt >= cutoff && countsForMastery(r));
   const { accuracy, effectiveN } = weightedAccuracy(
     rows.map((r) => ({ correct: r.correct === true, atMs: r.createdAt })),
     now,
@@ -102,7 +109,7 @@ function displayStats(
   now: number,
 ): DisplayStats {
   const cutoff = now - SCALE_STATS_WINDOW_DAYS * DAY_MS;
-  const rows = historyRows.filter((r) => r.itemId === itemId && r.createdAt >= cutoff);
+  const rows = historyRows.filter((r) => r.itemId === itemId && r.createdAt >= cutoff && countsForMastery(r));
   if (rows.length === 0) return { attempts: 0, accuracy: 0 };
   const correct = rows.filter((r) => r.correct === true).length;
   return { attempts: rows.length, accuracy: correct / rows.length };

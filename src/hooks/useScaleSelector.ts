@@ -34,11 +34,14 @@ const SHIPPED_SCALE_TYPE_IDS: readonly string[] = SCALE_TYPES.map((s) => s.id);
 /** Which scale(s) a session draws from: one scale type id, or every shipped one. */
 export type ScaleChoice = 'all' | string;
 
-export type ScaleExercise = 'buildScale' | 'orderScale' | 'connectBoxes' | ScaleChipExercise;
+export type ScaleExercise = 'buildScale' | 'orderScale' | 'connectBoxes' | ScaleChipExercise
+  // "I play, you play it back" (`scaleEcho.ts`, `ScaleEchoCard`).
+  | 'echo';
 export type ScalePositionMode = 'one' | 'all';
 export type ScaleDifficulty = 'focused' | 'mixed' | 'full';
 
-const EXERCISES: readonly ScaleExercise[] = ['buildScale', 'orderScale', 'connectBoxes', 'identifyScale', 'nameDegree'];
+const EXERCISES: readonly ScaleExercise[] = ['buildScale', 'orderScale', 'connectBoxes', 'identifyScale', 'nameDegree',
+  'echo'];
 const POSITION_MODES: readonly ScalePositionMode[] = ['one', 'all'];
 const DIFFICULTIES: readonly ScaleDifficulty[] = ['focused', 'mixed', 'full'];
 const DIRECTIONS: readonly ScaleDirection[] = ['up', 'down', 'both'];
@@ -254,6 +257,11 @@ export function useScaleSelector(stringCount: number) {
   const [fingers, setFingersState] = useState<boolean>(() => loadSetting<boolean>('ssel_fingers', true) !== false);
   const setFingers = (on: boolean) => { setFingersState(on); saveSetting('ssel_fingers', on); };
 
+  // "I play, you play it back": the box lit (default), or dim with only the
+  // home note lit, so the ear finds the notes rather than the eye.
+  const [echoDim, setEchoDimState] = useState<boolean>(() => loadSetting<boolean>('ssel_echo_dim', false) === true);
+  const setEchoDim = (on: boolean) => { setEchoDimState(on); saveSetting('ssel_echo_dim', on); };
+
   return {
     direction, dirUp, dirDown, toggleDirection,
     speedLevel, setSpeedLevel,
@@ -273,5 +281,6 @@ export function useScaleSelector(stringCount: number) {
     pool,
     buildEnvelope,
     fingers, setFingers,
+    echoDim, setEchoDim,
   };
 }

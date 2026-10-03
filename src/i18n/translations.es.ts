@@ -1487,4 +1487,17 @@ export const es: Record<string, string> = {
     'Las cuerdas se numeran de la más fina (1) a la más gruesa, así que la más gruesa —la fila iluminada de arriba— tiene el número más alto.',
   'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
     'Un traste es una casilla numerada a lo largo del mástil; pisa justo detrás de su barra de metal. Los números bajo el tablero son los trastes.',
+  // Scales — "I play, you play it back" (call and response by ear).
+  'Play it back by ear': 'Tócalo de oído',
+  'The app plays a few notes from the box — nothing lights up, so listen. Then play them back on your guitar or tap them. Every phrase starts on the root (gold ring). Two clean phrases in a row and the next one is a note longer.': 'La app toca unas notas del patrón — no se enciende nada, así que escucha. Luego tócalas tú en la guitarra o tócalas en pantalla. Cada frase empieza en la tónica (anillo dorado). Dos frases limpias seguidas y la siguiente tiene una nota más.',
+  'The box on the board': 'El patrón en el tablero',
+  'With only the root lit, your ear finds the notes, not your eye.': 'Con solo la tónica encendida, las notas las encuentra tu oído, no tu vista.',
+  'Notes in the phrase': 'Notas de la frase',
+  'Listen…': 'Escucha…',
+  '✓ Clean — the next phrase is one note longer.': '✓ Limpia: la siguiente frase tiene una nota más.',
+  '✓ Clean!': '✓ ¡Limpia!',
+  'Found it, with a slip.': 'La encontraste, con un fallo.',
+  'Missed — the next phrase is one note shorter.': 'Fallada: la siguiente frase tiene una nota menos.',
+  'Longest phrase played back': 'Frase más larga que repetiste',
+  '🎸 Play the notes back on your guitar': '🎸 Repite las notas en tu guitarra',
 };

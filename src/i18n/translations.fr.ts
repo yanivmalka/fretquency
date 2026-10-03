@@ -1491,4 +1491,17 @@ export const fr: Record<string, string> = {
     'Les cordes sont numérotées de la plus fine (1) à la plus grosse : la plus grosse — la rangée allumée en haut — porte donc le plus grand numéro.',
   'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
     'Une case est un emplacement numéroté le long du manche — appuyez juste derrière sa barrette de métal ; les chiffres sous la grille sont les cases.',
+  // Scales — "I play, you play it back" (call and response by ear).
+  'Play it back by ear': 'Rejouer à l’oreille',
+  'The app plays a few notes from the box — nothing lights up, so listen. Then play them back on your guitar or tap them. Every phrase starts on the root (gold ring). Two clean phrases in a row and the next one is a note longer.': 'L’appli joue quelques notes du motif — rien ne s’allume, alors écoutez. Puis rejouez-les à la guitare ou touchez-les. Chaque phrase commence sur la fondamentale (anneau doré). Deux phrases propres d’affilée et la suivante a une note de plus.',
+  'The box on the board': 'Le motif sur le plateau',
+  'With only the root lit, your ear finds the notes, not your eye.': 'Avec seulement la fondamentale allumée, c’est l’oreille qui trouve les notes, pas l’œil.',
+  'Notes in the phrase': 'Notes de la phrase',
+  'Listen…': 'Écoutez…',
+  '✓ Clean — the next phrase is one note longer.': '✓ Propre — la phrase suivante a une note de plus.',
+  '✓ Clean!': '✓ Propre !',
+  'Found it, with a slip.': 'Trouvée, avec un faux pas.',
+  'Missed — the next phrase is one note shorter.': 'Manquée — la phrase suivante a une note de moins.',
+  'Longest phrase played back': 'Phrase la plus longue rejouée',
+  '🎸 Play the notes back on your guitar': '🎸 Rejouez les notes à la guitare',
 };

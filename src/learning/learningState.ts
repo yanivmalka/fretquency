@@ -128,7 +128,10 @@ export interface ScaleHistoryRow {
   itemId: string;
   /** Which exercise produced the answer (§8; `connectBoxes` is Session 8's
    *  "Connect the boxes", itemId's positionIndex always `0`). */
-  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes' | 'orderRecall' | 'orderSequence';
+  form: 'buildScale' | 'orderScale' | 'identifyScale' | 'nameDegree' | 'connectBoxes' | 'orderRecall' | 'orderSequence'
+    // "I play, you play it back" (`scaleEcho.ts`): a short fragment of the
+    // box, heard and played back — same item id as the box.
+    | 'echo';
   /** A timeout folds in here as `false`, matching the SRS treatment. */
   correct: boolean;
   /** Seconds taken; `0` when unknown. */
@@ -369,6 +372,7 @@ export function normalizeScaleHistory(raw: unknown): ScaleHistoryRow[] {
       r.form === 'buildScale' || r.form === 'orderScale' || r.form === 'identifyScale'
         || r.form === 'nameDegree' || r.form === 'connectBoxes' || r.form === 'orderRecall'
         || r.form === 'orderSequence'
+        || r.form === 'echo'
         ? r.form
         : null;
     if (form == null) continue;
@@ -769,7 +773,10 @@ export function recordScaleAnswer(
   const history = [...st.scaleHistory, row];
   return {
     ...st,
-    scaleSrs: { ...st.scaleSrs, [itemId]: nextItem },
+    // An `echo` phrase (2–4 notes played back by ear, `scaleEcho.ts`) is kept
+    // in the box's history but does not review the box: a short phrase
+    // doesn't show the whole box is known, so it must not pass a path step.
+    scaleSrs: form === 'echo' ? st.scaleSrs : { ...st.scaleSrs, [itemId]: nextItem },
     scaleHistory:
       history.length > SCALE_HISTORY_CAP
         ? history.slice(history.length - SCALE_HISTORY_CAP)

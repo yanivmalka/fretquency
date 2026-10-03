@@ -1276,3 +1276,58 @@ li.scale-seq-rung-current:not(:has(> .scale-seq-rung-btn)) {
 .scale-seq-how {
   font-weight: 600;
 }
+
+/* ── "I play, you play it back" (call and response by ear) ──
+   ScaleEchoCard.tsx: one pip per note of the phrase (filled as the learner
+   finds it), a pulsing "Listen…" while the app plays, the verdict on the last
+   phrase, and the hear-again / stop row. */
+.scale-echo-length {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.scale-echo-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: transparent;
+}
+.scale-echo-pip-done {
+  background: var(--success);
+  border-color: var(--success);
+}
+.scale-echo-length-text {
+  margin-inline-start: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-2);
+}
+.scale-echo-listen {
+  animation: scale-echo-pulse 1.1s ease-in-out infinite;
+}
+@keyframes scale-echo-pulse {
+  50% { opacity: 0.45; }
+}
+.scale-echo-result {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.scale-echo-result-grew,
+.scale-echo-result-clean { color: var(--success); }
+.scale-echo-result-shrank { color: var(--danger); }
+.scale-echo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.scale-echo-actions .set-card-btn {
+  flex: 1 1 140px;
+}
+.scale-echo-card > .set-card-label {
+  font-weight: 800;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scale-echo-listen { animation: none; }
+}

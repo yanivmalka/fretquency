@@ -1499,4 +1499,17 @@ export const he: Record<string, string> = {
     'המיתרים ממוספרים מהדק ביותר (1) עד העבה ביותר, כך שלמיתר העבה ביותר — השורה המוארת למעלה — יש המספר הגבוה ביותר.',
   'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
     'סריג הוא משבצת ממוספרת לאורך הצוואר — לוחצים ממש מאחורי פס המתכת שלו; המספרים מתחת ללוח הם הסריגים.',
+  // Scales — "I play, you play it back" (call and response by ear).
+  'Play it back by ear': 'לנגן בחזרה לפי השמיעה',
+  'The app plays a few notes from the box — nothing lights up, so listen. Then play them back on your guitar or tap them. Every phrase starts on the root (gold ring). Two clean phrases in a row and the next one is a note longer.': 'האפליקציה מנגנת כמה תווים מהתבנית — שום דבר לא נדלק, אז הקשיבו. אחר כך נגנו אותם בחזרה בגיטרה או הקישו עליהם. כל משפט מתחיל בתו הבסיס (המסגרת הזהובה). אחרי שני משפטים נקיים ברצף, המשפט הבא ארוך בתו אחד.',
+  'The box on the board': 'התבנית על הלוח',
+  'With only the root lit, your ear finds the notes, not your eye.': 'כשרק תו הבסיס מואר, האוזן מוצאת את התווים, לא העין.',
+  'Notes in the phrase': 'תווים במשפט',
+  'Listen…': 'הקשיבו…',
+  '✓ Clean — the next phrase is one note longer.': '✓ נקי — המשפט הבא ארוך בתו אחד.',
+  '✓ Clean!': '✓ נקי!',
+  'Found it, with a slip.': 'מצאתם, עם טעות אחת בדרך.',
+  'Missed — the next phrase is one note shorter.': 'לא הפעם — המשפט הבא קצר בתו אחד.',
+  'Longest phrase played back': 'המשפט הארוך ביותר שניגנתם בחזרה',
+  '🎸 Play the notes back on your guitar': '🎸 נגנו את התווים בחזרה בגיטרה',
 };

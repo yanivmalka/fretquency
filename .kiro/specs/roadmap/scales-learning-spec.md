@@ -7,6 +7,118 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 11 (2026-10-03) — "I play, you play it back": call and response by ear (wishlist update 2026-10-03, item 4)
+
+The teacher's day-two method from the teacher/beginner dialogue: "I play
+three notes, you play them back. That builds the ear and the shape
+together." Until now nothing in Scales sounded like music, and every
+exercise showed the learner what to play. A sixth exercise, **Play it back
+by ear** (More options → exercise switcher, `ssel_exercise = 'echo'`).
+
+- **What the learner gets.** The app plays a short phrase from the current
+  box. Nothing lights up while it plays; the header pulses "🎧 Listen…".
+  Then the learner plays it back on the guitar (🎸 answer mode, the same
+  `ssel_order_guitar` pick) or taps it. Every phrase starts on the root
+  (gold ring). Pips show the phrase length and fill as notes are found. A
+  "🔊 hear it again" button replays the phrase on the learner's turn. After
+  each phrase a line says how it went: clean, clean and the next phrase is
+  one note longer, found with a slip, or missed and the next one is a note
+  shorter. A session is 8 phrases. The summary gives the score and the
+  longest phrase played back. A card pick, **All notes lit / Only the root
+  lit** (`ssel_echo_dim`, cloud-synced by the `ssel_` prefix), keeps the box
+  visible or leaves only the home note lit, so the ear finds the notes, not
+  the eye. "Show fingers" applies, and a dim tile's finger stays hidden
+  (task A's CSS).
+- **Pure logic: `src/learning/scaleEcho.ts`.** `boxLadder` is the box's
+  notes low to high, one per pitch, with the thicker string kept.
+  `echoFragment` starts on the question's root tile and moves one note of the
+  box (a step) or, 20% of the time, two (a skip). It keeps its direction and
+  turns 30% of the time, turns at either end of the box, and never repeats a
+  note straight away. `echoBoard` is `buildOrderBoard` (Recall level 1 when
+  dim) with the fragment as `run`/`runMidi`; the section and every tile's
+  pitch are unchanged, so any box tile with the right pitch answers.
+  Growth (`nextEchoLength`): 2 clean phrases in a row add a note (max 4), a
+  missed phrase takes one off (min 2), a slip that still passed keeps the
+  length. Note that `isScaleCorrect` allows no slip at 2–4 notes, so any
+  slip is a miss. **SRS weighting:** a box's first length is 3 once its SRS
+  bucket is ≥ 3, else 2 (`echoStartLength`). Which box of the pool is asked
+  is drawn by weight (`pickEchoItem`): due 3, never practised 2, not due 1.
+  Growth is kept per box for the session.
+- **Engine: two additive options on `useScaleOrderEngine`.**
+  `layoutBoard` (default `buildOrderBoard`) and `demoLit` (default `true`;
+  `false` keeps `demoStep` at `-1` while the demo plays, so the board never
+  lights the phrase). Without them every caller is unchanged. Judging, the
+  guitar listener (`hear`), taps, slips and scoring are the engine's own.
+  The phrase is played by the engine's demo, at 650 ms a note.
+  **Deviation from the wishlist's "playback via `playNoteSequence`":** that
+  helper plays frets on *one* string, but a phrase crosses strings. So the
+  demo and the replay use `playNoteSingle` per note, as "Watch, then play"
+  does.
+- **Screen: `src/components/ScaleEchoCard.tsx`.** A self-contained card like
+  `ScalePathCard`, with its own engine, `usePitchStream` and recording; the
+  host only hides its other cards while `onRunningChange(true)`. In
+  `ScalePracticeScreen.tsx`: one exercise button, the card, the "Answer mode"
+  card also shown for echo, and the Direction card hidden for it (a phrase
+  has no fixed direction).
+- **History: a new `ScaleHistoryRow.form` `'echo'`** on the box's own item id
+  (`learningState.ts` type + `normalizeScaleHistory`). Rows merge through
+  the existing `mergeScaleHistory` unchanged. **Decision taken in this
+  session (product owner to confirm):** an `echo` row does **not** review
+  the box in `scaleSrs`, and it does **not** count toward the box's mastery,
+  board accuracy or weakness ranking (`countsForMastery` in
+  `scaleMastery.ts`, a skip in `scaleWeakness.ts`). Measured before the
+  change: with echo rows fed into the SRS and mastery like other forms,
+  three clean 2-note phrases marked Minor Pentatonic box 1 *mastered*. Live,
+  one echo session took the path from 0/9 to 1/9 without the learner ever
+  playing the box. A short phrase by ear is not evidence that the whole box
+  is known. To count echo after all, delete `countsForMastery`'s one test
+  and the `form === 'echo'` branch in `recordScaleAnswer`.
+- **Verified.**
+  - `scripts/check-scale-echo.mts` (new, 39 checks):
+    - the ladder over 500 random boxes of every scale type;
+    - 2,400 phrases (guitar/bass × lit/dim × every scale type): right
+      length, start on the root, stay in the box, no repeats, moves of one or
+      two notes, ≥ 70% steps;
+    - the board unchanged apart from the run, and dim lighting exactly the
+      tonic;
+    - the judge, the growth rule, the start length, the item weights
+      (~3:1 over 4,000 draws);
+    - `echo` rows through record / normalise / merge;
+    - 8 clean echo phrases leaving the box "not started" and out of the
+      weakness ranking, while 8 clean `orderScale` runs still master it.
+  - Every other `check-scale-*`, `check-learning` and `check-learning-path`
+    script passes. `tsc -b` and eslint are clean.
+  - Live in headless Chromium (Playwright, 420×900, a dev-mode snapshot
+    build served by `vite preview`, `devSimulateTier = 'premium'`), English
+    and Hebrew:
+    - Tap sessions: 8 phrases with lengths 2, 2, 3, 3, 4, then 3 after a
+      deliberate wrong tap, then 3, 4. No tile lit while the app played. The
+      result lines were correct; 8 `echo` rows on
+      `scale:minorPentatonic:1` (7 correct); the path stayed at 0/9.
+    - Dim: exactly the 3 root tiles lit.
+    - Hear-again was enabled on the learner's turn, and Stop returned to the
+      card.
+    - Hebrew: fully translated, the card `dir="rtl"`, the board
+      `dir="ltr"`.
+    - No horizontal overflow and no console errors.
+    - 🎸 answer mode with a simulated microphone (a harmonic oscillator
+      behind a stubbed `getUserMedia`) on the **dim** board: 4 phrases
+      played back note by note, every note heard, 4 correct rows. This also
+      covers task A's open item "guitar answer mode on a faded board, not
+      driven with a simulated mic".
+- **Still open.**
+  - Not tried on a real guitar or a real Android device. A real string's
+    long ring could read as the next note; the engine already ignores the
+    note just played.
+  - A rhythm in the phrase: notes are evenly spaced, and only pitch is
+    judged.
+  - Phrases can't go past 4 notes, and there is no path step or Daily
+    integration.
+  - The deferred "short licks" (wishlist item 7): authored fixed phrases
+    played through this same card, via `layoutBoard`.
+  - Whether echo answers should count toward the box's SRS and mastery: see
+    the decision above.
+
 ## Session 11 (2026-10-03) — sequences: a ladder after Recall (wishlist update 2026-10-03, item 6)
 
 From the teacher/beginner dialogue: once a box can be played from memory, the

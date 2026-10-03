@@ -90,6 +90,8 @@ export function analyzeScaleWeakness(
   const byItem = new Map<string, ScaleHistoryRow[]>();
   for (const r of rows) {
     if (parseScaleItemId(r.itemId) == null) continue;
+    // Echo phrases are ear practice, not a box review (`countsForMastery`).
+    if (r.form === 'echo') continue;
     if (!Number.isFinite(r.createdAt) || r.createdAt < cutoff) continue;
     const list = byItem.get(r.itemId);
     if (list) list.push(r);

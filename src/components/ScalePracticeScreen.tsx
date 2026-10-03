@@ -50,6 +50,7 @@ import { recallFormFor, recallPromotion, recallStreak, recallLevelUpText, RECALL
 import type { RecallLevel } from '../learning/scaleOrder';
 import ScaleMeetScreen from './ScaleMeetScreen';
 import ScalePathCard from './ScalePathCard';
+import ScaleEchoCard from './ScaleEchoCard';
 import ScaleRelativeScreen from './ScaleRelativeScreen';
 import ScaleProgressBoard from './ScaleProgressBoard';
 import ScaleTermHint, { ScaleTermNote, ScaleTermStrip } from './ScaleTermHint';
@@ -111,6 +112,8 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   // Task C — the guided path card runs its own steps; while one runs, the
   // rest of the screen hides as for any other exercise.
   const [pathRunning, setPathRunning] = useState(false);
+  // "I play, you play it back" runs on its own card too (`ScaleEchoCard`).
+  const [echoRunning, setEchoRunning] = useState(false);
   const [relativeOpen, setRelativeOpen] = useState(false);
   // "Meet the scale" always shows one concrete scale type — 'all' (the
   // Selector's "every shipped scale" pick) has no single shape to show, so it
@@ -342,6 +345,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   });
 
   const running = pathRunning ? true
+    : echoRunning ? true
     : exercise === 'buildScale' ? buildEngine.running
     : exercise === 'orderScale' ? orderEngine.running
     : exercise === 'connectBoxes' ? connectEngine.running
@@ -638,6 +642,14 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 >
                   {t('Name the degree')}
                 </button>
+                <button
+                  type="button"
+                  className={`set-card-btn${exercise === 'echo' ? ' set-card-btn-primary' : ''}`}
+                  aria-pressed={exercise === 'echo'}
+                  onClick={() => pickExercise('echo')}
+                >
+                  {t('Play it back by ear')}
+                </button>
               </div>
             )}
 
@@ -753,7 +765,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
 
             {/* Ascending / descending — two on/off tiles, at least one lit, like the
                 Intervals selector. "Name the degree" has no direction. */}
-            {!running && tab === 'practice' && moreOpen && exercise !== 'nameDegree' && (
+            {!running && tab === 'practice' && moreOpen && exercise !== 'nameDegree' && exercise !== 'echo' && (
               <div className="set-card scale-direction-switcher" role="group" aria-label={t('Direction')}>
                 <span className="set-card-label">{t('Direction')}</span>
                 <div className="difficulty-road interval-direction-road">
@@ -869,7 +881,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 streak={recallStreakNow}
               />
             )}
-            {!running && tab === 'practice' && moreOpen && (exercise === 'orderScale' || exercise === 'connectBoxes') && pitch.supported && (
+            {!running && tab === 'practice' && moreOpen && (exercise === 'orderScale' || exercise === 'connectBoxes' || exercise === 'echo') && pitch.supported && (
               <div className="set-card scale-difficulty-switcher" role="group" aria-label={t('Answer mode')}>
                 <span className="set-card-label">{t('Answer mode')}</span>
                 <div className="scale-difficulty-row">
@@ -956,6 +968,24 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   {t('Start')}
                 </button>
               </div>
+            )}
+            {/* "I play, you play it back" — its own card, start to summary. */}
+            {tab === 'practice' && exercise === 'echo' && (
+              <ScaleEchoCard
+                instrument={instrument}
+                accidental={accidental}
+                notation={notation}
+                lang={lang}
+                pool={pool}
+                naturalsOnly={buildEnvelope.naturalsOnlyRoot}
+                guitar={sel.orderGuitar}
+                fingers={sel.fingers}
+                dim={sel.echoDim}
+                onDim={sel.setEchoDim}
+                hidden={running && !echoRunning}
+                onRunningChange={setEchoRunning}
+                onRecorded={setNow}
+              />
             )}
 
             {buildEngine.running && buildEngine.stream && (
