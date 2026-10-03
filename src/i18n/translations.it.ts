@@ -1425,4 +1425,20 @@ export const it: Record<string, string> = {
   'Clean run! Tempo up to': 'Giro pulito! Il tempo sale a',
   'Clean run at the top tempo!': 'Giro pulito al tempo massimo!',
   'Not clean yet — the tempo stays at': 'Non ancora pulito: il tempo resta a',
+
+  // Wishlist 2026-10-03 item 1 — Scales: plain words, in place (ScaleTermHint).
+  'What does this word mean?':
+    'Che cosa vuol dire questa parola?',
+  'What the words mean':
+    'Che cosa vogliono dire le parole',
+  'A box is one hand-sized patch of the neck where the whole scale fits under your four fingers without moving your hand — its number says which patch, not a finger or a fret.':
+    'Uno schema è una zona del manico grande quanto la mano in cui tutta la scala sta sotto le tue quattro dita senza spostare la mano: il numero dice quale zona, non un dito né un tasto.',
+  'The root is the scale’s home note, the one it is named after — it has the gold ring.':
+    'La tonica è la nota di casa della scala, quella da cui prende il nome: ha l’anello dorato.',
+  'A degree is a note’s place in the scale, counted up from the root, which is 1 — a “b” before the number means one fret lower.':
+    'Un grado è il posto di una nota nella scala, contando dalla tonica, che è 1: una “b” prima del numero significa un tasto più in basso.',
+  'Strings are numbered from the thinnest (1) to the thickest, so the thickest string — the lit row on top — has the highest number.':
+    'Le corde sono numerate dalla più sottile (1) alla più spessa, quindi la più spessa (la fila illuminata in alto) ha il numero più alto.',
+  'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
+    'Un tasto è una casella numerata lungo il manico: premi subito dietro la sua barretta di metallo; i numeri sotto la griglia sono i tasti.',
 };

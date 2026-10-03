@@ -7,6 +7,46 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 11 (2026-10-03) — "Plain words, in place" (wishlist update 2026-10-03, item 1)
+
+The teacher/beginner dialogue found the first give-up point: "Box 1",
+"root", "degree" mean nothing to someone who has never seen a scale. Each of
+those words, plus the string numbers and "fret", now has a tappable ⓘ that
+gives one plain sentence and, where the screen has a neck board, lights up the
+thing the sentence names.
+
+- `src/learning/scaleTerms.ts` — the map: term (`box | root | degree | string
+  | fret`) → its label key, one sentence (an i18n key) and the board highlight
+  it asks for (`root | box | degree | lowString | frets`). No logic, nothing
+  stored.
+- `src/components/ScaleTermHint.tsx` — `ScaleTermHint` (the bare ⓘ beside a
+  word already on screen), `ScaleTermNote` (the open term's sentence) and
+  `ScaleTermStrip` (a row of word chips + the sentence, under a board). The
+  host owns which term is open (one per screen) and passes
+  `termHighlight(term)` to its board.
+- Boards: `ScaleMeetBoard` and `ScaleOrderBoard` gain one optional `hint`
+  prop and add classes only — the root tiles, the degree-labelled tiles, the
+  box's frets (Meet; on the one-box Order board the whole board is the box),
+  the thickest string's row, the fret-number row. The Meet screen's "Box" ⓘ
+  reuses `meetBox` to outline box 1 even with "Show fingers" off (then without
+  the finger numbers).
+- Where: the Path card's next-step title (Box ⓘ, only on steps whose title
+  names a box), the current-pick card ("Box N" ⓘ), `ScaleMeetScreen` (Root ⓘ
+  on the root picker + a strip of all five under the board) and the run
+  banner of "Tap the scale in order", "Connect the boxes" and a path run
+  (strip of root / box / string / fret above the board; degrees are not shown
+  on that board, so no degree chip).
+- Strings in he / es / pt-BR / fr / it. CSS in `30-scale-board.css` (the
+  highlight pulses; still under `prefers-reduced-motion`).
+- Verified live (headless Chromium, `devSimulateTier = 'premium'`) in English
+  and Hebrew: each chip opens its sentence and lights the right cells; RTL
+  chips and sentences read correctly; boards stay `dir="ltr"`.
+- Still open: no ⓘ inside the "More options" selector cards or the Progress
+  tab; on the Meet screen in Hebrew the whole-neck board opens scrolled to the
+  high frets (pre-existing RTL scroll behaviour of `.scale-meet-scroll`, not
+  from this change), so the box highlight on frets 4–8 can be off-screen until
+  the learner scrolls.
+
 ## Session 10 (2026-10-02) — task B: metronome + gradual tempo, judged from the guitar
 
 From the expert-teacher review (product-wishlist, Scales, item B): Piano

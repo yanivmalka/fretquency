@@ -24,6 +24,8 @@ import { scaleItemId } from '../learning/scaleItem';
 import { useScaleOrderEngine, type ScaleOrderAnswer } from '../hooks/useScaleOrderEngine';
 import { usePitchStream } from '../hooks/usePitchStream';
 import ScaleOrderBoard from './ScaleOrderBoard';
+import ScaleTermHint, { ScaleTermNote, ScaleTermStrip } from './ScaleTermHint';
+import { termHighlight, type ScaleTermId } from '../learning/scaleTerms';
 import { useTranslation } from '../i18n/useTranslation';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import { playClickSound, haptic } from '../utils/feedback';
@@ -51,6 +53,9 @@ interface Props {
   onAnswer: (itemId: string, form: 'orderScale' | 'connectBoxes', correct: boolean, seconds: number) => void;
 }
 
+/** Steps whose title names a box — the ones that get the "Box" ⓘ. */
+const BOX_STEP_KINDS: readonly string[] = ['box', 'connect', 'relativeBox', 'sequence'];
+
 const STATUS_ICON: Record<ScalePathStatus, string> = { done: '✓', current: '●', available: '○', locked: '🔒' };
 
 export default function ScalePathCard({
@@ -69,6 +74,8 @@ export default function ScalePathCard({
   const [listOpen, setListOpen] = useState(false);
   /** The step of the run that just finished, for the summary line. */
   const [summary, setSummary] = useState<string | null>(null);
+  /** The open ⓘ word; during a run it is lit on the board. */
+  const [term, setTerm] = useState<ScaleTermId | null>(null);
 
   const current = progress.currentIndex >= 0 ? progress.entries[progress.currentIndex] : null;
   // The explanation gates nothing: when it is up next, its practice step is
@@ -188,6 +195,7 @@ export default function ScalePathCard({
             </span>
           )}
         </div>
+        <ScaleTermStrip terms={['root', 'box', 'string', 'fret']} active={term} onToggle={setTerm} />
         <ScaleOrderBoard
           board={engine.board}
           step={engine.step}
@@ -200,6 +208,7 @@ export default function ScalePathCard({
           accidental={accidental}
           notation={notation}
           onTap={engine.tap}
+          hint={termHighlight(term)}
         />
         <button type="button" className="set-card-btn" onClick={stop}>
           {t('Stop')}
@@ -235,7 +244,13 @@ export default function ScalePathCard({
 
       {selected ? (
         <>
-          <span className="scale-path-next">{stepTitle(selected.step)}</span>
+          <span className="scale-path-next">
+            {stepTitle(selected.step)}
+            {BOX_STEP_KINDS.includes(selected.step.kind) && (
+              <>{' '}<ScaleTermHint term="box" active={term} onToggle={setTerm} /></>
+            )}
+          </span>
+          {term === 'box' && BOX_STEP_KINDS.includes(selected.step.kind) && <ScaleTermNote term={term} />}
           <p className="set-card-help">{t(selected.step.whyKey)}</p>
           {offerExplain && explainEntry && (
             <>

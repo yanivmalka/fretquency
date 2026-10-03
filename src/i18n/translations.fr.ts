@@ -1429,4 +1429,20 @@ export const fr: Record<string, string> = {
   'Clean run! Tempo up to': 'Passage propre ! Le tempo passe à',
   'Clean run at the top tempo!': 'Passage propre au tempo maximal !',
   'Not clean yet — the tempo stays at': 'Pas encore propre — le tempo reste à',
+
+  // Wishlist 2026-10-03 item 1 — Scales: plain words, in place (ScaleTermHint).
+  'What does this word mean?':
+    'Que veut dire ce mot ?',
+  'What the words mean':
+    'Ce que veulent dire les mots',
+  'A box is one hand-sized patch of the neck where the whole scale fits under your four fingers without moving your hand — its number says which patch, not a finger or a fret.':
+    'Un motif est une zone du manche de la taille de la main où toute la gamme tient sous vos quatre doigts sans bouger la main — son numéro dit quelle zone, pas un doigt ni une case.',
+  'The root is the scale’s home note, the one it is named after — it has the gold ring.':
+    'La fondamentale est la note « maison » de la gamme, celle qui lui donne son nom — elle porte l’anneau doré.',
+  'A degree is a note’s place in the scale, counted up from the root, which is 1 — a “b” before the number means one fret lower.':
+    'Un degré est la place d’une note dans la gamme, comptée à partir de la fondamentale, qui est le 1 — un « b » devant le chiffre veut dire une case plus bas.',
+  'Strings are numbered from the thinnest (1) to the thickest, so the thickest string — the lit row on top — has the highest number.':
+    'Les cordes sont numérotées de la plus fine (1) à la plus grosse : la plus grosse — la rangée allumée en haut — porte donc le plus grand numéro.',
+  'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
+    'Une case est un emplacement numéroté le long du manche — appuyez juste derrière sa barrette de métal ; les chiffres sous la grille sont les cases.',
 };

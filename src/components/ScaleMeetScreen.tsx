@@ -26,6 +26,8 @@ import { displayNote, type AccidentalMode, type NotationMode } from '../utils/mu
 import { playClickSound, haptic } from '../utils/feedback';
 import { meetBox } from '../learning/scaleFingering';
 import FingersCard from './FingersCard';
+import ScaleTermHint, { ScaleTermStrip } from './ScaleTermHint';
+import { termHighlight, type ScaleTermId } from '../learning/scaleTerms';
 
 const ROOT_KEY = 'ssel_info_root';
 
@@ -53,6 +55,8 @@ export default function ScaleMeetScreen({
     return CHROMATIC.includes(raw) ? raw : 'A';
   });
   const scale = scaleTypeById(scaleTypeId);
+  /** The open ⓘ word, lit on the board. */
+  const [term, setTerm] = useState<ScaleTermId | null>(null);
   const blurb = scale ? SCALE_BLURBS[scaleTypeId] : undefined;
 
   const play = () => {
@@ -72,9 +76,12 @@ export default function ScaleMeetScreen({
 
   if (!scale) return null;
 
-  const box = fingers
+  // The "Box" ⓘ outlines the box even with fingers off (frets only, no
+  // finger numbers).
+  const fullBox = fingers || term === 'box'
     ? meetBox(scaleTypeId, positionIndex, root, instrument.notes, instrument.stringCount, instrument.maxFret)
     : null;
+  const box = fullBox && !fingers ? { ...fullBox, fingers: new Map<string, number>() } : fullBox;
 
   return (
     <div className="app settings-page">
@@ -96,7 +103,9 @@ export default function ScaleMeetScreen({
           )}
 
           <div className="set-card scale-meet-root-card" role="group" aria-label={t('Root')}>
-            <span className="set-card-label">{t('Root')}</span>
+            <span className="set-card-label">
+              {t('Root')} <ScaleTermHint term="root" active={term} onToggle={setTerm} />
+            </span>
             <div className="scale-info-roots" dir="ltr">
               {CHROMATIC.map((r) => (
                 <button
@@ -120,7 +129,9 @@ export default function ScaleMeetScreen({
               stringCount={instrument.stringCount}
               maxFret={instrument.maxFret}
               box={box}
+              hint={termHighlight(term)}
             />
+            <ScaleTermStrip terms={['root', 'degree', 'box', 'string', 'fret']} active={term} onToggle={setTerm} />
             {box && (
               <p className="set-card-help scale-meet-box-caption">
                 {t('Box')} {positionIndex} · {t('frets')} <bdi dir="ltr">{box.from}–{box.to}</bdi>

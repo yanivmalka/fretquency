@@ -1437,4 +1437,20 @@ export const he: Record<string, string> = {
   'Clean run! Tempo up to': 'ריצה נקייה! הטמפו החדש:',
   'Clean run at the top tempo!': 'ריצה נקייה בטמפו המרבי!',
   'Not clean yet — the tempo stays at': 'עוד לא נקי — הטמפו נשאר',
+
+  // Wishlist 2026-10-03 item 1 — Scales: plain words, in place (ScaleTermHint).
+  'What does this word mean?':
+    'מה פירוש המילה?',
+  'What the words mean':
+    'מה פירוש המילים',
+  'A box is one hand-sized patch of the neck where the whole scale fits under your four fingers without moving your hand — its number says which patch, not a finger or a fret.':
+    'תבנית היא אזור בגודל כף יד על הצוואר, שבו כל הסולם נכנס מתחת לארבע האצבעות בלי להזיז את היד — המספר שלה אומר איזה אזור, לא איזו אצבע ולא איזה סריג.',
+  'The root is the scale’s home note, the one it is named after — it has the gold ring.':
+    'השורש הוא תו הבית של הסולם, התו שעל שמו הוא נקרא — יש לו טבעת זהב.',
+  'A degree is a note’s place in the scale, counted up from the root, which is 1 — a “b” before the number means one fret lower.':
+    'דרגה היא המקום של תו בסולם, בספירה מהשורש שהוא 1 — “b” לפני המספר פירושו סריג אחד נמוך יותר.',
+  'Strings are numbered from the thinnest (1) to the thickest, so the thickest string — the lit row on top — has the highest number.':
+    'המיתרים ממוספרים מהדק ביותר (1) עד העבה ביותר, כך שלמיתר העבה ביותר — השורה המוארת למעלה — יש המספר הגבוה ביותר.',
+  'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
+    'סריג הוא משבצת ממוספרת לאורך הצוואר — לוחצים ממש מאחורי פס המתכת שלו; המספרים מתחת ללוח הם הסריגים.',
 };

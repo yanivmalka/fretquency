@@ -1422,4 +1422,20 @@ export const ptBR: Record<string, string> = {
   'Clean run! Tempo up to': 'Passada limpa! O andamento sobe para',
   'Clean run at the top tempo!': 'Passada limpa no andamento máximo!',
   'Not clean yet — the tempo stays at': 'Ainda não ficou limpa — o andamento continua em',
+
+  // Wishlist 2026-10-03 item 1 — Scales: plain words, in place (ScaleTermHint).
+  'What does this word mean?':
+    'O que essa palavra quer dizer?',
+  'What the words mean':
+    'O que as palavras querem dizer',
+  'A box is one hand-sized patch of the neck where the whole scale fits under your four fingers without moving your hand — its number says which patch, not a finger or a fret.':
+    'Um desenho é uma região do braço do tamanho da mão onde a escala inteira cabe sob os seus quatro dedos sem mover a mão — o número diz qual região, não um dedo nem um traste.',
+  'The root is the scale’s home note, the one it is named after — it has the gold ring.':
+    'A tônica é a nota de casa da escala, a que dá nome a ela — ela tem o anel dourado.',
+  'A degree is a note’s place in the scale, counted up from the root, which is 1 — a “b” before the number means one fret lower.':
+    'Um grau é o lugar de uma nota na escala, contando a partir da tônica, que é o 1 — um “b” antes do número quer dizer um traste abaixo.',
+  'Strings are numbered from the thinnest (1) to the thickest, so the thickest string — the lit row on top — has the highest number.':
+    'As cordas são numeradas da mais fina (1) à mais grossa, então a mais grossa — a fileira acesa no topo — tem o número mais alto.',
+  'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
+    'Um traste é uma casa numerada ao longo do braço — aperte logo atrás do fio de metal; os números embaixo do tabuleiro são os trastes.',
 };

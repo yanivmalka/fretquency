@@ -13,6 +13,7 @@
 
 import { degreeLabelMap, type ScaleTypeDef } from '../utils/scales';
 import type { MeetBox } from '../learning/scaleFingering';
+import type { ScaleTermHighlight } from '../learning/scaleTerms';
 
 interface Props {
   scale: ScaleTypeDef;
@@ -26,9 +27,11 @@ interface Props {
   secondRootName?: string;
   /** One box outlined on the neck, a finger number on each of its notes. */
   box?: MeetBox | null;
+  /** An open ⓘ word (`ScaleTermHint`): light up the thing it names. */
+  hint?: ScaleTermHighlight | null;
 }
 
-export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount, maxFret, secondRootName, box }: Props) {
+export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount, maxFret, secondRootName, box, hint }: Props) {
   const labels = degreeLabelMap(scale, rootName);
   const frets = Array.from({ length: maxFret + 1 }, (_, f) => f);
   // Lowest (thickest) string on top, like every other neck board here.
@@ -42,7 +45,7 @@ export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount
         style={{ '--meet-frets': frets.length } as React.CSSProperties}
       >
         {strings.map((s) => (
-          <div key={s} className="scale-meet-row">
+          <div key={s} className={`scale-meet-row${hint === 'lowString' && s === stringCount ? ' scale-term-hl-row' : ''}`}>
             {frets.map((f) => {
               const name = noteTable[s - 1]?.[f] ?? '';
               const label = labels.get(name);
@@ -54,6 +57,8 @@ export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount
               const finger = box?.fingers.get(`${s}:${f}`);
               if (box && f >= box.from && f <= box.to) cls += ' scale-meet-tile-box';
               if (finger != null) cls += ' scale-meet-tile-fingered';
+              if ((hint === 'root' && isRoot) || (hint === 'degree' && label != null)
+                || (hint === 'box' && box && f >= box.from && f <= box.to)) cls += ' scale-term-hl';
               return (
                 <span key={f} className={cls}>
                   {label != null && <span className="scale-meet-degree">{label}</span>}
@@ -63,7 +68,7 @@ export default function ScaleMeetBoard({ scale, rootName, noteTable, stringCount
             })}
           </div>
         ))}
-        <div className="scale-meet-row scale-meet-frets" aria-hidden="true">
+        <div className={`scale-meet-row scale-meet-frets${hint === 'frets' ? ' scale-term-hl-row' : ''}`} aria-hidden="true">
           {frets.map((f) => <span key={f} className="scale-meet-fret">{f}</span>)}
         </div>
       </div>

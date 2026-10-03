@@ -15,6 +15,7 @@
 import { lastStepOf, type ScaleOrderBoard as Board } from '../learning/scaleOrder';
 import type { OrderTile } from '../hooks/useScaleOrderEngine';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
+import type { ScaleTermHighlight } from '../learning/scaleTerms';
 
 interface Props {
   board: Board;
@@ -34,10 +35,12 @@ interface Props {
   onTap: (string: number, fret: number) => void;
   /** Finger per scale note (`"<string>:<fret>"`, 0 = open), or none. */
   fingers?: ReadonlyMap<string, number> | null;
+  /** An open ⓘ word (`ScaleTermHint`): light up the thing it names. */
+  hint?: ScaleTermHighlight | null;
 }
 
 export default function ScaleOrderBoard({
-  board, step, slips, wrongTile, demoStep, rootName, noteTable, stringCount, accidental, notation, onTap, fingers,
+  board, step, slips, wrongTile, demoStep, rootName, noteTable, stringCount, accidental, notation, onTap, fingers, hint,
 }: Props) {
   const frets: number[] = [];
   for (let f = board.fromFret; f <= board.toFret; f++) frets.push(f);
@@ -46,12 +49,12 @@ export default function ScaleOrderBoard({
 
   return (
     <div
-      className="scale-order-board"
+      className={`scale-order-board${hint === 'box' ? ' scale-term-hl-box' : ''}`}
       dir="ltr"
       style={{ '--order-frets': frets.length } as React.CSSProperties}
     >
       {strings.map((s) => (
-        <div key={s} className="scale-order-row">
+        <div key={s} className={`scale-order-row${hint === 'lowString' && s === stringCount ? ' scale-term-hl-row' : ''}`}>
           <span className="scale-order-string">
             {displayNote(noteTable[s - 1]?.[0] ?? '', accidental, notation)}
           </span>
@@ -74,6 +77,7 @@ export default function ScaleOrderBoard({
             if (demoing) cls += ' scale-order-tile-demo';
             if (found && slips[tileStep]) cls += ' scale-order-tile-slip';
             if (wrongTile && wrongTile.string === s && wrongTile.fret === f) cls += ' scale-order-tile-wrong';
+            if (hint === 'root' && shown && name === rootName) cls += ' scale-term-hl';
             return (
               <button
                 key={f}
@@ -89,7 +93,7 @@ export default function ScaleOrderBoard({
           })}
         </div>
       ))}
-      <div className="scale-order-row scale-order-frets" aria-hidden="true">
+      <div className={`scale-order-row scale-order-frets${hint === 'frets' ? ' scale-term-hl-row' : ''}`} aria-hidden="true">
         <span className="scale-order-string" />
         {frets.map((f) => <span key={f} className="scale-order-fret">{f}</span>)}
       </div>

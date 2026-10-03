@@ -1425,4 +1425,20 @@ export const es: Record<string, string> = {
   'Clean run! Tempo up to': '¡Pasada limpia! El tempo sube a',
   'Clean run at the top tempo!': '¡Pasada limpia al tempo máximo!',
   'Not clean yet — the tempo stays at': 'Aún no está limpia: el tempo sigue en',
+
+  // Wishlist 2026-10-03 item 1 — Scales: plain words, in place (ScaleTermHint).
+  'What does this word mean?':
+    '¿Qué significa esta palabra?',
+  'What the words mean':
+    'Qué significan las palabras',
+  'A box is one hand-sized patch of the neck where the whole scale fits under your four fingers without moving your hand — its number says which patch, not a finger or a fret.':
+    'Un patrón es una zona del mástil del tamaño de la mano donde toda la escala cabe bajo tus cuatro dedos sin mover la mano; su número dice qué zona es, no un dedo ni un traste.',
+  'The root is the scale’s home note, the one it is named after — it has the gold ring.':
+    'La tónica es la nota de casa de la escala, la que le da nombre; lleva el aro dorado.',
+  'A degree is a note’s place in the scale, counted up from the root, which is 1 — a “b” before the number means one fret lower.':
+    'Un grado es el lugar de una nota en la escala, contando desde la tónica, que es el 1; una “b” delante del número significa un traste más abajo.',
+  'Strings are numbered from the thinnest (1) to the thickest, so the thickest string — the lit row on top — has the highest number.':
+    'Las cuerdas se numeran de la más fina (1) a la más gruesa, así que la más gruesa —la fila iluminada de arriba— tiene el número más alto.',
+  'A fret is one numbered slot along the neck — press just behind its metal wire; the numbers under the board are the frets.':
+    'Un traste es una casilla numerada a lo largo del mástil; pisa justo detrás de su barra de metal. Los números bajo el tablero son los trastes.',
 };

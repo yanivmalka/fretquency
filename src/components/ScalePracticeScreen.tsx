@@ -51,6 +51,8 @@ import ScaleMeetScreen from './ScaleMeetScreen';
 import ScalePathCard from './ScalePathCard';
 import ScaleRelativeScreen from './ScaleRelativeScreen';
 import ScaleProgressBoard from './ScaleProgressBoard';
+import ScaleTermHint, { ScaleTermNote, ScaleTermStrip } from './ScaleTermHint';
+import { termHighlight, type ScaleTermId } from '../learning/scaleTerms';
 import FingersCard from './FingersCard';
 import { questionFingering } from '../learning/scaleFingering';
 import IntervalChoiceRow from './IntervalChoiceRow';
@@ -128,6 +130,9 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   // "?" bubble, separate from `infoScaleId` above: this shows the pro/trade-off
   // of picking THIS scale to start with, not the general `SCALE_BLURBS` text.
   const [startInfoId, setStartInfoId] = useState<string | null>(null);
+  // The open ⓘ word (wishlist 2026-10-03 item 1) on the current-pick card or
+  // a run's banner, where it is lit on the board.
+  const [term, setTerm] = useState<ScaleTermId | null>(null);
   useEffect(() => {
     if (startInfoId === null) return;
     const close = (e: PointerEvent) => {
@@ -520,7 +525,11 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 <span className="set-card-help">
                   {t(scaleTypeById(meetScaleTypeId)?.nameKey ?? meetScaleTypeId)}
                   {exercise !== 'connectBoxes' && sel.positionMode === 'one' ? ` · ${t('Box')} ${sel.positionIndex}` : ''}
+                  {exercise !== 'connectBoxes' && sel.positionMode === 'one' && (
+                    <> <ScaleTermHint term="box" active={term} onToggle={setTerm} /></>
+                  )}
                 </span>
+                {term === 'box' && <ScaleTermNote term={term} />}
                 <div className="scale-start-picker" role="group" aria-label={t('New to scales? Start with:')}>
                   <span className="set-card-label">{t('New to scales? Start with:')}</span>
                   <div className="scale-position-row">
@@ -1002,6 +1011,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                     </span>
                   )}
                 </div>
+                <ScaleTermStrip terms={['root', 'box', 'string', 'fret']} active={term} onToggle={setTerm} />
                 {metronomeOn && (
                   <ScaleTimingStrip
                     bpm={tempo.bpm}
@@ -1024,6 +1034,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   notation={notation}
                   onTap={orderEngine.tap}
                   fingers={sel.fingers ? questionFingering(orderEngine.question, instrument.stringCount) : null}
+                  hint={termHighlight(term)}
                 />
                 <button
                   type="button"
@@ -1065,6 +1076,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                     </span>
                   )}
                 </div>
+                <ScaleTermStrip terms={['root', 'box', 'string', 'fret']} active={term} onToggle={setTerm} />
                 <ScaleOrderBoard
                   board={connectEngine.board}
                   step={connectEngine.step}
@@ -1077,6 +1089,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   accidental={accidental}
                   notation={notation}
                   onTap={connectEngine.tap}
+                  hint={termHighlight(term)}
                 />
                 <button
                   type="button"
