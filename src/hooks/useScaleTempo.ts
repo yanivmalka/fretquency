@@ -20,8 +20,8 @@ import { Metronome } from '../utils/metronome';
 import { getAudioContext, unlockAudio } from '../utils/audio';
 import { scaleItemId } from '../learning/scaleItem';
 import {
-  TEMPO_DEFAULT, beatMsFor, isCleanRun, judgeNote, nextTempo, summarizeTiming, tempoFor,
-  type TempoMap, type TimingJudgement, type TimingSummary,
+  TEMPO_DEFAULT, beatMsFor, isCleanRun, judgeNote, nextTempo, subdivideBeats, summarizeTiming, tempoFor,
+  type NotesPerClick, type TempoMap, type TimingJudgement, type TimingSummary,
 } from '../learning/scaleTiming';
 import type { ScaleQuestion } from '../learning/scaleDrill';
 import type { ScaleStepHit } from './useScaleOrderEngine';
@@ -42,11 +42,14 @@ export interface ScaleBeat {
   accent: boolean;
 }
 
-export function useScaleTempo({ enabled, tempoMap, setTempo }: {
+export function useScaleTempo({ enabled, tempoMap, setTempo, perClick = 1 }: {
   /** Metronome switched on for this exercise. */
   enabled: boolean;
   tempoMap: TempoMap;
   setTempo: (itemIds: readonly string[], bpm: number) => void;
+  /** Notes per click (wishlist item 8): at 2, every note is judged against
+   *  the half-beat grid and the demo plays two notes per click. Default 1. */
+  perClick?: NotesPerClick;
 }) {
   const metronomeRef = useRef<Metronome | null>(null);
   const metronome = useCallback(() => {
@@ -59,6 +62,8 @@ export function useScaleTempo({ enabled, tempoMap, setTempo }: {
   const itemRef = useRef<string | null>(null);
   const bpmRef = useRef(TEMPO_DEFAULT);
   const judgementsRef = useRef<TimingJudgement[]>([]);
+  const perClickRef = useRef<NotesPerClick>(perClick);
+  useEffect(() => { perClickRef.current = perClick; }, [perClick]);
 
   const [bpm, setBpm] = useState(TEMPO_DEFAULT);
   /** Verdict per step of the current run (`null` = not played yet). */
@@ -100,7 +105,9 @@ export function useScaleTempo({ enabled, tempoMap, setTempo }: {
   const onStepHit = useCallback((hit: ScaleStepHit) => {
     const m = metronomeRef.current;
     if (!m) return;
-    const j = judgeNote(hit.at, m.heardBeats(), beatMsFor(bpmRef.current));
+    const beatMs = beatMsFor(bpmRef.current);
+    const per = perClickRef.current;
+    const j = judgeNote(hit.at, subdivideBeats(m.heardBeats(), per, beatMs), beatMs / per);
     if (!j) return;
     judgementsRef.current = [...judgementsRef.current, j];
     setLastNote(j);
@@ -118,11 +125,12 @@ export function useScaleTempo({ enabled, tempoMap, setTempo }: {
     setLastRun({ summary, clean, bpm: played, nextBpm: raised });
   }, [setTempo]);
 
-  /** Learning mode in time: the demo starts on a click, one note per beat. */
+  /** Learning mode in time: the demo starts on a click, one note per beat
+   *  (two per beat at 2 notes per click). */
   const demoTiming = useCallback(() => {
     const m = metronomeRef.current;
     if (!m?.running) return null;
-    return { leadMs: m.msToBeatAfter(DEMO_MIN_LEAD_MS), noteMs: beatMsFor(bpmRef.current) };
+    return { leadMs: m.msToBeatAfter(DEMO_MIN_LEAD_MS), noteMs: beatMsFor(bpmRef.current) / perClickRef.current };
   }, []);
 
   return { bpm, beat, judgements, lastNote, lastRun, prime, stop, onQuestionStart, onStepHit, demoTiming };

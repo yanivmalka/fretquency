@@ -1356,6 +1356,17 @@ export const it: Record<string, string> = {
   'Show fingers': 'Mostra le dita',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'Il numerino su ogni nota è il dito che la suona: 1 indice, 2 medio, 3 anulare, 4 mignolo, 0 corda a vuoto. Un dito per tasto: la mano resta ferma e ogni dito si occupa del suo tasto.',
+  // Wishlist item 8 — Scales: the picking hand (stroke marks, notes per click).
+  'Pick strokes': 'Direzione della pennata',
+  'The arrow on each note is the pick stroke: ↓ down, ↑ up. Alternate from the first note — down, up, down, up — even when you change strings.':
+    'La freccia su ogni nota è la direzione della pennata: ↓ in giù, ↑ in su. Alterna dalla prima nota — giù, su, giù, su — anche quando cambi corda.',
+  'The app hears which note you play, not how you pick it — it can’t check the stroke direction. With the metronome at 2 notes per click, every down stroke falls on a click, which keeps the alternation even.':
+    'L’app sente quale nota suoni, non come la pizzichi: non può controllare la direzione della pennata. Con il metronomo a 2 note per clic, ogni pennata in giù cade su un clic, e così l’alternanza resta regolare.',
+  'Notes per click': 'Note per clic',
+  'Play two notes on each click: the down stroke on the click, the up stroke halfway to the next one. Each note is judged against those half-beats, so start slower than usual. After a clean run the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'Suona due note a ogni clic: la pennata in giù sul clic, quella in su a metà strada verso il successivo. Ogni nota viene giudicata su questi mezzi tempi, quindi parti più lento del solito. Dopo un giro pulito il tempo sale di 4 BPM. Ogni scala e ogni schema tiene il proprio tempo.',
+  '↓ down · ↑ up — alternate picking. The app checks the notes, not your picking hand.':
+    '↓ giù · ↑ su — pennata alternata. L’app controlla le note, non la mano che pizzica.',
   // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
   'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
     'Cinque note in un piccolo schema vicino alla tonica: la forma da cui partono quasi tutti gli assoli. Guardala una volta, poi suonala tu.',

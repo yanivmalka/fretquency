@@ -11,14 +11,14 @@
 // neck boards; its ends are labelled, so it reads the same in Hebrew.
 
 import type { TimingJudgement } from '../learning/scaleTiming';
-import { ON_TIME_BEATS, TEMPO_MAX, TEMPO_MIN, TEMPO_STEP, clampTempo } from '../learning/scaleTiming';
+import { NOTES_PER_CLICK, ON_TIME_BEATS, TEMPO_MAX, TEMPO_MIN, TEMPO_STEP, clampTempo, type NotesPerClick } from '../learning/scaleTiming';
 import type { ScaleBeat, ScaleRunTiming } from '../hooks/useScaleTempo';
 import { useTranslation } from '../i18n/useTranslation';
 import { haptic, playClickSound } from '../utils/feedback';
 
 const BEATS_PER_BAR = 4;
 
-export function ScaleTempoCard({ on, onToggle, bpm, mixed, onBpm }: {
+export function ScaleTempoCard({ on, onToggle, bpm, mixed, onBpm, perClick, onPerClick }: {
   on: boolean;
   onToggle: (on: boolean) => void;
   /** The tempo shown — the slowest of the scales/boxes being practised. */
@@ -26,6 +26,10 @@ export function ScaleTempoCard({ on, onToggle, bpm, mixed, onBpm }: {
   /** The scales/boxes being practised don't all share one tempo. */
   mixed: boolean;
   onBpm: (bpm: number) => void;
+  /** Notes per click (wishlist item 8); the picker shows only when
+   *  `onPerClick` is given. */
+  perClick?: NotesPerClick;
+  onPerClick?: (n: NotesPerClick) => void;
 }) {
   const { t } = useTranslation();
   const click = () => { playClickSound(); haptic.tap(); };
@@ -86,8 +90,26 @@ export function ScaleTempoCard({ on, onToggle, bpm, mixed, onBpm }: {
             aria-label={t('Tempo')}
             onChange={(e) => onBpm(clampTempo(Number(e.target.value)))}
           />
+          {onPerClick && (
+            <div className="scale-difficulty-row" role="group" aria-label={t('Notes per click')}>
+              <span className="set-card-help scale-per-click-label">{t('Notes per click')}</span>
+              {NOTES_PER_CLICK.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`set-card-btn${(perClick ?? 1) === n ? ' set-card-btn-primary' : ''}`}
+                  aria-pressed={(perClick ?? 1) === n}
+                  onClick={() => { click(); onPerClick(n); }}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          )}
           <p className="set-card-help">
-            {t('Play one note on each click. After a clean run — no wrong notes and nearly every note on the click — the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.')}
+            {perClick === 2
+              ? t('Play two notes on each click: the down stroke on the click, the up stroke halfway to the next one. Each note is judged against those half-beats, so start slower than usual. After a clean run the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.')
+              : t('Play one note on each click. After a clean run — no wrong notes and nearly every note on the click — the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.')}
           </p>
           {mixed && (
             <p className="set-card-help">
@@ -104,8 +126,10 @@ function verdictLabel(j: TimingJudgement): string {
   return j.verdict === 'onTime' ? 'On time' : j.verdict === 'early' ? 'Early' : 'Late';
 }
 
-export function ScaleTimingStrip({ bpm, beat, judgements, lastNote, lastRun }: {
+export function ScaleTimingStrip({ bpm, beat, judgements, lastNote, lastRun, perClick }: {
   bpm: number;
+  /** At 2 notes per click the tempo reads with two eighth notes (♫). */
+  perClick?: NotesPerClick;
   beat: ScaleBeat | null;
   judgements: readonly (TimingJudgement | null)[];
   lastNote: TimingJudgement | null;
@@ -127,7 +151,7 @@ export function ScaleTimingStrip({ bpm, beat, judgements, lastNote, lastRun }: {
             />
           ))}
         </span>
-        <span className="scale-timing-bpm" dir="ltr">♩ = {bpm}</span>
+        <span className="scale-timing-bpm" dir="ltr">♩ = {bpm}{perClick === 2 ? ' · ♫' : ''}</span>
         {lastNote && (
           <span className={`scale-timing-verdict scale-timing-${lastNote.verdict}`} role="status" aria-live="polite">
             {t(verdictLabel(lastNote))}

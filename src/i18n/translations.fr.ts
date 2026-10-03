@@ -1360,6 +1360,17 @@ export const fr: Record<string, string> = {
   'Show fingers': 'Afficher les doigts',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'Le petit chiffre sur chaque note est le doigt qui la joue : 1 index, 2 majeur, 3 annulaire, 4 auriculaire, 0 corde à vide. Un doigt par case — la main reste en place et chaque doigt garde sa case.',
+  // Wishlist item 8 — Scales: the picking hand (stroke marks, notes per click).
+  'Pick strokes': 'Sens du médiator',
+  'The arrow on each note is the pick stroke: ↓ down, ↑ up. Alternate from the first note — down, up, down, up — even when you change strings.':
+    'La flèche sur chaque note est le sens du médiator : ↓ vers le bas, ↑ vers le haut. Alternez dès la première note — bas, haut, bas, haut — même en changeant de corde.',
+  'The app hears which note you play, not how you pick it — it can’t check the stroke direction. With the metronome at 2 notes per click, every down stroke falls on a click, which keeps the alternation even.':
+    'L’app entend quelle note vous jouez, pas comment vous l’attaquez — elle ne peut pas vérifier le sens du médiator. Avec le métronome à 2 notes par clic, chaque coup vers le bas tombe sur un clic, ce qui garde l’alternance régulière.',
+  'Notes per click': 'Notes par clic',
+  'Play two notes on each click: the down stroke on the click, the up stroke halfway to the next one. Each note is judged against those half-beats, so start slower than usual. After a clean run the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'Jouez deux notes à chaque clic : le coup vers le bas sur le clic, le coup vers le haut à mi-chemin du suivant. Chaque note est jugée sur ces demi-temps, alors commencez plus lentement que d’habitude. Après un passage propre, le tempo monte de 4 BPM. Chaque gamme et chaque motif garde son propre tempo.',
+  '↓ down · ↑ up — alternate picking. The app checks the notes, not your picking hand.':
+    '↓ bas · ↑ haut — aller-retour au médiator. L’app vérifie les notes, pas la main qui attaque les cordes.',
   // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
   'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
     'Cinq notes dans un petit motif près de la fondamentale : la forme par laquelle commencent la plupart des solos. Regarde-la une fois, puis rejoue-la.',

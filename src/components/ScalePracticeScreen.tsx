@@ -56,6 +56,8 @@ import ScaleProgressBoard from './ScaleProgressBoard';
 import ScaleTermHint, { ScaleTermNote, ScaleTermStrip } from './ScaleTermHint';
 import { termHighlight, type ScaleTermId } from '../learning/scaleTerms';
 import FingersCard from './FingersCard';
+import PickStrokesCard from './PickStrokesCard';
+import { pickStrokes } from '../learning/scalePicking';
 import { questionFingering } from '../learning/scaleFingering';
 import IntervalChoiceRow from './IntervalChoiceRow';
 import { ProGate } from './ProGate';
@@ -290,7 +292,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
   // its own stored tempo, every note judged against the click, +4 BPM after a
   // clean run (`useScaleTempo`). Off, the engine and listener are unchanged.
   const metronomeOn = sel.orderMetronome && exercise === 'orderScale';
-  const tempo = useScaleTempo({ enabled: metronomeOn, tempoMap: sel.orderTempo, setTempo: sel.setOrderTempo });
+  const tempo = useScaleTempo({ enabled: metronomeOn, tempoMap: sel.orderTempo, setTempo: sel.setOrderTempo, perClick: sel.orderPerClick });
   const tempoItemIds = useMemo(() => pool.map((p) => scaleItemId(p.scaleTypeId, p.positionIndex)), [pool]);
   const tempoValues = tempoItemIds.map((id) => tempoFor(sel.orderTempo, id));
   const metronomeOptions = metronomeOn
@@ -917,12 +919,18 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                 bpm={Math.min(...tempoValues)}
                 mixed={new Set(tempoValues).size > 1}
                 onBpm={(bpm) => sel.setOrderTempo(tempoItemIds, bpm)}
+                perClick={sel.orderPerClick}
+                onPerClick={sel.setOrderPerClick}
               />
             )}
 
             {/* Task D — finger numbers on the box. */}
             {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
               <FingersCard on={sel.fingers} onChange={sel.setFingers} />
+            )}
+            {/* Wishlist item 8 — the picking hand. */}
+            {!running && tab === 'practice' && moreOpen && exercise === 'orderScale' && (
+              <PickStrokesCard on={sel.strokes} onChange={sel.setStrokes} />
             )}
             {!running && tab === 'practice' && !finished && exercise === 'orderScale' && (
               <div className="set-card">
@@ -1062,6 +1070,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                     judgements={tempo.judgements}
                     lastNote={tempo.lastNote}
                     lastRun={tempo.lastRun}
+                    perClick={sel.orderPerClick}
                   />
                 )}
                 <ScaleOrderBoard
@@ -1078,7 +1087,13 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
                   onTap={orderEngine.tap}
                   fingers={sel.fingers ? questionFingering(orderEngine.question, instrument.stringCount) : null}
                   hint={termHighlight(term)}
+                  strokes={sel.strokes ? pickStrokes(orderEngine.board.run) : null}
                 />
+                {sel.strokes && (
+                  <p className="set-card-help scale-picking-key">
+                    {t('↓ down · ↑ up — alternate picking. The app checks the notes, not your picking hand.')}
+                  </p>
+                )}
                 <button
                   type="button"
                   className="set-card-btn"

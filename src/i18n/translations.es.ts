@@ -1356,6 +1356,17 @@ export const es: Record<string, string> = {
   'Show fingers': 'Mostrar dedos',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'El número pequeño de cada nota es el dedo que la toca: 1 índice, 2 medio, 3 anular, 4 meñique, 0 cuerda al aire. Un dedo por traste: la mano se queda quieta y cada dedo se encarga de su traste.',
+  // Wishlist item 8 — Scales: the picking hand (stroke marks, notes per click).
+  'Pick strokes': 'Dirección de púa',
+  'The arrow on each note is the pick stroke: ↓ down, ↑ up. Alternate from the first note — down, up, down, up — even when you change strings.':
+    'La flecha de cada nota es la dirección de la púa: ↓ abajo, ↑ arriba. Alterna desde la primera nota —abajo, arriba, abajo, arriba—, también al cambiar de cuerda.',
+  'The app hears which note you play, not how you pick it — it can’t check the stroke direction. With the metronome at 2 notes per click, every down stroke falls on a click, which keeps the alternation even.':
+    'La app oye qué nota tocas, no cómo la pulsas: no puede comprobar la dirección de la púa. Con el metrónomo a 2 notas por clic, cada púa hacia abajo cae en un clic, y eso mantiene pareja la alternancia.',
+  'Notes per click': 'Notas por clic',
+  'Play two notes on each click: the down stroke on the click, the up stroke halfway to the next one. Each note is judged against those half-beats, so start slower than usual. After a clean run the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'Toca dos notas en cada clic: la púa hacia abajo en el clic y hacia arriba a mitad de camino del siguiente. Cada nota se juzga contra esos medios tiempos, así que empieza más lento de lo habitual. Tras una pasada limpia, el tempo sube 4 BPM. Cada escala y patrón guarda su propio tempo.',
+  '↓ down · ↑ up — alternate picking. The app checks the notes, not your picking hand.':
+    '↓ abajo · ↑ arriba: púa alterna. La app comprueba las notas, no tu mano de la púa.',
   // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
   'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
     'Cinco notas en un patrón pequeño cerca de la tónica: la forma con la que empiezan la mayoría de los solos. Mírala una vez y luego tócala tú.',

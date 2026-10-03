@@ -7,6 +7,83 @@ document was drafted by mirroring the shipped Intervals Learning domain
 (§0–§3 below explain how) so it could be reviewed against a concrete
 precedent rather than from a blank page.
 
+## Session 11 (2026-10-03) — the picking hand: stroke marks + 2 notes per click (wishlist update 2026-10-03, item 8)
+
+The teacher/beginner dialogue: "Your picking hand. Down, up, down, up, from
+the first lesson." The beginner: "The app never said anything about my right
+hand." The app can't see the hand, but it can say the rule, and the click can
+enforce it.
+
+- **Stroke marks.** `src/learning/scalePicking.ts` (pure): `pickStrokes(run)`
+  is alternate picking from a down stroke, step by step, also across string
+  changes (strict alternate, not economy picking). `tileStroke(...)` says
+  which stroke a tile shows: a found or demoed tile keeps its own step's
+  stroke; an unfound one shows the next step still to play that pitch. On a
+  plain run (tonic → one end → the other end → tonic) each pitch always comes
+  back on the same stroke (step k and 2(n−1)−k share a parity), so a tile
+  never contradicts itself. A sequence run (`scaleSequence.ts`) can replay a
+  pitch on the other stroke, so the tile follows the run.
+- **Drawing.** `ScaleOrderBoard` takes one optional `strokes` prop and draws ↓
+  / ↑ in each scale tile's bottom-end corner, opposite the finger dot
+  (bottom-start). It is never transformed. With left-handed mirroring it
+  moves to the other corner like the finger dot, and the arrows are vertical
+  anyway. A tile left dim by Recall mode hides its stroke, same as its finger.
+  Under the board, one line: "↓ down · ↑ up — alternate picking. The app
+  checks the notes, not your picking hand."
+- **"Pick strokes"** (`ssel_strokes`, **on by default** like "Show fingers";
+  cloud-synced by the `ssel_` prefix): a new `PickStrokesCard.tsx` under "More
+  options" for "Tap the scale in order". It gives the key to the arrows and
+  says plainly that the app hears which note was played, not how it was
+  picked, so it can't check the stroke direction.
+- **2 notes per click.** The Metronome card gains "Notes per click: 1 / 2"
+  (`ssel_order_per_click`, default 1, cloud-synced). At 2, the click itself
+  is unchanged (one click per beat). `scaleTiming.ts` gains `NotesPerClick`,
+  `normalizeNotesPerClick` and `subdivideBeats(beats, perClick, fallback)`:
+  the clicks plus the halfway points, extrapolated to the next click.
+  `useScaleTempo` (new optional `perClick`, default 1, so the path card's call
+  is unchanged) judges each note against that grid, ±⅙ of a *half-beat*, and
+  paces the "Watch, then play" demo at two notes per click from a click. With
+  alternate picking from the first note, every down stroke lands on a click
+  and every up stroke between two. The timing strip reads "♩ = 60 · ♫". The
+  tempo map is shared with 1 per click (the help text says to start slower).
+- **`metronome.ts` is unchanged.** The plan asked for one metronome option,
+  but the half-beat grid is fully derivable from the heard clicks, so a pure
+  `scaleTiming.ts` function covers it and stays testable. An audible
+  off-beat tick would defeat the point (the learner should feel the "and").
+- **Verified.** New `scripts/check-scale-picking.mts`:
+  - alternation from down;
+  - `tileStroke` on a sequence-like run;
+  - 4,500 real runs (every instrument × every scale type × up/down/both) with
+    no pitch on two strokes;
+  - `subdivideBeats`;
+  - judging on the "and" (on time, ±a quarter half-beat → late/early, offset
+    in half-beats, the extrapolated "and" after the last click; the same
+    "and" at 1 per click is not on time).
+
+  Every `check-scale-*` passes, `tsc -b` is clean, and eslint is clean on
+  every touched file. Live in Chromium (Playwright, 420×900,
+  `devSimulateTier='premium'`, metronome on at 2 per click, zero console
+  errors, no horizontal overflow) in English, Hebrew, and Hebrew
+  left-handed:
+  - 12 tiles carry alternating ↓↑ beside their 12 finger dots;
+  - found tiles keep their stroke;
+  - the cards and the under-board line are fully translated;
+  - the Hebrew line reads correctly in RTL (each arrow before its word).
+
+  The first live pass showed the 0.7rem arrows too faint; they are now
+  0.85rem in `--text-0`.
+- **Still open.**
+  - No check that the down strokes actually fall on the clicks. A learner
+    who starts on the "and" is judged on time throughout. A
+    "down on the click" verdict (each even step against a click, not just the
+    grid) would close it.
+  - At high tempos the ±⅙-half-beat window is ±31 ms at 160 BPM, close to the
+    comb onset path's known 20–28 ms lag (task B). It is not tuned, and it
+    needs a real guitar.
+  - No strokes on "Connect the boxes" or the path's runs (one prop each).
+  - Alternatives to strict alternate picking (economy / sweep on string
+    changes) aren't offered. `pickStrokes` is where a mode would go.
+
 ## Session 11 (2026-10-03) — "I play, you play it back": call and response by ear (wishlist update 2026-10-03, item 4)
 
 The teacher's day-two method from the teacher/beginner dialogue: "I play

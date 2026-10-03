@@ -20,7 +20,7 @@
 
 import { useMemo, useState } from 'react';
 import { loadSetting, saveSetting } from '../utils/settings';
-import { clampTempo, normalizeTempoMap, type TempoMap } from '../learning/scaleTiming';
+import { clampTempo, normalizeNotesPerClick, normalizeTempoMap, type NotesPerClick, type TempoMap } from '../learning/scaleTiming';
 import { buildScalePool, type ScalePoolItem, type ScaleDirection } from '../learning/scaleDrill';
 import { scalePositionsFor, SCALE_TYPES, type ScalePositionDef } from '../utils/scales';
 import type { ScaleChipExercise } from './useScaleChipEngine';
@@ -262,6 +262,16 @@ export function useScaleSelector(stringCount: number) {
   const [echoDim, setEchoDimState] = useState<boolean>(() => loadSetting<boolean>('ssel_echo_dim', false) === true);
   const setEchoDim = (on: boolean) => { setEchoDimState(on); saveSetting('ssel_echo_dim', on); };
 
+  // Wishlist item 8 — the picking hand: a ↓/↑ stroke on every note of the box
+  // (alternate picking from the first note; on by default, like the fingers),
+  // and the metronome at 1 or 2 notes per click.
+  const [strokes, setStrokesState] = useState<boolean>(() => loadSetting<boolean>('ssel_strokes', true) !== false);
+  const setStrokes = (on: boolean) => { setStrokesState(on); saveSetting('ssel_strokes', on); };
+  const [orderPerClick, setOrderPerClickState] = useState<NotesPerClick>(
+    () => normalizeNotesPerClick(loadSetting<unknown>('ssel_order_per_click', 1)),
+  );
+  const setOrderPerClick = (n: NotesPerClick) => { setOrderPerClickState(n); saveSetting('ssel_order_per_click', n); };
+
   return {
     direction, dirUp, dirDown, toggleDirection,
     speedLevel, setSpeedLevel,
@@ -282,5 +292,6 @@ export function useScaleSelector(stringCount: number) {
     buildEnvelope,
     fingers, setFingers,
     echoDim, setEchoDim,
+    strokes, setStrokes, orderPerClick, setOrderPerClick,
   };
 }

@@ -1331,3 +1331,33 @@ li.scale-seq-rung-current:not(:has(> .scale-seq-rung-btn)) {
 @media (prefers-reduced-motion: reduce) {
   .scale-echo-listen { animation: none; }
 }
+
+/* ── Wishlist item 8: the picking hand ──
+   A ↓ / ↑ stroke in the scale tile's bottom-end corner, opposite the finger
+   dot (bottom-start). Never transformed, so it reads the same when the
+   left-handed setting mirrors the rows (the arrows are vertical anyway). Like
+   the finger, a shape tile left dim by Recall mode hides its stroke. */
+.scale-stroke {
+  position: absolute;
+  bottom: 2px;
+  inset-inline-end: 4px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text-0);
+  pointer-events: none;
+}
+.scale-stroke-up {
+  color: var(--accent);
+}
+.scale-order-tile-demo .scale-stroke { color: var(--accent-ink); }
+.scale-order-tile:not(.scale-order-tile-lit):not(.scale-order-tile-found):not(.scale-order-tile-demo) .scale-stroke {
+  display: none;
+}
+.scale-picking-key {
+  font-weight: 800;
+}
+.scale-per-click-label {
+  margin: 0;
+  align-self: center;
+}

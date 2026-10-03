@@ -1368,6 +1368,17 @@ export const he: Record<string, string> = {
   'Show fingers': 'הצג אצבעות',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'המספר הקטן על כל תו הוא האצבע שמנגנת אותו: 1 אצבע מורה, 2 אמה, 3 קמיצה, 4 זרת, 0 מיתר פתוח. אצבע אחת לכל סריג — היד נשארת במקומה וכל אצבע אחראית על הסריג שלה.',
+  // Wishlist item 8 — Scales: the picking hand (stroke marks, notes per click).
+  'Pick strokes': 'כיוון הפריטה',
+  'The arrow on each note is the pick stroke: ↓ down, ↑ up. Alternate from the first note — down, up, down, up — even when you change strings.':
+    'החץ על כל תו הוא כיוון הפריטה: ↓ למטה, ↑ למעלה. מחליפים כיוון מהתו הראשון — למטה, למעלה, למטה, למעלה — גם כשעוברים מיתר.',
+  'The app hears which note you play, not how you pick it — it can’t check the stroke direction. With the metronome at 2 notes per click, every down stroke falls on a click, which keeps the alternation even.':
+    'האפליקציה שומעת איזה תו ניגנתם, לא איך פרטתם אותו — היא לא יכולה לבדוק את כיוון הפריטה. עם המטרונום על 2 תווים לכל קליק, כל פריטה למטה נופלת על קליק, וזה שומר על החילוף אחיד.',
+  'Notes per click': 'תווים לכל קליק',
+  'Play two notes on each click: the down stroke on the click, the up stroke halfway to the next one. Each note is judged against those half-beats, so start slower than usual. After a clean run the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'נגנו שני תווים על כל קליק: הפריטה למטה על הקליק, הפריטה למעלה באמצע הדרך לקליק הבא. כל תו נבדק מול חצאי הפעמה האלה, לכן התחילו לאט מהרגיל. אחרי ריצה נקייה הטמפו עולה ב־4 BPM. לכל סולם ולכל תבנית יש טמפו משלהם.',
+  '↓ down · ↑ up — alternate picking. The app checks the notes, not your picking hand.':
+    '↓ למטה · ↑ למעלה — פריטה לסירוגין. האפליקציה בודקת את התווים, לא את היד הפורטת.',
   // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
   'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
     'חמישה תווים בתבנית קטנה אחת ליד השורש — הצורה שממנה מתחילים רוב הסולואים. צפו בה פעם אחת, ואז נגנו אותה בחזרה.',

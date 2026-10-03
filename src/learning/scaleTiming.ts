@@ -75,6 +75,39 @@ export function judgeNote(
   return { beatAt, offsetMs, offsetBeats, verdict };
 }
 
+// ── Notes per click (wishlist update 2026-10-03, item 8) ────────────────
+// At 2 notes per click the learner plays on every click and halfway between
+// two: with alternate picking from the first note, every down stroke lands on
+// a click and every up stroke between (`scalePicking.ts`). The click itself
+// doesn't change; each note is judged against the half-beat grid, ±⅙ of a
+// half-beat, so `offsetBeats` is then in half-beats.
+
+export type NotesPerClick = 1 | 2;
+export const NOTES_PER_CLICK: readonly NotesPerClick[] = [1, 2];
+
+export function normalizeNotesPerClick(raw: unknown): NotesPerClick {
+  return raw === 2 ? 2 : 1;
+}
+
+/** The grid a note is judged against: the clicks (ascending), plus
+ *  `perClick − 1` evenly spaced points between each two, and after the last
+ *  click (spaced by the last gap, else `fallbackBeatMs`) up to and including
+ *  the next click. `perClick` 1 returns the clicks unchanged. */
+export function subdivideBeats(beats: readonly number[], perClick: NotesPerClick, fallbackBeatMs: number): number[] {
+  if (perClick <= 1 || beats.length === 0) return [...beats];
+  const out: number[] = [];
+  for (let i = 0; i < beats.length; i++) {
+    const at = beats[i];
+    const gap = i + 1 < beats.length ? beats[i + 1] - at
+      : beats.length > 1 ? at - beats[i - 1]
+      : fallbackBeatMs;
+    out.push(at);
+    for (let k = 1; k < perClick; k++) out.push(at + (gap * k) / perClick);
+    if (i === beats.length - 1) out.push(at + gap);
+  }
+  return out;
+}
+
 export interface TimingSummary {
   total: number;
   onTime: number;

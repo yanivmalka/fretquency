@@ -1353,6 +1353,17 @@ export const ptBR: Record<string, string> = {
   'Show fingers': 'Mostrar dedos',
   'The small number on each note is the finger that plays it: 1 index, 2 middle, 3 ring, 4 pinky, 0 an open string. One finger per fret — the hand stays in place and each finger owns its fret.':
     'O número pequeno em cada nota é o dedo que a toca: 1 indicador, 2 médio, 3 anelar, 4 mindinho, 0 corda solta. Um dedo por casa — a mão fica parada e cada dedo cuida da sua casa.',
+  // Wishlist item 8 — Scales: the picking hand (stroke marks, notes per click).
+  'Pick strokes': 'Direção da palhetada',
+  'The arrow on each note is the pick stroke: ↓ down, ↑ up. Alternate from the first note — down, up, down, up — even when you change strings.':
+    'A seta em cada nota é a direção da palhetada: ↓ para baixo, ↑ para cima. Alterne desde a primeira nota — baixo, cima, baixo, cima — mesmo ao trocar de corda.',
+  'The app hears which note you play, not how you pick it — it can’t check the stroke direction. With the metronome at 2 notes per click, every down stroke falls on a click, which keeps the alternation even.':
+    'O app ouve qual nota você toca, não como você palheta — ele não consegue conferir a direção da palhetada. Com o metrônomo em 2 notas por clique, toda palhetada para baixo cai num clique, o que mantém a alternância regular.',
+  'Notes per click': 'Notas por clique',
+  'Play two notes on each click: the down stroke on the click, the up stroke halfway to the next one. Each note is judged against those half-beats, so start slower than usual. After a clean run the tempo goes up by 4 BPM. Each scale and box keeps its own tempo.':
+    'Toque duas notas a cada clique: a palhetada para baixo no clique e a para cima no meio do caminho até o próximo. Cada nota é avaliada contra esses meios tempos, então comece mais devagar que o normal. Depois de uma passada limpa, o andamento sobe 4 BPM. Cada escala e desenho guarda seu próprio andamento.',
+  '↓ down · ↑ up — alternate picking. The app checks the notes, not your picking hand.':
+    '↓ baixo · ↑ cima — palhetada alternada. O app confere as notas, não a sua mão da palheta.',
   // Task C — Scales guided beginner path (ScalePathCard / ScaleRelativeScreen).
   'Five notes in one small box near the root — the shape most solos start from. Watch it once, then play it back.':
     'Cinco notas em um desenho pequeno perto da tônica: a forma com que a maioria dos solos começa. Assista uma vez e depois toque você.',

@@ -16,6 +16,7 @@ import { lastStepOf, type ScaleOrderBoard as Board } from '../learning/scaleOrde
 import type { OrderTile } from '../hooks/useScaleOrderEngine';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import type { ScaleTermHighlight } from '../learning/scaleTerms';
+import { tileStroke, type PickStroke } from '../learning/scalePicking';
 
 interface Props {
   board: Board;
@@ -37,10 +38,14 @@ interface Props {
   fingers?: ReadonlyMap<string, number> | null;
   /** An open ⓘ word (`ScaleTermHint`): light up the thing it names. */
   hint?: ScaleTermHighlight | null;
+  /** The picking hand (wishlist item 8): the stroke per run step
+   *  (`pickStrokes`), drawn ↓ / ↑ in each scale tile's bottom-end corner
+   *  beside the finger dot. Absent = no strokes. */
+  strokes?: readonly PickStroke[] | null;
 }
 
 export default function ScaleOrderBoard({
-  board, step, slips, wrongTile, demoStep, rootName, noteTable, stringCount, accidental, notation, onTap, fingers, hint,
+  board, step, slips, wrongTile, demoStep, rootName, noteTable, stringCount, accidental, notation, onTap, fingers, hint, strokes,
 }: Props) {
   const frets: number[] = [];
   for (let f = board.fromFret; f <= board.toFret; f++) frets.push(f);
@@ -78,6 +83,7 @@ export default function ScaleOrderBoard({
             if (found && slips[tileStep]) cls += ' scale-order-tile-slip';
             if (wrongTile && wrongTile.string === s && wrongTile.fret === f) cls += ' scale-order-tile-wrong';
             if (hint === 'root' && shown && name === rootName) cls += ' scale-term-hl';
+            const stroke = lit && strokes ? tileStroke(board.runMidi, strokes, midi, step, found || demoing ? tileStep : -1) : null;
             return (
               <button
                 key={f}
@@ -88,6 +94,7 @@ export default function ScaleOrderBoard({
                 <span className="scale-order-note">{displayNote(name, accidental, notation)}</span>
                 {(found || demoing) && <span className="scale-order-step">{board.stepLabels?.[tileStep] ?? tileStep + 1}</span>}
                 {lit && fingers?.has(`${s}:${f}`) && <span className="scale-finger">{fingers.get(`${s}:${f}`)}</span>}
+                {stroke && <span className={`scale-stroke scale-stroke-${stroke}`}>{stroke === 'down' ? '↓' : '↑'}</span>}
               </button>
             );
           })}
