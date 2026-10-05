@@ -27,3 +27,7 @@ design-canvas/
 # Supabase CLI's local cache for the linked project (project ref, pooler
 # URL, component versions) — regenerated per machine, nothing to commit.
 supabase/.temp/
+
+# VSCodeCounter extension output (code-stats snapshots) — regenerated on
+# demand, not project work.
+.VSCodeCounter/
