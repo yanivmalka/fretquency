@@ -18,7 +18,8 @@ export type AnalyticsEvent =
   | 'locked_tile_tapped'
   | 'upgrade_page_viewed'
   | 'share_used'
-  | 'reminder_enabled';
+  | 'reminder_enabled'
+  | 'opened_from_link';
 
 const INSTALL_ID_KEY = 'installId';
 const FIRST_ROUND_KEY = 'analyticsFirstRoundDone';

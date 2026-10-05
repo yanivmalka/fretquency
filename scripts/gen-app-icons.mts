@@ -29,14 +29,14 @@ const MASTER = join(root, 'assets', 'note-mark.png');
 const GRAD_TOP = '#1a1a2e';    // --bg-0
 const GRAD_BOTTOM = '#111122'; // --bg-1
 
-/** A size×size PNG buffer of the vertical drawer-palette gradient. */
-function gradient(size: number): Promise<Buffer> {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+/** A width×height PNG buffer of the vertical drawer-palette gradient. */
+function gradient(width: number, height: number = width): Promise<Buffer> {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
     <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="${GRAD_TOP}"/>
       <stop offset="1" stop-color="${GRAD_BOTTOM}"/>
     </linearGradient></defs>
-    <rect width="${size}" height="${size}" fill="url(#g)"/>
+    <rect width="${width}" height="${height}" fill="url(#g)"/>
   </svg>`;
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
@@ -87,6 +87,21 @@ async function solid(size: number, out: string): Promise<void> {
   console.log(`  ${out}  (${size}px, gradient only)`);
 }
 
+/** A fixed-aspect social-preview card (og:image / twitter:image): the mark
+ *  centred over the same drawer-palette gradient, flattened to a non-alpha
+ *  background — WhatsApp/Twitter render a transparent PNG inconsistently
+ *  (black in some clients), so this one is deliberately opaque. */
+async function socialCard(width: number, height: number, markPx: number, out: string): Promise<void> {
+  const bg = await gradient(width, height);
+  const fg = await mark(markPx);
+  await sharp(bg)
+    .composite([{ input: fg, gravity: 'center' }])
+    .flatten({ background: GRAD_TOP })
+    .png()
+    .toFile(join(root, out));
+  console.log(`  ${out}  (${width}x${height}, mark ${markPx}px)`);
+}
+
 await mkdir(join(root, 'public'), { recursive: true });
 await mkdir(join(root, 'assets'), { recursive: true });
 
@@ -102,6 +117,9 @@ await onGradient(512, 0.6, 'public/icon-maskable-512.png');
 await onGradient(180, 0.8, 'public/apple-touch-icon.png');
 // The web boot-splash paints its own CSS gradient behind this mark.
 await transparent(640, 'public/splash-mark.png');
+// Shared-link preview (og:image / twitter:image) for index.html, tuner.html
+// and guitar-neck-notes.html — the standard 1200×630 social card size.
+await socialCard(1200, 630, 440, 'public/og-image.png');
 
 console.log('native source art (for capacitor-assets, in assets/):');
 await onGradient(1024, 0.78, 'assets/icon-only.png');

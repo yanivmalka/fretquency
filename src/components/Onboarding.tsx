@@ -26,6 +26,12 @@ interface Props {
    *  instrument-picker step. The sign-in offer moved to after the first round
    *  (<App>'s SignInNudge), so onboarding no longer has an `account` step. */
   tier: Tier;
+  /** Skip the three marketing slides and open straight on the privacy step —
+   *  for a guest who arrived via a shared link and already played a round
+   *  (Fret of the Day / Challenge a friend) before tapping through to
+   *  onboarding. They've seen what the app does; legal consent still can't
+   *  be skipped. */
+  skipWelcome?: boolean;
 }
 
 type Step = 'welcome' | 'privacy' | 'instrument' | 'level' | 'test' | 'result';
@@ -70,13 +76,14 @@ function scoreToDifficulty(score: number): Difficulty {
 }
 
 export default function Onboarding({
-  onDone, onInstrument, onPlacement, instrument, notation, accidental, tier,
+  onDone, onInstrument, onPlacement, instrument, notation, accidental, tier, skipWelcome,
 }: Props) {
   const { t } = useTranslation();
   const [step, setStepState] = useState<Step>(() => {
     const saved = loadSetting<string>(STEP_KEY, 'welcome');
-    return (STEPS as string[]).includes(saved) && saved !== 'test' && saved !== 'result'
+    const valid = (STEPS as string[]).includes(saved) && saved !== 'test' && saved !== 'result'
       ? saved as Step : 'welcome';
+    return skipWelcome && valid === 'welcome' ? 'privacy' : valid;
   });
   const setStep = (s: Step) => { setStepState(s); saveSetting(STEP_KEY, s); };
   const [slide, setSlide] = useState(0);
