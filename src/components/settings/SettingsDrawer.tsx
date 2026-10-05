@@ -169,7 +169,7 @@ export function SettingsDrawerNav({
 
 export function SettingsSubPage({
   section, lang, t, drawerSection, upgradeFromAccountRef, setDrawerSection,
-  revealBadges, instrument, setRevealBadges,
+  revealBadges, instrument, setRevealBadges, fromMenu,
 }: {
   section: SettingsSection;
   lang: Lang;
@@ -180,9 +180,11 @@ export function SettingsSubPage({
   revealBadges: CelebratedBadge[];
   instrument: InstrumentConfig;
   setRevealBadges: (b: CelebratedBadge[]) => void;
+  /** Opened straight from the menu list: fade the list's dim out on arrival. */
+  fromMenu: boolean;
 }) {
   return (
-    <div className="app settings-page">
+    <div className={`app settings-page${fromMenu ? ' settings-page--from-menu' : ''}`}>
       <div className="sp2 settings-page-inner" dir={lang === 'he' ? 'rtl' : undefined}>
         <div className="sp2-head settings-page-head">
           {/* Badges is a sub-page of Account (opened from the pinned-badge

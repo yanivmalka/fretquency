@@ -33,9 +33,30 @@
   to { transform: translateX(0); }
 }
 /* Back from a section page remounts the list: show it in place rather than
-   sliding it in again. Doubled class to outrank the left-handed
-   `animation-name` override in 27-left-handed.css. */
+   sliding it in again, and fade its dim in over the page instead of cutting
+   to dark. Doubled class to outrank the left-handed `animation-name`
+   override in 27-left-handed.css. */
+.settings-overlay.settings-overlay--static { animation: settings-dim-in 0.18s ease-out; }
 .settings-overlay.settings-overlay--static .settings-panel { animation: none; }
+@keyframes settings-dim-in {
+  from { background-color: transparent; }
+}
+/* The other way: a page opened from the list starts under the list's dim and
+   fades it out, rather than cutting from dark to light. Same colour and
+   stacking as .settings-overlay; never takes a tap. ::before because
+   01-base.css draws the mobile frame edge on .app::after. */
+.settings-page--from-menu::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.6);
+  animation: settings-dim-out 0.18s ease-out forwards;
+}
+@keyframes settings-dim-out {
+  to { background-color: transparent; }
+}
 /* The drawer's Back button sits inside a .sp2-head row and reuses .sp2-back /
    .sp2-title so the drawer header matches every settings sub-page. */
 .settings-menu .sp2-back {
