@@ -89,6 +89,7 @@ import { BadgeGrid } from './components/BadgeGrid';
 import { UpgradeCard } from './components/UpgradeCard';
 import { can, PRO_ONLY_INSTRUMENTS } from './utils/features';
 import { setDrillHold } from './utils/adPacing';
+import { track } from './utils/analytics';
 import { GuestMergePrompt } from './components/GuestMergePrompt';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useBackNavigation } from './hooks/useBackNavigation';
@@ -174,7 +175,7 @@ export default function App() {
       banjo: { ...defaults.banjo, ...stored.banjo },
     };
   });
-  // Mandolin/banjo/ukulele need `extraInstruments` (Pro). ProGate in the
+  // Mandolin/banjo need `extraInstruments` (Pro); ukulele is free. ProGate in the
   // instrument picker (PlayingSection) is presentation-only and blocks the
   // *tap* that would set this; this is the real gate, covering the case
   // where a saved pref_instrument is one of them but the account has since
@@ -609,6 +610,14 @@ export default function App() {
     askForMic, grantMic, openInfo,
   } = nav;
 
+  // Usage measurement: fire once per transition into these drawer views, not
+  // on every re-render (settingsSections' `body` elements are reconstructed
+  // on each render regardless of which section is actually showing).
+  useEffect(() => {
+    if (drawerSection === 'upgrade') track('upgrade_page_viewed');
+    else if (drawerSection === 'learn') track('learn_area_opened');
+  }, [drawerSection]);
+
   // The Play handler + 3-2-1 count-in + `gameEnded` flag + the Teacher /
   // interval auto-launch effect (A33). `start()` calls `celebrationsBeginRunRef`
   // (filled just below) to reset the per-run celebration state.
@@ -863,6 +872,7 @@ export default function App() {
             setDrawerSection(null);
           }}
           onLocked={() => {
+            track('locked_tile_tapped');
             upgradeFromAccountRef.current = false;
             setDrawerSection('upgrade');
           }}

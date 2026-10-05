@@ -6,6 +6,7 @@ import { historyForInstrument, flattenHistory } from '../utils/mastery';
 import type { StageStep } from '../utils/stageSequence';
 import { computeMyStats, leaderboardName, upsertMyEntry } from '../utils/leaderboard';
 import { mergeCelebrated } from '../utils/badgeCelebration';
+import { trackRoundFinished } from '../utils/analytics';
 import {
   badgeDef, evaluateSession, evaluateLifetime, awardFamilyUpTo, earnedTier,
   type BadgeId, type SessionSnapshot, type LifetimeSnapshot, type Tier,
@@ -175,6 +176,12 @@ export function useRoundEndCelebrations({
     if (wasRunningRef.current && !running && !paused && scoring.session.questionsAnswered > 0 && !pendingAutoAdvance) {
       setGameEnded(true);
       setRoundCompletedNaturally(completedNaturally);
+      trackRoundFinished({
+        questionsAnswered: scoring.session.questionsAnswered,
+        score: scoring.session.score,
+        accuracy: sessionResult.accuracy,
+        completedNaturally,
+      });
 
       // "What's next" nudge: only for a plain Selector run (never a fixed
       // Teacher/interval plan, which doesn't live on the stage curriculum) that

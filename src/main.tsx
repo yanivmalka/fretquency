@@ -10,6 +10,7 @@ import { loadDictionary, type Lang } from './i18n/translations'
 import { initialLanguage } from './i18n/initialLanguage'
 import { markBootDone } from './utils/bootState'
 import { verror } from './utils/debugLog'
+import { trackAppOpenAndReturns } from './utils/analytics'
 
 // Fetch the starting language's dictionary (only that one) behind the boot
 // splash, so the first render is already translated. Capped so a stalled
@@ -28,6 +29,7 @@ Promise.race([
       </LanguageProvider>
     </StrictMode>,
   )
+  trackAppOpenAndReturns()
 })
 
 // Retire the inline boot splash (index.html) once the app has done its first
