@@ -58,13 +58,12 @@
         </activity>
 
         <!-- AdMob app id (required — the Google Mobile Ads SDK crashes the app on
-             start without it). This is Google's public SAMPLE app id, safe for
-             debug builds. Replace with the real "ca-app-pub-…~…" id from the
-             AdMob console before a release build; the ad-unit id is separate and
-             comes from VITE_ADMOB_ANDROID_BANNER_ID (see .env.example). -->
+             start without it). The real app id from the AdMob console; the
+             ad-unit id is separate and comes from VITE_ADMOB_ANDROID_BANNER_ID
+             (see .env.example). -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-9466539479626641~3838674164" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
