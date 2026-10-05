@@ -17,11 +17,12 @@
 // teacher gets automatically once a class is active (server-side, migration
 // 0026's "Premium for active teachers"), not a requirement to use this.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { useTranslation } from '../i18n/useTranslation';
 import { dateLocale } from '../i18n/translations';
 import { playClickSound, haptic } from '../utils/feedback';
+import { track } from '../utils/analytics';
 import { Chevron } from './Chevron';
 import HomeworkRun from './HomeworkRun';
 import { isSupabaseConfigured } from '../utils/supabase';
@@ -57,6 +58,9 @@ interface Props {
   initialCode: string | null;
   onSignIn: () => void;
   onClose: () => void;
+  /** Lets the app's Android/browser Back handler step through this screen's
+   *  own sub-views (run → study → home → close) instead of closing outright. */
+  backRef?: RefObject<(() => void) | null>;
 }
 
 type View =
@@ -87,7 +91,7 @@ function useLoad<T>(fn: () => Promise<T>, deps: unknown[]) {
   return { data, error, reload };
 }
 
-export default function ClassroomScreen({ user, profileName, initialCode, onSignIn, onClose }: Props) {
+export default function ClassroomScreen({ user, profileName, initialCode, onSignIn, onClose, backRef }: Props) {
   const { t, lang } = useTranslation();
   const [view, setView] = useState<View>({ kind: 'home' });
 
@@ -107,6 +111,15 @@ export default function ClassroomScreen({ user, profileName, initialCode, onSign
     return () => window.removeEventListener('keydown', onKey);
   }, [back]);
 
+  // Android/browser Back (via App.tsx's useBackNavigation) runs this same
+  // ladder, one level per press, instead of arming the app's exit prompt.
+  // While the exam sub-screen is open, it owns backRef itself (its mid-
+  // question confirm needs its own view state), so this skips the write.
+  useEffect(() => {
+    if (!backRef || view.kind === 'exam') return;
+    backRef.current = back;
+  }, [backRef, back, view.kind]);
+
   // The exam is its own full-page takeover (own header, own back/Escape
   // handling for the mid-question confirm) rather than a sub-view sharing
   // this screen's chrome.
@@ -116,6 +129,7 @@ export default function ClassroomScreen({ user, profileName, initialCode, onSign
         profileName={profileName}
         onPassed={() => setView({ kind: 'home' })}
         onClose={() => setView({ kind: 'home' })}
+        backRef={backRef}
       />
     );
   }
@@ -280,6 +294,7 @@ function JoinCard({ profileName, initialCode, onJoined }: {
     try {
       const out = await joinClass(code, name.trim());
       if (out.kind === 'joined') {
+        track('class_joined');
         setMsg(t('You joined {name}.').replace('{name}', out.name));
         setCode('');
         onJoined();
@@ -408,7 +423,7 @@ function NewClassForm({ profileName, onCreated }: { profileName: string | null; 
       <CodeField code={code} setCode={setCode} />
       <button className="clear-btn" disabled={!ready} onClick={tap(() => {
         setBusy(true); setMsg(null);
-        createClass(name, code, profileName).then((c) => { if (c) onCreated(c); }, (e) => {
+        createClass(name, code, profileName).then((c) => { if (c) { track('class_created'); onCreated(c); } }, (e) => {
           console.warn('[classroom] createClass', e);
           setMsg(writeErrorText(e));
         }).finally(() => setBusy(false));

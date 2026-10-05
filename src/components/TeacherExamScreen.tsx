@@ -12,7 +12,7 @@
 // from its "I'm a teacher" card), with its own tiny router: intro → running
 // → done.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { useTranslation } from '../i18n/useTranslation';
 import { playClickSound, haptic } from '../utils/feedback';
 import { Chevron } from './Chevron';
@@ -31,6 +31,9 @@ interface Props {
   profileName: string | null;
   onPassed: () => void;
   onClose: () => void;
+  /** Lets the app's Android/browser Back handler reach this screen's own
+   *  mid-question confirm instead of closing it outright. */
+  backRef?: RefObject<(() => void) | null>;
 }
 
 const tap = (fn: () => void) => () => { playClickSound(); haptic.tap(); fn(); };
@@ -61,7 +64,7 @@ function formatRetry(iso: string, t: (s: string) => string, rtf: Intl.RelativeTi
   return rtf.format(Math.round(hours / 24), 'day');
 }
 
-export default function TeacherExamScreen({ profileName, onPassed, onClose }: Props) {
+export default function TeacherExamScreen({ profileName, onPassed, onClose, backRef }: Props) {
   const { t, lang } = useTranslation();
   const rtf = useCountdown();
   const accidental: AccidentalMode = loadSetting('pref_accidental', 'sharps');
@@ -95,6 +98,14 @@ export default function TeacherExamScreen({ profileName, onPassed, onClose }: Pr
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
+
+  // Android/browser Back (via ClassroomScreen's forwarded backRef) hits the
+  // same mid-question confirm as Escape, instead of ClassroomScreen's own
+  // back or an outright close.
+  useEffect(() => {
+    if (backRef) backRef.current = back;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backRef, view]);
 
   const adminSkip = async () => {
     setBusy(true); setError(null);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type RefObject } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import type { AppNavigation } from './useAppNavigation';
@@ -15,6 +15,9 @@ export interface UseBackNavigationParams {
   signInPromptOpen: boolean;
   /** "Maybe later" on that nudge (device-local, from App). */
   dismissSignInPrompt: () => void;
+  /** The Class screen's own back-ladder (run → study → home → close),
+   *  forwarded from ClassroomScreen while it's open. */
+  classroomBackRef: RefObject<(() => void) | null>;
 }
 
 /**
@@ -37,6 +40,7 @@ export function useBackNavigation({
   setRevealBadges,
   signInPromptOpen,
   dismissSignInPrompt,
+  classroomBackRef,
 }: UseBackNavigationParams): { exitHint: boolean } {
   const {
     micPrompt, setMicPrompt, showInfo, setShowInfo,
@@ -44,6 +48,7 @@ export function useBackNavigation({
     showStats, setShowStats, showPath, setShowPath,
     activeDomain, setActiveDomain, upgradeFromAccountRef,
     tunerOpen, setTunerOpen, dailyChallengeOpen, setDailyChallengeOpen,
+    classroomOpen, setClassroomOpen,
   } = nav;
 
   const [exitHint, setExitHint] = useState(false);
@@ -51,12 +56,12 @@ export function useBackNavigation({
   // listeners (bound once) always see current values without re-subscribing.
   const backNav = useRef({
     micPrompt, showInfo, revealBadges, signInPromptOpen, settingsOpen, drawerSection,
-    showStats, showPath, activeDomain, tunerOpen, dailyChallengeOpen, running, paused, stop,
+    showStats, showPath, activeDomain, tunerOpen, dailyChallengeOpen, classroomOpen, running, paused, stop,
   });
   useEffect(() => {
     backNav.current = {
       micPrompt, showInfo, revealBadges, signInPromptOpen, settingsOpen, drawerSection,
-      showStats, showPath, activeDomain, tunerOpen, dailyChallengeOpen, running, paused, stop,
+      showStats, showPath, activeDomain, tunerOpen, dailyChallengeOpen, classroomOpen, running, paused, stop,
     };
   });
   useEffect(() => {
@@ -91,6 +96,16 @@ export function useBackNavigation({
       }
       if (s.tunerOpen) { setTunerOpen(false); return true; }
       if (s.dailyChallengeOpen) { setDailyChallengeOpen(false); return true; }
+      // The Class screen steps through its own sub-views (run → study →
+      // home) before closing; classroomBackRef is ClassroomScreen's `back`
+      // (or TeacherExamScreen's, while the exam sub-screen owns it), kept
+      // current via its own effect. Fall back to a plain close if it hasn't
+      // mounted yet.
+      if (s.classroomOpen) {
+        if (classroomBackRef.current) classroomBackRef.current();
+        else setClassroomOpen(false);
+        return true;
+      }
       if (s.running || s.paused) { s.stop(); return true; }
       return false;
     };
