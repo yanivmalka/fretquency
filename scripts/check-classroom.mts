@@ -40,18 +40,22 @@ const eq = (a: unknown, b: unknown, msg: string) => {
 };
 const display = { accidental: 'flats', order: 'alpha' } as const;
 
-// Round trip for every assignable instrument's default picks.
+// Round trip for every assignable instrument's default picks, both directions.
 for (const id of HOMEWORK_INSTRUMENTS) {
-  const drill = buildHomeworkDrill(defaultHomeworkPicks(id));
-  // Simulate the jsonb round trip.
-  const stored = JSON.parse(JSON.stringify(drill));
-  const parsed = parseHomeworkDrill(stored, id, display);
-  if (!parsed) { fail(`${id}: default picks do not parse back`); continue; }
-  eq(parsed.strings, drill.strings, `${id} strings`);
-  eq([parsed.fretFrom, parsed.fretTo], [drill.fretFrom, drill.fretTo], `${id} frets`);
-  eq(parsed.accidental, 'flats', `${id} student accidental wins`);
-  eq(parsed.order, 'alpha', `${id} student order wins`);
-  if (parsed.fretTo > getInstrument(id).maxFret) fail(`${id}: fretTo past the neck`);
+  for (const mode of ['byFret', 'byNote'] as const) {
+    const drill = buildHomeworkDrill({ ...defaultHomeworkPicks(id), mode });
+    eq(drill.mode, mode, `${id}/${mode}: buildHomeworkDrill sets mode`);
+    // Simulate the jsonb round trip.
+    const stored = JSON.parse(JSON.stringify(drill));
+    const parsed = parseHomeworkDrill(stored, id, display);
+    if (!parsed) { fail(`${id}/${mode}: default picks do not parse back`); continue; }
+    eq(parsed.mode, mode, `${id}/${mode}: mode round-trips`);
+    eq(parsed.strings, drill.strings, `${id}/${mode} strings`);
+    eq([parsed.fretFrom, parsed.fretTo], [drill.fretFrom, drill.fretTo], `${id}/${mode} frets`);
+    eq(parsed.accidental, 'flats', `${id}/${mode} student accidental wins`);
+    eq(parsed.order, 'alpha', `${id}/${mode} student order wins`);
+    if (parsed.fretTo > getInstrument(id).maxFret) fail(`${id}/${mode}: fretTo past the neck`);
+  }
 }
 
 // Multi-string, reversed fret window, duplicate strings.
@@ -69,7 +73,8 @@ const bad: Array<[string, unknown, unknown]> = [
   ['unknown instrument', good, 'theremin'],
   ['Pro-only instrument', good, 'mandolin'],
   ['null drill', null, 'guitar'],
-  ['byNote (not in this slice)', { ...good, mode: 'byNote' }, 'guitar'],
+  ['unknown mode', { ...good, mode: 'byChord' }, 'guitar'],
+  ['missing mode', { ...good, mode: undefined }, 'guitar'],
   ['string 7 on a 6-string', { ...good, strings: [7] }, 'guitar'],
   ['string 0', { ...good, strings: [0] }, 'guitar'],
   ['no strings', { ...good, strings: [] }, 'guitar'],

@@ -11,9 +11,10 @@
 // instrument and returns null for anything it can't run. The display prefs
 // (sharps/flats, note order) are the student's own, overlaid at run time.
 //
-// First slice: by-fret Notes drills only (a fret is shown, name the note).
-// By-note, intervals, scales and reading drills are deferred — see the
-// wishlist's Teacher mode entry.
+// First slice: Notes drills only, either direction (by-fret: a fret is shown,
+// name the note; by-note: a note is shown, find every matching fret).
+// Intervals, scales and reading drills are deferred — see the wishlist's
+// Teacher mode entry.
 
 import type { DrillConfig } from '../drill/DrillConfig';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
@@ -28,6 +29,9 @@ export const HOMEWORK_QUESTION_TIME = 10;
 
 export interface HomeworkPicks {
   instrumentId: InstrumentId;
+  /** byFret: a fret is shown, name the note. byNote: a note is shown, find
+   *  every matching fret. */
+  mode: 'byFret' | 'byNote';
   /** 1-based string numbers (1 = highest-pitched), at least one. */
   strings: number[];
   fretFrom: number;
@@ -40,6 +44,7 @@ export function defaultHomeworkPicks(instrumentId: InstrumentId = 'guitar'): Hom
   const cfg = getInstrument(instrumentId);
   return {
     instrumentId,
+    mode: 'byFret',
     strings: [cfg.stringCount],
     fretFrom: 0,
     fretTo: Math.min(12, cfg.maxFret),
@@ -57,7 +62,7 @@ export function buildHomeworkDrill(p: HomeworkPicks): DrillConfig {
     strings,
     primaryString: strings[0] ?? 1,
     isMulti: strings.length > 1,
-    mode: 'byFret',
+    mode: p.mode,
     fretFrom: Math.min(p.fretFrom, p.fretTo),
     fretTo: Math.max(p.fretFrom, p.fretTo),
     wholeToneOnly: p.naturalsOnly,
@@ -89,7 +94,7 @@ export function parseHomeworkDrill(
   const r = raw as Record<string, unknown>;
   const cfg = getInstrument(instrumentId);
 
-  if (r.mode !== 'byFret') return null;
+  if (r.mode !== 'byFret' && r.mode !== 'byNote') return null;
   if (!Array.isArray(r.strings) || r.strings.length === 0) return null;
   const strings = [...new Set(r.strings)].filter(isInt).filter((s) => s >= 1 && s <= cfg.stringCount);
   if (strings.length !== r.strings.length) return null;
@@ -103,7 +108,7 @@ export function parseHomeworkDrill(
     strings,
     primaryString: strings[0],
     isMulti: strings.length > 1,
-    mode: 'byFret',
+    mode: r.mode,
     fretFrom: r.fretFrom,
     fretTo: r.fretTo,
     wholeToneOnly: r.wholeToneOnly === true,
@@ -115,19 +120,20 @@ export function parseHomeworkDrill(
   };
 }
 
-/** A short human summary of a homework drill: "Strings 5–6 · frets 0–12 ·
- *  naturals · 10 questions". Callers translate the pieces. */
+/** A short human summary of a homework drill: "Note by Fret · Strings 5–6 ·
+ *  frets 0–12 · naturals · 10 questions". Callers translate the pieces. */
 export function describeHomework(
   drill: DrillConfig,
   t: (s: string) => string,
 ): string {
+  const mode = drill.mode === 'byNote' ? t('Fret by Note') : t('Note by Fret');
   const s = drill.strings;
   const strings = s.length === 1
     ? t('String {n}').replace('{n}', String(s[0]))
     : t('Strings {list}').replace('{list}', s.join(', '));
   const frets = t('frets {from}–{to}')
     .replace('{from}', String(drill.fretFrom)).replace('{to}', String(drill.fretTo));
-  const parts = [strings, frets];
+  const parts = [mode, strings, frets];
   if (drill.wholeToneOnly) parts.push(t('naturals only'));
   parts.push(t('{n} questions').replace('{n}', String(drill.questionCount)));
   return parts.join(' · ');

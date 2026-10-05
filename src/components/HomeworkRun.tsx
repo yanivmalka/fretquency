@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../i18n/useTranslation';
 import { playClickSound, haptic } from '../utils/feedback';
 import NoteCircle from './NoteCircle';
+import FretGrid from './FretGrid';
 import SpeedBar from './SpeedBar';
 import { useDrillSession } from '../hooks/useDrillSession';
 import { useDerivedNotes } from '../hooks/useDerivedNotes';
@@ -23,7 +24,7 @@ import { useScoring } from '../hooks/useScoring';
 import { useDrillHistorySink } from '../game/useDrillHistorySink';
 import { recordDailyActivity } from '../utils/dailyActivity';
 import { unlockAudio, setAudioInstrument } from '../utils/audio';
-import { setActiveInstrument, type AccidentalMode, type OrderMode, type NotationMode } from '../utils/music';
+import { displayNote, setActiveInstrument, type AccidentalMode, type OrderMode, type NotationMode } from '../utils/music';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
 import type { DrillConfig } from '../drill/DrillConfig';
 import { describeHomework, extractWrongPositions, type WrongPosition } from '../teacher/homework';
@@ -142,7 +143,9 @@ export default function HomeworkRun({
       {phase === 'playing' && (
         <div className="question-col class-question-col">
           <div className="string-label">{t(instrument.stringLabels[activeString] ?? '')}</div>
-          <div className="fret-display">{session.currentFret !== null ? session.currentFret : '—'}</div>
+          {drill.mode === 'byNote'
+            ? <div className="note-display">{session.currentNote ? displayNote(session.currentNote, accidental, notation) : '—'}</div>
+            : <div className="fret-display">{session.currentFret !== null ? session.currentFret : '—'}</div>}
           <SpeedBar
             key={`hw-sb-${session.questionSeq}`}
             remaining={session.remaining}
@@ -158,22 +161,38 @@ export default function HomeworkRun({
           <div className={`feedback ${session.feedback.startsWith('✓') ? 'good' : session.feedback.startsWith('✗') ? 'bad' : 'warn'}`}>
             {session.feedback}
           </div>
-          <NoteCircle
-            notes={derived.cofList}
-            activeNotes={derived.isMulti ? derived.questionActiveNotes : derived.activeNotes}
-            active={!session.answered}
-            correctNote={session.correctCofNote}
-            wrongNote={session.wrongCofNote}
-            onSelect={session.selectAnswer}
-            guitarString={activeString}
-            fretDots={derived.fretDots}
-            noteFrets={derived.noteFrets}
-            byString={false}
-            startIndex={derived.startIndex}
-            showDots
-            accidental={accidental}
-            notation={notation}
-          />
+          {drill.mode === 'byNote' ? (
+            <FretGrid
+              fretFrom={drill.fretFrom}
+              fretTo={drill.fretTo}
+              guitarString={activeString}
+              validFrets={new Set(Object.values(derived.noteFrets).flat())}
+              active={!session.answered}
+              correctFrets={session.remainingFrets}
+              wrongFret={session.wrongFret}
+              foundFrets={session.foundFrets}
+              onSelect={session.selectFret}
+              showMastery={false}
+              referenceFret={null}
+            />
+          ) : (
+            <NoteCircle
+              notes={derived.cofList}
+              activeNotes={derived.isMulti ? derived.questionActiveNotes : derived.activeNotes}
+              active={!session.answered}
+              correctNote={session.correctCofNote}
+              wrongNote={session.wrongCofNote}
+              onSelect={session.selectAnswer}
+              guitarString={activeString}
+              fretDots={derived.fretDots}
+              noteFrets={derived.noteFrets}
+              byString={false}
+              startIndex={derived.startIndex}
+              showDots
+              accidental={accidental}
+              notation={notation}
+            />
+          )}
         </div>
       )}
 

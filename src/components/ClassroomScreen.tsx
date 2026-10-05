@@ -797,7 +797,25 @@ function AssignView({ cls, onDone }: { cls: ClassRow; onDone: () => void }) {
   return (
     <section className="class-card class-assign">
       <h3 className="class-h">{t('Assign homework')}</h3>
-      <p className="class-muted">{t('A Notes drill: a fret is shown, the student names the note.')}</p>
+      <p className="class-muted">
+        {picks.mode === 'byNote'
+          ? t('A Notes drill: a note is shown, the student finds every matching fret.')
+          : t('A Notes drill: a fret is shown, the student names the note.')}
+      </p>
+
+      <div className="class-field">
+        <span>{t('Direction')}</span>
+        <div className="class-chips">
+          <button className={`fotd-instrument-btn${picks.mode === 'byFret' ? ' active' : ''}`}
+            aria-pressed={picks.mode === 'byFret'} onClick={tap(() => set({ mode: 'byFret' }))}>
+            {t('Note by Fret')}
+          </button>
+          <button className={`fotd-instrument-btn${picks.mode === 'byNote' ? ' active' : ''}`}
+            aria-pressed={picks.mode === 'byNote'} onClick={tap(() => set({ mode: 'byNote' }))}>
+            {t('Fret by Note')}
+          </button>
+        </div>
+      </div>
 
       <label className="class-field">
         <span>{t('Title')}</span>
@@ -811,7 +829,7 @@ function AssignView({ cls, onDone }: { cls: ClassRow; onDone: () => void }) {
           {HOMEWORK_INSTRUMENTS.map((id: InstrumentId) => (
             <button key={id} className={`fotd-instrument-btn${id === picks.instrumentId ? ' active' : ''}`}
               aria-pressed={id === picks.instrumentId}
-              onClick={tap(() => setPicks({ ...defaultHomeworkPicks(id), naturalsOnly: picks.naturalsOnly, questionCount: picks.questionCount }))}>
+              onClick={tap(() => setPicks({ ...defaultHomeworkPicks(id), mode: picks.mode, naturalsOnly: picks.naturalsOnly, questionCount: picks.questionCount }))}>
               <span aria-hidden="true">{getInstrument(id).emoji}</span> {t(getInstrument(id).label)}
             </button>
           ))}
