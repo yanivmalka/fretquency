@@ -28,9 +28,12 @@ interface ProGateProps {
   variant?: 'overlay' | 'replace' | 'inline-badge';
   /** Short reason shown in the locked state, e.g. "See your full history". */
   pitch?: string;
+  /** `replace` only: the menu-search anchor of the card it stands in for, so
+   *  a search result still lands on the locked spot (src/utils/appSearch.ts). */
+  anchor?: string;
 }
 
-export function ProGate({ feature, children, variant = 'overlay', pitch }: ProGateProps) {
+export function ProGate({ feature, children, variant = 'overlay', pitch, anchor }: ProGateProps) {
   const { tier } = useEntitlement();
   const { t } = useTranslation();
 
@@ -46,7 +49,9 @@ export function ProGate({ feature, children, variant = 'overlay', pitch }: ProGa
   const go = () => { playClickSound(); haptic.tap(); openUpgrade(); };
 
   if (variant === 'replace') {
-    return <UpgradeCard pitch={pitch} />;
+    return anchor
+      ? <div data-search-anchor={anchor}><UpgradeCard pitch={pitch} /></div>
+      : <UpgradeCard pitch={pitch} />;
   }
 
   if (variant === 'inline-badge') {

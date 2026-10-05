@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Chevron } from '../Chevron';
 import { withClick as click } from '../../utils/withClick';
 import { BadgeRevealOverlay, type CelebratedBadge } from '../BadgeCelebration';
 import type { InstrumentConfig } from '../../utils/instruments';
 import type { Lang } from '../../i18n/translations';
+import { searchApp, type SearchContext, type SearchEntry } from '../../utils/appSearch';
+import { minTier, type Feature } from '../../utils/features';
 
 /**
  * The hamburger settings drawer, split out of <App> as pure presentation:
@@ -21,15 +23,36 @@ export interface SettingsSection {
   onSelect?: () => void;
 }
 
+/** What the menu's search field needs from <App>. */
+export interface DrawerSearch {
+  ctx: SearchContext;
+  /** True when the player's tier can't open `feature` (shows a lock pill). */
+  isLocked: (feature: Feature) => boolean;
+  /** Navigate to a picked result (closes / swaps the drawer itself). */
+  onPick: (entry: SearchEntry) => void;
+}
+
 export function SettingsDrawerNav({
-  sections, lang, t, setSettingsOpen, setDrawerSection,
+  sections, lang, t, setSettingsOpen, setDrawerSection, search,
 }: {
   sections: SettingsSection[];
   lang: Lang;
   t: (s: string) => string;
   setSettingsOpen: (v: boolean) => void;
   setDrawerSection: (id: string | null) => void;
+  search: DrawerSearch;
 }) {
+  // Local on purpose: the drawer unmounts on close, so every open starts
+  // with an empty field and the plain section list.
+  const [query, setQuery] = useState('');
+  const results = useMemo(
+    () => searchApp(query, t, search.ctx),
+    [query, t, search.ctx],
+  );
+  const searching = query.trim() !== '';
+  // The trail reads in the text direction: "Settings › Language" in LTR,
+  // mirrored in Hebrew.
+  const sep = lang === 'he' ? ' ‹ ' : ' › ';
   return (
     <div className="settings-overlay" onClick={click(() => setSettingsOpen(false))}>
       <div
@@ -50,7 +73,67 @@ export function SettingsDrawerNav({
             {/* No title here on purpose: the burger menu is just the list
                 of sections. "Settings" is one of those sections now. */}
           </div>
-          {sections.filter(s => s.id !== 'upgrade' && s.id !== 'badges').map(s => {
+          <div className="app-search" role="search">
+            <span className="app-search__icon" aria-hidden="true">🔍</span>
+            <input
+              type="search"
+              className="app-search__input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('Search the app')}
+              aria-label={t('Search the app')}
+              enterKeyHint="search"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              onKeyDown={(e) => {
+                // Enter opens the top result, like a search box should.
+                if (e.key === 'Enter' && results.length > 0) {
+                  e.preventDefault();
+                  search.onPick(results[0]);
+                }
+              }}
+            />
+            {searching && (
+              <button
+                type="button"
+                className="app-search__clear"
+                aria-label={t('Clear search')}
+                onClick={click(() => setQuery(''))}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {searching && results.length === 0 && (
+            <p className="app-search__empty" role="status">{t('No results')}</p>
+          )}
+          {searching && results.map(r => {
+            const locked = r.feature ? search.isLocked(r.feature) : false;
+            const trail = r.path.map(x => t(x)).join(sep);
+            return (
+              <button
+                key={r.id}
+                className="nav-row app-search__row"
+                onClick={click(() => search.onPick(r))}
+              >
+                <span className="nav-row__lead" aria-hidden="true">{r.emoji}</span>
+                <span className="nav-row__label">
+                  <span className="app-search__title">
+                    {t(r.label)}
+                    {locked && r.feature && (
+                      <span className="progate-badge app-search__lock">
+                        {minTier(r.feature) === 'premium' ? t('Premium') : t('Pro')}
+                      </span>
+                    )}
+                  </span>
+                  {trail && <span className="app-search__trail">{trail}</span>}
+                </span>
+                <Chevron dir="forward" className="nav-row__chev" />
+              </button>
+            );
+          })}
+          {!searching && sections.filter(s => s.id !== 'upgrade' && s.id !== 'badges').map(s => {
             // `upgrade` (subscription tier) and `badges` are not top-level
             // rows — each is a tappable tile inside the Account section that
             // opens its sub-page. They stay in `settingsSections` only so

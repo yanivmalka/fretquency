@@ -1,7 +1,8 @@
 import {
   useState, useEffect, useCallback, useRef, useMemo, useSyncExternalStore,
 } from 'react';
-import { SettingsDrawerNav, SettingsSubPage, type SettingsSection } from './components/settings/SettingsDrawer';
+import { SettingsDrawerNav, SettingsSubPage, type SettingsSection, type DrawerSearch } from './components/settings/SettingsDrawer';
+import { jumpToSearchAnchor } from './utils/appSearch';
 import PlayingSection from './components/settings/sections/PlayingSection';
 import GeneralSettingsSection from './components/settings/sections/GeneralSettingsSection';
 import AccountSection from './components/settings/sections/AccountSection';
@@ -774,6 +775,65 @@ export default function App() {
     />
   );
 
+  // The search field at the top of the hamburger menu (src/utils/appSearch.ts):
+  // a picked result opens its page the same way the menu / Learn tiles do,
+  // then scrolls to and flashes the card it names. A tier-locked page (a
+  // Premium domain, the Learning Path) routes to the upgrade page exactly like
+  // its locked Learn tile; a locked settings card is opened in place, where
+  // its own <ProGate> explains the lock.
+  const drawerSearch: DrawerSearch = {
+    ctx: {
+      configured: auth.configured,
+      voiceSupported: voice.supported,
+      guitarSupported: guitar.supported,
+    },
+    isLocked: (f) => !can(f, auth.tier),
+    onPick: (entry) => {
+      const target = entry.target;
+      const toUpgrade = () => {
+        upgradeFromAccountRef.current = false;
+        setSettingsOpen(true);
+        setDrawerSection('upgrade');
+      };
+      const leaveDrawer = () => {
+        setShowStats(false);
+        setShowPath(false);
+        setSettingsOpen(false);
+        setDrawerSection(null);
+      };
+      switch (target.kind) {
+        case 'section':
+          // Badges / Your plan are sub-pages of Account: Back returns there.
+          if (target.section === 'upgrade') upgradeFromAccountRef.current = true;
+          setSettingsOpen(true);
+          setDrawerSection(target.section);
+          if (target.anchor) jumpToSearchAnchor(target.anchor, target.fallback);
+          return;
+        case 'domain':
+          if (entry.feature && !can(entry.feature, auth.tier)) { toUpgrade(); return; }
+          leaveDrawer();
+          setActiveDomain(target.domain);
+          if (target.anchor) jumpToSearchAnchor(target.anchor);
+          return;
+        case 'stats':
+          // Same as the menu row: the stats page sits over the open drawer,
+          // so closing it lands back on the menu.
+          setShowStats(true);
+          return;
+        case 'tuner':
+          leaveDrawer();
+          setTunerOpen(true);
+          return;
+        case 'path':
+          if (entry.feature && !can(entry.feature, auth.tier)) { toUpgrade(); return; }
+          leaveDrawer();
+          setActiveDomain('notes');
+          setShowPath(true);
+          return;
+      }
+    },
+  };
+
   // The hamburger drawer is a list of section titles; tapping one opens a
   // sub-page with a short blurb plus just that section's controls.
   // `onSelect`, when set, fires on tap instead of opening the section's sub-page —
@@ -1210,6 +1270,7 @@ export default function App() {
             t={t}
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
+            search={drawerSearch}
           />
         )}
         {/* Quick Access is offered on the intervals page too — same rules as
@@ -1244,6 +1305,7 @@ export default function App() {
             t={t}
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
+            search={drawerSearch}
           />
         )}
       </>
@@ -1270,6 +1332,7 @@ export default function App() {
             t={t}
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
+            search={drawerSearch}
           />
         )}
       </>
@@ -1295,6 +1358,7 @@ export default function App() {
             t={t}
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
+            search={drawerSearch}
           />
         )}
       </>
@@ -1380,6 +1444,7 @@ export default function App() {
           t={t}
           setSettingsOpen={setSettingsOpen}
           setDrawerSection={setDrawerSection}
+          search={drawerSearch}
         />
       )}
 

@@ -1528,4 +1528,8 @@ export const ptBR: Record<string, string> = {
   'Licks': 'Licks',
   'Standard blues and rock licks every guitarist learns in this box. The app shows and plays each lick, then you play it back on your guitar or tap it — twice per lick, in one key.': 'Licks clássicos de blues e rock que todo guitarrista aprende neste desenho. O app mostra e toca cada lick, e depois você toca de volta na guitarra ou na tela — duas vezes por lick, num só tom.',
   'Licks played clean': 'Licks limpos',
+  // Menu search (src/utils/appSearch.ts)
+  'Search the app': 'Buscar no app',
+  'No results': 'Nenhum resultado',
+  'Clear search': 'Limpar a busca',
 };

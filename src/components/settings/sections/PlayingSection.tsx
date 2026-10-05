@@ -202,6 +202,7 @@ export default function PlayingSection({
   return (
     <>
       <SettingCard
+        anchor="instruments"
         label={t('Instruments')}
         help={t('Switches tuning, string count and fret range, then reloads the note samples.')}
       >
@@ -279,6 +280,7 @@ export default function PlayingSection({
           the vocabulary that matches the chosen notation (A-B-C → "sharp /
           flat"; Do-Re-Mi → "dièse / bémol", i.e. Hebrew "דיאז / במול"). */}
       <SettingCard
+        anchor="notation"
         label={t('Note names')}
         pin={<QuickAccessPinButton itemId="notation" />}
         help={
@@ -303,6 +305,7 @@ export default function PlayingSection({
         </div>
       </SettingCard>
       <SettingCard
+        anchor="accidental"
         label={t('Sharps or flats')}
         pin={<QuickAccessPinButton itemId="accidental" />}
         help={
@@ -336,6 +339,7 @@ export default function PlayingSection({
           whose dark silhouette tracks the slider. The home-screen neck
           still reflects the chosen window. */}
       <SettingCard
+        anchor="fretRange"
         label={t('Fret range')}
         help={t('Drill only part of the neck. Drag the handles to set the exact fret window — the shaded area is muted out, both here and on the home-screen neck.')}
       >

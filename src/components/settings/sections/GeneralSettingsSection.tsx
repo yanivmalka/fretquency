@@ -135,6 +135,7 @@ export default function GeneralSettingsSection({
   return (
     <>
       <SettingCard
+        anchor="quickAccess"
         label={t('Quick access')}
         help={t('A floating button on the home screen for the settings you flip most. Pin up to 5 with the pushpins below, then double-tap the lower-right of the screen outside a drill to open it.')}
       >
@@ -142,6 +143,7 @@ export default function GeneralSettingsSection({
         <QuickAccessLegendLink />
       </SettingCard>
       <SettingCard
+        anchor="showScore"
         label={t('Score & celebrations')}
         pin={<QuickAccessPinButton itemId="showScore" />}
         help={<>{t('Live score, streak multiplier and celebrations are shown.')} <em>{t('Every answer is still recorded to your stats and personal bests either way.')}</em></>}
@@ -157,6 +159,7 @@ export default function GeneralSettingsSection({
         />
       </SettingCard>
       <SettingCard
+        anchor="soundLevel"
         label={t('Sound & vibration')}
         pin={<QuickAccessPinButton itemId="soundLevel" />}
         help={t('How the drill answers back, on one ladder from quietest to loudest. Silent: no sound and no per-button buzz, just a buzz on right / wrong answers plus the on-screen celebrations. Vibrate: no sound — a buzz on every button press and on right / wrong answers instead. Sound 1–5: note playback, chimes and tap sounds, louder each step; the limiter keeps even the loudest from distorting. Silent and Vibrate are great for practising with headphones off or a guitar in hand.')}
@@ -179,6 +182,7 @@ export default function GeneralSettingsSection({
         />
       </SettingCard>
       <SettingCard
+        anchor="appearance"
         label={t('Appearance')}
         help={t('Theme sets how light or dark the app is: Night is a warmer, dimmer palette for a dark room, Day is a light one. Season sets the colours layered over it — Winter is the original look. Auto follows your clock (Day from 07:00 to 19:00, Night after) and the real season where you are; picking a season by hand holds until that season ends.')}
       >
@@ -192,10 +196,12 @@ export default function GeneralSettingsSection({
       </SettingCard>
       <ProGate
         feature="seasonalBackdrop"
+        anchor="seasonDeco"
         variant="replace"
         pitch={t('Snowflakes, anemones, sunflowers or falling leaves behind the app, following the season')}
       >
         <SettingCard
+          anchor="seasonDeco"
           label={t('Seasonal background')}
           help={t('Light seasonal decorations behind the app: snowflakes in winter, anemones in spring, sunflowers in summer, falling leaves in autumn. They follow the season above. Off keeps the background plain.')}
         >
@@ -211,6 +217,7 @@ export default function GeneralSettingsSection({
         </SettingCard>
       </ProGate>
       <SettingCard
+        anchor="buttonDepth"
         label={t('Button depth')}
         help={t('Gives the buttons a raised, 3D look: a light rim on top, a solid edge underneath, and they sink a little when pressed. Off keeps them flat.')}
       >
@@ -225,6 +232,7 @@ export default function GeneralSettingsSection({
         />
       </SettingCard>
       <SettingCard
+        anchor="language"
         label={t('Language')}
         help={languageLoad === 'loading' ? t('Downloading the language…')
           : languageLoad === 'failed' ? t('Could not download the language. Check your connection and try again.')
@@ -239,6 +247,7 @@ export default function GeneralSettingsSection({
         />
       </SettingCard>
       <SettingCard
+        anchor="leftHanded"
         label={t('Left-handed')}
         help={t('Mirrors the app for a left-handed player: the fretboard flips (nut on the right), and the menu, Quick Access and back buttons move to the left. Independent of language — it stays mirrored in Hebrew too.')}
       >
@@ -255,6 +264,7 @@ export default function GeneralSettingsSection({
       {(voiceSupported || guitarSupported) && (
         <>
           <SettingCard
+            anchor="answerMode"
             label={t('How you answer')}
             pin={<QuickAccessPinButton itemId="answerMode" />}
             help={t('Voice mode asks for microphone permission the first time.')}
@@ -289,10 +299,12 @@ export default function GeneralSettingsSection({
           {answerMode === 'voice' && (
             <ProGate
               feature="voiceProfile"
+              anchor="voiceEngine"
               variant="replace"
               pitch={t('A personal voice profile built from your own calibration recordings')}
             >
               <SettingCard
+                anchor="voiceEngine"
                 label={t('Voice engine')}
                 help={t('Auto picks the best available. Personal uses your calibrated profile; General uses the built-in model.')}
               >
@@ -308,6 +320,7 @@ export default function GeneralSettingsSection({
                 />
               </SettingCard>
               <SettingCard
+                anchor="voiceProfile"
                 label={t('Your voice profile')}
                 help={t('Calibrating your own voice improves recognition when answering by voice.')}
               >
@@ -337,6 +350,7 @@ export default function GeneralSettingsSection({
         </>
       )}
       <SettingCard
+        anchor="showMastery"
         label={t('Mastery on the fretboard')}
         pin={<QuickAccessPinButton itemId="showMastery" />}
         help={<>{t('The per-note / per-fret accuracy bars drawn over the circle and grid while stopped or paused.')} <em>{t('Mastery keeps being tracked and shows on the Stats screen either way.')}</em></>}
@@ -352,6 +366,7 @@ export default function GeneralSettingsSection({
         />
       </SettingCard>
       <SettingCard
+        anchor="colorblind"
         label={t('Colour-blind heatmap markers')}
         help={t('Adds a ✓ / • mark on the Stats-screen fretboard heatmap cells, on top of colour, so known vs. needs-work reads without relying on hue.')}
       >
@@ -367,10 +382,12 @@ export default function GeneralSettingsSection({
       </SettingCard>
       <ProGate
         feature="masteryMaps"
+        anchor="masteryWindow"
         variant="replace"
         pitch={t('Point the mastery bars at a recent-question count, a single day, or a date range')}
       >
         <SettingCard
+          anchor="masteryWindow"
           label={t('Mastery time window')}
           help={<>
             {t('What slice of your history the mastery bars are computed from. Free accounts use the last 250 questions. Older history saved without a date is not counted for a specific day or range.')}

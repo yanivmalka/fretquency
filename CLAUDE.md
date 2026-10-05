@@ -20,7 +20,7 @@ Three entitlement tiers: **Free**, **Pro**, **Premium** (`free < pro < premium`;
 - `npm run preview` — serve the production build locally
 - `npm run gen:icons` — regenerate PWA/app icons from `assets/note-mark.png` into `public/`
 
-There is no test suite/runner configured in this repo. Instead, `scripts/check-*.mts` are hand-run diagnostics that assert an invariant of one subsystem (`check-intervals`, `check-learning`, `check-learning-path`, `check-game-curriculum`, `check-game-progress`, `check-game-sync`, `check-candidates`, `check-candidate-rendering`, `check-tiering-db`, `check-staff`, `check-tabs`, `eval-voice`). Run one with `node --experimental-strip-types scripts/<name>.mts`. They are never part of a build.
+There is no test suite/runner configured in this repo. Instead, `scripts/check-*.mts` are hand-run diagnostics that assert an invariant of one subsystem (`check-intervals`, `check-learning`, `check-learning-path`, `check-game-curriculum`, `check-game-progress`, `check-game-sync`, `check-candidates`, `check-candidate-rendering`, `check-tiering-db`, `check-staff`, `check-tabs`, `check-app-search`, `eval-voice`). Run one with `node --experimental-strip-types scripts/<name>.mts`. They are never part of a build.
 
 ### Supabase env
 
@@ -126,5 +126,6 @@ One module per data type, all local-first + best-effort; guests never enter any 
 - Every Supabase data-access helper must no-op / return an empty result when `supabase` is `null`, so a config-less guest build never breaks.
 - A cloud-sync module reads/writes its own localStorage key directly and stays independent of its model module (as `badgeSync` is of `badges`), to avoid import cycles; it signals a mounted view with a `*-synced` window event rather than forcing a reload.
 - New user-facing copy needs a Hebrew entry in `src/i18n/translations.ts`.
+- The hamburger menu has a search field backed by `src/utils/appSearch.ts` (`SEARCH_ENTRIES`: title, menu trail, target, multilingual keywords). A new menu page, settings card or learning screen needs an entry there; a card it should scroll to gets a matching `anchor` on its `<SettingCard>` (and on a `variant="replace"` `<ProGate>` around it). Run `scripts/check-app-search.mts` after editing it.
 - New CSS goes in the matching numbered partial under `src/styles/`.
 - `.kiro/specs/` holds design docs (`free-pro-tiering`, `roadmap/premium-product-plan.md`, `roadmap/intervals-learning-spec.md`, `roadmap/scales-learning-spec.md`, `roadmap/staff-reading-spec.md`, `roadmap/tab-reading-spec.md`, `roadmap/notes-system-map.md`, `roadmap/product-wishlist.md`, `simplified-nav`, `custom-stage-nav`); `.kiro/steering/` holds older overview notes that are partly stale — prefer this file and the source.

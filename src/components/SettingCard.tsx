@@ -198,9 +198,11 @@ export function LevelBar({
 }
 
 export function SettingCard({
-  label, help, children, pin,
+  label, help, children, pin, anchor,
 }: {
   label: string;
+  /** `data-search-anchor` id the menu search jumps to (src/utils/appSearch.ts). */
+  anchor?: string;
   help?: ReactNode;
   children: ReactNode;
   /** Optional affordance in the card's top trailing corner — left in the
@@ -209,7 +211,7 @@ export function SettingCard({
   pin?: ReactNode;
 }) {
   return (
-    <div className="set-card">
+    <div className="set-card" data-search-anchor={anchor}>
       {pin && <div className="set-card-pin">{pin}</div>}
       <span className="set-card-k">{label}</span>
       {children}

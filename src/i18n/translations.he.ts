@@ -1543,4 +1543,8 @@ export const he: Record<string, string> = {
   'Licks': 'ליקים',
   'Standard blues and rock licks every guitarist learns in this box. The app shows and plays each lick, then you play it back on your guitar or tap it — twice per lick, in one key.': 'ליקים סטנדרטיים של בלוז ורוק שכל גיטריסט לומד בתבנית הזאת. האפליקציה מראה ומנגנת כל ליק, ואז אתם מנגנים אותו בחזרה בגיטרה או מקישים — פעמיים לכל ליק, באותו סולם.',
   'Licks played clean': 'ליקים נקיים',
+  // Menu search (src/utils/appSearch.ts)
+  'Search the app': 'חיפוש באפליקציה',
+  'No results': 'לא נמצאו תוצאות',
+  'Clear search': 'ניקוי החיפוש',
 };

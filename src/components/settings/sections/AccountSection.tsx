@@ -31,6 +31,7 @@ export default function AccountSection({
     <>
       {auth.user ? (
         <SettingCard
+          anchor="account"
           label={t('Signed in')}
           help={t('Keeps your preferences and data in sync across devices.')}
         >
@@ -82,6 +83,7 @@ export default function AccountSection({
         </SettingCard>
       ) : (
         <SettingCard
+          anchor="account"
           label={t('Account')}
           help={t('Sign in with Google to keep your preferences and data across devices.')}
         >

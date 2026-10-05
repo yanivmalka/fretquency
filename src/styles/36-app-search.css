@@ -1,0 +1,97 @@
+/* ── App search — the field at the top of the hamburger menu ───────────
+   (src/utils/appSearch.ts + <SettingsDrawerNav>). The field sits under the
+   Back row; while it holds a query, its results replace the section list and
+   reuse the `.nav-row` card. Logical properties only, so Hebrew RTL and the
+   left-handed drawer need no overrides. */
+
+.app-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-block-end: 4px;
+}
+.app-search__icon {
+  position: absolute;
+  inset-inline-start: 13px;
+  font-size: 0.95rem;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.app-search__input {
+  width: 100%;
+  min-height: 46px;
+  padding-block: 10px;
+  padding-inline: 40px 40px;
+  border-radius: 10px;
+  border: 1px solid var(--surface-border);
+  background: var(--bg-3);
+  color: var(--text-0);
+  font: inherit;
+  font-size: 1rem;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.app-search__input::placeholder { color: var(--text-2); }
+/* Our own ✕ replaces the browser's, which differs per engine. */
+.app-search__input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+.app-search__input:focus-visible,
+.app-search__input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+.app-search__clear {
+  position: absolute;
+  inset-inline-end: 6px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.app-search__clear:hover,
+.app-search__clear:focus-visible { color: var(--text-0); background: var(--bg-2); }
+
+.app-search__row { min-height: 56px; padding-block: 10px; }
+.app-search__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: inherit;
+}
+.app-search__lock { flex-shrink: 0; }
+.app-search__trail {
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+.app-search__empty {
+  margin: 6px 2px;
+  color: var(--text-2);
+  font-size: 0.95rem;
+}
+
+/* The card a result points at: a brief accent ring once it is scrolled into
+   view, so the eye lands on it. box-shadow, not border, so nothing reflows. */
+.search-flash {
+  border-radius: 10px;
+  animation: search-flash 1.8s ease-out;
+}
+@keyframes search-flash {
+  0%, 35% {
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 18px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 2px transparent,
+      0 0 0 transparent;
+  }
+}

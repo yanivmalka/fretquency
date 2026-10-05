@@ -226,7 +226,7 @@ export default function SelectorPanel({
           that many are picked, the remaining pills read as locked and a tap on
           one opens the Pro upsell instead of selecting it (the same guard lives
           in useSelector, this is just the visual cue). */}
-      <div className={`selector-strings ${notation === 'solfege' ? 'selector-strings-compact' : ''}`}>
+      <div data-search-anchor="sel-strings" className={`selector-strings ${notation === 'solfege' ? 'selector-strings-compact' : ''}`}>
         {strings.map(({ label, num }) => {
           const selected = selector.selectedStrings.includes(num);
           const capped = !isPro && selector.multiMode && !selected
@@ -250,7 +250,7 @@ export default function SelectorPanel({
       </div>
 
       {/* ── ModeToggle with order options between cards ── */}
-      <div className="mode-cards">
+      <div className="mode-cards" data-search-anchor="sel-mode">
         <button className={`mode-card ${selector.mode === 'byFret' ? 'active' : ''}`} onClick={() => { playClickSound(); onModeSelect('byFret'); }}>
           {onInfo && selector.mode === 'byFret' && infoBadge}
           <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
@@ -301,7 +301,7 @@ export default function SelectorPanel({
       {/* This 0–12 / 12–max half-picker is free for everyone. A finer
           "fret N to fret M" range selector is planned as a Pro feature
           (`fretRange` in utils/features.ts) but is not surfaced yet. */}
-      <div className="fret-neck">
+      <div className="fret-neck" data-search-anchor="sel-frets">
         <svg viewBox={`${fbLeft - 5} ${FB_TOP - 3} ${NECK_RIGHT - fbLeft + 12} ${FB_HEIGHT + 16}`} aria-label={`${t(instrument.label)} ${t('neck fret range selector')}`}>
           {/* Fretboard — only covers where frets actually are */}
           <rect x={fbLeft} y={FB_TOP} width={NECK_RIGHT - fbLeft} height={FB_HEIGHT} rx="2" fill="#3d2b1f" />
@@ -417,7 +417,7 @@ export default function SelectorPanel({
       {/* ── DifficultyRoad ────────────────────────────────── */}
       {/* A precise fret window runs at Full only — Dots / Naturals lock and the
           active stage reads as Full while it's on (see useSelector). */}
-      <div className="difficulty-road">
+      <div className="difficulty-road" data-search-anchor="sel-difficulty">
         <button
           className={`diff-btn ${activeDiff === 'dots' ? 'active' : ''}${preciseActive ? ' diff-btn-locked' : ''}`}
           aria-disabled={preciseActive || undefined}
