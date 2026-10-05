@@ -61,10 +61,11 @@ export interface EarnedBadgeInstance {
 /**
  * Every badge the player has actually earned, across *both* instruments:
  * player-wide families listed once, fretboard-shaped families listed once per
- * instrument they were earned on. The Admin role medal is appended for admins
- * (it re-grants from the account, so it always counts as held).
+ * instrument they were earned on. The role medals (Admin/Teacher/Student) are
+ * appended for whichever ones the account currently holds — each re-grants
+ * from the live account/session state, so it always counts as held while true.
  */
-export function earnedBadgeInstances(isAdmin: boolean): EarnedBadgeInstance[] {
+export function earnedBadgeInstances(roles: { isAdmin?: boolean; isTeacher?: boolean; isStudent?: boolean }): EarnedBadgeInstance[] {
   const out: EarnedBadgeInstance[] = [];
   const seen = new Set<string>();
 
@@ -81,9 +82,14 @@ export function earnedBadgeInstances(isAdmin: boolean): EarnedBadgeInstance[] {
     }
   }
 
-  if (isAdmin) {
-    const adminDef = badgeList(Object.values(INSTRUMENTS)[0]).find(d => d.id === 'admin');
-    if (adminDef) out.push({ key: 'admin', def: adminDef, tier: 'onyx' });
+  const held: Partial<Record<BadgeId, boolean>> = {
+    admin: roles.isAdmin, teacher: roles.isTeacher, student: roles.isStudent,
+  };
+  const anyInstrument = badgeList(Object.values(INSTRUMENTS)[0]);
+  for (const [id, isHeld] of Object.entries(held)) {
+    if (!isHeld) continue;
+    const def = anyInstrument.find(d => d.id === id);
+    if (def) out.push({ key: id, def, tier: 'onyx' });
   }
   return out;
 }

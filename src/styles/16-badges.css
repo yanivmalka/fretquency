@@ -596,6 +596,15 @@
   border: 1px dashed var(--border-soft);
   border-radius: 10px;
 }
+.badge-visibility-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
 .badge-admin-row {
   display: flex;
   gap: 6px;

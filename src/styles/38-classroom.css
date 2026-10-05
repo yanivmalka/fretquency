@@ -228,6 +228,29 @@
 .class-btn-primary:disabled { opacity: 0.45; cursor: default; }
 .class-btn-primary:focus-visible { outline: 2px solid var(--text-0); outline-offset: 2px; }
 
+/* ── Teacher test (TeacherExamScreen) ── */
+.exam-running { align-items: stretch; }
+.exam-question {
+  text-align: center;
+  font-size: 1.05rem;
+}
+.exam-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.exam-option {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+  font-size: 1rem;
+}
+.exam-option.active {
+  border-color: var(--accent-dim);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
 /* ── Codes, blocks and idle classes (migration 0028) ─────────────────── */
 .class-new-class {
   display: flex;

@@ -21,6 +21,10 @@ export interface AccountSectionProps {
   t: (s: string) => string;
   lang: Lang;
   auth: AuthState;
+  /** Passed the teacher test — reveals the Teacher role medal in the pinned shelf. */
+  isTeacher: boolean;
+  /** Joined at least one class — reveals the Student role medal in the pinned shelf. */
+  isStudent: boolean;
   setDrawerSection: (id: string | null) => void;
   upgradeFromAccountRef: { current: boolean };
   /** Open the `upgrade` sub-page for no specific feature — just browsing the
@@ -29,7 +33,7 @@ export interface AccountSectionProps {
 }
 
 export default function AccountSection({
-  t, lang, auth, setDrawerSection, upgradeFromAccountRef, onOpenUpgrade,
+  t, lang, auth, isTeacher, isStudent, setDrawerSection, upgradeFromAccountRef, onOpenUpgrade,
 }: AccountSectionProps) {
   // The reverse Premium trial's "somewhere calm" countdown (utils/trial.ts):
   // a plain line under the plan tile, not a banner or a badge — it shows
@@ -130,6 +134,8 @@ export default function AccountSection({
           page (which used to be its own nav-row here). */}
       <PinnedBadges
         isAdmin={auth.admin}
+        isTeacher={isTeacher}
+        isStudent={isStudent}
         onOpenBadges={() => setDrawerSection('badges')}
       />
       {/* Admin-only account tools, grouped here rather than on the

@@ -46,7 +46,11 @@ export function PlayerProfileCard({
 
   const earned = store
     ? badgeList(instrument)
-        .filter((d) => d.kind !== 'role')
+        // Admin never shows on another player's profile. Teacher always does
+        // (a teacher wants to be recognisable); Student only reaches here at
+        // all when its owner opted in — fetchPublicBadges already stripped
+        // the key otherwise (badgeSync.ts).
+        .filter((d) => d.kind !== 'role' || d.id === 'teacher' || d.id === 'student')
         .map((def) => ({ def, tier: earnedTierFrom(store, def.id, instrument.id) }))
         .filter((e): e is { def: typeof e.def; tier: NonNullable<typeof e.tier> } => e.tier !== null)
     : [];

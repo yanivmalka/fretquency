@@ -21,9 +21,15 @@ import {
  */
 export function PinnedBadges({
   isAdmin,
+  isTeacher = false,
+  isStudent = false,
   onOpenBadges,
 }: {
   isAdmin: boolean;
+  /** Passed the teacher test — reveals the Teacher role medal. */
+  isTeacher?: boolean;
+  /** Joined at least one class — reveals the Student role medal. */
+  isStudent?: boolean;
   /** Open the full "🏅 Badges" settings page. */
   onOpenBadges: () => void;
 }) {
@@ -39,7 +45,7 @@ export function PinnedBadges({
 
   // `syncTick` re-reads the badge store after a cloud sync rewrites it.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const earned = useMemo(() => earnedBadgeInstances(isAdmin), [isAdmin, syncTick]);
+  const earned = useMemo(() => earnedBadgeInstances({ isAdmin, isTeacher, isStudent }), [isAdmin, isTeacher, isStudent, syncTick]);
   const earnedByKey = useMemo(
     () => new Map(earned.map(e => [e.key, e] as const)),
     [earned],

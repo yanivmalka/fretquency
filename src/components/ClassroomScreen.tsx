@@ -31,12 +31,13 @@ import type { AccidentalMode, OrderMode, NotationMode } from '../utils/music';
 import { shareResult } from '../utils/share';
 import { shareBaseUrl } from '../utils/publicUrl';
 import {
-  fetchTeacherStatus, becomeTeacher, fetchTeachingClasses, fetchJoinedClasses,
+  fetchTeacherStatus, fetchTeachingClasses, fetchJoinedClasses,
   createClass, changeClassCode, deleteClass, joinClass, leaveClass, fetchMembers, removeMember,
   fetchBlocked, unblockMember, ClassWriteError,
   fetchHomework, assignHomework, deleteHomework, fetchAttempts, submitAttempt,
   type ClassRow, type MemberRow, type HomeworkRow, type AttemptRow, type TeacherStatus,
 } from '../teacher/classroom';
+import TeacherExamScreen from './TeacherExamScreen';
 import {
   HOMEWORK_INSTRUMENTS, HOMEWORK_QUESTION_COUNTS,
   defaultHomeworkPicks, buildHomeworkDrill, parseHomeworkDrill, describeHomework,
@@ -60,6 +61,7 @@ interface Props {
 
 type View =
   | { kind: 'home' }
+  | { kind: 'exam' }
   | { kind: 'teach'; cls: ClassRow }
   | { kind: 'assign'; cls: ClassRow }
   | { kind: 'study'; cls: ClassRow }
@@ -104,6 +106,19 @@ export default function ClassroomScreen({ user, profileName, initialCode, onSign
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [back]);
+
+  // The exam is its own full-page takeover (own header, own back/Escape
+  // handling for the mid-question confirm) rather than a sub-view sharing
+  // this screen's chrome.
+  if (view.kind === 'exam') {
+    return (
+      <TeacherExamScreen
+        profileName={profileName}
+        onPassed={() => setView({ kind: 'home' })}
+        onClose={() => setView({ kind: 'home' })}
+      />
+    );
+  }
 
   const title = view.kind === 'home' ? t('Class') : view.cls.name;
 
@@ -243,7 +258,7 @@ function Home({ user, profileName, initialCode, setView }: {
               onCreated={(c) => setView({ kind: 'teach', cls: c })} />
           </section>
         ) : (
-          <BecomeTeacherCard user={user} profileName={profileName} onDone={status.reload} />
+          <BecomeTeacherCard onStartExam={() => setView({ kind: 'exam' })} />
         )
       )}
     </>
@@ -307,28 +322,20 @@ function JoinCard({ profileName, initialCode, onJoined }: {
   );
 }
 
-function BecomeTeacherCard({ user, profileName, onDone }: {
-  user: User; profileName: string | null; onDone: () => void;
-}) {
+function BecomeTeacherCard({ onStartExam }: { onStartExam: () => void }) {
   const { t } = useTranslation();
-  const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
   return (
     <section className="class-card">
       <h3 className="class-h">{t('Do you teach guitar, bass or ukulele?')}</h3>
       <p className="class-muted">
         {t('Create a class, give your students its code, assign practice and see who did it. Get Premium free once a class has 6 or more active students.')}
       </p>
-      <button className="clear-btn" disabled={busy} onClick={tap(() => {
-        setBusy(true); setFailed(false);
-        becomeTeacher(user.id, profileName).then(onDone, (e) => {
-          console.warn('[classroom] becomeTeacher', e);
-          setFailed(true);
-        }).finally(() => setBusy(false));
-      })}>
+      <p className="class-muted">
+        {t('Becoming a teacher needs a short, timed music-theory test first.')}
+      </p>
+      <button className="clear-btn" onClick={tap(onStartExam)}>
         {t("I'm a teacher")}
       </button>
-      {failed && <p className="class-muted" role="status">{t('Something went wrong. Check your connection and try again.')}</p>}
     </section>
   );
 }

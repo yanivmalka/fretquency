@@ -153,7 +153,7 @@ export function applyRetired(store: BadgeStore, retired: Retired): BadgeStore {
 async function reconcile(userId: string): Promise<boolean> {
   const { data: row, error } = await supabase!
     .from('user_badges')
-    .select('badges, retired')
+    .select('badges, retired, student_visible')
     .eq('user_id', userId)
     .maybeSingle();
   if (error) throw error;
@@ -169,14 +169,46 @@ async function reconcile(userId: string): Promise<boolean> {
 
   const changed = writeLocal(merged);
   writeLocalRetired(retired);
+  // Pulled once at bootstrap so a device that never touched the toggle shows
+  // the account's real setting instead of the local default (false).
+  if (row && typeof row.student_visible === 'boolean') writeLocalStudentVisible(row.student_visible);
 
   const { error: upErr } = await supabase!.from('user_badges').upsert(
-    { user_id: userId, badges: merged, retired, updated_at: new Date().toISOString() },
+    {
+      user_id: userId, badges: merged, retired,
+      student_visible: loadStudentVisible(), updated_at: new Date().toISOString(),
+    },
     { onConflict: 'user_id' },
   );
   if (upErr) throw upErr;
 
   return changed;
+}
+
+// ── Student badge visibility (0029) ────────────────────────────────────
+// A simple on/off preference, not a mergeable set — last write wins, same
+// model as settingsSync's blob. Lives alongside the badge row rather than in
+// `user_settings` because it has to be world-readable for `fetchPublicBadges`
+// to enforce it, and `user_settings` is self-only.
+const STUDENT_VISIBLE_KEY = 'studentBadgePublic';
+
+export function loadStudentVisible(): boolean {
+  try { return localStorage.getItem(STUDENT_VISIBLE_KEY) === 'true'; } catch { return false; }
+}
+
+function writeLocalStudentVisible(v: boolean): void {
+  try { localStorage.setItem(STUDENT_VISIBLE_KEY, v ? 'true' : 'false'); } catch { /* ignore */ }
+}
+
+/** Flip the Student badge's public visibility and push it immediately
+ *  (unlike earned badges, there is nothing to merge — just upsert the flag). */
+export async function setStudentBadgeVisible(userId: string, visible: boolean): Promise<void> {
+  writeLocalStudentVisible(visible);
+  if (!supabase) return;
+  const { error } = await supabase
+    .from('user_badges')
+    .upsert({ user_id: userId, student_visible: visible, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  if (error) throw error;
 }
 
 // ── Write-through (debounced) ─────────────────────────────────────────
@@ -217,11 +249,17 @@ export async function fetchPublicBadges(userId: string): Promise<BadgeStore> {
   try {
     const { data, error } = await supabase
       .from('user_badges')
-      .select('badges, retired')
+      .select('badges, retired, student_visible')
       .eq('user_id', userId)
       .maybeSingle();
     if (error || !data) return {};
-    return applyRetired((data.badges ?? {}) as BadgeStore, (data.retired ?? {}) as Retired);
+    const store = applyRetired((data.badges ?? {}) as BadgeStore, (data.retired ?? {}) as Retired);
+    // Teacher is always public (a teacher wants to be recognisable); Student
+    // is opt-in (a classmate shouldn't be outed without asking) — strip it
+    // here, at the one read path every viewer-of-another-player goes through,
+    // rather than trust every call site to re-check the flag.
+    if (!data.student_visible) delete store.student;
+    return store;
   } catch {
     return {};
   }

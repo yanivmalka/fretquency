@@ -1190,6 +1190,9 @@ export const he: Record<string, string> = {
   'Major 6th': 'סקסטה גדולה',
   'Minor 7th': 'ספטימה קטנה',
   'Major 7th': 'ספטימה גדולה',
+  'Augmented 4th': 'קוורטה מוגדלת',
+  'Diminished 5th': 'קווינטה מוקטנת',
+  'Augmented 5th': 'קווינטה מוגדלת',
 
   // Intervals Learning — curriculum group names (intervals-learning-spec §6).
   // Shown only as "currently learning: <name>" — never as a path step.
@@ -1717,6 +1720,46 @@ export const he: Record<string, string> = {
   "Do you teach guitar, bass or ukulele?": "מלמדים גיטרה, בס או יוקלילי?",
   "Create a class, give your students its code, assign practice and see who did it. Get Premium free once a class has 6 or more active students.": "צרו כיתה, תנו לתלמידים את הקוד שלה, הקצו תרגול וראו מי תרגל. קבלו Premium בחינם כשלכיתה יש 6 תלמידים פעילים או יותר.",
   "I'm a teacher": "אני מורה",
+  "Becoming a teacher needs a short, timed music-theory test first.": "כדי להיות מורה צריך קודם לעבור מבחן קצר ומתוזמן בתורת המוזיקה.",
+
+  // Teacher test (0027_teacher_exam.sql / TeacherExamScreen.tsx)
+  "Show what you know": "הראו מה אתם יודעים",
+  "Becoming a teacher needs a short music-theory test: {n} questions, each timed, about reading the neck, the staff, intervals, key signatures and chords. A pass needs {pass} or more right.":
+    "כדי להיות מורה צריך לעבור מבחן קצר בתורת המוזיקה: {n} שאלות, כל אחת עם זמן מוגבל, על קריאת הצוואר, התווים, האינטרוולים, סימני המפתח והאקורדים. כדי לעבור צריך {pass} תשובות נכונות או יותר.",
+  "Each question disappears once its time is up, so there is no time to look anything up — just enough to answer if you know it.":
+    "כל שאלה נעלמת כשנגמר הזמן שלה, כך שאין זמן לחפש תשובה — רק מספיק זמן לענות אם אתם יודעים.",
+  "You can try again {when}.": "תוכלו לנסות שוב {when}.",
+  "Try again now.": "אפשר לנסות שוב עכשיו.",
+  "Start the test": "התחלת המבחן",
+  "Which instrument?": "איזה כלי?",
+  "The neck and staff questions use this instrument.": "שאלות הצוואר והתווים משתמשות בכלי הזה.",
+  "Begin": "התחלה",
+  "Teacher test": "מבחן מורים",
+  "Question {n} of {total}": "שאלה {n} מתוך {total}",
+  "Leave now? This attempt will count as failed.": "לצאת עכשיו? הניסיון הזה ייחשב ככישלון.",
+  "Which note is marked on the neck?": "איזה תו מסומן על הצוואר?",
+  "Which note is written?": "איזה תו כתוב?",
+  "From {a} up to {b} — which interval?": "מ-{a} עד {b} — איזה אינטרוול?",
+  "How many sharps or flats does {key} have?": "כמה דיאזים או במולים יש ב-{key}?",
+  "Which major key has {sig}?": "איזה סולם מז'ור מכיל {sig}?",
+  "What is the relative minor of {key}?": "מהו המינור המקביל של {key}?",
+  "Which chord is {notes}?": "איזה אקורד הוא {notes}?",
+  "Which notes make up {chord}?": "אילו תווים מרכיבים את {chord}?",
+  "In {key}, which chord is built on degree {n}?": "ב-{key}, איזה אקורד בנוי על דרגה {n}?",
+  "In {key}, which note is degree {n}?": "ב-{key}, איזה תו הוא דרגה {n}?",
+  "No sharps or flats": "בלי דיאזים ובלי במולים",
+  "{note} major": "{note} מז'ור",
+  "{note} minor": "{note} מינור",
+  "You're a teacher now — you can create classes and assign homework.": "אתם מורים עכשיו — אתם יכולים ליצור כיתות ולהקצות שיעורי בית.",
+  "Not this time — {pass} or more were needed.": "לא הפעם — היה צריך {pass} תשובות נכונות או יותר.",
+  "Notes on the neck": "תווים על הצוואר",
+  "Reading the staff": "קריאת התווים",
+  "Key signatures": "סימני מפתח",
+  "Harmony in a key": "הרמוניה בסולם",
+  "Admins already have Premium regardless of teacher status — skip the test and become a teacher directly.":
+    "למנהלים כבר יש Premium בלי קשר לסטטוס מורה — אפשר לדלג על המבחן ולהפוך למורה ישירות.",
+  "Skip the test (admin)": "דילוג על המבחן (מנהל)",
+  "Show on my public profile": "הצגה בפרופיל הציבורי שלי",
   "New class name": "שם הכיתה החדשה",
   "Create class": "יצירת כיתה",
   "Join my class on Fretquency": "הצטרפו לכיתה שלי ב־Fretquency",
@@ -1761,6 +1804,7 @@ export const he: Record<string, string> = {
   "frets {from}–{to}": "סריגים {from}–{to}",
   "naturals only": "רק טבעיים",
   "{n} questions": "{n} שאלות",
+
   // Class: teacher-chosen codes, blocking, idle-class notices (migration 0028).
   "The teacher of this class removed you from it, so you cannot join it again.": "המורה של הכיתה הזו הסיר אתכם ממנה, ולכן אי אפשר להצטרף אליה שוב.",
   "Too many wrong codes. Wait a few minutes and try again.": "יותר מדי קודים שגויים. חכו כמה דקות ונסו שוב.",

@@ -129,6 +129,19 @@ const EMBLEMS = {
     '<circle cx="38" cy="46" r="11.5" fill="none" stroke="currentColor" stroke-width="3.4"/>' +
     '<circle cx="62" cy="46" r="11.5" fill="none" stroke="currentColor" stroke-width="3.4"/>' +
     '<circle cx="50" cy="62" r="11.5" fill="none" stroke="currentColor" stroke-width="3.4"/>',
+  // Teacher — a mortarboard (graduation cap), earned by passing the test.
+  mortarboard:
+    '<path d="M50 30 L76 42 L50 54 L24 42 Z" fill="currentColor"/>' +
+    '<path d="M35 46.5 V58 c0 4.5 6.7 8 15 8 s15 -3.5 15 -8 V46.5 L50 52 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>' +
+    '<line x1="76" y1="42" x2="76" y2="60" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<circle cx="76" cy="62.5" r="2.6" fill="currentColor"/>',
+  // Student — an open book, earned by joining a class.
+  book:
+    '<path d="M50 35 C45 31 36 29 30 30 V61 C36 60 45 62 50 66 C55 62 64 60 70 61 V30 C64 29 55 31 50 35 Z" ' +
+    'fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>' +
+    '<line x1="50" y1="35" x2="50" y2="66" stroke="currentColor" stroke-width="2.4"/>' +
+    '<path d="M35 39 h10 M35 46 h10 M35 53 h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M65 39 h-10 M65 46 h-10 M65 53 h-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
 } as const;
 
 const INLAY: Record<Metal, string> = {
@@ -169,6 +182,8 @@ function familyEmblem(id: BadgeId, instrumentId?: string): Emblem {
     doubling_up: 'pair',
     multi_instrumentalist: 'trio',
     admin: 'shield',
+    teacher: 'mortarboard',
+    student: 'book',
   };
   return map[id] ?? 'target';
 }

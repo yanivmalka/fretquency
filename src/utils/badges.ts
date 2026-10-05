@@ -50,7 +50,7 @@ export type FixedBadgeId =
   | 'sharpshooter' | 'most_improved' | 'both_ends' | 'quick_read' | 'doubling_up'
   | 'multi_instrumentalist'
   | 'full_neck' | 'low_end'
-  | 'admin';
+  | 'admin' | 'teacher' | 'student';
 export type BadgeId = FixedBadgeId | `string_master_s${number}`;
 
 export type BadgeKind = 'session' | 'lifetime' | 'role';
@@ -282,6 +282,14 @@ export const FIXED_BADGES: readonly BadgeDef[] = [
   {
     id: 'admin', name: 'Admin', kind: 'role', instrumentScoped: false, levels: [],
     blurb: 'Granted to app administrators — read every Feedback board post, not just your own.',
+  },
+  {
+    id: 'teacher', name: 'Teacher', kind: 'role', instrumentScoped: false, levels: [],
+    blurb: 'Passed the teacher test (Class screen) — can create classes and assign homework.',
+  },
+  {
+    id: 'student', name: 'Student', kind: 'role', instrumentScoped: false, levels: [],
+    blurb: "Joined a teacher's class on the Class screen.",
   },
 ];
 

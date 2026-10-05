@@ -65,6 +65,7 @@ import { useChallengeLinkRoute } from './hooks/useChallengeLinkRoute';
 import ClassroomScreen from './components/ClassroomScreen';
 import { useClassLinkRoute } from './teacher/useClassLinkRoute';
 import { clearPendingClassCode } from './teacher/classLink';
+import { useTeacherRoles } from './teacher/useTeacherRoles';
 import { useStartLinkRoute } from './hooks/useStartLinkRoute';
 import { isBootDone, subscribeBootDone } from './utils/bootState';
 import { useLearning } from './hooks/useLearning';
@@ -166,6 +167,9 @@ export default function App() {
   // can be clamped back to guitar for this session. The account-sync effect
   // further down uses the same `auth` object.
   const auth = useAuth();
+  // Teacher / Student role badges (src/utils/badges.ts) — re-fetched whenever
+  // the Class screen closes, since that's the only place either can change.
+  const teacherRoles = useTeacherRoles(auth.user?.id);
 
   // Which instrument is being drilled. Chosen on first launch (Onboarding) and
   // switchable from the hamburger menu; everything tuning/string/fret/sample
@@ -1117,6 +1121,8 @@ export default function App() {
           t={t}
           lang={lang}
           auth={auth}
+          isTeacher={teacherRoles.isTeacher}
+          isStudent={teacherRoles.isStudent}
           setDrawerSection={setDrawerSection}
           upgradeFromAccountRef={upgradeFromAccountRef}
           onOpenUpgrade={() => setUpgradeFeature(undefined)}
@@ -1146,6 +1152,9 @@ export default function App() {
           instrumentEntries={allHistoryEntries}
           allEntries={everyInstrumentHistory}
           isAdmin={auth.admin}
+          isTeacher={teacherRoles.isTeacher}
+          isStudent={teacherRoles.isStudent}
+          userId={auth.user?.id ?? null}
           onCelebrate={setRevealBadges}
         />
       ),
@@ -1240,7 +1249,7 @@ export default function App() {
         profileName={auth.profile?.name ?? null}
         initialCode={classLinkCode}
         onSignIn={() => { void auth.signInWithGoogle(); }}
-        onClose={() => { clearPendingClassCode(); setClassroomOpen(false); }}
+        onClose={() => { clearPendingClassCode(); setClassroomOpen(false); teacherRoles.refresh(); }}
       />
     );
   }

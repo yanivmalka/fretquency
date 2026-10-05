@@ -110,16 +110,6 @@ export async function fetchTeacherStatus(userId: string): Promise<TeacherStatus>
   };
 }
 
-/** Self-declare as a teacher. Idempotent: an existing row is left as it is. */
-export async function becomeTeacher(userId: string, displayName: string | null): Promise<void> {
-  if (!supabase) return;
-  const { error } = await supabase
-    .from('teachers')
-    .upsert({ user_id: userId, display_name: displayName?.slice(0, 60) ?? null },
-      { onConflict: 'user_id', ignoreDuplicates: true });
-  if (error) throw error;
-}
-
 // ── Classes ─────────────────────────────────────────────────────────────
 
 export async function fetchTeachingClasses(userId: string): Promise<ClassRow[]> {

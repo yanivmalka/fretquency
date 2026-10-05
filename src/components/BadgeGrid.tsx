@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useReducer, useRef } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { HistoryEntry } from '../utils/music';
 import type { InstrumentConfig } from '../utils/instruments';
 import {
   badgeList, evaluateLifetime, awardBadge, awardFamilyUpTo, earnedTier, earnedAt, badgeProgress,
   resetBadgeFamily, grantNextTier,
-  TIERS, TIER_LABEL, type BadgeDef, type LifetimeSnapshot, type Tier,
+  TIERS, TIER_LABEL, type BadgeDef, type BadgeId, type LifetimeSnapshot, type Tier,
 } from '../utils/badges';
+import { loadStudentVisible, setStudentBadgeVisible } from '../utils/badgeSync';
 import { BadgeMedal, BadgeMedalDefs, type Metal } from './BadgeMedal';
 import { Chevron } from './Chevron';
 import type { CelebratedBadge } from './BadgeCelebration';
@@ -28,7 +29,8 @@ function higherTier(a: Tier | null, b: Tier | null): Tier | null {
  * re-render — `awardBadge` is idempotent, so this is safe to run every time.
  */
 export function BadgeGrid({
-  instrument, instrumentEntries, allEntries, isAdmin = false, onCelebrate,
+  instrument, instrumentEntries, allEntries, isAdmin = false, isTeacher = false, isStudent = false,
+  userId = null, onCelebrate,
 }: {
   instrument: InstrumentConfig;
   /** History for the current instrument — fretboard-shape badges. */
@@ -37,6 +39,12 @@ export function BadgeGrid({
   allEntries: HistoryEntry[];
   /** Current account is an app administrator — reveals the Admin role medal. */
   isAdmin?: boolean;
+  /** Passed the teacher test (src/teacher/teacherExam.ts) — reveals the Teacher role medal. */
+  isTeacher?: boolean;
+  /** Has joined at least one class (Class screen) — reveals the Student role medal. */
+  isStudent?: boolean;
+  /** Signed-in account id — needed only to push the Student badge's public-visibility toggle (0029). */
+  userId?: string | null;
   /** Fire the normal earn celebration for a badge the admin just Granted by
    *  hand — the effects should play on the manual path too, not only in-game. */
   onCelebrate?: (badges: CelebratedBadge[]) => void;
@@ -65,21 +73,27 @@ export function BadgeGrid({
 
   const qualifying = useMemo(() => evaluateLifetime(lifetime), [lifetime]);
 
+  // Whether the account currently holds each role badge — re-derived from
+  // the account/session on every render (like `admin`), never from stored
+  // history, so losing the role (or gaining it) shows up immediately.
+  const roleHeld: Partial<Record<BadgeId, boolean>> = { admin: isAdmin, teacher: isTeacher, student: isStudent };
+
   useEffect(() => {
     for (const def of badgeList(instrument)) {
       if (def.kind === 'role') continue;
       const tier = qualifying[def.id];
       if (tier) awardFamilyUpTo(def.id, instrument.id, tier, def.levels);
     }
-    if (isAdmin) awardBadge('admin');
-  }, [qualifying, instrument, isAdmin]);
+    for (const [id, held] of Object.entries(roleHeld)) if (held) awardBadge(id as BadgeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qualifying, instrument, isAdmin, isTeacher, isStudent]);
 
-  // Role medals only appear for the accounts that hold them — a non-admin
-  // never sees a locked "become an admin" tile.
-  const defs = badgeList(instrument).filter(d => d.kind !== 'role' || isAdmin);
+  // Role medals only appear for the accounts that hold them — a non-teacher
+  // never sees a locked "become a teacher" tile, etc.
+  const defs = badgeList(instrument).filter(d => d.kind !== 'role' || roleHeld[d.id]);
   const effectiveTier = (def: BadgeDef): Tier | null =>
     def.kind === 'role' ? null : higherTier(earnedTier(def.id, instrument.id), qualifying[def.id] ?? null);
-  const earnedCount = defs.filter(d => d.kind === 'role' ? isAdmin : effectiveTier(d) !== null).length;
+  const earnedCount = defs.filter(d => d.kind === 'role' ? !!roleHeld[d.id] : effectiveTier(d) !== null).length;
   const collectedPct = defs.length ? Math.round((earnedCount / defs.length) * 100) : 0;
 
   return (
@@ -110,6 +124,7 @@ export function BadgeGrid({
             lifetime={lifetime}
             tier={def.kind === 'role' ? 'gold' : effectiveTier(def)}
             isAdmin={isAdmin}
+            userId={userId}
             onAdminChange={refreshWall}
             onGrantCelebrate={
               onCelebrate
@@ -125,7 +140,7 @@ export function BadgeGrid({
 }
 
 function BadgeTile({
-  def, instrument, lifetime, tier, isAdmin = false, onAdminChange, onGrantCelebrate,
+  def, instrument, lifetime, tier, isAdmin = false, userId = null, onAdminChange, onGrantCelebrate,
 }: {
   def: BadgeDef;
   instrument: InstrumentConfig;
@@ -134,6 +149,8 @@ function BadgeTile({
   tier: Tier | null;
   /** Current account is an app administrator — shows the Grant / Reset controls. */
   isAdmin?: boolean;
+  /** Signed-in account id — needed only by the Student tile's visibility toggle. */
+  userId?: string | null;
   /** Called after an admin Grant / Reset mutates the badge store. */
   onAdminChange?: () => void;
   /** Play the normal earn celebration for a tier the admin Granted by hand. */
@@ -256,6 +273,12 @@ function BadgeTile({
         </span>
       )}
 
+      {/* The Student medal is opt-in to show on another player's profile
+          (0029) — the Teacher one is always public, so it carries no toggle. */}
+      {def.id === 'student' && userId && (
+        <StudentVisibilityToggle userId={userId} />
+      )}
+
       {/* Earned, not maxed: the next-tier climb is a quiet footnote, and only
           when there's real progress to show — never a big empty bar. */}
       {earned && !maxedOut && nextLevel && progress && progress.target > 0 && progress.current > 0 && (
@@ -272,10 +295,11 @@ function BadgeTile({
         </span>
       )}
 
-      {/* Admin-only test controls. The Admin role medal itself is deliberately
-          excluded — it re-grants from the account, so there is nothing to test
+      {/* Admin-only test controls. The three role medals (Admin/Teacher/
+          Student) are deliberately excluded — each re-grants from the live
+          account/session state every render, so there is nothing to test
           and nothing an admin should be able to strip from themselves. */}
-      {isAdmin && def.id !== 'admin' && (
+      {isAdmin && def.id !== 'admin' && def.id !== 'teacher' && def.id !== 'student' && (
         <span className="badge-admin-row">
           <button
             type="button"
@@ -306,5 +330,32 @@ function BadgeTile({
         </span>
       )}
     </div>
+  );
+}
+
+/** "Show on my public profile" switch for the Student badge (0029's
+ *  `student_visible` column). Defaults off: a student may not want classmates
+ *  or strangers on the leaderboard to see which class they're in. */
+function StudentVisibilityToggle({ userId }: { userId: string }) {
+  const { t } = useTranslation();
+  const [visible, setVisible] = useState(() => loadStudentVisible());
+  const [busy, setBusy] = useState(false);
+
+  const toggle = () => {
+    playClickSound(); haptic.tap();
+    const next = !visible;
+    setVisible(next); // optimistic — it's just a preference, not a merged set
+    setBusy(true);
+    setStudentBadgeVisible(userId, next).catch((e) => {
+      console.warn('[BadgeGrid] setStudentBadgeVisible', e);
+      setVisible(!next);
+    }).finally(() => setBusy(false));
+  };
+
+  return (
+    <label className="badge-visibility-row">
+      <input type="checkbox" checked={visible} disabled={busy} onChange={toggle} />
+      <span>{t('Show on my public profile')}</span>
+    </label>
   );
 }
