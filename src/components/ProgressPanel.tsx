@@ -333,7 +333,7 @@ function ScopeView({
   const streak = useMemo(() => practiceStreak(days), [days]);
   const totals = useMemo(() => lifetimeTotals(history, days), [history, days]);
   const weak = useMemo(() => weakNotes(history, noteNames), [history, noteNames]);
-  const bests = useMemo(() => allBestsSummary(instrument.id), [history, instrument.id]);
+  const bests = useMemo(() => allBestsSummary(instrument.id), [instrument.id]);
 
   const noteRows = useMemo(() => {
     const m = tallyBuckets(history, h => displayNote(h.note, accidental, notation));

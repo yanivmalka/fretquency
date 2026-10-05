@@ -682,7 +682,7 @@ export default function App() {
     celebrationsBeginRunRef.current(false, false);
     setTeacherPlan(null);
     setIntervalPlan(null);
-  }, [histKey]);
+  }, [histKey, setShowStats, setGameEnded]);
 
   // An interval session stays armed after a round ends (so pressing Play runs
   // another interval question rather than the Selector's note drill). Tear it
