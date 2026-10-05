@@ -7,12 +7,19 @@ import { withClick as click } from '../utils/withClick';
  * from learningState.ts by the caller (not through useLearning, which goes
  * inert the instant the tier drops back to Free) so the number reflects what
  * the Teacher actually did during the trial, not zero.
+ *
+ * `reverted` lists, in plain language, what actually goes back to Free for
+ * this player — e.g. the Pro-only instrument they were playing, or the
+ * multi-string/precise-fret-window picks they had set — instead of letting
+ * those revert silently (product review 2026-10-05 §3ב/4, item 4). Empty
+ * when nothing they were using is affected.
  */
 export default function TrialEndedCard({
-  t, trackedCount, onSeeUpgrade, onDismiss,
+  t, trackedCount, reverted, onSeeUpgrade, onDismiss,
 }: {
   t: (s: string) => string;
   trackedCount: number;
+  reverted: string[];
   onSeeUpgrade: () => void;
   onDismiss: () => void;
 }) {
@@ -34,6 +41,11 @@ export default function TrialEndedCard({
           {' '}
           {t('You’re back on Free — everything you’ve already learned stays yours.')}
         </p>
+        {reverted.length > 0 && (
+          <p className="mic-card-body mic-card-body-secondary">
+            {t('This goes back to Free too:')} {reverted.join(', ')}.
+          </p>
+        )}
         <div className="mic-card-actions">
           <button className="mic-btn mic-btn-primary" onClick={click(onSeeUpgrade)}>
             {t('See what’s in Premium')}

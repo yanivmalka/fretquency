@@ -74,6 +74,10 @@
   margin: 0 0 16px;
 }
 .mic-card-body strong { color: var(--text-0); }
+.mic-card-body-secondary {
+  font-size: 12px;
+  opacity: 0.85;
+}
 .mic-card-actions {
   display: flex;
   flex-direction: column;

@@ -169,7 +169,7 @@ export default function Onboarding({
           <Feature icon="🎓" title={t('Premium')}
             text={t('A teacher, not a timer: a daily plan built from your weak spots, a learning path, intervals, scales, staff reading and tab reading.')} />
         </ul>
-        <p className="onboarding-hint">{t('Pro and Premium are coming soon.')}</p>
+        <p className="onboarding-hint">{t('Every new install gets 7 days of Premium free. Paid plans aren’t for sale yet.')}</p>
       </>}
 
       <div className="onboarding-dots" aria-hidden="true">

@@ -573,6 +573,16 @@ export const es: Record<string, string> = {
   'You’re back on Free — everything you’ve already learned stays yours.':
     'Volviste al plan Gratis — todo lo que ya aprendiste sigue siendo tuyo.',
   'See what’s in Premium': 'Ver qué incluye Premium',
+  'Every new install gets 7 days of Premium free. Paid plans aren’t for sale yet.':
+    'Cada instalación nueva recibe 7 días de Premium gratis. Los planes de pago aún no están a la venta.',
+  'Premium free': 'Premium gratis',
+  'ends today': 'termina hoy',
+  'Try today’s plan': 'Probar el plan de hoy',
+  'Your Premium trial ends soon': 'Tu prueba de Premium termina pronto',
+  'After that, you’re back on Free.': 'Después de eso, vuelves al plan Free.',
+  'This goes back to Free too:': 'Esto también vuelve a Free:',
+  'multi-string drills': 'ejercicios de varias cuerdas',
+  'the precise fret window': 'el rango preciso de trastes',
   'Free': 'Gratis',
 
   // Adaptive difficulty suggestion banner (wishlist §3)

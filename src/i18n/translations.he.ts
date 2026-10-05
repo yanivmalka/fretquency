@@ -801,6 +801,16 @@ export const he: Record<string, string> = {
   'You’re back on Free — everything you’ve already learned stays yours.':
     'חזרת למסלול החינמי — כל מה שכבר למדת נשאר שלך.',
   'See what’s in Premium': 'לראות מה יש ב-Premium',
+  'Every new install gets 7 days of Premium free. Paid plans aren’t for sale yet.':
+    'כל התקנה חדשה מקבלת 7 ימי Premium בחינם. מסלולים בתשלום עדיין לא נמכרים.',
+  'Premium free': 'Premium בחינם',
+  'ends today': 'מסתיים היום',
+  'Try today’s plan': 'לנסות את התוכנית של היום',
+  'Your Premium trial ends soon': 'תקופת הניסיון שלך ל-Premium מתקרבת לסיום',
+  'After that, you’re back on Free.': 'לאחר מכן חוזרים למסלול החינמי.',
+  'This goes back to Free too:': 'זה גם חוזר למסלול החינמי:',
+  'multi-string drills': 'תרגול מרובה-מיתרים',
+  'the precise fret window': 'טווח הסריגים המדויק',
   // Admin-only account tools (settings ▸ Account)
   'Admin: plan on your account': 'מנהל: המסלול בחשבון שלך',
   'Sets the plan on your own account only (Free, Pro or Premium). Writes to the entitlements table and syncs across your devices.':

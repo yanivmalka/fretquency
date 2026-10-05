@@ -575,6 +575,16 @@ export const ptBR: Record<string, string> = {
   'You’re back on Free — everything you’ve already learned stays yours.':
     'Você voltou para o Grátis — tudo o que você já aprendeu continua seu.',
   'See what’s in Premium': 'Veja o que tem no Premium',
+  'Every new install gets 7 days of Premium free. Paid plans aren’t for sale yet.':
+    'Cada nova instalação recebe 7 dias de Premium gratuitos. Os planos pagos ainda não estão à venda.',
+  'Premium free': 'Premium gratuito',
+  'ends today': 'termina hoje',
+  'Try today’s plan': 'Experimentar o plano de hoje',
+  'Your Premium trial ends soon': 'Seu teste do Premium termina em breve',
+  'After that, you’re back on Free.': 'Depois disso, você volta para o Free.',
+  'This goes back to Free too:': 'Isso também volta para o Free:',
+  'multi-string drills': 'exercícios em várias cordas',
+  'the precise fret window': 'a faixa precisa de trastes',
   'Free': 'Grátis',
 
   // Adaptive difficulty suggestion banner (wishlist §3)

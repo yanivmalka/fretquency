@@ -47,6 +47,35 @@
   text-overflow: ellipsis;
 }
 
+/* ── Reverse Premium trial countdown (home screen, trial only) ─────── */
+.trial-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 420px;
+  width: 100%;
+  margin: 8px auto 0;
+  padding: 7px 14px;
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.08);
+  font: inherit;
+  cursor: pointer;
+  text-align: start;
+}
+.trial-banner-icon {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.trial-banner-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ── Selector Panel ──────────────────────────────────────────────── */
 .selector-panel {
   display: flex;
