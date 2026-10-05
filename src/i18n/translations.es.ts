@@ -61,6 +61,22 @@ export const es: Record<string, string> = {
     'Se muestran la puntuación en vivo, el multiplicador de racha y las celebraciones.',
   'Every answer is still recorded to your stats and personal bests either way.':
     'En cualquier caso, cada respuesta se sigue guardando en tus estadísticas y récords personales.',
+
+  // Daily reminder
+  'Daily reminder': 'Recordatorio diario',
+  'A notification at the time you pick, reminding you to practice.':
+    'Una notificación a la hora que elijas, recordándote practicar.',
+  'A browser notification at the time you pick — only while this app is open in a tab. For a reminder that works with the app closed, install the Android app.':
+    'Una notificación del navegador a la hora que elijas — solo mientras esta app esté abierta en una pestaña. Para un recordatorio que funcione con la app cerrada, instala la app de Android.',
+  'Finish one more round first — then we can ask for notification permission.':
+    'Termina una ronda más — después podremos pedir permiso de notificaciones.',
+  'Notifications are blocked — turn them on for this app in your device/browser settings.':
+    'Las notificaciones están bloqueadas — actívalas para esta app en los ajustes de tu dispositivo o navegador.',
+  'Reminder time': 'Hora del recordatorio',
+  'Time to practice': 'Hora de practicar',
+  "A couple of minutes keeps your streak alive — don't lose it today.":
+    'Unos minutos mantienen viva tu racha — no la pierdas hoy.',
+
   'On': 'Activado',
   'Off': 'Desactivado',
   'Silent mode': 'Modo silencio',
@@ -379,45 +395,13 @@ export const es: Record<string, string> = {
     'Empezar',
   'Your privacy':
     'Tu privacidad',
-  'Your practice stays on this device':
-    'Tu práctica se queda en este dispositivo',
-  'As a guest, your history, settings and badges are stored only on this phone or browser.':
-    'Como invitado, tu historial, ajustes e insignias se guardan solo en este teléfono o navegador.',
-  'Backup is your choice':
-    'La copia de seguridad la decides tú',
-  'Only if you sign in with Google is your data backed up to our server, so you can restore it.':
-    'Solo si inicias sesión con Google se guarda una copia de tus datos en nuestro servidor para que puedas restaurarlos.',
-  'The microphone only when you ask':
-    'El micrófono, solo cuando tú lo pidas',
-  'It is used only if you choose to answer by voice or by playing, and audio is never saved.':
-    'Solo se usa si eliges responder con la voz o tocando, y el audio nunca se guarda.',
-  'Ads on the free plan':
-    'Anuncios en el plan gratuito',
-  'Ads are provided by Google, which may use an advertising ID to show and measure them.':
-    'Los anuncios los proporciona Google, que puede usar un identificador de publicidad para mostrarlos y medirlos.',
+  'As a guest, everything stays on this device. Signing in with Google (any time, from the menu) backs it up so you can restore it elsewhere. The microphone is only used if you choose to answer by voice, and the free plan shows ads provided by Google.':
+    'Como invitado, todo se queda en este dispositivo. Iniciar sesión con Google (cuando quieras, desde el menú) respalda tus datos para que puedas restaurarlos en otro lugar. El micrófono solo se usa si eliges responder con la voz, y el plan gratuito muestra anuncios proporcionados por Google.',
   'Terms of use': 'Términos de uso',
   'I have read the terms of use and the privacy policy and agree to them.':
     'He leído los términos de uso y la política de privacidad y los acepto.',
-  'Keep your progress safe':
-    'Protege tu progreso',
-  'Sign in with Google — it takes a few seconds and is optional.':
-    'Inicia sesión con Google: tarda unos segundos y es opcional.',
-  'Never lose your progress':
-    'No pierdas nunca tu progreso',
-  'History, badges, personal bests and settings are backed up — even if you change or reset your phone.':
-    'Historial, insignias, récords y ajustes quedan respaldados, incluso si cambias o restableces el teléfono.',
-  'Every device, one account':
-    'Una cuenta en todos tus dispositivos',
-  'Practise on your phone, carry on in the browser on your computer.':
-    'Practica en el teléfono y sigue en el navegador de tu ordenador.',
-  'Join the leaderboard':
-    'Únete a la clasificación',
-  'Earn XP and see how you compare with other players.':
-    'Gana XP y compárate con otros músicos.',
-  'Continue as a guest':
-    'Continuar como invitado',
-  'You can sign in any time from the menu → Account.':
-    'Puedes iniciar sesión cuando quieras desde el menú → Cuenta.',
+  'That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.':
+    'Ese instrumento necesita Pro. Por ahora elige guitarra, bajo o ukelele — puedes mejorar tu plan cuando quieras desde el menú.',
   'Strings, frets and tuning can be changed later from the menu → Playing.':
     'Las cuerdas, los trastes y la afinación se pueden cambiar después desde el menú → Práctica.',
   'Start with the dot frets':

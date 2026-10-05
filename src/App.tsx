@@ -175,7 +175,7 @@ export default function App() {
       banjo: { ...defaults.banjo, ...stored.banjo },
     };
   });
-  // Mandolin/banjo/ukulele need `extraInstruments` (Pro). ProGate in the
+  // Mandolin/banjo need `extraInstruments` (Pro); ukulele is free. ProGate in the
   // instrument picker (PlayingSection) is presentation-only and blocks the
   // *tap* that would set this; this is the real gate, covering the case
   // where a saved pref_instrument is one of them but the account has since
@@ -652,7 +652,7 @@ export default function App() {
   // behaviour. Only on the bare home screen with nothing left to undo does a
   // second Back within 2s actually leave.
   const signInPromptOpen = auth.configured && !auth.loading && !auth.user
-    && onboardingDone && !signInPromptSeen && !gameActive;
+    && hasAnyHistory && !signInPromptSeen && !gameActive;
   const { exitHint } = useBackNavigation({
     nav, running, paused, stop,
     revealBadges, setRevealBadges, signInPromptOpen, dismissSignInPrompt,
@@ -1389,20 +1389,17 @@ export default function App() {
           instrument={instrument}
           notation={notation}
           accidental={accidental}
-          account={{
-            available: auth.configured,
-            loading: auth.loading,
-            signedIn: !!auth.user,
-            onSignIn: () => { void auth.signInWithGoogle(); },
-          }}
+          tier={auth.tier}
           onInstrument={applyInstrument}
           onPlacement={selector.onDifficultySelect}
           onDone={() => {
-            // Onboarding already offered sign-in, so the follow-up nudge would
-            // only repeat it.
-            dismissSignInPrompt();
             markOnboardingDone();
             setOnboardingDone(true);
+            // Straight into a round with whatever instrument/difficulty was
+            // just chosen — no stop on the Selector screen first. The sign-in
+            // nudge now waits for hasAnyHistory (after this first round),
+            // not for onboarding finishing.
+            start();
           }}
         />
       )}
@@ -1493,10 +1490,12 @@ export default function App() {
         />
       )}
 
-      {/* One-time sign-in nudge for guests, right after onboarding. Reuses the
-          mic card's styling. "Maybe later" (or backdrop / Escape) dismisses it
-          for good on this device; the account stays reachable from Settings. */}
-      {auth.configured && !auth.loading && !auth.user && onboardingDone
+      {/* One-time sign-in nudge for guests, right after their first round
+          (not during onboarding — that now goes straight into a round).
+          Reuses the mic card's styling. "Maybe later" (or backdrop / Escape)
+          dismisses it for good on this device; the account stays reachable
+          from Settings. */}
+      {auth.configured && !auth.loading && !auth.user && hasAnyHistory
         && !signInPromptSeen && !gameActive && (
         <SignInNudge
           t={t}

@@ -63,6 +63,22 @@ export const ptBR: Record<string, string> = {
     'A pontuação ao vivo, o multiplicador de sequência e as comemorações são exibidos.',
   'Every answer is still recorded to your stats and personal bests either way.':
     'De qualquer forma, cada resposta continua sendo salva nas suas estatísticas e recordes pessoais.',
+
+  // Daily reminder
+  'Daily reminder': 'Lembrete diário',
+  'A notification at the time you pick, reminding you to practice.':
+    'Uma notificação no horário que você escolher, lembrando você de praticar.',
+  'A browser notification at the time you pick — only while this app is open in a tab. For a reminder that works with the app closed, install the Android app.':
+    'Uma notificação do navegador no horário que você escolher — só enquanto este app estiver aberto em uma aba. Para um lembrete que funcione com o app fechado, instale o app Android.',
+  'Finish one more round first — then we can ask for notification permission.':
+    'Termine mais uma rodada — aí podemos pedir permissão de notificações.',
+  'Notifications are blocked — turn them on for this app in your device/browser settings.':
+    'As notificações estão bloqueadas — ative-as para este app nas configurações do seu dispositivo ou navegador.',
+  'Reminder time': 'Horário do lembrete',
+  'Time to practice': 'Hora de praticar',
+  "A couple of minutes keeps your streak alive — don't lose it today.":
+    'Alguns minutos mantêm sua sequência viva — não a perca hoje.',
+
   'On': 'Ligado',
   'Off': 'Desligado',
   'Silent mode': 'Modo silencioso',
@@ -381,45 +397,13 @@ export const ptBR: Record<string, string> = {
     'Começar',
   'Your privacy':
     'Sua privacidade',
-  'Your practice stays on this device':
-    'Sua prática fica neste aparelho',
-  'As a guest, your history, settings and badges are stored only on this phone or browser.':
-    'Como convidado, seu histórico, configurações e medalhas ficam salvos só neste celular ou navegador.',
-  'Backup is your choice':
-    'O backup é escolha sua',
-  'Only if you sign in with Google is your data backed up to our server, so you can restore it.':
-    'Só se você entrar com o Google seus dados terão backup no nosso servidor, para você poder restaurá-los.',
-  'The microphone only when you ask':
-    'O microfone só quando você pedir',
-  'It is used only if you choose to answer by voice or by playing, and audio is never saved.':
-    'Ele só é usado se você escolher responder com a voz ou tocando, e o áudio nunca é salvo.',
-  'Ads on the free plan':
-    'Anúncios no plano grátis',
-  'Ads are provided by Google, which may use an advertising ID to show and measure them.':
-    'Os anúncios são fornecidos pelo Google, que pode usar um ID de publicidade para exibi-los e medi-los.',
+  'As a guest, everything stays on this device. Signing in with Google (any time, from the menu) backs it up so you can restore it elsewhere. The microphone is only used if you choose to answer by voice, and the free plan shows ads provided by Google.':
+    'Como convidado, tudo fica neste aparelho. Entrar com o Google (quando quiser, pelo menu) faz backup dos seus dados para você poder restaurá-los em outro lugar. O microfone só é usado se você escolher responder com a voz, e o plano grátis exibe anúncios fornecidos pelo Google.',
   'Terms of use': 'Termos de uso',
   'I have read the terms of use and the privacy policy and agree to them.':
     'Li os termos de uso e a política de privacidade e concordo com eles.',
-  'Keep your progress safe':
-    'Proteja seu progresso',
-  'Sign in with Google — it takes a few seconds and is optional.':
-    'Entre com o Google — leva poucos segundos e é opcional.',
-  'Never lose your progress':
-    'Nunca perca seu progresso',
-  'History, badges, personal bests and settings are backed up — even if you change or reset your phone.':
-    'Histórico, medalhas, recordes e configurações ficam com backup — mesmo se você trocar ou resetar o celular.',
-  'Every device, one account':
-    'Uma conta em todos os aparelhos',
-  'Practise on your phone, carry on in the browser on your computer.':
-    'Pratique no celular e continue no navegador do computador.',
-  'Join the leaderboard':
-    'Entre no ranking',
-  'Earn XP and see how you compare with other players.':
-    'Ganhe XP e veja como você se compara a outros músicos.',
-  'Continue as a guest':
-    'Continuar como convidado',
-  'You can sign in any time from the menu → Account.':
-    'Você pode entrar quando quiser pelo menu → Conta.',
+  'That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.':
+    'Esse instrumento precisa do Pro. Por enquanto escolha violão/guitarra, baixo ou ukulele — você pode assinar o Pro quando quiser pelo menu.',
   'Strings, frets and tuning can be changed later from the menu → Playing.':
     'Cordas, trastes e afinação podem ser mudados depois pelo menu → Prática.',
   'Start with the dot frets':

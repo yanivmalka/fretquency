@@ -6,9 +6,13 @@ import { displayNote, type AccidentalMode, type NotationMode } from '../utils/mu
 import { CHROMATIC, INSTRUMENTS, type InstrumentConfig, type InstrumentId } from '../utils/instruments';
 import { withClick as click } from '../utils/withClick';
 import { PRIVACY_POLICY_URL, TERMS_URL, recordLegalAccepted } from '../utils/onboardingState';
-import GoogleIcon from './GoogleIcon';
+import { can, PRO_ONLY_INSTRUMENTS } from '../utils/features';
+import type { Tier } from '../utils/entitlement';
 
 interface Props {
+  /** Called once the player should land straight inside a round — <App>
+   *  auto-starts one with whatever instrument/difficulty was just chosen,
+   *  rather than parking them on the Selector screen. */
   onDone: () => void;
   onInstrument: (id: InstrumentId) => void;
   /** Apply the placement result to the live Selector difficulty. */
@@ -17,19 +21,16 @@ interface Props {
   instrument: InstrumentConfig;
   notation: NotationMode;
   accidental: AccidentalMode;
-  account: {
-    /** False in a build without Supabase: the sign-in step is skipped. */
-    available: boolean;
-    loading: boolean;
-    signedIn: boolean;
-    onSignIn: () => void;
-  };
+  /** Whether mandolin/banjo (the still-Pro instruments) are unlocked for the
+   *  instrument-picker step. The sign-in offer moved to after the first round
+   *  (<App>'s SignInNudge), so onboarding no longer has an `account` step. */
+  tier: Tier;
 }
 
-type Step = 'welcome' | 'privacy' | 'account' | 'instrument' | 'level' | 'test' | 'result';
-const STEPS: Step[] = ['welcome', 'privacy', 'account', 'instrument', 'level', 'test', 'result'];
-// Remembered across a reload: the web Google sign-in leaves the page and comes
-// back, and the player should land where they were, not on the first slide.
+type Step = 'welcome' | 'privacy' | 'instrument' | 'level' | 'test' | 'result';
+const STEPS: Step[] = ['welcome', 'privacy', 'instrument', 'level', 'test', 'result'];
+// Remembered across a reload, so a player who closes mid-onboarding lands
+// back where they were instead of the first slide.
 const STEP_KEY = 'onboardingStep';
 
 const INSTRUMENT_ORDER: InstrumentId[] = ['guitar', 'bass', 'ukulele', 'mandolin', 'banjo'];
@@ -68,10 +69,10 @@ function scoreToDifficulty(score: number): Difficulty {
 }
 
 export default function Onboarding({
-  onDone, onInstrument, onPlacement, instrument, notation, accidental, account,
+  onDone, onInstrument, onPlacement, instrument, notation, accidental, tier,
 }: Props) {
   const { t } = useTranslation();
-  const [savedStep, setStepState] = useState<Step>(() => {
+  const [step, setStepState] = useState<Step>(() => {
     const saved = loadSetting<string>(STEP_KEY, 'welcome');
     return (STEPS as string[]).includes(saved) && saved !== 'test' && saved !== 'result'
       ? saved as Step : 'welcome';
@@ -82,10 +83,9 @@ export default function Onboarding({
   const [testIdx, setTestIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
-
-  // Back from Google (or already signed in): the offer has done its job.
-  const step: Step = savedStep === 'account' && (account.signedIn || !account.available)
-    ? 'instrument' : savedStep;
+  // Shown under the instrument grid when a locked instrument is tapped,
+  // instead of silently landing the player on guitar further down the line.
+  const [lockedNotice, setLockedNotice] = useState(false);
 
   const placement = useMemo(() => placementFor(instrument), [instrument]);
   const noteOptions = useMemo(() => {
@@ -100,6 +100,10 @@ export default function Onboarding({
   };
 
   const pickInstrument = (id: InstrumentId) => {
+    if (PRO_ONLY_INSTRUMENTS.includes(id) && !can('extraInstruments', tier)) {
+      setLockedNotice(true);
+      return;
+    }
     onInstrument(id);
     setStep('level');
   };
@@ -177,16 +181,9 @@ export default function Onboarding({
   if (step === 'privacy') return card(<>
     <div className="onboarding-logo" aria-hidden="true">🔒</div>
     <h2 className="onboarding-title">{t('Your privacy')}</h2>
-    <ul className="onboarding-features">
-      <Feature icon="📱" title={t('Your practice stays on this device')}
-        text={t('As a guest, your history, settings and badges are stored only on this phone or browser.')} />
-      <Feature icon="☁️" title={t('Backup is your choice')}
-        text={t('Only if you sign in with Google is your data backed up to our server, so you can restore it.')} />
-      <Feature icon="🎤" title={t('The microphone only when you ask')}
-        text={t('It is used only if you choose to answer by voice or by playing, and audio is never saved.')} />
-      <Feature icon="📢" title={t('Ads on the free plan')}
-        text={t('Ads are provided by Google, which may use an advertising ID to show and measure them.')} />
-    </ul>
+    <p className="onboarding-sub">
+      {t('As a guest, everything stays on this device. Signing in with Google (any time, from the menu) backs it up so you can restore it elsewhere. The microphone is only used if you choose to answer by voice, and the free plan shows ads provided by Google.')}
+    </p>
     {/* Absolute URL: the Android build serves the app from a relative base,
         so a relative link would navigate the WebView away. */}
     <div className="onboarding-links">
@@ -204,10 +201,7 @@ export default function Onboarding({
     <button
       className="onboarding-primary"
       disabled={!agreed}
-      onClick={click(() => {
-        recordLegalAccepted();
-        setStep(account.available && !account.signedIn ? 'account' : 'instrument');
-      })}
+      onClick={click(() => { recordLegalAccepted(); setStep('instrument'); })}
     >
       {t('Continue')}
     </button>
@@ -216,42 +210,25 @@ export default function Onboarding({
     </button>
   </>, true);
 
-  if (step === 'account') return card(<>
-    <div className="onboarding-logo" aria-hidden="true">☁️</div>
-    <h2 className="onboarding-title">{t('Keep your progress safe')}</h2>
-    <p className="onboarding-sub">{t('Sign in with Google — it takes a few seconds and is optional.')}</p>
-    <ul className="onboarding-features">
-      <Feature icon="💾" title={t('Never lose your progress')}
-        text={t('History, badges, personal bests and settings are backed up — even if you change or reset your phone.')} />
-      <Feature icon="🔄" title={t('Every device, one account')}
-        text={t('Practise on your phone, carry on in the browser on your computer.')} />
-      <Feature icon="🏆" title={t('Join the leaderboard')}
-        text={t('Earn XP and see how you compare with other players.')} />
-    </ul>
-    <button
-      className="onboarding-primary onboarding-google"
-      disabled={account.loading}
-      onClick={click(account.onSignIn)}
-    >
-      <GoogleIcon size={18} />
-      {t('Sign in with Google')}
-    </button>
-    <button className="onboarding-skip" onClick={click(() => setStep('instrument'))}>
-      {t('Continue as a guest')}
-    </button>
-    <p className="onboarding-hint">{t('You can sign in any time from the menu → Account.')}</p>
-  </>, true);
-
   if (step === 'instrument') return card(<>
     <div className="onboarding-logo" aria-hidden="true">{instrument.emoji}</div>
     <p className="onboarding-question">{t('What do you play?')}</p>
     <div className="onboarding-options">
-      {INSTRUMENT_ORDER.map(id => (
-        <button key={id} className="onboarding-btn" onClick={click(() => pickInstrument(id))}>
-          {INSTRUMENTS[id].emoji} {t(INSTRUMENTS[id].label)}
-        </button>
-      ))}
+      {INSTRUMENT_ORDER.map(id => {
+        const locked = PRO_ONLY_INSTRUMENTS.includes(id) && !can('extraInstruments', tier);
+        return (
+          <button key={id} className="onboarding-btn onboarding-btn-row" onClick={click(() => pickInstrument(id))}>
+            <span>{INSTRUMENTS[id].emoji} {t(INSTRUMENTS[id].label)}</span>
+            {locked && <span className="onboarding-pro-badge">{t('Pro')}</span>}
+          </button>
+        );
+      })}
     </div>
+    {lockedNotice && (
+      <p className="onboarding-hint onboarding-locked-notice">
+        {t('That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.')}
+      </p>
+    )}
     <p className="onboarding-hint">{t('Strings, frets and tuning can be changed later from the menu → Playing.')}</p>
     <button className="onboarding-skip" onClick={click(finish)}>{t('Skip setup →')}</button>
   </>);

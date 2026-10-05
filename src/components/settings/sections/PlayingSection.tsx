@@ -211,11 +211,11 @@ export default function PlayingSection({
             [
               ['guitar', '🎸', t('Guitar'), false],
               ['bass', '🎵', t('Bass'), false],
+              ['ukulele', '🎸', t('Ukulele'), false],
             ],
             [
               ['mandolin', '🎻', t('Mandolin'), true],
               ['banjo', '🪕', t('Banjo'), true],
-              ['ukulele', '🎸', t('Ukulele'), true],
             ],
           ] as const
         ).map((row, i) => (

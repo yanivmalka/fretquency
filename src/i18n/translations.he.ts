@@ -58,6 +58,22 @@ export const he: Record<string, string> = {
     'במהלך התרגול יוצגו הניקוד, מכפיל הרצף והחגיגות.',
   'Every answer is still recorded to your stats and personal bests either way.':
     'בכל מקרה, כל תשובה עדיין נרשמת בסטטיסטיקות ובשיאים האישיים שלך.',
+
+  // Daily reminder
+  'Daily reminder': 'תזכורת יומית',
+  'A notification at the time you pick, reminding you to practice.':
+    'התראה בשעה שתבחרו, שמזכירה לכם לתרגל.',
+  'A browser notification at the time you pick — only while this app is open in a tab. For a reminder that works with the app closed, install the Android app.':
+    'התראת דפדפן בשעה שתבחרו — רק כשהאפליקציה פתוחה בלשונית. לתזכורת שעובדת גם כשהאפליקציה סגורה, התקינו את אפליקציית האנדרואיד.',
+  'Finish one more round first — then we can ask for notification permission.':
+    'סיימו עוד סבב אחד — ואז נוכל לבקש הרשאה להתראות.',
+  'Notifications are blocked — turn them on for this app in your device/browser settings.':
+    'ההתראות חסומות — הפעילו אותן לאפליקציה הזו בהגדרות המכשיר או הדפדפן.',
+  'Reminder time': 'שעת התזכורת',
+  'Time to practice': 'הגיע הזמן לתרגל',
+  "A couple of minutes keeps your streak alive — don't lose it today.":
+    'כמה דקות שומרות על הרצף שלכם — אל תאבדו אותו היום.',
+
   'On': 'פעיל',
   'Off': 'כבוי',
   'Silent mode': 'מצב שקט',
@@ -377,45 +393,13 @@ export const he: Record<string, string> = {
     'בוא נתחיל',
   'Your privacy':
     'הפרטיות שלך',
-  'Your practice stays on this device':
-    'התרגול שלך נשאר במכשיר',
-  'As a guest, your history, settings and badges are stored only on this phone or browser.':
-    'כאורח, ההיסטוריה, ההגדרות והתגים שלך נשמרים רק בטלפון או בדפדפן הזה.',
-  'Backup is your choice':
-    'הגיבוי הוא לבחירתך',
-  'Only if you sign in with Google is your data backed up to our server, so you can restore it.':
-    'רק אם תתחבר עם Google הנתונים שלך יגובו בשרת שלנו, כדי שתוכל לשחזר אותם.',
-  'The microphone only when you ask':
-    'המיקרופון רק כשתבקש',
-  'It is used only if you choose to answer by voice or by playing, and audio is never saved.':
-    'הוא משמש רק אם תבחר לענות בקול או בנגינה, והשמע לעולם לא נשמר.',
-  'Ads on the free plan':
-    'פרסומות במסלול החינמי',
-  'Ads are provided by Google, which may use an advertising ID to show and measure them.':
-    'הפרסומות מסופקות על ידי Google, שעשויה להשתמש במזהה פרסום כדי להציג ולמדוד אותן.',
+  'As a guest, everything stays on this device. Signing in with Google (any time, from the menu) backs it up so you can restore it elsewhere. The microphone is only used if you choose to answer by voice, and the free plan shows ads provided by Google.':
+    'כאורח, הכול נשאר במכשיר הזה. התחברות עם Google (בכל עת, מהתפריט) מגבה את הנתונים שלך כדי שתוכל לשחזר אותם במכשיר אחר. המיקרופון משמש רק אם תבחר לענות בקול, ובמסלול החינמי מוצגות פרסומות מסופקות על ידי Google.',
   'Terms of use': 'תנאי שימוש',
   'I have read the terms of use and the privacy policy and agree to them.':
     'קראתי את תנאי השימוש ואת מדיניות הפרטיות ואני מסכים להם.',
-  'Keep your progress safe':
-    'שמור על ההתקדמות שלך',
-  'Sign in with Google — it takes a few seconds and is optional.':
-    'התחבר עם Google — זה לוקח כמה שניות וזה לא חובה.',
-  'Never lose your progress':
-    'ההתקדמות שלך לא תלך לאיבוד',
-  'History, badges, personal bests and settings are backed up — even if you change or reset your phone.':
-    'ההיסטוריה, התגים, השיאים וההגדרות מגובים — גם אם תחליף או תאפס את הטלפון.',
-  'Every device, one account':
-    'חשבון אחד, כל המכשירים',
-  'Practise on your phone, carry on in the browser on your computer.':
-    'תרגל בטלפון והמשך בדפדפן במחשב.',
-  'Join the leaderboard':
-    'הצטרף לטבלת המובילים',
-  'Earn XP and see how you compare with other players.':
-    'צבור XP וראה איך אתה עומד מול נגנים אחרים.',
-  'Continue as a guest':
-    'המשך כאורח',
-  'You can sign in any time from the menu → Account.':
-    'אפשר להתחבר בכל עת מהתפריט ← חשבון.',
+  'That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.':
+    'הכלי הזה דורש Pro. בחר גיטרה, בס או יוקולילי לעת עתה — אפשר לשדרג בכל עת מהתפריט.',
   'Strings, frets and tuning can be changed later from the menu → Playing.':
     'את המיתרים, הסריגים והכיוון אפשר לשנות אחר כך מהתפריט ← נגינה.',
   'Start with the dot frets':

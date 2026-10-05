@@ -13,7 +13,7 @@ export type Feature =
   | 'fretRange'            // the precise "fret N–M" window control in Settings → Playing
   | 'multiStringFull'      // multi-string drilling on more than FREE_MULTI_STRING_LIMIT strings
   | 'voiceProfile'         // personal voice profile + calibration
-  | 'extraInstruments'     // mandolin / banjo / ukulele — everything past guitar & bass
+  | 'extraInstruments'     // mandolin / banjo — everything past guitar, bass & ukulele
   | 'noAds'                // future: suppress Free-tier ads
   | 'seasonalBackdrop'     // the snow / flowers / leaves layer behind the app
   | 'premiumTeacher'       // The adaptive "Teacher" surface: the Today card
@@ -95,9 +95,11 @@ export const FREE_MULTI_STRING_LIMIT = 2;
  *  this is a view filter over one screen, never a data cut (design §5.1). */
 export const FREE_HISTORY_DAYS = 7;
 
-/** Instrument ids gated behind `extraInstruments` — everything past guitar
- *  & bass. Single source of truth: App.tsx reads this to clamp a Free /
+/** Instrument ids gated behind `extraInstruments` — mandolin and banjo.
+ *  Ukulele is free (owner decision, 2026-10-05): a beginner instrument with
+ *  almost no good fretboard trainers of its own, worth having in the Free
+ *  funnel. Single source of truth: App.tsx reads this to clamp a Free /
  *  downgraded user's saved instrument choice back to guitar (the real gate;
  *  the instrument picker's ProGate is presentation-only), and it's what
  *  `extraInstruments` itself exists to describe. */
-export const PRO_ONLY_INSTRUMENTS: readonly InstrumentId[] = ['mandolin', 'banjo', 'ukulele'];
+export const PRO_ONLY_INSTRUMENTS: readonly InstrumentId[] = ['mandolin', 'banjo'];
