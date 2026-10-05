@@ -175,7 +175,7 @@ export default function App() {
       banjo: { ...defaults.banjo, ...stored.banjo },
     };
   });
-  // Mandolin/banjo need `extraInstruments` (Pro); ukulele is free. ProGate in the
+  // Mandolin/banjo/ukulele need `extraInstruments` (Pro). ProGate in the
   // instrument picker (PlayingSection) is presentation-only and blocks the
   // *tap* that would set this; this is the real gate, covering the case
   // where a saved pref_instrument is one of them but the account has since
