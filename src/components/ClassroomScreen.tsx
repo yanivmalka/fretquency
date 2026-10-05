@@ -13,8 +13,9 @@
 // Everything goes through src/teacher/classroom.ts (Supabase, RLS in
 // migration 0026). Signed-in only: a guest sees why and a sign-in button,
 // since the teacher's view needs results on the server and guests never
-// write state to the network. Free on every tier — Premium is what a
-// *verified* teacher gets (server-side trigger), not a requirement here.
+// write state to the network. Free on every tier — Premium is a bonus a
+// teacher gets automatically once a class is active (server-side, migration
+// 0026's "Premium for active teachers"), not a requirement to use this.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
@@ -212,7 +213,9 @@ function Home({ user, profileName, initialCode, setView }: {
             <p className="class-muted">
               {status.data.verified
                 ? t('Verified teacher — Premium is on us.')
-                : t('Verified teachers get Premium free. We check teacher accounts by hand; until then, everything here already works.')}
+                : status.data.premiumActive
+                  ? t('Premium is on us — one of your classes is active.')
+                  : t('Get Premium free, automatically, once one of your classes has 6 or more students who have practised in the last 30 days. Everything here already works either way.')}
             </p>
             {teaching.error ? <LoadError onRetry={teaching.reload} /> : (
               <ul className="class-list">
@@ -300,7 +303,7 @@ function BecomeTeacherCard({ user, profileName, onDone }: {
     <section className="class-card">
       <h3 className="class-h">{t('Do you teach guitar, bass or ukulele?')}</h3>
       <p className="class-muted">
-        {t('Create a class, give your students its code, assign practice and see who did it. Verified teachers get Premium free.')}
+        {t('Create a class, give your students its code, assign practice and see who did it. Get Premium free once a class has 6 or more active students.')}
       </p>
       <button className="clear-btn" disabled={busy} onClick={tap(() => {
         setBusy(true); setFailed(false);

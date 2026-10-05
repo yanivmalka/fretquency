@@ -76,15 +76,25 @@ const HOMEWORK_COLS = 'id, class_id, title, instrument_id, drill, due_on, create
 
 export interface TeacherStatus {
   isTeacher: boolean;
+  /** Admin-granted manual override (a partnership grant), not the automatic rule. */
   verified: boolean;
+  /** Premium is active via the 'teacher' entitlement source — automatic or verified. */
+  premiumActive: boolean;
 }
 
 export async function fetchTeacherStatus(userId: string): Promise<TeacherStatus> {
-  if (!supabase) return { isTeacher: false, verified: false };
-  const { data, error } = await supabase
-    .from('teachers').select('verified_at').eq('user_id', userId).maybeSingle();
+  if (!supabase) return { isTeacher: false, verified: false, premiumActive: false };
+  const [{ data, error }, { data: ent, error: entError }] = await Promise.all([
+    supabase.from('teachers').select('verified_at').eq('user_id', userId).maybeSingle(),
+    supabase.from('entitlements').select('tier, source').eq('user_id', userId).maybeSingle(),
+  ]);
   if (error) throw error;
-  return { isTeacher: !!data, verified: !!data?.verified_at };
+  if (entError) throw entError;
+  return {
+    isTeacher: !!data,
+    verified: !!data?.verified_at,
+    premiumActive: ent?.tier === 'premium' && ent?.source === 'teacher',
+  };
 }
 
 /** Self-declare as a teacher. Idempotent: an existing row is left as it is. */

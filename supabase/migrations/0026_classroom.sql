@@ -11,14 +11,14 @@
 -- Who is a teacher: self-declared. A signed-in user inserts their own row in
 -- `public.teachers` from the Class screen ("I'm a teacher") and can then
 -- create classes. That is all self-declaration unlocks — class management is
--- not a paid feature. "Premium free for teachers" needs `verified_at`, which
--- only an admin can set (SQL Editor or the admin policy below); the trigger at
--- the bottom then writes a non-expiring Premium row into `public.entitlements`
--- with source='teacher', so the existing entitlement read path (and nothing
--- client-side) grants it. Clearing `verified_at` removes that row again. A
--- user who already has an entitlement row of any kind (a paid Pro sub, a comp
--- grant) is left untouched — the trigger never overwrites a row it did not
--- write.
+-- not a paid feature.
+--
+-- "Premium free for teachers" is now AUTOMATIC, based on real class activity
+-- — not a one-time admin check. A teacher gets Premium for free while at
+-- least one class they run is "active" (enough students, recently used); see
+-- the "Premium for active teachers" section at the bottom for the exact
+-- rule, the daily pg_cron re-check that also handles losing it again, and
+-- the separate admin-only `verified_at` override this never touches.
 --
 -- Students must be signed in to join: the teacher's view reads results from
 -- the server, and guests never write state to the network anywhere in the
@@ -275,12 +275,158 @@ grant select, delete on public.class_members to authenticated;
 grant select, insert, update, delete on public.homework to authenticated;
 grant select, insert on public.homework_attempts to authenticated;
 
--- ── Premium for verified teachers ───────────────────────────────────────
+-- ── Premium for active teachers ─────────────────────────────────────────
+-- A teacher gets Premium for free, automatically, while at least one class
+-- they run is "active": >= MIN_ACTIVE_STUDENTS members AND a homework_attempts
+-- row within the last ACTIVE_WINDOW_DAYS days (see the literals inside
+-- class_qualifies_for_premium() below — 6 students / 30 days are first
+-- guesses, easy to retune, not load-bearing constants elsewhere).
+--
+-- `verified_at` above is a SEPARATE, admin-only override for a manual grant
+-- (e.g. a partnership deal) — every function below skips a teacher whose
+-- verified_at is set, so the automatic rule and an admin's manual call never
+-- fight over the same public.entitlements row. Un-verifying falls back to
+-- the automatic rule immediately (see sync_teacher_entitlement below) rather
+-- than leaving the teacher with nothing until the next cron tick.
+--
+-- Losing the grant needs no new event (a class can simply go quiet), so a
+-- daily pg_cron job re-evaluates every self-declared teacher and revokes
+-- anyone who no longer qualifies. Gaining it is also pushed by a trigger on
+-- homework_attempts / class_members insert, so crossing the threshold grants
+-- immediately instead of waiting for the next cron run — the cron run is
+-- only needed for the decay case.
+--
+-- *** pg_cron must be enabled by hand first (one-time, outside any
+-- migration): Supabase dashboard → Database → Extensions → enable "pg_cron".
+-- The DO block below detects whether that has happened yet; if not, it skips
+-- scheduling and RAISEs the exact `cron.schedule(...)` call to run by hand
+-- afterwards — it does not fail the rest of this migration. ***
+
 alter table public.entitlements drop constraint if exists entitlements_source_check;
 alter table public.entitlements
   add constraint entitlements_source_check
   check (source in ('manual', 'promo', 'revenuecat', 'stripe', 'play', 'comp', 'teacher'));
 
+-- Does this one class currently meet the activity bar on its own?
+create or replace function public.class_qualifies_for_premium(cid uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    (select count(*) from public.class_members where class_id = cid) >= 6  -- MIN_ACTIVE_STUDENTS
+    and exists (
+      select 1 from public.homework_attempts
+      where class_id = cid and created_at > now() - interval '30 days'     -- ACTIVE_WINDOW_DAYS
+    );
+$$;
+
+-- Grants/revokes the automatic 'teacher' Premium row for one teacher, based
+-- on whether any class they run currently qualifies. No-ops for a teacher
+-- with a manual verified_at override — that row belongs to the admin path.
+-- The upsert's WHERE clause means it only ever touches a row this function
+-- (or the manual-override trigger, same source) wrote — a paid/comp
+-- entitlement of any other source is left alone either way.
+create or replace function public.sync_teacher_premium(uid uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  qualifies boolean;
+begin
+  if exists (select 1 from public.teachers where user_id = uid and verified_at is not null) then
+    return;
+  end if;
+  select exists (
+    select 1 from public.classes c
+    where c.teacher_id = uid and public.class_qualifies_for_premium(c.id)
+  ) into qualifies;
+  if qualifies then
+    insert into public.entitlements (user_id, tier, source, expires_at)
+    values (uid, 'premium', 'teacher', null)
+    on conflict (user_id) do update
+      set tier = 'premium', expires_at = null, updated_at = now()
+      where public.entitlements.source = 'teacher';
+  else
+    delete from public.entitlements where user_id = uid and source = 'teacher';
+  end if;
+end;
+$$;
+
+-- Daily sweep for the decay case: a class that went quiet needs no insert to
+-- notice it lost Premium. Skips verified teachers for the same reason as
+-- sync_teacher_premium (cheaper to filter here than call in per row).
+create or replace function public.sync_all_teacher_premium()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  t record;
+begin
+  for t in select user_id from public.teachers where verified_at is null loop
+    perform public.sync_teacher_premium(t.user_id);
+  end loop;
+end;
+$$;
+
+-- Immediate gain case: a homework_attempts/class_members insert that pushes a
+-- class over the bar grants Premium right away instead of waiting for the
+-- next cron tick. Both tables carry class_id directly (homework_attempts is
+-- denormalised for this exact reason), so one trigger function serves both.
+create or replace function public.trigger_sync_teacher_premium_for_class()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  tid uuid;
+begin
+  select teacher_id into tid from public.classes where id = new.class_id;
+  if tid is not null then
+    perform public.sync_teacher_premium(tid);
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists homework_attempts_sync_premium on public.homework_attempts;
+create trigger homework_attempts_sync_premium
+  after insert on public.homework_attempts
+  for each row execute function public.trigger_sync_teacher_premium_for_class();
+
+drop trigger if exists class_members_sync_premium on public.class_members;
+create trigger class_members_sync_premium
+  after insert on public.class_members
+  for each row execute function public.trigger_sync_teacher_premium_for_class();
+
+do $$
+begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    if exists (select 1 from cron.job where jobname = 'sync_teacher_premium_daily') then
+      perform cron.unschedule('sync_teacher_premium_daily');
+    end if;
+    perform cron.schedule(
+      'sync_teacher_premium_daily', '0 3 * * *', 'select public.sync_all_teacher_premium();'
+    );
+  else
+    raise notice 'pg_cron extension is not enabled — enable it via the Supabase dashboard '
+      '(Database > Extensions), then run by hand: select cron.schedule(''sync_teacher_premium_daily'', '
+      '''0 3 * * *'', ''select public.sync_all_teacher_premium();'');';
+  end if;
+end $$;
+
+-- ── Premium for the admin-verified override ─────────────────────────────
+-- Separate from the automatic rule above: an admin may still grant Premium
+-- to a specific teacher by hand (e.g. a partnership), independent of class
+-- activity. This never fights the automatic rule — see the note at the top
+-- of this section.
 create or replace function public.sync_teacher_entitlement()
 returns trigger
 language plpgsql
@@ -291,9 +437,15 @@ begin
   if new.verified_at is not null then
     insert into public.entitlements (user_id, tier, source, expires_at)
     values (new.user_id, 'premium', 'teacher', null)
-    on conflict (user_id) do nothing;
+    on conflict (user_id) do update
+      set tier = 'premium', expires_at = null, updated_at = now()
+      where public.entitlements.source = 'teacher';
   else
     delete from public.entitlements where user_id = new.user_id and source = 'teacher';
+    -- Falling back from the manual override to the automatic rule: re-grant
+    -- right away if an active class already qualifies, instead of leaving
+    -- the teacher without Premium until the next cron tick.
+    perform public.sync_teacher_premium(new.user_id);
   end if;
   return new;
 end;
@@ -304,6 +456,7 @@ create trigger teachers_entitlement
   after insert or update of verified_at on public.teachers
   for each row execute function public.sync_teacher_entitlement();
 
--- Admin: verify a teacher (grants Premium via the trigger above):
+-- Admin: grant the manual override (independent of class activity):
 --   update public.teachers set verified_at = now()
 --   where user_id = (select id from auth.users where lower(email) = 'someone@example.com');
+-- Clear it with `verified_at = null` to fall back to the automatic rule.
