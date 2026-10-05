@@ -1547,4 +1547,11 @@ export const he: Record<string, string> = {
   'Search the app': 'חיפוש באפליקציה',
   'No results': 'לא נמצאו תוצאות',
   'Clear search': 'ניקוי החיפוש',
+  // Practice drill feedback line (src/hooks/useGameEngine.ts)
+  'Correct!': 'נכון!',
+  'All found!': 'מצאת את כולם!',
+  'Where else? ({n} more)': 'איפה עוד? (עוד {n})',
+  'Also on: {list}': 'גם בסריגים: {list}',
+  'Correct: {list}': 'הסריגים הנכונים: {list}',
+  'It was {note}': 'התשובה: {note}',
 };

@@ -20,17 +20,17 @@
 .onboarding-progress { font-size: 0.85rem; color: var(--text-3); }
 .onboarding-options { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .onboarding-btn {
-  background: #1a1a3a; border: 1px solid var(--border-soft); border-radius: 12px;
+  background: var(--bg-3); border: 1px solid var(--border-soft); border-radius: 12px;
   color: var(--text-0); padding: 14px 20px; font-size: 1rem; cursor: pointer;
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
   transition: border-color 0.15s, background 0.15s;
   text-align: left;
 }
-.onboarding-btn:hover:not(:disabled) { border-color: var(--accent); background: #1a1a4a; }
+.onboarding-btn:hover:not(:disabled) { border-color: var(--accent); }
 .onboarding-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.onboarding-btn-secondary { border-color: #333; }
+.onboarding-btn-secondary { border-color: var(--surface-border); }
 .onboarding-hint { font-size: 0.78rem; color: var(--text-3); }
-.onboarding-soon { font-size: 0.7rem; background: #333; border-radius: 8px; padding: 2px 6px; color: var(--text-2); margin-left: 6px; }
+.onboarding-soon { font-size: 0.7rem; background: var(--bg-2); border-radius: 8px; padding: 2px 6px; color: var(--text-2); margin-left: 6px; }
 .onboarding-skip { background: none; border: none; color: var(--border-soft); font-size: 0.85rem; cursor: pointer; padding: 4px 0; }
 .onboarding-skip:hover { color: var(--text-2); }
 .onboarding-note-grid {
@@ -38,10 +38,10 @@
   gap: 8px; width: 100%;
 }
 .onboarding-note-btn {
-  background: #1a1a3a; border: 1px solid var(--border-soft); border-radius: 10px;
+  background: var(--bg-3); border: 1px solid var(--border-soft); border-radius: 10px;
   color: var(--text-0); padding: 12px 4px; font-size: 1rem; cursor: pointer;
   transition: all 0.15s;
 }
 .onboarding-note-btn:hover { border-color: var(--accent); }
-.onboarding-note-correct { background: #0a3a0a !important; border-color: #0f0 !important; color: #0f0 !important; }
-.onboarding-note-wrong   { background: #3a0a0a !important; border-color: var(--danger) !important; color: var(--danger) !important; }
+.onboarding-note-correct { background: rgba(var(--success-rgb), 0.18) !important; border-color: var(--success) !important; color: var(--success) !important; }
+.onboarding-note-wrong   { background: rgba(var(--danger-rgb), 0.18) !important; border-color: var(--danger) !important; color: var(--danger) !important; }

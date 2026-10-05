@@ -1532,4 +1532,11 @@ export const ptBR: Record<string, string> = {
   'Search the app': 'Buscar no app',
   'No results': 'Nenhum resultado',
   'Clear search': 'Limpar a busca',
+  // Practice drill feedback line (src/hooks/useGameEngine.ts)
+  'Correct!': 'Correto!',
+  'All found!': 'Todos encontrados!',
+  'Where else? ({n} more)': 'Onde mais? (mais {n})',
+  'Also on: {list}': 'Também em: {list}',
+  'Correct: {list}': 'Corretos: {list}',
+  'It was {note}': 'Era {note}',
 };

@@ -21,7 +21,7 @@
 
 import { useMemo } from 'react';
 import { useGameEngine } from './useGameEngine';
-import type { GameSetters, HistoryOps, ScoreOps } from './useGameEngine';
+import type { EngineDisplay, GameSetters, HistoryOps, ScoreOps } from './useGameEngine';
 import type { SessionScore } from './useScoring';
 import {
   drillConfigToGameSettings,
@@ -52,6 +52,8 @@ export interface DrillCollaborators {
   /** Fired when the drill ends because every question was answered — never on
    *  a manual stop or a pause. Practice uses this for Auto Advance. */
   onComplete?: () => void;
+  /** UI language + note-name notation for the feedback line. */
+  display?: EngineDisplay;
 }
 
 export function useDrillSession(config: DrillConfig, collab: DrillCollaborators) {
@@ -61,6 +63,7 @@ export function useDrillSession(config: DrillConfig, collab: DrillCollaborators)
     collab.history,
     collab.scoring,
     { onComplete: collab.onComplete },
+    collab.display,
   );
 
   const result = useMemo<SessionResult>(

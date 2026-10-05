@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { notes, getCofNotes, getCorrectCofNote, getValidFrets, notesMatch, displayNote } from '../utils/music';
-import type { AccidentalMode, OrderMode, HistoryEntry } from '../utils/music';
+import type { AccidentalMode, OrderMode, HistoryEntry, NotationMode } from '../utils/music';
 import type { ScoreResult } from './useScoring';
 import { groupCandidateFrets, candidateStringPool } from '../drill/candidates';
 import type { DrillPosition } from '../drill/candidates';
@@ -109,15 +109,35 @@ export interface EngineCallbacks {
   onComplete?: () => void;
 }
 
+// How the feedback line is worded: the UI language and the player's note-name
+// notation (letters / Do-Re-Mi). Absent → English and letters.
+export interface EngineDisplay {
+  t: (s: string) => string;
+  notation: NotationMode;
+}
+
 export function useGameEngine(
   settings: GameSettings,
   setters: GameSetters,
   historyOps: HistoryOps,
   scoreOps: ScoreOps,
   callbacks: EngineCallbacks = {},
+  display?: EngineDisplay,
 ) {
   const { guitarString, fretFrom, fretTo, wholeToneOnly, dotsOnly, byNote,
           isMulti, activeStrings, time, accidental, order, candidates, interval } = settings;
+
+  // Read inside timer callbacks, so kept in a ref (no stale language / notation
+  // and no new deps on every memoised handler). `note` takes the interval
+  // drill's own notation when it has one, so its prompt and feedback match;
+  // otherwise it follows the player's pick.
+  const fmt = {
+    t: (s: string) => display?.t(s) ?? s,
+    note: (n: string, notation?: NotationMode) =>
+      displayNote(n, accidental, notation ?? display?.notation),
+  };
+  const fmtRef = useRef(fmt);
+  useEffect(() => { fmtRef.current = fmt; });
 
   // An explicit candidate set confines every question to those exact
   // positions. Built into `string -> sorted frets` once per candidate-array
@@ -556,7 +576,7 @@ export function useGameEngine(
         onTimeout();
         const elapsed = (Date.now() - questionStartRef.current) / 1000;
         addEntry(tagInterval({ note: targetNote, fret: remainingFretsRef.current[0], string: iqString, seconds: Math.round(elapsed * 10) / 10, skipped: true, correct: null }));
-        setFeedback(`⏱ ${displayNote(targetNote, accidental, interval?.notation)}`);
+        setFeedback(`⏱ ${fmtRef.current.note(targetNote, interval?.notation)}`);
         playNoteSingle(iqString, remainingFretsRef.current[0], questionPlaybackRate());
         advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) nextByNote(); }, 1800);
       });
@@ -593,7 +613,7 @@ export function useGameEngine(
       onTimeout();
       const elapsed = (Date.now() - questionStartRef.current) / 1000;
       addEntry(tagInterval({ note, fret: askedFretRef.current, string: qString, seconds: Math.round(elapsed * 10) / 10, skipped: true, correct: null }));
-      setFeedback(`⏱ Frets: ${remainingFretsRef.current.join(', ')}`);
+      setFeedback(`⏱ ${fmtRef.current.t('Frets')}: ${remainingFretsRef.current.join(', ')}`);
       playNoteSingle(qString, askedFretRef.current, questionPlaybackRate());
       advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) nextByNote(); }, 1800);
     });
@@ -625,14 +645,14 @@ export function useGameEngine(
         clearTimers();
         answeredRef.current = true;
         setAnswered(true);
-        setFeedback(intervalPositionRef.current ? '✓ Correct!' : '✓ All found!');
+        setFeedback(`✓ ${fmtRef.current.t(intervalPositionRef.current ? 'Correct!' : 'All found!')}`);
         // Visual celebration (floating text, rings/banner) plays independently
         // on its own overlay, but the success chime must finish before the next
         // question note so they don't overlap.
         advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) nextByNote(); });
       } else {
         clearTimers();
-        setFeedback(`✓ Where else? (${newRem.length} more)`);
+        setFeedback(`✓ ${fmtRef.current.t('Where else? ({n} more)').replace('{n}', String(newRem.length))}`);
 
         const resumeRemaining = () => {
           if (!runningRef.current || sessionRef.current !== mySession) return;
@@ -648,7 +668,7 @@ export function useGameEngine(
             onTimeout();
             const elapsed2 = (Date.now() - questionStartRef.current) / 1000;
             addEntry(tagInterval({ note, fret: remainingFretsRef.current[0], string: qString, seconds: Math.round(elapsed2 * 10) / 10, skipped: true, correct: null }));
-            setFeedback(`⏱ Also on: ${remainingFretsRef.current.join(', ')}`);
+            setFeedback(`⏱ ${fmtRef.current.t('Also on: {list}').replace('{list}', remainingFretsRef.current.join(', '))}`);
             playNoteSingle(qString, remainingFretsRef.current[0], questionPlaybackRate());
             advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) nextByNote(); }, 1800);
           });
@@ -674,8 +694,8 @@ export function useGameEngine(
       addEntry(tagInterval({ note, fret: selectedFret, string: qString, seconds: Math.round(elapsed * 10) / 10, skipped: false, correct: false }));
       setFeedback(
         intervalPositionRef.current
-          ? `✗ ${displayNote(note, accidental, interval?.notation)}`
-          : `✗ Correct: ${rem.join(', ')}`,
+          ? `✗ ${fmtRef.current.note(note, interval?.notation)}`
+          : `✗ ${fmtRef.current.t('Correct: {list}').replace('{list}', rem.join(', '))}`,
       );
       advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) nextByNote(); }, 1800);
     }
@@ -755,11 +775,11 @@ export function useGameEngine(
         const short = intervalBySemitones(iq.prompt.semitones)?.short ?? `+${iq.prompt.semitones}`;
         setFeedback(`⏱ ${short}`);
       } else if (iq) {
-        setFeedback(`⏱ ${displayNote(correctNote, accidental, interval?.notation)}`);
+        setFeedback(`⏱ ${fmtRef.current.note(correctNote, interval?.notation)}`);
       } else {
         const cof = getCofNotes(accidental, order, false);
         setCorrectCofNote(getCorrectCofNote(correctNote, cof));
-        setFeedback(`⏱ ${displayNote(correctNote, accidental)} (Fret ${fret})`);
+        setFeedback(`⏱ ${fmtRef.current.note(correctNote)} (${fmtRef.current.t('Fret')} ${fret})`);
       }
       scheduleAdvance(() => { if (runningRef.current && sessionRef.current === mySession) next(); }, 1500);
     });
@@ -793,8 +813,8 @@ export function useGameEngine(
     addEntry(tagInterval({ note: correctNote, fret: currentFret, string: qString, seconds: Math.round(elapsed * 10) / 10, skipped: false, correct: isCorrect }));
     setFeedback(
       isCorrect
-        ? '✓ Correct!'
-        : `✗ It was ${displayNote(correctNote, accidental, intervalPromptRef.current ? interval?.notation : undefined)}`,
+        ? `✓ ${fmtRef.current.t('Correct!')}`
+        : `✗ ${fmtRef.current.t('It was {note}').replace('{note}', fmtRef.current.note(correctNote, intervalPromptRef.current ? interval?.notation : undefined))}`,
     );
 
     if (isCorrect) {
@@ -840,7 +860,7 @@ export function useGameEngine(
     }
     addEntry(tagInterval({ note: p.targetNote, fret: p.targetFret, string: qString, seconds: Math.round(elapsed * 10) / 10, skipped: false, correct: isCorrect }));
     const answerShort = intervalBySemitones(p.semitones)?.short ?? `+${p.semitones}`;
-    setFeedback(isCorrect ? '✓ Correct!' : `✗ ${answerShort}`);
+    setFeedback(isCorrect ? `✓ ${fmtRef.current.t('Correct!')}` : `✗ ${answerShort}`);
 
     if (isCorrect) {
       advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) next(); });

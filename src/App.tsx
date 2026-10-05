@@ -501,6 +501,7 @@ export default function App() {
       session: scoring.session,
     },
     onComplete: handleAutoComplete,
+    display: { t, notation },
   });
   const {
     running, paused, currentFret, currentNote, askedFret, remaining, feedback,

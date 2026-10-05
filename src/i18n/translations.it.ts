@@ -1535,4 +1535,11 @@ export const it: Record<string, string> = {
   'Search the app': 'Cerca nell’app',
   'No results': 'Nessun risultato',
   'Clear search': 'Cancella la ricerca',
+  // Practice drill feedback line (src/hooks/useGameEngine.ts)
+  'Correct!': 'Giusto!',
+  'All found!': 'Trovati tutti!',
+  'Where else? ({n} more)': 'Dove altro? (ancora {n})',
+  'Also on: {list}': 'Anche su: {list}',
+  'Correct: {list}': 'Giusti: {list}',
+  'It was {note}': 'Era {note}',
 };
