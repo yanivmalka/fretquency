@@ -8,6 +8,8 @@ import {
 } from '../utils/progress';
 import type { InstrumentConfig } from '../utils/instruments';
 import { playClickSound, haptic } from '../utils/feedback';
+import { buildNeckMapCanvas, canvasToPngBlob, buildNeckMapCaption } from '../utils/neckMapImage';
+import { shareImage } from '../utils/share';
 import { useTranslation } from '../i18n/useTranslation';
 import { ProGate } from './ProGate';
 import { Chevron } from './Chevron';
@@ -308,6 +310,50 @@ function Timeline({ history }: { history: HistoryEntry[] }) {
   );
 }
 
+// Renders the same heatmap this section shows, to a canvas, and hands it to
+// shareImage(). `leftHanded` is read straight off the DOM at click time
+// (`document.documentElement.dataset.hand`, set globally by
+// useHandednessEffect) rather than threaded in as a prop — this is a one-off
+// read at the moment of sharing, not something the render path depends on.
+function ShareNeckMapButton({ history, instrument }: { history: HistoryEntry[]; instrument: InstrumentConfig }) {
+  const { t } = useTranslation();
+  const [state, setState] = useState<'idle' | 'busy' | 'copied'>('idle');
+
+  const onShare = async () => {
+    if (state === 'busy') return;
+    playClickSound();
+    haptic.tap();
+    setState('busy');
+    try {
+      const leftHanded = document.documentElement.dataset.hand === 'left';
+      const { canvas, nowPct, deltaPct } = buildNeckMapCanvas(instrument, history, leftHanded);
+      const blob = await canvasToPngBlob(canvas);
+      if (!blob) { setState('idle'); return; }
+      const caption = buildNeckMapCaption(instrument, nowPct, deltaPct);
+      const outcome = await shareImage({ title: t('My neck map'), text: caption, blob, filename: 'neck-map.png' });
+      if (outcome === 'copied') {
+        setState('copied');
+        window.setTimeout(() => setState('idle'), 2000);
+      } else {
+        setState('idle');
+      }
+    } catch {
+      setState('idle');
+    }
+  };
+
+  return (
+    <button
+      className="sp2-share-neckmap"
+      onClick={onShare}
+      aria-label={t('Share my neck map')}
+      title={t('Share my neck map')}
+    >
+      {state === 'copied' ? t('Copied to clipboard') : `📸 ${t('Share')}`}
+    </button>
+  );
+}
+
 // ── the stats body ─────────────────────────────────────────────
 function ScopeView({
   history, noteNames, accidental, notation, instrument, windowed, open, toggle, colorblindHeat,
@@ -422,7 +468,10 @@ function ScopeView({
   return (
     <>
       <div className="stat-group">
-        <p className="stat-group-title improving">🎸 {t('Fretboard heatmap')}</p>
+        <div className="sp2-heat-header">
+          <p className="stat-group-title improving">🎸 {t('Fretboard heatmap')}</p>
+          <ShareNeckMapButton history={history} instrument={instrument} />
+        </div>
         <FretHeatmap history={history} instrument={instrument} colorblindHeat={colorblindHeat} />
       </div>
 

@@ -91,6 +91,16 @@
 .sp2 .string-bar-fill.bar-solid    { background: var(--accent-dim); }
 .sp2 .string-bar-fill.bar-growing  { background: var(--amber); }
 
+.sp2-heat-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.sp2-share-neckmap {
+  flex-shrink: 0; padding: 4px 10px; cursor: pointer;
+  background: var(--bg-2); border: 1px solid var(--surface-border); border-radius: 999px;
+  color: var(--text-1); font-size: 0.68rem; font-weight: 700;
+}
+.sp2-share-neckmap:active { background: var(--accent-dim); }
+
 /* Fretboard heatmap: soft rounded cells with gaps, not hard-bordered
    squares — matches the stats-redesign lab. */
 .sp2-heat-scroll { overflow-x: auto; padding-bottom: 4px; }
