@@ -1789,6 +1789,8 @@ export const es: Record<string, string> = {
   "Due {date}": "Para el {date}",
   "Class weak spots": "Puntos débiles de la clase",
   "Fret {fret} on string {string}: {missed} of {total} attempts missed": "Traste {fret} en la cuerda {string}: fallado en {missed} de {total} intentos",
+  "Weak spots": "Puntos débiles",
+  "Hide weak spots": "Ocultar puntos débiles",
   "best {correct}/{total} · {n} tries · {date}": "mejor {correct}/{total} · {n} intentos · {date}",
   "best {correct}/{total} · {n} tries": "mejor {correct}/{total} · {n} intentos",
   "Not yet": "Todavía no",

@@ -42,7 +42,7 @@ import TeacherExamScreen from './TeacherExamScreen';
 import {
   HOMEWORK_INSTRUMENTS, HOMEWORK_QUESTION_COUNTS,
   defaultHomeworkPicks, buildHomeworkDrill, parseHomeworkDrill, describeHomework,
-  summariseAttempts, isHomeworkInstrument, classWeakSpots, type HomeworkPicks, type StudentResult,
+  summariseAttempts, isHomeworkInstrument, classWeakSpots, studentWeakSpots, type HomeworkPicks, type StudentResult,
 } from '../teacher/homework';
 import {
   CLASS_CODE_MAX, normaliseClassCode, isJoinableCode, classCodeProblem, suggestClassCode,
@@ -675,6 +675,7 @@ function HomeworkResults({ hw, members, attempts, onDeleted }: {
   const { t } = useTranslation();
   const shortDate = useShortDate();
   const [open, setOpen] = useState(false);
+  const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const byStudent = useMemo(() => summariseAttempts(attempts), [attempts]);
   const practised = members.filter((m) => byStudent.has(m.userId)).length;
   const weakSpots = useMemo(() => classWeakSpots(attempts, 5), [attempts]);
@@ -712,16 +713,37 @@ function HomeworkResults({ hw, members, attempts, onDeleted }: {
           <ul className="class-results">
             {members.map((m) => {
               const r = byStudent.get(m.userId);
+              const spots = r ? studentWeakSpots(attempts, m.userId, 5) : [];
+              const expanded = expandedStudent === m.userId;
               return (
                 <li key={m.userId} className={r ? 'done' : 'todo'}>
-                  <span>{m.displayName}</span>
-                  <span className="class-muted">
-                    {r
-                      ? t('best {correct}/{total} · {n} tries · {date}')
-                        .replace('{correct}', String(r.bestCorrect)).replace('{total}', String(r.bestTotal))
-                        .replace('{n}', String(r.attempts)).replace('{date}', shortDate(r.lastAt))
-                      : t('Not yet')}
-                  </span>
+                  <div className="class-results-row">
+                    <span>{m.displayName}</span>
+                    <span className="class-muted">
+                      {r
+                        ? t('best {correct}/{total} · {n} tries · {date}')
+                          .replace('{correct}', String(r.bestCorrect)).replace('{total}', String(r.bestTotal))
+                          .replace('{n}', String(r.attempts)).replace('{date}', shortDate(r.lastAt))
+                        : t('Not yet')}
+                    </span>
+                    {spots.length > 0 && (
+                      <button className="class-link-btn" onClick={tap(() => setExpandedStudent(expanded ? null : m.userId))}>
+                        {expanded ? t('Hide weak spots') : t('Weak spots')}
+                      </button>
+                    )}
+                  </div>
+                  {expanded && spots.length > 0 && (
+                    <ul className="class-weak-spots-list">
+                      {spots.map((w) => (
+                        <li key={`${w.string}:${w.fret}`}>
+                          {t('Fret {fret} on string {string}: {missed} of {total} attempts missed')
+                            .replace('{fret}', String(w.fret)).replace('{string}', String(w.string))
+                            .replace('{missed}', String(w.missed))
+                            .replace('{total}', String(attempts.filter((a) => a.user_id === m.userId && a.wrongPositions != null).length))}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               );
             })}

@@ -19,7 +19,7 @@ register(
 // src modules import each other without extensions; resolve them to .ts.
 const {
   buildHomeworkDrill, parseHomeworkDrill, defaultHomeworkPicks, summariseAttempts,
-  HOMEWORK_INSTRUMENTS, extractWrongPositions, classWeakSpots,
+  HOMEWORK_INSTRUMENTS, extractWrongPositions, classWeakSpots, studentWeakSpots,
 } = await import('../src/teacher/homework.ts');
 const {
   normaliseClassCode, isJoinableCode, classCodeProblem, suggestClassCode,
@@ -132,6 +132,28 @@ for (const [name, drill, inst] of bad) {
     [{ wrongPositions: Array.from({ length: 10 }, (_, i) => ({ string: 1, fret: i })) }],
     3,
   ).length, 3, 'limit caps the list');
+}
+
+// Per-student weak spots: same ranking as classWeakSpots, scoped to one user.
+{
+  const attempts = [
+    { user_id: 'a', wrongPositions: [{ string: 2, fret: 5 }, { string: 3, fret: 7 }] },
+    { user_id: 'a', wrongPositions: [{ string: 2, fret: 5 }] },
+    { user_id: 'b', wrongPositions: [{ string: 3, fret: 7 }] },
+    { user_id: 'a', wrongPositions: null }, // pre-0030 row, must not count
+  ];
+  const aSpots = studentWeakSpots(attempts, 'a', 5);
+  eq(aSpots[0], { string: 2, fret: 5, missed: 2 }, 'student a: most-missed position ranks first');
+  eq(aSpots[1], { string: 3, fret: 7, missed: 1 }, 'student a: second place');
+  eq(aSpots.length, 2, 'student a: only their own attempts counted, null skipped');
+  const bSpots = studentWeakSpots(attempts, 'b', 5);
+  eq(bSpots, [{ string: 3, fret: 7, missed: 1 }], 'student b: filtered to their own attempts only');
+  eq(studentWeakSpots(attempts, 'c', 5), [], 'a student with no attempts gets an empty list');
+  eq(studentWeakSpots(
+    [{ user_id: 'a', wrongPositions: Array.from({ length: 10 }, (_, i) => ({ string: 1, fret: i })) }],
+    'a',
+    3,
+  ).length, 3, 'limit caps the per-student list too');
 }
 
 // Codes and invite links.

@@ -178,8 +178,8 @@
 .class-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .class-results li {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
   padding: 6px 10px;
   border-radius: 8px;
   background: var(--bg-1);
@@ -187,6 +187,8 @@
   border-inline-start: 3px solid var(--border-soft);
 }
 .class-results li.done { border-inline-start-color: var(--success); }
+.class-results-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.class-results .class-weak-spots-list { padding-inline-start: 4px; }
 
 .class-hw-student {
   display: flex;

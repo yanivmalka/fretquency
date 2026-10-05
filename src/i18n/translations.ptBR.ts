@@ -1786,6 +1786,8 @@ export const ptBR: Record<string, string> = {
   "Due {date}": "Para {date}",
   "Class weak spots": "Pontos fracos da turma",
   "Fret {fret} on string {string}: {missed} of {total} attempts missed": "Casa {fret} na corda {string}: errada em {missed} de {total} tentativas",
+  "Weak spots": "Pontos fracos",
+  "Hide weak spots": "Ocultar pontos fracos",
   "best {correct}/{total} · {n} tries · {date}": "melhor {correct}/{total} · {n} tentativas · {date}",
   "best {correct}/{total} · {n} tries": "melhor {correct}/{total} · {n} tentativas",
   "Not yet": "Ainda não",

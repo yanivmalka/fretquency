@@ -160,6 +160,25 @@ export function extractWrongPositions(history: HistoryEntry[]): WrongPosition[] 
     .map((e) => ({ string: e.string, fret: e.fret }));
 }
 
+/** Shared tally core for `classWeakSpots`/`studentWeakSpots`: counts how
+ *  often each `(string, fret)` position appears across a set of per-attempt
+ *  position lists, most-missed first. */
+function tallyPositions(
+  lists: WrongPosition[][],
+): Array<{ string: number; fret: number; missed: number }> {
+  const tally = new Map<string, { string: number; fret: number; missed: number }>();
+  for (const positions of lists) {
+    for (const p of positions) {
+      const key = `${p.string}:${p.fret}`;
+      const prev = tally.get(key);
+      if (prev) prev.missed += 1;
+      else tally.set(key, { string: p.string, fret: p.fret, missed: 1 });
+    }
+  }
+  return [...tally.values()]
+    .sort((a, b) => b.missed - a.missed || a.string - b.string || a.fret - b.fret);
+}
+
 /** Ranks fretboard positions by how many times students got them wrong
  *  across a homework's attempts, most-missed first. Attempts with no stored
  *  detail (`wrongPositions` null — rows predating migration 0030) are
@@ -169,19 +188,22 @@ export function classWeakSpots(
   attempts: Array<{ wrongPositions: WrongPosition[] | null }>,
   limit = 5,
 ): Array<{ string: number; fret: number; missed: number }> {
-  const tally = new Map<string, { string: number; fret: number; missed: number }>();
-  for (const a of attempts) {
-    if (!a.wrongPositions) continue;
-    for (const p of a.wrongPositions) {
-      const key = `${p.string}:${p.fret}`;
-      const prev = tally.get(key);
-      if (prev) prev.missed += 1;
-      else tally.set(key, { string: p.string, fret: p.fret, missed: 1 });
-    }
-  }
-  return [...tally.values()]
-    .sort((a, b) => b.missed - a.missed || a.string - b.string || a.fret - b.fret)
-    .slice(0, limit);
+  const lists = attempts.map((a) => a.wrongPositions).filter((w): w is WrongPosition[] => w != null);
+  return tallyPositions(lists).slice(0, limit);
+}
+
+/** Same ranking as `classWeakSpots`, scoped to one student's attempts on
+ *  this homework — lets a teacher drill from the class-wide list into what
+ *  one student specifically struggles with. */
+export function studentWeakSpots(
+  attempts: Array<{ user_id: string; wrongPositions: WrongPosition[] | null }>,
+  userId: string,
+  limit = 5,
+): Array<{ string: number; fret: number; missed: number }> {
+  const lists = attempts
+    .filter((a) => a.user_id === userId && a.wrongPositions != null)
+    .map((a) => a.wrongPositions as WrongPosition[]);
+  return tallyPositions(lists).slice(0, limit);
 }
 
 export function summariseAttempts(
