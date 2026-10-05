@@ -10,8 +10,6 @@
 -- table. Only admins (public.admins, see 0005) can read the table, via the
 -- policy below or the SQL Editor directly.
 --
--- NOT APPLIED YET — this still needs to be run against the live database.
---
 -- Example admin query (counts per event, last 7 days):
 --   select event, count(*) from public.app_events
 --   where created_at > now() - interval '7 days'
