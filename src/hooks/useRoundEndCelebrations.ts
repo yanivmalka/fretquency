@@ -9,6 +9,7 @@ import {
   computeLeagueXp, syncLeague, fetchLeagueGroup, leagueZone, leagueMoveCount, leagueWeekStart,
   loadLastSeenLeagueTier, saveLastSeenLeagueTier, LEAGUE_MIN_PLAYERS, type LeagueTier,
 } from '../utils/leagues';
+import { weeklyLeagueActivity } from '../utils/leagueActivity';
 import { mergeCelebrated } from '../utils/badgeCelebration';
 import { trackRoundFinished } from '../utils/analytics';
 import {
@@ -297,7 +298,11 @@ export function useRoundEndCelebrations({
     let cancelled = false;
     void (async () => {
       try {
-        const membership = await syncLeague(instrument.id, name, computeLeagueXp(allHistoryEntries));
+        // Practice's own correct-answer count plus whatever Homework / the
+        // Premium Learn domains logged into the separate weekly counter —
+        // same 1-XP-per-correct-answer unit for every source (leagueActivity.ts).
+        const xp = computeLeagueXp(allHistoryEntries) + weeklyLeagueActivity(instrument.id);
+        const membership = await syncLeague(instrument.id, name, xp);
         if (!membership || cancelled) return;
         const week = leagueWeekStart();
         const lastSeen = loadLastSeenLeagueTier(instrument.id);

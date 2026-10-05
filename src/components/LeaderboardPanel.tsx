@@ -26,6 +26,7 @@ import {
   LEAGUE_TIER_COLOR,
   type LeagueTier,
 } from '../utils/leagues';
+import { weeklyLeagueActivity } from '../utils/leagueActivity';
 import { supabase } from '../utils/supabase';
 import { PlayerProfileCard } from './PlayerProfileCard';
 
@@ -109,8 +110,11 @@ export function LeaderboardPanel({
     () => computeMyStats(historyForInstrument(allHistory, view)),
     [allHistory, view],
   );
+  // Practice's own correct-answer count plus whatever Homework / the Premium
+  // Learn domains logged into the separate weekly counter (leagueActivity.ts)
+  // — same 1-XP-per-correct-answer unit for every source.
   const myLeagueXp = useMemo(
-    () => computeLeagueXp(historyForInstrument(allHistory, view)),
+    () => computeLeagueXp(historyForInstrument(allHistory, view)) + weeklyLeagueActivity(view),
     [allHistory, view],
   );
   // Leagues need an account and a backend; a guest never sees the tab.

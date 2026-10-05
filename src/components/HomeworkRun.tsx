@@ -23,6 +23,7 @@ import { useDerivedNotes } from '../hooks/useDerivedNotes';
 import { useScoring } from '../hooks/useScoring';
 import { useDrillHistorySink } from '../game/useDrillHistorySink';
 import { recordDailyActivity } from '../utils/dailyActivity';
+import { recordLeagueActivity } from '../utils/leagueActivity';
 import { unlockAudio, setAudioInstrument } from '../utils/audio';
 import { displayNote, setActiveInstrument, type AccidentalMode, type OrderMode, type NotationMode } from '../utils/music';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
@@ -105,6 +106,9 @@ export default function HomeworkRun({
       // comment) — without this, a student's home-screen streak and daily
       // goal would never move on a day they only did homework.
       recordDailyActivity(drill.questionCount);
+      // Same reasoning for weekly league XP (leagueActivity.ts) — a
+      // homework-only week must still move the player's league standing.
+      recordLeagueActivity(instrumentId, r.correct);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.running, session.paused, session.result]);

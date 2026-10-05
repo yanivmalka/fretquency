@@ -44,6 +44,7 @@ import { loadLearningState, saveLearningStateLocal, getInstrumentState, withInst
 import type { ScaleHistoryRow } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
 import { recordDailyActivity } from '../utils/dailyActivity';
+import { recordLeagueActivity } from '../utils/leagueActivity';
 import ScaleFallBoard from './ScaleFallBoard';
 import ScaleOrderBoard from './ScaleOrderBoard';
 import RecallLevelCard from './RecallLevelCard';
@@ -191,6 +192,10 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
       cloudPushLearning();
       setNow(ts);
       recordDailyActivity();
+      // Scales are their own isolated SRS/history, never Practice's real
+      // history — without this, a week spent only on Scales would never
+      // move the player's weekly league XP (leagueActivity.ts).
+      if (correct) recordLeagueActivity(instrument.id);
     },
     [instrument.id],
   );
@@ -279,6 +284,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     cloudPushLearning();
     setNow(ts);
     recordDailyActivity();
+    if (a.correct) recordLeagueActivity(instrument.id);
     const up = sel.recallAuto && a.fadeLevel === sel.recallLevel
       ? recallPromotion(next.scaleHistory, itemId, a.fadeLevel, sel.recallSince)
       : null;

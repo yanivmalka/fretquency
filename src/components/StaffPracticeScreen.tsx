@@ -38,6 +38,7 @@ import {
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
 import { recordDailyActivity } from '../utils/dailyActivity';
+import { recordLeagueActivity } from '../utils/leagueActivity';
 import StaffNotation, { type StaffNote } from './StaffNotation';
 import StaffNeckBoard from './StaffNeckBoard';
 import StaffProgressBoard from './StaffProgressBoard';
@@ -170,6 +171,10 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
     cloudPushLearning();
     setNow(ts);
     recordDailyActivity();
+    // Staff reading is its own isolated SRS/history, never Practice's real
+    // history — without this, a week spent only on Staff reading would never
+    // move the player's weekly league XP (leagueActivity.ts).
+    if (a.correct) recordLeagueActivity(instrument.id);
   }, [instrument.id]);
 
   const notesPerQuestion = NOTES_PER_QUESTION[exercise];

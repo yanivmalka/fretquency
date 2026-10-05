@@ -35,6 +35,7 @@ import {
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
 import { recordDailyActivity } from '../utils/dailyActivity';
+import { recordLeagueActivity } from '../utils/leagueActivity';
 import {
   buildDailyPlan,
   buildWeakSpotsPlan,
@@ -294,6 +295,8 @@ export function useLearning(opts: UseLearningOptions): UseLearningResult {
       // real history) — without this, a day spent only on Intervals would
       // never move the home-screen streak/goal.
       recordDailyActivity();
+      // Same reasoning for weekly league XP (leagueActivity.ts).
+      if (correct) recordLeagueActivity(instrumentId);
     },
     [isPremium, instrumentId],
   );
@@ -348,6 +351,7 @@ export function useLearning(opts: UseLearningOptions): UseLearningResult {
         return next;
       });
       recordDailyActivity();
+      if (entry.correct === true) recordLeagueActivity(instrumentId);
     },
     [isPremium, instrumentId],
   );

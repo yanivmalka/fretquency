@@ -31,6 +31,7 @@ import {
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
 import { recordDailyActivity } from '../utils/dailyActivity';
+import { recordLeagueActivity } from '../utils/leagueActivity';
 import { questionFingering } from '../learning/scaleFingering';
 import { useScaleOrderEngine, type ScaleOrderAnswer, type ScaleStepHit } from '../hooks/useScaleOrderEngine';
 import { usePitchStream } from '../hooks/usePitchStream';
@@ -185,6 +186,9 @@ export default function ScaleEchoCard({
     cloudPushLearning();
     onRecorded(ts);
     recordDailyActivity();
+    // Same isolated-history reasoning as ScalePracticeScreen's recordAnswer —
+    // this is a separate write path, so it needs its own league XP report.
+    if (a.correct) recordLeagueActivity(instrument.id);
 
     const clean = slippedRef.current === 0;
     if (licksOnRef.current) {

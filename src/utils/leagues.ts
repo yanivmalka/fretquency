@@ -1,69 +1,23 @@
-// Weekly leagues — data access + the pure rules the board draws with. Backed
-// by `league_groups` / `league_members` and the `league_sync` function in
-// supabase/migrations/0025_leaderboard_leagues.sql (read that header for the
-// full mechanic). The constants below must stay in step with that function.
-//
-// A league week runs Monday 00:00 UTC to the next Monday; a player's league XP
-// is the correct answers they played since Monday (a calendar week, unlike the
-// board's rolling 7-day "This week" figure). Every Supabase helper no-ops
-// when `supabase` is null.
+// Weekly leagues — Supabase data access. The pure rules (week boundary, XP
+// counting, promotion/demotion zones) live in leagueRules.ts, re-exported
+// below unchanged, so that Supabase-free code (leagueActivity.ts, this
+// file's own check script) can depend on them without pulling in
+// `./supabase` (which reads `import.meta.env` and only works inside Vite).
+// Every Supabase helper in this file no-ops when `supabase` is null.
 
 import { supabase } from './supabase';
-import type { HistoryEntry } from './music';
 import { fetchLeaderboardRows, type LeaderboardRow } from './leaderboard';
+import {
+  LEAGUE_GROUP_SIZE, LEAGUE_MIN_PLAYERS, LEAGUE_DEMOTE_MIN_SIZE, LEAGUE_TIERS, LEAGUE_TIER_COLOR,
+  leagueWeekStart, computeLeagueXp, leagueZone, leagueMoveCount,
+  type LeagueTier, type LeagueMembership,
+} from './leagueRules';
 
-/** Most players one group holds. */
-export const LEAGUE_GROUP_SIZE = 30;
-/** Below this many players a group isn't shown (the board falls back to the
- *  global "This week" standings) and its week moves nobody up or down. */
-export const LEAGUE_MIN_PLAYERS = 5;
-/** Demotion only applies in a group at least this big. */
-export const LEAGUE_DEMOTE_MIN_SIZE = 10;
-
-export const LEAGUE_TIERS = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'] as const;
-export type LeagueTier = 0 | 1 | 2 | 3 | 4;
-
-/** Tier accent colors, low → high, reused by the board's League tab and the
- *  end-of-round card's league line. */
-export const LEAGUE_TIER_COLOR: Record<LeagueTier, string> = {
-  0: '#cd7f32', 1: '#c8d0e0', 2: 'var(--gold)', 3: '#7fd1e0', 4: '#b79cff',
+export {
+  LEAGUE_GROUP_SIZE, LEAGUE_MIN_PLAYERS, LEAGUE_DEMOTE_MIN_SIZE, LEAGUE_TIERS, LEAGUE_TIER_COLOR,
+  leagueWeekStart, computeLeagueXp, leagueZone, leagueMoveCount,
+  type LeagueTier, type LeagueMembership,
 };
-
-export interface LeagueMembership {
-  groupId: number;
-  tier: LeagueTier;
-}
-
-/** Monday 00:00 UTC of the week containing `now`, as `YYYY-MM-DD`. */
-export function leagueWeekStart(now: Date = new Date()): string {
-  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const sinceMonday = (d.getUTCDay() + 6) % 7;
-  d.setUTCDate(d.getUTCDate() - sinceMonday);
-  return d.toISOString().slice(0, 10);
-}
-
-/** Correct answers since this week's Monday 00:00 UTC. Undated legacy rows
- *  don't count, same as the board's weekly figure. */
-export function computeLeagueXp(instrumentEntries: HistoryEntry[], now: Date = new Date()): number {
-  const cutoff = Date.parse(`${leagueWeekStart(now)}T00:00:00Z`);
-  return instrumentEntries.filter(
-    (e) => e.correct === true && e.createdAt && Date.parse(e.createdAt) >= cutoff,
-  ).length;
-}
-
-/** Where a final rank lands at the week's end: same rule as `league_sync`. */
-export function leagueZone(rank: number, size: number, tier: LeagueTier): 'up' | 'down' | null {
-  if (size < LEAGUE_MIN_PLAYERS) return null;
-  const move = Math.max(1, Math.floor(size / 5));
-  if (rank <= move && tier < 4) return 'up';
-  if (size >= LEAGUE_DEMOTE_MIN_SIZE && rank > size - move && tier > 0) return 'down';
-  return null;
-}
-
-/** The share of a group that moves up (and, in a big enough group, down). */
-export function leagueMoveCount(size: number): number {
-  return Math.max(1, Math.floor(size / 5));
-}
 
 /**
  * Push the signed-in player's week XP and get their group back (joining one

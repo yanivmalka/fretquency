@@ -51,6 +51,7 @@ import {
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
 import { recordDailyActivity } from '../utils/dailyActivity';
+import { recordLeagueActivity } from '../utils/leagueActivity';
 import TabNotation, { type TabNote } from './TabNotation';
 import StaffNeckBoard from './StaffNeckBoard';
 import TabProgressBoard, { TabStatusList } from './TabProgressBoard';
@@ -261,6 +262,10 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
     cloudPushLearning();
     setNow(ts);
     recordDailyActivity();
+    // Tab reading is its own isolated SRS/history, never Practice's real
+    // history — without this, a week spent only on Tab reading would never
+    // move the player's weekly league XP (leagueActivity.ts).
+    if (a.correct) recordLeagueActivity(instrument.id);
   }, [instrument.id]);
 
   const notesPerQuestion = NOTES_PER_QUESTION[exercise];
