@@ -317,13 +317,10 @@ export const he: Record<string, string> = {
 
   // Onboarding
   'Fretquency': 'Fretquency',
-  'Master the fretboard with the clock method — one string at a time.':
-    'למד להכיר את צוואר הגיטרה בשיטת השעון — מיתר אחד בכל פעם.',
   'What do you play?': 'על מה אתה מנגן?',
   'Skip setup →': 'דלג על ההגדרה →',
   'How well do you know the fretboard?': 'עד כמה אתה מכיר את צוואר הגיטרה?',
   "I'm just starting": 'אני רק מתחיל',
-  'Start with dot frets on String 6': 'התחל עם סריגי הנקודות במיתר 6',
   'I play but want to improve': 'אני מנגן ורוצה להשתפר',
   'Quick 3-question test': 'מבחן קצר של 3 שאלות',
   'I know the full neck': 'אני מכיר את כל הצוואר',
@@ -342,6 +339,87 @@ export const he: Record<string, string> = {
   "correct — we've set you up on": 'נכונות — נקודת ההתחלה שלך:',
   'Change it anytime in the selector panel.': 'אפשר לשנות זאת בכל עת בפאנל הבחירה.',
   "Let's go →": 'בוא נתחיל →',
+
+  // Welcome, privacy and sign-in onboarding steps
+  'Welcome to Fretquency':
+    'ברוך הבא ל־Fretquency',
+  'Learn every note on the neck of your guitar, bass, ukulele, mandolin or banjo — in short, focused drills, a few minutes a day.':
+    'למד את כל התווים על צוואר הגיטרה, הבס, היוקולילי, המנדולינה או הבנג׳ו — בתרגולים קצרים וממוקדים, כמה דקות ביום.',
+  "What's inside":
+    'מה יש באפליקציה',
+  'Note drills':
+    'תרגול תווים',
+  'Name the note at a fret, or find every fret of a note. Start with the dot frets and work up to the whole neck.':
+    'זהה את התו שבסריג, או מצא את כל הסריגים של תו. התחל בסריגי הנקודות והתקדם עד לכל הצוואר.',
+  'Answer your way':
+    'ענה בדרך שלך',
+  'Tap, say the note out loud, or play it on your instrument.':
+    'הקש, אמור את שם התו בקול, או נגן אותו על הכלי שלך.',
+  'Watch yourself improve':
+    'ראה איך אתה משתפר',
+  'Stats, personal bests, badges and a leaderboard.':
+    'סטטיסטיקות, שיאים אישיים, תגים וטבלת מובילים.',
+  'Built-in tuner':
+    'טיונר מובנה',
+  'Tune up before you practise.':
+    'כוון את הכלי לפני שאתה מתרגל.',
+  'Free to start':
+    'מתחילים בחינם',
+  'The full note drill on every string, badges, the leaderboard and cloud backup. Shows ads.':
+    'תרגול התווים המלא על כל המיתרים, תגים, טבלת המובילים וגיבוי בענן. כולל פרסומות.',
+  'Your full history and trends, mastery maps, a precise fret range, multi-string drills — and no ads.':
+    'כל ההיסטוריה והמגמות שלך, מפות שליטה, טווח סריגים מדויק, תרגול כמה מיתרים יחד — ובלי פרסומות.',
+  'A teacher, not a timer: a daily plan built from your weak spots, a learning path, intervals, scales, staff reading and tab reading.':
+    'מורה, לא שעון עצר: תוכנית יומית שנבנית מהנקודות החלשות שלך, מסלול למידה, אינטרוולים, סולמות, קריאת תווים וקריאת טאבים.',
+  'Pro and Premium are coming soon.':
+    'Pro ופרימיום יגיעו בקרוב.',
+  'Get started':
+    'בוא נתחיל',
+  'Your privacy':
+    'הפרטיות שלך',
+  'Your practice stays on this device':
+    'התרגול שלך נשאר במכשיר',
+  'As a guest, your history, settings and badges are stored only on this phone or browser.':
+    'כאורח, ההיסטוריה, ההגדרות והתגים שלך נשמרים רק בטלפון או בדפדפן הזה.',
+  'Backup is your choice':
+    'הגיבוי הוא לבחירתך',
+  'Only if you sign in with Google is your data backed up to our server, so you can restore it.':
+    'רק אם תתחבר עם Google הנתונים שלך יגובו בשרת שלנו, כדי שתוכל לשחזר אותם.',
+  'The microphone only when you ask':
+    'המיקרופון רק כשתבקש',
+  'It is used only if you choose to answer by voice or by playing, and audio is never saved.':
+    'הוא משמש רק אם תבחר לענות בקול או בנגינה, והשמע לעולם לא נשמר.',
+  'Ads on the free plan':
+    'פרסומות במסלול החינמי',
+  'Ads are provided by Google, which may use an advertising ID to show and measure them.':
+    'הפרסומות מסופקות על ידי Google, שעשויה להשתמש במזהה פרסום כדי להציג ולמדוד אותן.',
+  'Terms of use': 'תנאי שימוש',
+  'I have read the terms of use and the privacy policy and agree to them.':
+    'קראתי את תנאי השימוש ואת מדיניות הפרטיות ואני מסכים להם.',
+  'Keep your progress safe':
+    'שמור על ההתקדמות שלך',
+  'Sign in with Google — it takes a few seconds and is optional.':
+    'התחבר עם Google — זה לוקח כמה שניות וזה לא חובה.',
+  'Never lose your progress':
+    'ההתקדמות שלך לא תלך לאיבוד',
+  'History, badges, personal bests and settings are backed up — even if you change or reset your phone.':
+    'ההיסטוריה, התגים, השיאים וההגדרות מגובים — גם אם תחליף או תאפס את הטלפון.',
+  'Every device, one account':
+    'חשבון אחד, כל המכשירים',
+  'Practise on your phone, carry on in the browser on your computer.':
+    'תרגל בטלפון והמשך בדפדפן במחשב.',
+  'Join the leaderboard':
+    'הצטרף לטבלת המובילים',
+  'Earn XP and see how you compare with other players.':
+    'צבור XP וראה איך אתה עומד מול נגנים אחרים.',
+  'Continue as a guest':
+    'המשך כאורח',
+  'You can sign in any time from the menu → Account.':
+    'אפשר להתחבר בכל עת מהתפריט ← חשבון.',
+  'Strings, frets and tuning can be changed later from the menu → Playing.':
+    'את המיתרים, הסריגים והכיוון אפשר לשנות אחר כך מהתפריט ← נגינה.',
+  'Start with the dot frets':
+    'התחל עם סריגי הנקודות',
 
   // ProgressPanel — stats & progress screen
   'by note': 'לפי תו',

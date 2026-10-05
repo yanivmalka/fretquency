@@ -321,13 +321,10 @@ export const ptBR: Record<string, string> = {
 
   // Onboarding
   'Fretquency': 'Fretquency',
-  'Master the fretboard with the clock method — one string at a time.':
-    'Domine o braço com o método do relógio — uma corda de cada vez.',
   'What do you play?': 'O que você toca?',
   'Skip setup →': 'Pular configuração →',
   'How well do you know the fretboard?': 'Quanto você conhece o braço?',
   "I'm just starting": 'Estou começando',
-  'Start with dot frets on String 6': 'Comece pelos trastes com marcação na corda 6',
   'I play but want to improve': 'Eu toco, mas quero melhorar',
   'Quick 3-question test': 'Teste rápido de 3 perguntas',
   'I know the full neck': 'Conheço o braço inteiro',
@@ -346,6 +343,87 @@ export const ptBR: Record<string, string> = {
   "correct — we've set you up on": 'certas — configuramos você em',
   'Change it anytime in the selector panel.': 'Você pode mudar quando quiser no painel de seleção.',
   "Let's go →": 'Vamos lá →',
+
+  // Welcome, privacy and sign-in onboarding steps
+  'Welcome to Fretquency':
+    'Boas-vindas ao Fretquency',
+  'Learn every note on the neck of your guitar, bass, ukulele, mandolin or banjo — in short, focused drills, a few minutes a day.':
+    'Aprenda todas as notas do braço do seu violão, guitarra, baixo, ukulele, bandolim ou banjo — com exercícios curtos e focados, alguns minutos por dia.',
+  "What's inside":
+    'O que tem no app',
+  'Note drills':
+    'Exercícios de notas',
+  'Name the note at a fret, or find every fret of a note. Start with the dot frets and work up to the whole neck.':
+    'Diga a nota de uma casa ou encontre todas as casas de uma nota. Comece pelos trastes com marcação e avance até o braço inteiro.',
+  'Answer your way':
+    'Responda do seu jeito',
+  'Tap, say the note out loud, or play it on your instrument.':
+    'Toque na tela, diga a nota em voz alta ou toque-a no seu instrumento.',
+  'Watch yourself improve':
+    'Veja sua evolução',
+  'Stats, personal bests, badges and a leaderboard.':
+    'Estatísticas, recordes pessoais, medalhas e um ranking.',
+  'Built-in tuner':
+    'Afinador embutido',
+  'Tune up before you practise.':
+    'Afine antes de praticar.',
+  'Free to start':
+    'Comece de graça',
+  'The full note drill on every string, badges, the leaderboard and cloud backup. Shows ads.':
+    'O exercício de notas completo em todas as cordas, medalhas, o ranking e backup na nuvem. Com anúncios.',
+  'Your full history and trends, mastery maps, a precise fret range, multi-string drills — and no ads.':
+    'Todo o seu histórico e tendências, mapas de domínio, uma faixa de trastes precisa, exercícios com várias cordas — e sem anúncios.',
+  'A teacher, not a timer: a daily plan built from your weak spots, a learning path, intervals, scales, staff reading and tab reading.':
+    'Um professor, não um cronômetro: um plano diário montado a partir dos seus pontos fracos, uma trilha de aprendizado, intervalos, escalas, leitura de partitura e de tablatura.',
+  'Pro and Premium are coming soon.':
+    'Pro e Premium chegam em breve.',
+  'Get started':
+    'Começar',
+  'Your privacy':
+    'Sua privacidade',
+  'Your practice stays on this device':
+    'Sua prática fica neste aparelho',
+  'As a guest, your history, settings and badges are stored only on this phone or browser.':
+    'Como convidado, seu histórico, configurações e medalhas ficam salvos só neste celular ou navegador.',
+  'Backup is your choice':
+    'O backup é escolha sua',
+  'Only if you sign in with Google is your data backed up to our server, so you can restore it.':
+    'Só se você entrar com o Google seus dados terão backup no nosso servidor, para você poder restaurá-los.',
+  'The microphone only when you ask':
+    'O microfone só quando você pedir',
+  'It is used only if you choose to answer by voice or by playing, and audio is never saved.':
+    'Ele só é usado se você escolher responder com a voz ou tocando, e o áudio nunca é salvo.',
+  'Ads on the free plan':
+    'Anúncios no plano grátis',
+  'Ads are provided by Google, which may use an advertising ID to show and measure them.':
+    'Os anúncios são fornecidos pelo Google, que pode usar um ID de publicidade para exibi-los e medi-los.',
+  'Terms of use': 'Termos de uso',
+  'I have read the terms of use and the privacy policy and agree to them.':
+    'Li os termos de uso e a política de privacidade e concordo com eles.',
+  'Keep your progress safe':
+    'Proteja seu progresso',
+  'Sign in with Google — it takes a few seconds and is optional.':
+    'Entre com o Google — leva poucos segundos e é opcional.',
+  'Never lose your progress':
+    'Nunca perca seu progresso',
+  'History, badges, personal bests and settings are backed up — even if you change or reset your phone.':
+    'Histórico, medalhas, recordes e configurações ficam com backup — mesmo se você trocar ou resetar o celular.',
+  'Every device, one account':
+    'Uma conta em todos os aparelhos',
+  'Practise on your phone, carry on in the browser on your computer.':
+    'Pratique no celular e continue no navegador do computador.',
+  'Join the leaderboard':
+    'Entre no ranking',
+  'Earn XP and see how you compare with other players.':
+    'Ganhe XP e veja como você se compara a outros músicos.',
+  'Continue as a guest':
+    'Continuar como convidado',
+  'You can sign in any time from the menu → Account.':
+    'Você pode entrar quando quiser pelo menu → Conta.',
+  'Strings, frets and tuning can be changed later from the menu → Playing.':
+    'Cordas, trastes e afinação podem ser mudados depois pelo menu → Prática.',
+  'Start with the dot frets':
+    'Comece pelos trastes com marcação',
 
   // ProgressPanel — stats & progress screen
   'by note': 'por nota',

@@ -45,3 +45,42 @@
 .onboarding-note-btn:hover { border-color: var(--accent); }
 .onboarding-note-correct { background: rgba(var(--success-rgb), 0.18) !important; border-color: var(--success) !important; color: var(--success) !important; }
 .onboarding-note-wrong   { background: rgba(var(--danger-rgb), 0.18) !important; border-color: var(--danger) !important; color: var(--danger) !important; }
+
+/* Welcome, privacy and sign-in steps */
+.onboarding { overflow-y: auto; }
+.onboarding-card { margin: auto; }
+.onboarding-card-wide { max-width: 440px; gap: 14px; }
+.onboarding-app-icon { width: 84px; height: 84px; border-radius: 20px; }
+.onboarding-btn { text-align: start; }
+.onboarding-skip { color: var(--text-3); }
+.onboarding-features {
+  list-style: none; margin: 0; padding: 0; width: 100%;
+  display: flex; flex-direction: column; gap: 12px; text-align: start;
+}
+.onboarding-feature { display: flex; gap: 12px; align-items: flex-start; }
+.onboarding-feature strong { display: block; color: var(--text-0); font-size: 0.95rem; }
+.onboarding-feature-icon {
+  flex: none; width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-3); font-size: 1.15rem;
+}
+.onboarding-feature-text { display: block; color: var(--text-3); font-size: 0.84rem; line-height: 1.45; }
+.onboarding-dots { display: flex; gap: 6px; }
+.onboarding-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--border-soft); transition: background 0.2s, width 0.2s; }
+.onboarding-dots span.is-on { width: 18px; border-radius: 4px; background: var(--accent); }
+.onboarding-primary {
+  width: 100%; padding: 14px 20px; border: none; border-radius: 12px;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 1rem; font-weight: bold; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.onboarding-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.onboarding-google { background: #fff; color: #1f1f1f; border: 1px solid #dadce0; }
+.onboarding-consent {
+  display: flex; gap: 10px; align-items: flex-start; width: 100%;
+  text-align: start; font-size: 0.9rem; color: var(--text-0); cursor: pointer;
+  background: var(--bg-2); border-radius: 10px; padding: 12px;
+}
+.onboarding-consent input { width: 20px; height: 20px; flex: none; margin: 0; accent-color: var(--accent); }
+.onboarding-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.onboarding-link { color: var(--accent); font-size: 0.9rem; }

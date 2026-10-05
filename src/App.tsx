@@ -17,6 +17,7 @@ import SelectorPanel from './components/SelectorPanel';
 import AdjustSuggestionBanner from './components/AdjustSuggestionBanner';
 import ProgressPanel from './components/ProgressPanel';
 import Onboarding from './components/Onboarding';
+import { markOnboardingDone } from './utils/onboardingState';
 import { setActiveInstrument } from './utils/music';
 import type { HistoryEntry } from './utils/music';
 import {
@@ -1375,9 +1376,24 @@ export default function App() {
     <div className={`app home-page${gameActive ? ' playing' : ''}`}>
       {!onboardingDone && (
         <Onboarding
+          instrument={instrument}
+          notation={notation}
+          accidental={accidental}
+          account={{
+            available: auth.configured,
+            loading: auth.loading,
+            signedIn: !!auth.user,
+            onSignIn: () => { void auth.signInWithGoogle(); },
+          }}
           onInstrument={applyInstrument}
           onPlacement={selector.onDifficultySelect}
-          onDone={() => { setOnboardingDone(true); saveSetting('onboardingDone', true); }}
+          onDone={() => {
+            // Onboarding already offered sign-in, so the follow-up nudge would
+            // only repeat it.
+            dismissSignInPrompt();
+            markOnboardingDone();
+            setOnboardingDone(true);
+          }}
         />
       )}
 

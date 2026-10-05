@@ -8,6 +8,7 @@ import { adSurface, NATIVE_REFRESH_MAX_MS, NATIVE_REFRESH_MIN_MS } from '../ads/
 import { hideNativeBanner, refreshNativeBanner, showNativeBanner } from '../ads/nativeBanner';
 import AdSenseSlot from '../ads/AdSenseSlot';
 import { isBootDone, subscribeBootDone } from '../utils/bootState';
+import { isOnboardingDone, subscribeOnboardingDone } from '../utils/onboardingState';
 
 const SURFACE = adSurface();
 const ROOT = document.documentElement;
@@ -31,9 +32,12 @@ export default function AdBanner() {
   const pending = useSyncExternalStore(subscribeAdPending, isAdPending);
   const roundActive = useSyncExternalStore(subscribeAdPending, isRoundActive);
   const isGuest = !auth.user;
+  // Nothing over the welcome screens — not even the native consent form —
+  // before the player has accepted the privacy policy.
+  const onboarded = useSyncExternalStore(subscribeOnboardingDone, isOnboardingDone);
   // While the entitlement is still resolving a paying user reads as Free, so
   // hold the strip back until we actually know.
-  const visible = !roundActive && (isGuest || pending) && !auth.loading && !can('noAds', auth.tier);
+  const visible = onboarded && !roundActive && (isGuest || pending) && !auth.loading && !can('noAds', auth.tier);
   // The native banner waits for the boot splash to go: setting up the AdMob
   // SDK and its consent flow behind the splash made its bar and intro scale
   // stutter in the APK.

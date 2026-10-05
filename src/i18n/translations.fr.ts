@@ -321,13 +321,10 @@ export const fr: Record<string, string> = {
 
   // Onboarding
   'Fretquency': 'Fretquency',
-  'Master the fretboard with the clock method — one string at a time.':
-    'Maîtrise le manche avec la méthode de l’horloge — une corde à la fois.',
   'What do you play?': 'De quoi joues-tu ?',
   'Skip setup →': 'Passer la configuration →',
   'How well do you know the fretboard?': 'Connais-tu bien le manche ?',
   "I'm just starting": 'Je débute',
-  'Start with dot frets on String 6': 'Commence par les cases à repère sur la corde 6',
   'I play but want to improve': 'Je joue mais je veux progresser',
   'Quick 3-question test': 'Test rapide en 3 questions',
   'I know the full neck': 'Je connais tout le manche',
@@ -346,6 +343,87 @@ export const fr: Record<string, string> = {
   "correct — we've set you up on": 'justes — on t’a configuré sur',
   'Change it anytime in the selector panel.': 'Tu peux le changer à tout moment dans le panneau de sélection.',
   "Let's go →": 'C’est parti →',
+
+  // Welcome, privacy and sign-in onboarding steps
+  'Welcome to Fretquency':
+    'Bienvenue dans Fretquency',
+  'Learn every note on the neck of your guitar, bass, ukulele, mandolin or banjo — in short, focused drills, a few minutes a day.':
+    'Apprends toutes les notes du manche de ta guitare, basse, ukulélé, mandoline ou banjo — avec des exercices courts et ciblés, quelques minutes par jour.',
+  "What's inside":
+    'Ce que tu trouveras',
+  'Note drills':
+    'Exercices de notes',
+  'Name the note at a fret, or find every fret of a note. Start with the dot frets and work up to the whole neck.':
+    'Nomme la note d’une case, ou trouve toutes les cases d’une note. Commence par les cases à repère et progresse jusqu’au manche entier.',
+  'Answer your way':
+    'Réponds comme tu veux',
+  'Tap, say the note out loud, or play it on your instrument.':
+    'Touche l’écran, dis la note à voix haute ou joue-la sur ton instrument.',
+  'Watch yourself improve':
+    'Vois tes progrès',
+  'Stats, personal bests, badges and a leaderboard.':
+    'Statistiques, records personnels, badges et un classement.',
+  'Built-in tuner':
+    'Accordeur intégré',
+  'Tune up before you practise.':
+    'Accorde-toi avant de t’entraîner.',
+  'Free to start':
+    'Gratuit pour commencer',
+  'The full note drill on every string, badges, the leaderboard and cloud backup. Shows ads.':
+    'L’exercice de notes complet sur toutes les cordes, les badges, le classement et la sauvegarde dans le cloud. Avec publicités.',
+  'Your full history and trends, mastery maps, a precise fret range, multi-string drills — and no ads.':
+    'Tout ton historique et tes tendances, des cartes de maîtrise, une plage de cases précise, des exercices sur plusieurs cordes — et sans publicité.',
+  'A teacher, not a timer: a daily plan built from your weak spots, a learning path, intervals, scales, staff reading and tab reading.':
+    'Un professeur, pas un chronomètre : un plan quotidien construit à partir de tes points faibles, un parcours d’apprentissage, les intervalles, les gammes, la lecture de partition et de tablature.',
+  'Pro and Premium are coming soon.':
+    'Pro et Premium arrivent bientôt.',
+  'Get started':
+    'Commencer',
+  'Your privacy':
+    'Ta vie privée',
+  'Your practice stays on this device':
+    'Ton entraînement reste sur cet appareil',
+  'As a guest, your history, settings and badges are stored only on this phone or browser.':
+    'En invité, ton historique, tes réglages et tes badges sont enregistrés uniquement sur ce téléphone ou ce navigateur.',
+  'Backup is your choice':
+    'La sauvegarde, c’est toi qui choisis',
+  'Only if you sign in with Google is your data backed up to our server, so you can restore it.':
+    'Tes données ne sont sauvegardées sur notre serveur que si tu te connectes avec Google, pour que tu puisses les restaurer.',
+  'The microphone only when you ask':
+    'Le micro, seulement si tu le demandes',
+  'It is used only if you choose to answer by voice or by playing, and audio is never saved.':
+    'Il n’est utilisé que si tu choisis de répondre à la voix ou en jouant, et le son n’est jamais enregistré.',
+  'Ads on the free plan':
+    'Des publicités dans l’offre gratuite',
+  'Ads are provided by Google, which may use an advertising ID to show and measure them.':
+    'Les publicités sont fournies par Google, qui peut utiliser un identifiant publicitaire pour les afficher et les mesurer.',
+  'Terms of use': 'Conditions d’utilisation',
+  'I have read the terms of use and the privacy policy and agree to them.':
+    'J’ai lu les conditions d’utilisation et la politique de confidentialité et je les accepte.',
+  'Keep your progress safe':
+    'Protège ta progression',
+  'Sign in with Google — it takes a few seconds and is optional.':
+    'Connecte-toi avec Google — ça prend quelques secondes et c’est facultatif.',
+  'Never lose your progress':
+    'Ne perds jamais ta progression',
+  'History, badges, personal bests and settings are backed up — even if you change or reset your phone.':
+    'Historique, badges, records et réglages sont sauvegardés — même si tu changes ou réinitialises ton téléphone.',
+  'Every device, one account':
+    'Un seul compte sur tous tes appareils',
+  'Practise on your phone, carry on in the browser on your computer.':
+    'Entraîne-toi sur ton téléphone, continue dans le navigateur de ton ordinateur.',
+  'Join the leaderboard':
+    'Rejoins le classement',
+  'Earn XP and see how you compare with other players.':
+    'Gagne de l’XP et compare-toi aux autres musiciens.',
+  'Continue as a guest':
+    'Continuer en invité',
+  'You can sign in any time from the menu → Account.':
+    'Tu peux te connecter à tout moment depuis le menu → Compte.',
+  'Strings, frets and tuning can be changed later from the menu → Playing.':
+    'Les cordes, les cases et l’accordage se changent plus tard depuis le menu → Jeu.',
+  'Start with the dot frets':
+    'Commence par les cases à repère',
 
   // ProgressPanel — stats & progress screen
   'by note': 'par note',
