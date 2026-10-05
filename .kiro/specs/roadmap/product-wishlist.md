@@ -103,7 +103,7 @@ A compressed, priority-ordered view of everything in this document that is **not
 
 ### D. Fully open decisions (no direction yet)
 - **Premium price and trial length** — block building the payment rail (phase 7, RevenueCat expected). Pro's price is settled: **$1/month (owner, 2026-10-05)**; Premium's price and the trial length (both tiers) are still open.
-- **Ads in Free** — undecided; current build has none.
+- **Ads in Free** — shipped: a Free-tier ad strip exists and is active (`src/components/AdBanner.tsx`, paced by `src/utils/adPacing.ts`). What's still undecided is tuning the pacing/placement, not whether to have ads at all.
 - Longer-horizon, explicitly parked/low-priority: named expertise tests, dedicated admin dashboard, public user profiles, a real social/friends layer, iOS port — see §4 for each item's product-decision note. (Additional string instruments — ukulele/mandolin/banjo — have since shipped, gated `pro` via `extraInstruments`; see §4's Built & Shipped note.)
 
 ### E. Parked
@@ -1308,7 +1308,7 @@ monotonically with recent accuracy and with SRS bucket).
 - **Premium shape** — ~~a single higher-priced subscription tier, or one-time in-app purchases per game mode~~. **DECIDED 2026-09-08: a single higher-priced subscription tier.** No per-mode one-time purchases. This matches `premium-product-plan.md`, which frames Premium as one adaptive learning system rather than a bundle of separately bought modes. The tier is still parked (not yet priced or sold); only Free/Pro is built.
 - **Cloud sync in Free** — ~~offer basic single-device backup for free and gate only multi-device restore behind Pro~~. **DECIDED: sync and multi-device restore both stay free** — the full history has to be present locally for scoring to stay correct, so restore cannot be gated.
 - **Free history limit** — ~~"current combination only" vs "last 7 days"~~. **DECIDED: last 7 days**, as a view filter over the Stats & Progress screen and mastery overlays only, never a data/sync cut.
-- **Ads in Free** — still open; the current build carries no ads and relies purely on the Pro upsell.
+- **Ads in Free** — **DECIDED (de facto): shipped.** The current build carries a Free-tier ad strip (`src/components/AdBanner.tsx` / `src/utils/adPacing.ts`) alongside the Pro upsell. Still open: tuning when/how often it shows.
 - **Grandfathering** — **DECIDED: none.** No user base yet, so everyone starts Free; `admin` does not imply Pro.
 - **Pro price / trial length** — **Pro price DECIDED 2026-10-05: $1/month.** Premium's price and the trial length are still open, needed before the payment rail (phase 7) can be built.
 
