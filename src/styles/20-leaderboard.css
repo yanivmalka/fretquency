@@ -189,3 +189,24 @@
 }
 .lb-profile-badge-tier { font-size: 0.6rem; color: var(--text-3); }
 .lb-profile-badge-date { font-size: 0.56rem; color: var(--text-3); }
+
+/* Weekly league (League tab): the group's tier card, the fallback note shown
+   while there is no league worth showing, and the move-up / move-down marks
+   on rows. The tier color comes in inline (LeaderboardPanel's TIER_COLOR). */
+.lb-league {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 14px 16px; border: 1px solid var(--surface-border); border-radius: 14px; background: var(--bg-2);
+}
+.lb-league-name { font-size: 1rem; font-weight: 800; letter-spacing: 0.02em; }
+.lb-league-copy { margin: 0; font-size: 0.8rem; line-height: 1.55; color: var(--text-2); }
+.lb-league-note {
+  margin: 0; padding: 12px 14px; border: 1px dashed var(--surface-border); border-radius: 12px;
+  font-size: 0.82rem; line-height: 1.55; color: var(--text-2);
+}
+.lb-zone { margin-inline-start: 6px; font-size: 0.62rem; vertical-align: middle; }
+.lb-zone-up { color: #3fbf7f; }
+.lb-zone-down { color: #e0605a; }
+.lb-item-up .lb-item-btn { box-shadow: inset 3px 0 0 #3fbf7f; }
+.lb-item-down .lb-item-btn { box-shadow: inset 3px 0 0 #e0605a; }
+[dir='rtl'] .lb-item-up .lb-item-btn { box-shadow: inset -3px 0 0 #3fbf7f; }
+[dir='rtl'] .lb-item-down .lb-item-btn { box-shadow: inset -3px 0 0 #e0605a; }

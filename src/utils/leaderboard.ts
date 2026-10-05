@@ -19,6 +19,8 @@ export interface LeaderboardRow {
   displayName: string;
   xp: number;
   weeklyXp: number;
+  /** This league week's XP (src/utils/leagues.ts) — set only on league rows. */
+  leagueXp?: number;
   questions: number;
   accuracy: number; // 0-100
   updatedAt: string;
@@ -115,6 +117,36 @@ export async function fetchLeaderboard(
       accuracy: row.accuracy,
       updatedAt: row.updated_at,
       rank: i + 1,
+      mine: row.user_id === viewerId,
+    };
+  });
+}
+
+/** The leaderboard rows of specific players (any order; a player with no row
+ *  is simply missing). Used to fill in a league group's accuracy / totals. */
+export async function fetchLeaderboardRows(
+  instrument: string,
+  userIds: string[],
+  viewerId: string | null,
+): Promise<LeaderboardRow[]> {
+  if (!supabase || userIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from('leaderboard_entries')
+    .select('user_id, display_name, xp, weekly_xp, questions, accuracy, updated_at')
+    .eq('instrument', instrument)
+    .in('user_id', userIds);
+  if (error) throw error;
+  return (data ?? []).map((r) => {
+    const row = r as EntryRow;
+    return {
+      userId: row.user_id,
+      displayName: row.display_name,
+      xp: row.xp,
+      weeklyXp: row.weekly_xp,
+      questions: row.questions,
+      accuracy: row.accuracy,
+      updatedAt: row.updated_at,
+      rank: 0,
       mine: row.user_id === viewerId,
     };
   });

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Notes on the Guitar Neck — Chart &amp; Free Practice Drill</title>
+    <meta name="description" content="Every note on the guitar neck in standard tuning, frets 0 to 12, in one chart — plus a free drill that teaches you the fretboard one position at a time, right in the browser." />
+    <meta property="og:title" content="Notes on the Guitar Neck — Chart &amp; Free Practice Drill" />
+    <meta property="og:description" content="Every note on the guitar neck in one chart, plus a free fretboard drill in the browser." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <!--
+      A standalone, crawlable landing page for the "notes on the guitar neck"
+      search intent (same idea as tuner.html, but static: the drill itself is
+      the main app). Every "Practice" link opens the app with ?start=notes,
+      which App.tsx reads at boot (useStartLinkRoute) to start a Notes round
+      straight away. English is the crawlable copy; the inline script below
+      swaps in the visitor's language (stored app pick, else the browser's).
+    -->
+    <style>
+      :root {
+        --bg: #1a1a2e; --card: #22223a; --line: #34345a; --text: #ecebf5; --text-2: #b4b3c8;
+        --accent: #4fd1c5; --accent-ink: #0c1a1a; --acc: #8f8eb0;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #eef2f8; --card: #ffffff; --line: #d3d9e6; --text: #1b1d2a; --text-2: #50566b;
+          --accent: #0f8f86; --accent-ink: #ffffff; --acc: #7a7f93;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; background: var(--bg); color: var(--text);
+        font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      main { max-width: 760px; margin: 0 auto; padding: 28px 16px 48px; }
+      h1 { margin: 0 0 8px; font-size: 1.9rem; line-height: 1.2; }
+      h2 { margin: 32px 0 8px; font-size: 1.2rem; }
+      p { margin: 0 0 12px; color: var(--text-2); }
+      .cta {
+        display: inline-block; margin: 8px 0 4px; padding: 13px 22px; border-radius: 12px;
+        background: var(--accent); color: var(--accent-ink); font-weight: 800; text-decoration: none;
+      }
+      .chart { margin: 24px 0 8px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+      table { border-collapse: collapse; width: 100%; min-width: 560px; font-variant-numeric: tabular-nums; }
+      caption { caption-side: bottom; padding: 10px 12px; text-align: start; font-size: 0.82rem; color: var(--text-2); }
+      th, td { padding: 7px 4px; text-align: center; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+      thead th { font-size: 0.72rem; color: var(--text-2); font-weight: 700; }
+      tbody th { padding-inline: 10px; text-align: start; white-space: nowrap; font-size: 0.78rem; color: var(--text-2); }
+      td { font-weight: 700; }
+      td:nth-child(2) { border-inline-end: 3px solid var(--line); }
+      td.acc { color: var(--acc); font-weight: 500; font-size: 0.8rem; }
+      thead th.dot { color: var(--accent); }
+      tbody tr:last-child th, tbody tr:last-child td { border-bottom: none; }
+      ul { margin: 0 0 12px; padding-inline-start: 20px; color: var(--text-2); }
+      li { margin-bottom: 6px; }
+      footer { margin-top: 36px; font-size: 0.85rem; }
+      footer a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 data-i18n="h1">Notes on the Guitar Neck</h1>
+      <p data-i18n="lede">Every note on a guitar in standard tuning, frets 0 to 12 — and a free drill that teaches them to you, one position at a time.</p>
+      <a class="cta" href="./?start=notes" data-i18n="cta">Practice the notes now — free</a>
+
+      <div class="chart">
+        <table>
+          <caption data-i18n="caption">Standard tuning (E A D G B E). The thickest string is on top. After fret 12 the pattern repeats an octave higher.</caption>
+          <thead>
+            <tr><th scope="col" data-i18n="string">String</th><th scope="col">0</th><th scope="col">1</th><th scope="col">2</th><th scope="col" class="dot">3</th><th scope="col">4</th><th scope="col" class="dot">5</th><th scope="col">6</th><th scope="col" class="dot">7</th><th scope="col">8</th><th scope="col" class="dot">9</th><th scope="col">10</th><th scope="col">11</th><th scope="col" class="dot">12</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">6 (E)</th><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td></tr>
+            <tr><th scope="row">5 (A)</th><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td></tr>
+            <tr><th scope="row">4 (D)</th><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td></tr>
+            <tr><th scope="row">3 (G)</th><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td></tr>
+            <tr><th scope="row">2 (B)</th><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td></tr>
+            <tr><th scope="row">1 (e)</th><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 data-i18n="howTitle">How to learn them</h2>
+      <ul>
+        <li data-i18n="tip1">Start with the natural notes on the two lowest strings — they are the roots of most chord shapes.</li>
+        <li data-i18n="tip2">Remember the two pairs with no sharp between them: E–F and B–C.</li>
+        <li data-i18n="tip3">Drill a few minutes a day. Fretquency asks one position at a time and brings back the ones you miss.</li>
+      </ul>
+
+      <h2 data-i18n="freeTitle">Free, in your browser</h2>
+      <p data-i18n="freeBody">No install and no account needed. It also works for bass, ukulele, mandolin and banjo, with a tuner built in.</p>
+      <a class="cta" href="./?start=notes" data-i18n="cta">Practice the notes now — free</a>
+
+      <footer><a href="./" data-i18n="open">Open Fretquency</a></footer>
+    </main>
+    <script>
+      (function () {
+        var T = {
+          he: {
+            h1: 'התווים על צוואר הגיטרה',
+            lede: 'כל התווים בגיטרה בכיוון סטנדרטי, מסריג 0 עד 12 — ותרגיל חינמי שמלמד אותם, מיקום אחד בכל פעם.',
+            cta: 'לתרגל את התווים עכשיו — בחינם',
+            caption: 'כיוון סטנדרטי (E A D G B E). המיתר העבה ביותר למעלה. אחרי סריג 12 הכול חוזר אוקטבה גבוה יותר.',
+            string: 'מיתר',
+            howTitle: 'איך לומדים אותם',
+            tip1: 'מתחילים מהתווים הטבעיים בשני המיתרים הנמוכים — הם הבסיס של רוב צורות האקורדים.',
+            tip2: 'זוכרים את שני הזוגות שאין ביניהם דיאז: E–F ו־B–C.',
+            tip3: 'מתרגלים כמה דקות ביום. Fretquency שואל על מיקום אחד בכל פעם ומחזיר את אלה שטעיתם בהם.',
+            freeTitle: 'בחינם, בדפדפן',
+            freeBody: 'בלי התקנה ובלי חשבון. עובד גם לבס, יוקלילי, מנדולינה ובנג׳ו, עם טיונר מובנה.',
+            open: 'לפתוח את Fretquency'
+          },
+          es: {
+            h1: 'Las notas en el mástil de la guitarra',
+            lede: 'Todas las notas de la guitarra en afinación estándar, del traste 0 al 12, y un ejercicio gratis que te las enseña, una posición cada vez.',
+            cta: 'Practica las notas ahora, gratis',
+            caption: 'Afinación estándar (Mi La Re Sol Si Mi). La cuerda más gruesa va arriba. Después del traste 12 todo se repite una octava más aguda.',
+            string: 'Cuerda',
+            howTitle: 'Cómo aprenderlas',
+            tip1: 'Empieza por las notas naturales de las dos cuerdas más graves: son la base de casi todas las formas de acordes.',
+            tip2: 'Recuerda los dos pares sin sostenido entre ellos: Mi–Fa y Si–Do.',
+            tip3: 'Practica unos minutos al día. Fretquency te pregunta una posición cada vez y repite las que fallas.',
+            freeTitle: 'Gratis, en tu navegador',
+            freeBody: 'Sin instalar nada y sin cuenta. También sirve para bajo, ukelele, mandolina y banjo, con afinador incluido.',
+            open: 'Abrir Fretquency'
+          },
+          'pt-BR': {
+            h1: 'As notas no braço do violão e da guitarra',
+            lede: 'Todas as notas na afinação padrão, da casa 0 à 12, e um exercício grátis que ensina cada uma, uma posição por vez.',
+            cta: 'Pratique as notas agora, grátis',
+            caption: 'Afinação padrão (Mi Lá Ré Sol Si Mi). A corda mais grossa fica em cima. Depois da casa 12 tudo se repete uma oitava acima.',
+            string: 'Corda',
+            howTitle: 'Como aprender',
+            tip1: 'Comece pelas notas naturais das duas cordas mais graves: elas são a base da maioria dos acordes.',
+            tip2: 'Lembre dos dois pares sem sustenido entre eles: Mi–Fá e Si–Dó.',
+            tip3: 'Pratique alguns minutos por dia. O Fretquency pergunta uma posição por vez e repete as que você erra.',
+            freeTitle: 'Grátis, no navegador',
+            freeBody: 'Sem instalar nada e sem conta. Funciona também para baixo, ukulele, bandolim e banjo, com afinador embutido.',
+            open: 'Abrir o Fretquency'
+          },
+          fr: {
+            h1: 'Les notes sur le manche de la guitare',
+            lede: 'Toutes les notes de la guitare en accordage standard, des cases 0 à 12, et un exercice gratuit qui te les apprend, une position à la fois.',
+            cta: 'Pratique les notes maintenant, gratuitement',
+            caption: 'Accordage standard (Mi La Ré Sol Si Mi). La corde la plus grave est en haut. Après la case 12, tout se répète une octave plus haut.',
+            string: 'Corde',
+            howTitle: 'Comment les apprendre',
+            tip1: 'Commence par les notes naturelles des deux cordes les plus graves : ce sont les fondamentales de la plupart des accords.',
+            tip2: 'Retiens les deux paires sans dièse entre elles : Mi–Fa et Si–Do.',
+            tip3: 'Entraîne-toi quelques minutes par jour. Fretquency te demande une position à la fois et revient sur celles que tu rates.',
+            freeTitle: 'Gratuit, dans ton navigateur',
+            freeBody: 'Sans installation et sans compte. Ça marche aussi pour la basse, le ukulélé, la mandoline et le banjo, avec un accordeur intégré.',
+            open: 'Ouvrir Fretquency'
+          },
+          it: {
+            h1: 'Le note sul manico della chitarra',
+            lede: 'Tutte le note della chitarra in accordatura standard, dal tasto 0 al 12, e un esercizio gratuito che te le insegna, una posizione alla volta.',
+            cta: 'Esercitati sulle note ora, gratis',
+            caption: 'Accordatura standard (Mi La Re Sol Si Mi). La corda più spessa è in alto. Dopo il tasto 12 tutto si ripete un’ottava sopra.',
+            string: 'Corda',
+            howTitle: 'Come impararle',
+            tip1: 'Parti dalle note naturali delle due corde più gravi: sono le fondamentali della maggior parte degli accordi.',
+            tip2: 'Ricorda le due coppie senza diesis in mezzo: Mi–Fa e Si–Do.',
+            tip3: 'Esercitati qualche minuto al giorno. Fretquency ti chiede una posizione alla volta e ripropone quelle che sbagli.',
+            freeTitle: 'Gratis, nel browser',
+            freeBody: 'Niente da installare e nessun account. Funziona anche per basso, ukulele, mandolino e banjo, con accordatore integrato.',
+            open: 'Apri Fretquency'
+          }
+        };
+        var lang = null;
+        try { lang = JSON.parse(localStorage.getItem('pref_language') || 'null'); } catch (e) {}
+        if (!T[lang]) {
+          var nav = (navigator.language || '').toLowerCase();
+          lang = nav.indexOf('he') === 0 || nav.indexOf('iw') === 0 ? 'he'
+            : nav.indexOf('pt') === 0 ? 'pt-BR'
+            : nav.indexOf('es') === 0 ? 'es'
+            : nav.indexOf('fr') === 0 ? 'fr'
+            : nav.indexOf('it') === 0 ? 'it' : null;
+        }
+        if (!lang || !T[lang]) return;
+        var d = T[lang];
+        document.documentElement.lang = lang;
+        if (lang === 'he') document.documentElement.dir = 'rtl';
+        document.title = d.h1;
+        var els = document.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < els.length; i++) {
+          var k = els[i].getAttribute('data-i18n');
+          if (d[k]) els[i].textContent = d[k];
+        }
+        // Spanish, Portuguese, French and Italian read note names as Do-Re-Mi,
+        // like the app's default for those languages.
+        if (lang !== 'he') {
+          var SOLFEGE = { C: 'Do', D: 'Re', E: 'Mi', F: 'Fa', G: 'Sol', A: 'La', B: 'Si' };
+          if (lang === 'pt-BR') { SOLFEGE.C = 'Dó'; SOLFEGE.D = 'Ré'; SOLFEGE.F = 'Fá'; SOLFEGE.A = 'Lá'; }
+          if (lang === 'fr') SOLFEGE.D = 'Ré';
+          var cells = document.querySelectorAll('tbody td, tbody th');
+          for (var j = 0; j < cells.length; j++) {
+            cells[j].textContent = cells[j].textContent.replace(/[A-G]|e(?=\))/g, function (m) {
+              return SOLFEGE[m.toUpperCase()];
+            });
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
