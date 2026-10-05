@@ -1,8 +1,13 @@
 // Classroom data access — Teacher mode, first slice. Backed by the tables and
 // RLS in supabase/migrations/0026_classroom.sql:
-//   - a self-declared teacher (row in `teachers`) creates classes; the server
-//     generates the 6-character join code
-//   - a signed-in student joins with the code through the `join_class` RPC
+//   - a self-declared teacher (row in `teachers`) creates classes with a join
+//     code they choose and may change (0028; rules in classCode.ts). Class
+//     names and codes are unique system-wide.
+//   - a signed-in student joins with the code through the `join_class` RPC;
+//     the teacher may remove a student, optionally blocking their account
+//     from that class (0028's class_blocks + remove_class_member RPC)
+//   - a class idle for 6 months is deleted server-side (0028); the screen
+//     warns ahead of it from `lastActivityAt` (classActivity.ts)
 //   - the teacher assigns homework (a DrillConfig as jsonb); members read it
 //   - a student posts one `homework_attempts` row per finished run; the
 //     class's teacher reads them all (the "who practised" list)
@@ -23,6 +28,14 @@ export interface ClassRow {
   teacherName: string | null;
   teacherId: string;
   createdAt: string;
+  /** Last homework attempt / student join / homework assigned (0028). */
+  lastActivityAt: string;
+}
+
+export interface BlockedRow {
+  userId: string;
+  displayName: string;
+  blockedAt: string;
 }
 
 export interface MemberRow {
@@ -53,7 +66,7 @@ export interface AttemptRow {
 
 interface DbClass {
   id: string; name: string; code: string; teacher_name: string | null;
-  teacher_id: string; created_at: string;
+  teacher_id: string; created_at: string; last_activity_at: string;
 }
 interface DbHomework {
   id: string; class_id: string; title: string; instrument_id: string;
@@ -62,14 +75,14 @@ interface DbHomework {
 
 const toClass = (r: DbClass): ClassRow => ({
   id: r.id, name: r.name, code: r.code, teacherName: r.teacher_name,
-  teacherId: r.teacher_id, createdAt: r.created_at,
+  teacherId: r.teacher_id, createdAt: r.created_at, lastActivityAt: r.last_activity_at,
 });
 const toHomework = (r: DbHomework): HomeworkRow => ({
   id: r.id, classId: r.class_id, title: r.title, instrumentId: r.instrument_id,
   drill: r.drill, dueOn: r.due_on, createdAt: r.created_at,
 });
 
-const CLASS_COLS = 'id, name, code, teacher_name, teacher_id, created_at';
+const CLASS_COLS = 'id, name, code, teacher_name, teacher_id, created_at, last_activity_at';
 const HOMEWORK_COLS = 'id, class_id, title, instrument_id, drill, due_on, created_at';
 
 // ── Teacher role ────────────────────────────────────────────────────────
@@ -133,13 +146,44 @@ export async function fetchJoinedClasses(userId: string): Promise<ClassRow[]> {
   return (data as DbClass[]).map(toClass);
 }
 
-export async function createClass(name: string, teacherName: string | null): Promise<ClassRow | null> {
+/** Why the server refused a class name/code write, so the form can say so. */
+export type ClassWriteProblem = 'nameTaken' | 'codeTaken' | 'codeInvalid';
+
+export class ClassWriteError extends Error {
+  readonly problem: ClassWriteProblem;
+  constructor(problem: ClassWriteProblem) {
+    super(problem);
+    this.problem = problem;
+  }
+}
+
+/** Maps a Postgres unique/check violation on `classes` (0026/0028 names) to a
+ *  ClassWriteError; anything else is rethrown as it came. */
+function classWriteError(error: { code?: string; message?: string }): Error {
+  const msg = error.message ?? '';
+  if (error.code === '23505' && msg.includes('classes_name_unique')) return new ClassWriteError('nameTaken');
+  if (error.code === '23505' && msg.includes('classes_code_key')) return new ClassWriteError('codeTaken');
+  if (error.code === '23514' && msg.includes('classes_code_format')) return new ClassWriteError('codeInvalid');
+  return error as Error;
+}
+
+export async function createClass(name: string, code: string, teacherName: string | null): Promise<ClassRow | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('classes')
-    .insert({ name: name.trim().slice(0, 60), teacher_name: teacherName?.slice(0, 60) ?? null })
+    .insert({ name: name.trim().slice(0, 60), code, teacher_name: teacherName?.slice(0, 60) ?? null })
     .select(CLASS_COLS).single();
-  if (error) throw error;
+  if (error) throw classWriteError(error);
+  return toClass(data as DbClass);
+}
+
+/** Replace a class's join code. Old invite links stop working; members stay. */
+export async function changeClassCode(classId: string, code: string): Promise<ClassRow | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('classes').update({ code }).eq('id', classId)
+    .select(CLASS_COLS).single();
+  if (error) throw classWriteError(error);
   return toClass(data as DbClass);
 }
 
@@ -152,7 +196,9 @@ export async function deleteClass(classId: string): Promise<void> {
 export type JoinOutcome =
   | { kind: 'joined'; classId: string; name: string }
   | { kind: 'notFound' }
-  | { kind: 'ownClass' };
+  | { kind: 'ownClass' }
+  | { kind: 'blocked' }
+  | { kind: 'tooManyAttempts' };
 
 export async function joinClass(code: string, displayName: string): Promise<JoinOutcome> {
   if (!supabase) return { kind: 'notFound' };
@@ -161,6 +207,8 @@ export async function joinClass(code: string, displayName: string): Promise<Join
   });
   if (error) {
     if (error.message?.includes('own class')) return { kind: 'ownClass' };
+    if (error.message?.includes('blocked')) return { kind: 'blocked' };
+    if (error.message?.includes('too many attempts')) return { kind: 'tooManyAttempts' };
     throw error;
   }
   const row = (data as Array<{ id: string; name: string }> | null)?.[0];
@@ -185,8 +233,31 @@ export async function fetchMembers(classId: string): Promise<MemberRow[]> {
   }));
 }
 
-export async function removeMember(classId: string, userId: string): Promise<void> {
-  return leaveClass(classId, userId);
+/** Teacher: remove a student; `block` also bars their account from rejoining
+ *  this class, whatever its code becomes. */
+export async function removeMember(classId: string, userId: string, block: boolean): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase.rpc('remove_class_member', { cid: classId, member: userId, block });
+  if (error) throw error;
+}
+
+export async function fetchBlocked(classId: string): Promise<BlockedRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('class_blocks').select('user_id, display_name, blocked_at')
+    .eq('class_id', classId).order('blocked_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    userId: r.user_id as string, displayName: r.display_name as string, blockedAt: r.blocked_at as string,
+  }));
+}
+
+/** Lift a block. The student is not re-added — they can join with the code again. */
+export async function unblockMember(classId: string, userId: string): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase
+    .from('class_blocks').delete().eq('class_id', classId).eq('user_id', userId);
+  if (error) throw error;
 }
 
 // ── Homework ────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-// Class invite links: `<base>?class=ABC234` opens the Class screen with the
+// Class invite links: `<base>?class=Guitar7` opens the Class screen with the
 // code filled in. Read once at boot by useClassLinkRoute and stripped from
 // the address bar, like the Fret of the Day link (utils/challengeLink.ts).
 //
@@ -8,7 +8,7 @@
 // next boot and the Class screen clears it once the student has joined (or
 // closed the screen).
 
-import { CLASS_CODE_LENGTH, normaliseClassCode } from './homework';
+import { isJoinableCode, normaliseClassCode } from './classCode';
 
 const PARAM = 'class';
 const PENDING_KEY = 'pendingClassCode';
@@ -24,7 +24,7 @@ export function parseClassLink(search: string): string | null {
   const raw = new URLSearchParams(search).get(PARAM);
   if (!raw) return null;
   const code = normaliseClassCode(raw);
-  return code.length === CLASS_CODE_LENGTH ? code : null;
+  return isJoinableCode(code) ? code : null;
 }
 
 export function setPendingClassCode(code: string): void {
@@ -36,7 +36,7 @@ export function readPendingClassCode(): string | null {
     const raw = localStorage.getItem(PENDING_KEY);
     if (!raw) return null;
     const code = normaliseClassCode(raw);
-    return code.length === CLASS_CODE_LENGTH ? code : null;
+    return isJoinableCode(code) ? code : null;
   } catch {
     return null;
   }

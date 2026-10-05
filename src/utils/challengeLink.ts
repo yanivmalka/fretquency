@@ -59,7 +59,7 @@ export function parseChallengeLink(search: string): ChallengeLinkData | null {
 }
 
 /** Builds the Fret of the Day link for `instrumentId` on the given origin+base
- *  path (e.g. `${location.origin}${import.meta.env.BASE_URL}`). */
+ *  path (from `shareBaseUrl()` in utils/publicUrl.ts). */
 export function buildDailyChallengeUrl(baseUrl: string, instrumentId: InstrumentId): string {
   const url = new URL(baseUrl);
   url.searchParams.set('fotd', instrumentId);

@@ -19,8 +19,12 @@ register(
 // src modules import each other without extensions; resolve them to .ts.
 const {
   buildHomeworkDrill, parseHomeworkDrill, defaultHomeworkPicks, summariseAttempts,
-  normaliseClassCode, HOMEWORK_INSTRUMENTS,
+  HOMEWORK_INSTRUMENTS,
 } = await import('../src/teacher/homework.ts');
+const {
+  normaliseClassCode, isJoinableCode, classCodeProblem, suggestClassCode,
+} = await import('../src/teacher/classCode.ts');
+const { classActivityStatus } = await import('../src/teacher/classActivity.ts');
 const { buildClassInviteUrl, parseClassLink } = await import('../src/teacher/classLink.ts');
 const { getInstrument } = await import('../src/utils/instruments.ts');
 
@@ -100,12 +104,42 @@ for (const [name, drill, inst] of bad) {
 }
 
 // Codes and invite links.
-eq(normaliseClassCode(' ab-c 23 4x '), 'ABC234', 'code normalised and capped');
+// Codes are case-sensitive (0028): normalising keeps case, drops junk, caps at 10.
+eq(normaliseClassCode(' Gu-it ar 7 '), 'Guitar7', 'code normalised, case kept');
+eq(normaliseClassCode('abcdefghij12'), 'abcdefghij', 'code capped at 10');
+eq(normaliseClassCode('גיטרה7'), '7', 'non-Latin letters dropped');
+eq(classCodeProblem('Guitar7'), null, 'valid teacher code');
+eq(classCodeProblem('guitar7'), null, 'lower case alone is fine');
+eq(classCodeProblem('Gt7'), 'length', 'too short');
+eq(classCodeProblem('Guitar7890X'), 'length', 'too long');
+eq(classCodeProblem('GUITARS'), 'needsDigit', 'letters only refused');
+eq(classCodeProblem('1234567'), 'needsLetter', 'digits only refused');
+eq(classCodeProblem('Gui tar7'), 'chars', 'space refused');
+eq(isJoinableCode('ABCDEF'), true, 'an old generated code (no digit) still joinable');
+eq(isJoinableCode('ABC'), false, 'short code not joinable');
+for (let i = 0; i < 200; i++) {
+  const c = suggestClassCode();
+  if (classCodeProblem(c) !== null) { fail(`suggested code ${c} is invalid`); break; }
+}
 {
-  const url = buildClassInviteUrl('https://example.com/fretquency/', 'ABC234');
-  eq(parseClassLink(new URL(url).search), 'ABC234', 'invite link round trip');
+  const url = buildClassInviteUrl('https://example.com/fretquency/', 'Guitar7');
+  eq(parseClassLink(new URL(url).search), 'Guitar7', 'invite link round trip keeps case');
   eq(parseClassLink('?class=abc'), null, 'short code rejected');
   eq(parseClassLink('?fotd=guitar'), null, 'other links ignored');
+}
+
+// Idle-class notices: 7 days → idle, 5 months → expiring with the 6-month date.
+{
+  const now = new Date('2026-10-06T12:00:00Z');
+  eq(classActivityStatus('2026-10-01T12:00:00Z', now).kind, 'active', '5 days idle is active');
+  const idle = classActivityStatus('2026-09-29T12:00:00Z', now);
+  eq(idle, { kind: 'idle', idleDays: 7 }, '7 days idle');
+  const almost = classActivityStatus('2026-05-07T12:00:00Z', now);
+  eq(almost.kind, 'idle', 'one day short of 5 months is still idle');
+  const exp = classActivityStatus('2026-05-06T12:00:00Z', now);
+  eq(exp.kind, 'expiring', '5 months idle is expiring');
+  if (exp.kind === 'expiring') eq(exp.deletesOn.toISOString(), '2026-11-06T12:00:00.000Z', 'deletes 6 months after last activity');
+  eq(classActivityStatus('not a date', now).kind, 'active', 'bad timestamp ignored');
 }
 
 if (failed) { console.error(`\n${failed} check(s) failed`); process.exit(1); }

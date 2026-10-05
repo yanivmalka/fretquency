@@ -160,12 +160,3 @@ export function summariseAttempts(
   }
   return out;
 }
-
-export const CLASS_CODE_LENGTH = 6;
-
-/** Normalises what a student types as a code: upper case, spaces/dashes
- *  dropped. The server's alphabet has no 0/O or 1/I/L, so none of those can
- *  be mistyped into a different valid code. */
-export function normaliseClassCode(input: string): string {
-  return input.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, CLASS_CODE_LENGTH);
-}

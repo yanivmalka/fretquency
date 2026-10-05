@@ -29,17 +29,24 @@ import { loadSetting } from '../utils/settings';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
 import type { AccidentalMode, OrderMode, NotationMode } from '../utils/music';
 import { shareResult } from '../utils/share';
+import { shareBaseUrl } from '../utils/publicUrl';
 import {
   fetchTeacherStatus, becomeTeacher, fetchTeachingClasses, fetchJoinedClasses,
-  createClass, deleteClass, joinClass, leaveClass, fetchMembers, removeMember,
+  createClass, changeClassCode, deleteClass, joinClass, leaveClass, fetchMembers, removeMember,
+  fetchBlocked, unblockMember, ClassWriteError,
   fetchHomework, assignHomework, deleteHomework, fetchAttempts, submitAttempt,
   type ClassRow, type MemberRow, type HomeworkRow, type AttemptRow, type TeacherStatus,
 } from '../teacher/classroom';
 import {
-  HOMEWORK_INSTRUMENTS, HOMEWORK_QUESTION_COUNTS, CLASS_CODE_LENGTH,
+  HOMEWORK_INSTRUMENTS, HOMEWORK_QUESTION_COUNTS,
   defaultHomeworkPicks, buildHomeworkDrill, parseHomeworkDrill, describeHomework,
-  summariseAttempts, normaliseClassCode, isHomeworkInstrument, type HomeworkPicks, type StudentResult,
+  summariseAttempts, isHomeworkInstrument, type HomeworkPicks, type StudentResult,
 } from '../teacher/homework';
+import {
+  CLASS_CODE_MAX, normaliseClassCode, isJoinableCode, classCodeProblem, suggestClassCode,
+  type CodeProblem,
+} from '../teacher/classCode';
+import { classActivityStatus, type ClassActivityStatus } from '../teacher/classActivity';
 import { buildClassInviteUrl, clearPendingClassCode, setPendingClassCode } from '../teacher/classLink';
 
 interface Props {
@@ -122,6 +129,7 @@ export default function ClassroomScreen({ user, profileName, initialCode, onSign
             <Home user={user} profileName={profileName} initialCode={initialCode} setView={setView} />
           ) : view.kind === 'teach' ? (
             <TeachView cls={view.cls} onAssign={() => setView({ kind: 'assign', cls: view.cls })}
+              onChanged={(cls) => setView({ kind: 'teach', cls })}
               onDeleted={() => setView({ kind: 'home' })} />
           ) : view.kind === 'assign' ? (
             <AssignView cls={view.cls} onDone={() => setView({ kind: 'teach', cls: view.cls })} />
@@ -224,6 +232,7 @@ function Home({ user, profileName, initialCode, setView }: {
                     <button className="class-list-btn" onClick={tap(() => setView({ kind: 'teach', cls: c }))}>
                       <span className="class-list-name">{c.name}</span>
                       <span className="class-code-chip" dir="ltr">{c.code}</span>
+                      <ActivityChip status={classActivityStatus(c.lastActivityAt)} />
                       <Chevron dir="forward" />
                     </button>
                   </li>
@@ -249,7 +258,7 @@ function JoinCard({ profileName, initialCode, onJoined }: {
   const [name, setName] = useState(profileName ?? '');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const ready = code.length === CLASS_CODE_LENGTH && name.trim().length > 0 && !busy;
+  const ready = isJoinableCode(code) && name.trim().length > 0 && !busy;
 
   const submit = async () => {
     setBusy(true); setMsg(null);
@@ -261,6 +270,10 @@ function JoinCard({ profileName, initialCode, onJoined }: {
         onJoined();
       } else if (out.kind === 'ownClass') {
         setMsg(t('That is your own class — you teach it.'));
+      } else if (out.kind === 'blocked') {
+        setMsg(t('The teacher of this class removed you from it, so you cannot join it again.'));
+      } else if (out.kind === 'tooManyAttempts') {
+        setMsg(t('Too many wrong codes. Wait a few minutes and try again.'));
       } else {
         setMsg(t('No class has that code. Check it with your teacher.'));
       }
@@ -277,9 +290,10 @@ function JoinCard({ profileName, initialCode, onJoined }: {
       <h3 className="class-h">{t('Join a class')}</h3>
       <label className="class-field">
         <span>{t('Class code')}</span>
-        <input className="class-input class-code-input" dir="ltr" inputMode="text" autoCapitalize="characters"
-          autoComplete="off" maxLength={CLASS_CODE_LENGTH + 2} value={code} placeholder="ABC234"
-          onChange={(e) => setCode(normaliseClassCode(e.target.value))} />
+        <input className="class-input class-code-input" dir="ltr" inputMode="text" autoCapitalize="none"
+          autoCorrect="off" spellCheck={false} autoComplete="off" maxLength={CLASS_CODE_MAX + 2} value={code}
+          placeholder="Guitar7" onChange={(e) => setCode(normaliseClassCode(e.target.value))} />
+        <small className="class-muted">{t('Capital and small letters count. Type the code exactly as your teacher wrote it.')}</small>
       </label>
       <label className="class-field">
         <span>{t('Your name, as your teacher will see it')}</span>
@@ -319,44 +333,187 @@ function BecomeTeacherCard({ user, profileName, onDone }: {
   );
 }
 
+function useCodeProblemText() {
+  const { t } = useTranslation();
+  return (p: CodeProblem): string => {
+    switch (p) {
+      case 'length': return t('The code needs 6 to 10 characters.');
+      case 'chars': return t('Use only English letters and digits.');
+      case 'needsLetter': return t('Add at least one letter.');
+      case 'needsDigit': return t('Add at least one digit.');
+    }
+  };
+}
+
+/** The server's refusal (name/code taken, bad code) in words, or the generic line. */
+function useWriteErrorText() {
+  const { t } = useTranslation();
+  return (e: unknown): string => {
+    if (e instanceof ClassWriteError) {
+      if (e.problem === 'nameTaken') return t('A class with this name already exists. Pick another name.');
+      if (e.problem === 'codeTaken') return t('This code is already taken. Pick another code.');
+      return t('This code is not valid. Use 6 to 10 English letters and digits, with at least one of each.');
+    }
+    return t('Something went wrong. Check your connection and try again.');
+  };
+}
+
+/** The teacher's code input: free typing, a "Suggest" button, and the rule
+ *  that is still unmet shown under it. */
+function CodeField({ code, setCode }: { code: string; setCode: (c: string) => void }) {
+  const { t } = useTranslation();
+  const problemText = useCodeProblemText();
+  const problem = code.length > 0 ? classCodeProblem(code) : null;
+  return (
+    <div className="class-field">
+      <span>{t('Class code')}</span>
+      <div className="class-inline-form">
+        <input className="class-input class-code-input" dir="ltr" inputMode="text" autoCapitalize="none"
+          autoCorrect="off" spellCheck={false} autoComplete="off" maxLength={CLASS_CODE_MAX + 2} value={code}
+          placeholder="Guitar7" onChange={(e) => setCode(normaliseClassCode(e.target.value))} />
+        <button type="button" className="clear-btn" onClick={tap(() => setCode(suggestClassCode()))}>
+          {t('Suggest')}
+        </button>
+      </div>
+      <small className="class-muted">
+        {problem
+          ? problemText(problem)
+          : t('6 to 10 English letters and digits, at least one of each. Capital and small letters count.')}
+      </small>
+    </div>
+  );
+}
+
 function NewClassForm({ profileName, onCreated }: { profileName: string | null; onCreated: (c: ClassRow) => void }) {
   const { t } = useTranslation();
+  const writeErrorText = useWriteErrorText();
   const [name, setName] = useState('');
+  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const ready = !busy && name.trim().length > 0 && classCodeProblem(code) === null;
   return (
-    <div className="class-inline-form">
-      <input className="class-input" maxLength={60} value={name} placeholder={t('New class name')}
-        onChange={(e) => setName(e.target.value)} />
-      <button className="clear-btn" disabled={busy || name.trim().length === 0} onClick={tap(() => {
-        setBusy(true); setFailed(false);
-        createClass(name, profileName).then((c) => { if (c) onCreated(c); }, (e) => {
+    <div className="class-new-class">
+      <label className="class-field">
+        <span>{t('New class name')}</span>
+        <input className="class-input" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
+      </label>
+      <CodeField code={code} setCode={setCode} />
+      <button className="clear-btn" disabled={!ready} onClick={tap(() => {
+        setBusy(true); setMsg(null);
+        createClass(name, code, profileName).then((c) => { if (c) onCreated(c); }, (e) => {
           console.warn('[classroom] createClass', e);
-          setFailed(true);
+          setMsg(writeErrorText(e));
         }).finally(() => setBusy(false));
       })}>
         {t('Create class')}
       </button>
-      {failed && <p className="class-muted" role="status">{t('Something went wrong. Check your connection and try again.')}</p>}
+      {msg && <p className="class-muted" role="status">{msg}</p>}
+    </div>
+  );
+}
+
+function ActivityChip({ status }: { status: ClassActivityStatus }) {
+  const { t } = useTranslation();
+  if (status.kind === 'active') return null;
+  return (
+    <span className={`class-activity-chip ${status.kind}`}>
+      {status.kind === 'expiring' ? t('Closing soon') : t('Quiet')}
+    </span>
+  );
+}
+
+/** The teacher's in-app notice for an idle class: weekly-style from 7 days,
+ *  the deletion date from 5 months (classActivity.ts). */
+function ActivityNotice({ status }: { status: ClassActivityStatus }) {
+  const { t, lang } = useTranslation();
+  if (status.kind === 'active') return null;
+  const keep = t('Assign homework, or have a student practise or join, to keep it open.');
+  if (status.kind === 'idle') {
+    return (
+      <section className="class-card class-activity-notice idle" role="status">
+        <p>{t('Nothing has happened in this class for {n} days.').replace('{n}', String(status.idleDays))}</p>
+        <p className="class-muted">{t('A class with no activity for 6 months is deleted.')} {keep}</p>
+      </section>
+    );
+  }
+  const date = new Intl.DateTimeFormat(dateLocale(lang), { day: 'numeric', month: 'long', year: 'numeric' })
+    .format(status.deletesOn);
+  return (
+    <section className="class-card class-activity-notice expiring" role="alert">
+      <p>{t('This class will be deleted on {date}, with its homework and results, because nothing has happened in it for 5 months.').replace('{date}', date)}</p>
+      <p className="class-muted">{keep}</p>
+    </section>
+  );
+}
+
+function ChangeCodeForm({ cls, onChanged, onCancel }: {
+  cls: ClassRow; onChanged: (c: ClassRow) => void; onCancel: () => void;
+}) {
+  const { t } = useTranslation();
+  const writeErrorText = useWriteErrorText();
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const ready = !busy && classCodeProblem(code) === null && code !== cls.code;
+  return (
+    <div className="class-new-class">
+      <CodeField code={code} setCode={setCode} />
+      <p className="class-muted">{t('Students already in the class stay in it. The old code and old invite links stop working.')}</p>
+      <div className="class-row">
+        <button className="clear-btn" onClick={tap(onCancel)}>{t('Cancel')}</button>
+        <button className="class-btn-primary" disabled={!ready} onClick={tap(() => {
+          setBusy(true); setMsg(null);
+          changeClassCode(cls.id, code).then((c) => { if (c) onChanged(c); }, (e) => {
+            console.warn('[classroom] changeClassCode', e);
+            setMsg(writeErrorText(e));
+          }).finally(() => setBusy(false));
+        })}>
+          {t('Save code')}
+        </button>
+      </div>
+      {msg && <p className="class-muted" role="status">{msg}</p>}
     </div>
   );
 }
 
 // ── Teacher: one class ──────────────────────────────────────────────────
 
-function TeachView({ cls, onAssign, onDeleted }: { cls: ClassRow; onAssign: () => void; onDeleted: () => void }) {
+function TeachView({ cls, onAssign, onChanged, onDeleted }: {
+  cls: ClassRow; onAssign: () => void;
+  /** The class row changed (a new code): kept in the view state so Assign → back shows it too. */
+  onChanged: (cls: ClassRow) => void;
+  onDeleted: () => void;
+}) {
   const { t } = useTranslation();
+  const shortDate = useShortDate();
   const data = useLoad(async () => {
-    const [members, homework, attempts] = await Promise.all([
-      fetchMembers(cls.id), fetchHomework(cls.id), fetchAttempts(cls.id),
+    const [members, homework, attempts, blocked] = await Promise.all([
+      fetchMembers(cls.id), fetchHomework(cls.id), fetchAttempts(cls.id), fetchBlocked(cls.id),
     ]);
-    return { members, homework, attempts };
+    return { members, homework, attempts, blocked };
   }, [cls.id]);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editingCode, setEditingCode] = useState(false);
+  const [codeSaved, setCodeSaved] = useState(false);
+  const [actionFailed, setActionFailed] = useState(false);
+  const activity = classActivityStatus(cls.lastActivityAt);
+
+  const remove = (m: MemberRow, block: boolean) => {
+    const question = block
+      ? t('Remove {name} and block them? They will not be able to join this class again, even with a new code.')
+      : t('Remove {name} from this class?');
+    if (!window.confirm(question.replace('{name}', m.displayName))) return;
+    setActionFailed(false);
+    removeMember(cls.id, m.userId, block).then(data.reload, (e) => {
+      console.warn('[classroom] remove', e);
+      setActionFailed(true);
+    });
+  };
 
   const invite = async () => {
-    const url = buildClassInviteUrl(`${window.location.origin}${import.meta.env.BASE_URL}`, cls.code);
+    const url = buildClassInviteUrl(shareBaseUrl(), cls.code);
     const outcome = await shareResult({
       title: t('Join my class on Fretquency'),
       text: t('Join my class "{name}" on Fretquency — code {code}').replace('{name}', cls.name).replace('{code}', cls.code),
@@ -367,10 +524,23 @@ function TeachView({ cls, onAssign, onDeleted }: { cls: ClassRow; onAssign: () =
 
   return (
     <>
+      <ActivityNotice status={activity} />
+
       <section className="class-card class-code-card">
         <span className="class-muted">{t('Class code')}</span>
         <span className="class-code-big" dir="ltr">{cls.code}</span>
-        <button className="clear-btn" onClick={tap(() => { void invite(); })}>{t('Share invite link')}</button>
+        {editingCode ? (
+          <ChangeCodeForm cls={cls} onCancel={() => setEditingCode(false)}
+            onChanged={(c) => { onChanged(c); setEditingCode(false); setCodeSaved(true); }} />
+        ) : (
+          <div className="class-row">
+            <button className="clear-btn" onClick={tap(() => { void invite(); })}>{t('Share invite link')}</button>
+            <button className="clear-btn" onClick={tap(() => { setCodeSaved(false); setEditingCode(true); })}>
+              {t('Change code')}
+            </button>
+          </div>
+        )}
+        {codeSaved && <span className="class-muted" role="status">{t('New code saved.')}</span>}
         {shareMsg && <span className="class-muted" role="status">{shareMsg}</span>}
       </section>
 
@@ -407,17 +577,48 @@ function TeachView({ cls, onAssign, onDeleted }: { cls: ClassRow; onAssign: () =
                 {data.data.members.map((m) => (
                   <li key={m.userId} className="class-member-row">
                     <span>{m.displayName}</span>
-                    <button className="class-link-btn" onClick={tap(() => {
-                      if (!window.confirm(t('Remove {name} from this class?').replace('{name}', m.displayName))) return;
-                      removeMember(cls.id, m.userId).then(data.reload, (e) => console.warn('[classroom] remove', e));
-                    })}>
-                      {t('Remove')}
-                    </button>
+                    <span className="class-member-actions">
+                      <button className="class-link-btn" onClick={tap(() => remove(m, false))}>
+                        {t('Remove')}
+                      </button>
+                      <button className="class-link-btn" onClick={tap(() => remove(m, true))}>
+                        {t('Remove and block')}
+                      </button>
+                    </span>
                   </li>
                 ))}
               </ul>
             )}
+            {actionFailed && <p className="class-muted" role="status">{t('Something went wrong. Check your connection and try again.')}</p>}
           </section>
+
+          {data.data.blocked.length > 0 && (
+            <section className="class-card">
+              <h3 className="class-h">
+                {t('Blocked')} <span className="class-muted">({data.data.blocked.length})</span>
+              </h3>
+              <p className="class-muted">{t('These students cannot join this class again, even with a new code.')}</p>
+              <ul className="class-list">
+                {data.data.blocked.map((b) => (
+                  <li key={b.userId} className="class-member-row">
+                    <span>
+                      {b.displayName}{' '}
+                      <span className="class-muted">{t('blocked {date}').replace('{date}', shortDate(b.blockedAt))}</span>
+                    </span>
+                    <button className="class-link-btn" onClick={tap(() => {
+                      setActionFailed(false);
+                      unblockMember(cls.id, b.userId).then(data.reload, (e) => {
+                        console.warn('[classroom] unblock', e);
+                        setActionFailed(true);
+                      });
+                    })}>
+                      {t('Unblock')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </>
       )}
 

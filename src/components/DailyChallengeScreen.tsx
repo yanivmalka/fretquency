@@ -42,6 +42,7 @@ import {
 import { todaysDailyChallengeResult, recordDailyChallengeResult, type DailyChallengeResult } from '../utils/dailyChallengeStorage';
 import { buildDailyChallengeUrl, buildFriendChallengeUrl, type ChallengeLinkData } from '../utils/challengeLink';
 import { shareResult } from '../utils/share';
+import { shareBaseUrl } from '../utils/publicUrl';
 
 const INSTRUMENT_IDS: InstrumentId[] = ['guitar', 'bass', 'mandolin', 'banjo', 'ukulele'];
 
@@ -157,7 +158,7 @@ export default function DailyChallengeScreen({
     onClose();
   };
 
-  const baseUrl = `${window.location.origin}${import.meta.env.BASE_URL}`;
+  const baseUrl = shareBaseUrl();
   const doShare = async () => {
     if (!storedResult) return;
     const emojiLine = emojiResultLine(historySink.history.map((e) => e.correct === true));

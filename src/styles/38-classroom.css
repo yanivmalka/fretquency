@@ -57,9 +57,11 @@
   font-size: 1rem;
 }
 .class-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Codes are case-sensitive (0028), so show exactly what was typed — no
+   text-transform — in monospace, so l/I and O/0 can be told apart. */
 .class-code-input {
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.15em;
   font-weight: 700;
   text-align: center;
 }
@@ -225,3 +227,40 @@
 }
 .class-btn-primary:disabled { opacity: 0.45; cursor: default; }
 .class-btn-primary:focus-visible { outline: 2px solid var(--text-0); outline-offset: 2px; }
+
+/* ── Codes, blocks and idle classes (migration 0028) ─────────────────── */
+.class-new-class {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.class-new-class > .clear-btn { align-self: flex-start; }
+.class-code-card .class-new-class { text-align: start; }
+
+.class-member-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 12px;
+}
+
+.class-activity-chip {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.class-activity-chip.expiring {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.class-activity-notice p { margin: 0; }
+.class-activity-notice.idle { border-color: var(--border-soft); }
+.class-activity-notice.expiring {
+  border-color: var(--danger);
+  background: rgba(var(--danger-rgb), 0.08);
+}

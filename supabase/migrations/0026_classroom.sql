@@ -6,7 +6,7 @@
 -- teacher assigns homework (a plain DrillConfig, stored as jsonb) and sees
 -- who practised it and how they did.
 --
--- NOT APPLIED YET — this still needs to be run against the live database.
+-- Applied to the live database (owner, before 2026-10-06).
 --
 -- Who is a teacher: self-declared. A signed-in user inserts their own row in
 -- `public.teachers` from the Class screen ("I'm a teacher") and can then
