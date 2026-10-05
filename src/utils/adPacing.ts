@@ -7,7 +7,11 @@
 //   • a signed-in Free user sees it as soon as the app opens (first launch
 //     included), and after that once every random 1–3 rounds — finished or
 //     stopped part-way, both count — until the next round starts or they
-//     close it.
+//     close it;
+//   • none of the above applies on install day, or for anyone's first three
+//     rounds ever (whichever is longer) — a brand-new player, guest or
+//     signed-in, never sees an ad before they've felt the app work. This
+//     overrides even the guest's "always" rule.
 //
 // Every drill engine reports two moments here: a round being started
 // (`noteRoundStarted`) and a round ending, naturally, by the user stopping it,
@@ -24,8 +28,36 @@
 // provider. In-memory on purpose — a fresh launch starts a fresh cycle (with
 // the strip already up), and nothing here is worth syncing.
 
+import { loadSetting, saveSetting } from './settings';
+
 export const AD_MIN_ROUNDS = 1;
 export const AD_MAX_ROUNDS = 3;
+// Ad-free grace window: install day, and this many rounds no matter how many
+// days that takes (a player who only opens the app once a day still gets
+// three ad-free rounds before the first ad).
+const AD_FREE_ROUNDS = 3;
+const INSTALL_DATE_KEY = 'installDate';
+const LIFETIME_ROUNDS_KEY = 'lifetimeRoundsCompleted';
+
+function todayKey(): string {
+  return new Date().toDateString();
+}
+
+// Device-local only — never synced to the cloud (not in settingsSync's key
+// list) and not reset by sign-in/sign-out, since it tracks the device's
+// install, not the account.
+let installDate = loadSetting<string>(INSTALL_DATE_KEY, '');
+if (!installDate) {
+  installDate = todayKey();
+  saveSetting(INSTALL_DATE_KEY, installDate);
+}
+let lifetimeRounds = loadSetting<number>(LIFETIME_ROUNDS_KEY, 0);
+
+/** True during the new-player grace window: install day, or the first three
+ *  rounds ever on this device. Overrides ad visibility entirely, guest included. */
+export function isAdFreeWindow(): boolean {
+  return todayKey() === installDate || lifetimeRounds < AD_FREE_ROUNDS;
+}
 
 function drawThreshold(): number {
   return AD_MIN_ROUNDS + Math.floor(Math.random() * (AD_MAX_ROUNDS - AD_MIN_ROUNDS + 1));
@@ -33,7 +65,8 @@ function drawThreshold(): number {
 
 let roundsSinceAd = 0;
 let threshold = drawThreshold();
-// Up from launch: a Free user sees the strip as soon as the app opens.
+// Up from launch: a Free user sees the strip as soon as the app opens
+// (outside the ad-free grace window above).
 let pending = true;
 let roundActive = false;
 let drillHold = false;
@@ -69,6 +102,10 @@ export function subscribeAdPending(onChange: () => void): () => void {
 export function noteRoundEnded(): void {
   const wasActive = roundActive;
   roundActive = false;
+  if (wasActive && lifetimeRounds < AD_FREE_ROUNDS) {
+    lifetimeRounds += 1;
+    saveSetting(LIFETIME_ROUNDS_KEY, lifetimeRounds);
+  }
   if (!pending) {
     roundsSinceAd += 1;
     if (roundsSinceAd >= threshold) pending = true;
@@ -91,4 +128,12 @@ export function dismissAd(): boolean {
   threshold = drawThreshold();
   emit();
   return true;
+}
+
+/** Rounds completed on this device, capped at `AD_FREE_ROUNDS` (the counter
+ *  stops climbing once ad pacing no longer needs it) — enough to answer "has
+ *  this player finished at least N rounds yet?", e.g. gating the daily
+ *  reminder's permission prompt to after their second round. */
+export function lifetimeRoundsCompleted(): number {
+  return lifetimeRounds;
 }

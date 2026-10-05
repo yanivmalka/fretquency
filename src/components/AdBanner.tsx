@@ -2,7 +2,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from '../i18n/useTranslation';
 import { can } from '../utils/features';
-import { dismissAd, isAdPending, isRoundActive, subscribeAdPending } from '../utils/adPacing';
+import { dismissAd, isAdFreeWindow, isAdPending, isRoundActive, subscribeAdPending } from '../utils/adPacing';
 import { haptic, playClickSound } from '../utils/feedback';
 import { adSurface, NATIVE_REFRESH_MAX_MS, NATIVE_REFRESH_MIN_MS } from '../ads/config';
 import { hideNativeBanner, refreshNativeBanner, showNativeBanner } from '../ads/nativeBanner';
@@ -35,9 +35,12 @@ export default function AdBanner() {
   // Nothing over the welcome screens — not even the native consent form —
   // before the player has accepted the privacy policy.
   const onboarded = useSyncExternalStore(subscribeOnboardingDone, isOnboardingDone);
+  // New-player grace window (install day, or this device's first three
+  // rounds): no ads at all, guest included — overrides the guest "always" rule.
+  const adFree = useSyncExternalStore(subscribeAdPending, isAdFreeWindow);
   // While the entitlement is still resolving a paying user reads as Free, so
   // hold the strip back until we actually know.
-  const visible = onboarded && !roundActive && (isGuest || pending) && !auth.loading && !can('noAds', auth.tier);
+  const visible = onboarded && !roundActive && !adFree && (isGuest || pending) && !auth.loading && !can('noAds', auth.tier);
   // The native banner waits for the boot splash to go: setting up the AdMob
   // SDK and its consent flow behind the splash made its bar and intro scale
   // stutter in the APK.
