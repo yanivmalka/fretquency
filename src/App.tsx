@@ -607,7 +607,7 @@ export default function App() {
   const nav = useAppNavigation({ signInPromptSeen, dismissSignInPrompt, hasAnyHistory, voice });
   const {
     showStats, setShowStats, showPath, setShowPath, settingsOpen, setSettingsOpen,
-    activeDomain, setActiveDomain, drawerSection, setDrawerSection, drawerSlideIn, pageFromMenu,
+    activeDomain, setActiveDomain, drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen,
     micPrompt, setMicPrompt, showInfo, upgradeFromAccountRef,
     askForMic, grantMic, openInfo,
@@ -1123,7 +1123,7 @@ export default function App() {
   // page, not an overlay pinned on top of the (blurred) game screen.
   if (showStats) {
     return (
-      <div className={`app settings-page stats-page${pageFromMenu ? ' settings-page--from-menu' : ''}`}>
+      <div className="app settings-page stats-page">
         <ProgressPanel
           headerIcon={menuIconStats}
           allHistory={historyOps.allHistory}
@@ -1253,7 +1253,6 @@ export default function App() {
           revealBadges={revealBadges}
           instrument={instrument}
           setRevealBadges={setRevealBadges}
-          fromMenu={pageFromMenu}
         />
       );
     }

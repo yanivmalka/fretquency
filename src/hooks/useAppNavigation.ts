@@ -60,27 +60,21 @@ export function useAppNavigation({
   const [activeDomain, setActiveDomain] = useState<LearnDomain>('notes');
   // Which settings sub-page is open inside the drawer; null = the list of titles.
   const [drawerSection, setDrawerSection] = useState<string | null>(() => initialView?.section ?? null);
-  // How the menu and the pages opened from it (a section, or Stats via its
-  // row's onSelect) hand over. Each screen is its own return in App, so every
-  // switch is a hard cut:
-  // - `drawerSlideIn`: the list slides in only on a fresh open. Back from a
-  //   page remounts it, and replaying the slide there flashed the screen dark
-  //   with an empty half; once a page has been opened from the menu, the list
-  //   reappears in place (its dim fading in) until the menu closes.
-  // - `pageFromMenu`: the page was opened straight from the list, so it fades
-  //   the list's dim out instead of cutting from dark to light.
+  // Whether the menu's list slides in when it mounts. Each screen is its own
+  // return in App, so Back from a page opened from the menu (a section, or
+  // Stats via its row's onSelect) remounts the list, and replaying the slide
+  // there flashed the screen dark with an empty half. Only a fresh open
+  // slides; once a page has been opened from the menu, the list reappears in
+  // place (its dim fading in) until the menu closes. The way out — the list's
+  // dim fading over the next screen — is <MenuHandoff>'s job.
   // Derived during render from the previous values (no effect, no ref).
   const [drawerSlideIn, setDrawerSlideIn] = useState(() => !initialView?.section && !initialView?.stats);
-  const [pageFromMenu, setPageFromMenu] = useState(false);
   const [prevDrawer, setPrevDrawer] = useState({ settingsOpen, drawerSection, showStats });
   if (prevDrawer.settingsOpen !== settingsOpen || prevDrawer.drawerSection !== drawerSection
     || prevDrawer.showStats !== showStats) {
     setPrevDrawer({ settingsOpen, drawerSection, showStats });
-    const onPage = drawerSection !== null || showStats;
     if (!settingsOpen) setDrawerSlideIn(true);
-    else if (onPage) setDrawerSlideIn(false);
-    setPageFromMenu(settingsOpen && onPage && prevDrawer.settingsOpen
-      && prevDrawer.drawerSection === null && !prevDrawer.showStats);
+    else if (drawerSection !== null || showStats) setDrawerSlideIn(false);
   }
   // The Tuner is a single-screen full-page takeover (no sub-screens of its
   // own), so it needs no backRef — Back just closes it. Not persisted to
@@ -259,7 +253,7 @@ export function useAppNavigation({
     showPath, setShowPath,
     settingsOpen, setSettingsOpen,
     activeDomain, setActiveDomain,
-    drawerSection, setDrawerSection, drawerSlideIn, pageFromMenu,
+    drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen,
     micPrompt, setMicPrompt,
     showInfo, setShowInfo,

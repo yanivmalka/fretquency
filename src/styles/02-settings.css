@@ -12,6 +12,9 @@
   justify-content: flex-end;
   padding: 0;
   overscroll-behavior: contain;
+  /* Fade the dim in with the sheet's slide: cutting the whole screen to dark
+     at once left the sheet's side flashing dark before the sheet got there. */
+  animation: settings-dim-in 0.22s ease-out;
 }
 .settings-panel {
   background: var(--menu-bg);
@@ -41,18 +44,24 @@
 @keyframes settings-dim-in {
   from { background-color: transparent; }
 }
-/* The other way: a page opened from the list starts under the list's dim and
-   fades it out, rather than cutting from dark to light. Same colour and
-   stacking as .settings-overlay; never takes a tap. ::before because
-   01-base.css draws the mobile frame edge on .app::after. */
-.settings-page--from-menu::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 50;
+/* The way out (<MenuHandoff>): once the list unmounts, its dim fades off the
+   strip the sheet left uncovered, over whatever screen replaced it. The
+   sheet's own area is a clear spacer sized like .settings-panel, so it cuts
+   straight to the new screen — dimming it too flashed that side dark. */
+.settings-overlay.menu-handoff {
+  background: none;
   pointer-events: none;
+  animation: none;
+}
+.menu-handoff__dim {
+  flex: 1;
   background: rgba(0, 0, 0, 0.6);
   animation: settings-dim-out 0.18s ease-out forwards;
+}
+.menu-handoff__sheet {
+  width: 50%;
+  min-width: 260px;
+  max-width: 460px;
 }
 @keyframes settings-dim-out {
   to { background-color: transparent; }

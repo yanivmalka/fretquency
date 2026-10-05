@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useLayoutEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Chevron } from '../Chevron';
 import { withClick as click } from '../../utils/withClick';
 import { BadgeRevealOverlay, type CelebratedBadge } from '../BadgeCelebration';
@@ -6,6 +6,7 @@ import type { InstrumentConfig } from '../../utils/instruments';
 import type { Lang } from '../../i18n/translations';
 import { searchApp, type SearchContext, type SearchEntry } from '../../utils/appSearch';
 import { minTier, type Feature } from '../../utils/features';
+import { endMenuHandoff, getMenuHandoff, startMenuHandoff, subscribeMenuHandoff } from '../../utils/menuHandoff';
 
 /**
  * The hamburger settings drawer, split out of <App> as pure presentation:
@@ -47,6 +48,14 @@ export function SettingsDrawerNav({
   // Local on purpose: the drawer unmounts on close, so every open starts
   // with an empty field and the plain section list.
   const [query, setQuery] = useState('');
+  // Leaving the list for anything (a page, a search pick, close) fades its
+  // dim out over the next screen via <MenuHandoff>. A layout effect so the
+  // fade is in that screen's first frame; the setup half cancels a fade still
+  // running when the list comes back (and StrictMode's dev re-mount).
+  useLayoutEffect(() => {
+    endMenuHandoff();
+    return startMenuHandoff;
+  }, []);
   const results = useMemo(
     () => searchApp(query, t, search.ctx),
     [query, t, search.ctx],
@@ -169,7 +178,7 @@ export function SettingsDrawerNav({
 
 export function SettingsSubPage({
   section, lang, t, drawerSection, upgradeFromAccountRef, setDrawerSection,
-  revealBadges, instrument, setRevealBadges, fromMenu,
+  revealBadges, instrument, setRevealBadges,
 }: {
   section: SettingsSection;
   lang: Lang;
@@ -180,11 +189,9 @@ export function SettingsSubPage({
   revealBadges: CelebratedBadge[];
   instrument: InstrumentConfig;
   setRevealBadges: (b: CelebratedBadge[]) => void;
-  /** Opened straight from the menu list: fade the list's dim out on arrival. */
-  fromMenu: boolean;
 }) {
   return (
-    <div className={`app settings-page${fromMenu ? ' settings-page--from-menu' : ''}`}>
+    <div className="app settings-page">
       <div className="sp2 settings-page-inner" dir={lang === 'he' ? 'rtl' : undefined}>
         <div className="sp2-head settings-page-head">
           {/* Badges is a sub-page of Account (opened from the pinned-badge
@@ -227,6 +234,25 @@ export function SettingsSubPage({
           onClose={() => setRevealBadges([])}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * The hamburger list's dim fading out after the list unmounts (see
+ * utils/menuHandoff.ts). It dims only the strip the sheet left uncovered: the
+ * sheet's own area cuts straight to the next screen, so nothing there flashes
+ * dark between the sheet and what replaced it. Reuses .settings-overlay for
+ * its placement (the phone frame on desktop, the left-handed side); never
+ * takes a tap. Mounted once, outside <App>, like the ad strip.
+ */
+export function MenuHandoff() {
+  const key = useSyncExternalStore(subscribeMenuHandoff, getMenuHandoff);
+  if (key === 0) return null;
+  return (
+    <div key={key} className="settings-overlay menu-handoff" aria-hidden="true">
+      <div className="menu-handoff__dim" onAnimationEnd={endMenuHandoff} />
+      <div className="menu-handoff__sheet" />
     </div>
   );
 }
