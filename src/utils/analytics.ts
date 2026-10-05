@@ -19,12 +19,17 @@ export type AnalyticsEvent =
   | 'upgrade_page_viewed'
   | 'share_used'
   | 'reminder_enabled'
-  | 'opened_from_link';
+  | 'opened_from_link'
+  | 'trial_started'
+  | 'trial_ended'
+  | 'class_created'
+  | 'class_joined';
 
 const INSTALL_ID_KEY = 'installId';
 const FIRST_ROUND_KEY = 'analyticsFirstRoundDone';
 const INSTALL_DATE_KEY = 'analyticsInstallDate';
 const LAST_RETURN_CHECK_KEY = 'analyticsLastReturnCheckDay';
+const D7_RETURN_FIRED_KEY = 'analyticsD7ReturnFired';
 
 function getInstallId(): string {
   try {
@@ -71,8 +76,11 @@ export function trackRoundFinished(props?: Record<string, unknown>): void {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Call once per app boot. Tracks `app_open`, and on the first open of a new
-// calendar day since install, fires `d1_return` / `d7_return` once each.
+// Call once per app boot. Tracks `app_open`, `d1_return` on the first open of
+// the calendar day after install, and `d7_return` the first time an open
+// lands on day 7 or later (not only exactly day 7 — a player who skips day 7
+// and comes back on day 9 still counts as a week-one return; firing only on
+// the exact day would silently drop everyone who returns late).
 export function trackAppOpenAndReturns(): void {
   track('app_open');
   try {
@@ -90,7 +98,10 @@ export function trackAppOpenAndReturns(): void {
       (new Date(today).getTime() - new Date(installDateStr).getTime()) / DAY_MS,
     );
     if (daysSinceInstall === 1) track('d1_return');
-    else if (daysSinceInstall === 7) track('d7_return');
+    if (daysSinceInstall >= 7 && localStorage.getItem(D7_RETURN_FIRED_KEY) !== 'true') {
+      localStorage.setItem(D7_RETURN_FIRED_KEY, 'true');
+      track('d7_return');
+    }
   } catch {
     // No persistence available — skip return-day tracking this session.
   }
