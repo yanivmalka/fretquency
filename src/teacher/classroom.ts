@@ -20,6 +20,7 @@
 import { supabase } from '../utils/supabase';
 import type { DrillConfig } from '../drill/DrillConfig';
 import type { InstrumentId } from '../utils/instruments';
+import type { WrongPosition } from './homework';
 
 export interface ClassRow {
   id: string;
@@ -62,6 +63,8 @@ export interface AttemptRow {
   total: number;
   seconds: number;
   created_at: string;
+  /** Null for rows predating migration 0030, or a run with no stored detail. */
+  wrongPositions: WrongPosition[] | null;
 }
 
 interface DbClass {
@@ -289,19 +292,29 @@ export async function deleteHomework(homeworkId: string): Promise<void> {
 
 /** Every attempt in a class the caller may read: all of them for the class's
  *  teacher, only their own for a student (RLS decides). */
+interface DbAttempt {
+  homework_id: string; user_id: string; correct: number; total: number;
+  seconds: number; created_at: string; wrong_positions: WrongPosition[] | null;
+}
+
 export async function fetchAttempts(classId: string): Promise<AttemptRow[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('homework_attempts')
-    .select('homework_id, user_id, correct, total, seconds, created_at')
+    .select('homework_id, user_id, correct, total, seconds, created_at, wrong_positions')
     .eq('class_id', classId)
     .order('created_at', { ascending: false });
   if (error) throw error;
-  return (data ?? []) as AttemptRow[];
+  return (data as DbAttempt[]).map((r) => ({
+    homework_id: r.homework_id, user_id: r.user_id, correct: r.correct, total: r.total,
+    seconds: r.seconds, created_at: r.created_at, wrongPositions: r.wrong_positions,
+  }));
 }
 
 export async function submitAttempt(input: {
   homeworkId: string; classId: string; userId: string; correct: number; total: number; seconds: number;
+  /** Positions missed on this run (migration 0030); omitted/undefined stores null. */
+  wrongPositions?: WrongPosition[];
 }): Promise<void> {
   if (!supabase) return;
   const { error } = await supabase.from('homework_attempts').insert({
@@ -311,6 +324,7 @@ export async function submitAttempt(input: {
     correct: input.correct,
     total: input.total,
     seconds: Math.max(0, Math.round(input.seconds)),
+    wrong_positions: input.wrongPositions ?? null,
   });
   if (error) throw error;
 }

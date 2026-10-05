@@ -19,7 +19,7 @@ register(
 // src modules import each other without extensions; resolve them to .ts.
 const {
   buildHomeworkDrill, parseHomeworkDrill, defaultHomeworkPicks, summariseAttempts,
-  HOMEWORK_INSTRUMENTS,
+  HOMEWORK_INSTRUMENTS, extractWrongPositions, classWeakSpots,
 } = await import('../src/teacher/homework.ts');
 const {
   normaliseClassCode, isJoinableCode, classCodeProblem, suggestClassCode,
@@ -101,6 +101,37 @@ for (const [name, drill, inst] of bad) {
   eq(s.get('a'), { attempts: 3, bestCorrect: 9, bestTotal: 10, lastAt: '2026-10-03T10:00:00Z' }, 'student a summary');
   eq(s.get('b')?.attempts, 1, 'student b count');
   eq(s.has('c'), false, 'no row for a student who never practised');
+}
+
+// Weak spots: which positions a student missed, and the class-wide ranking.
+{
+  const mkEntry = (string: number, fret: number, correct: boolean | null, skipped = false) =>
+    ({ note: 'x', fret, string, seconds: 1, skipped, correct });
+  const history = [
+    mkEntry(1, 0, true),
+    mkEntry(2, 5, false),
+    mkEntry(2, 5, false),
+    mkEntry(3, 7, null), // timeout
+    mkEntry(4, 2, false, true), // skipped
+  ];
+  const wrong = extractWrongPositions(history as never);
+  eq(wrong.length, 4, 'only the non-correct questions are kept');
+  eq(wrong.every((p) => typeof p.string === 'number' && typeof p.fret === 'number'), true, 'shape is {string, fret}');
+
+  const attempts = [
+    { wrongPositions: [{ string: 2, fret: 5 }, { string: 3, fret: 7 }] },
+    { wrongPositions: [{ string: 2, fret: 5 }] },
+    { wrongPositions: null }, // pre-0030 row, must not count as "nothing missed"
+  ];
+  const spots = classWeakSpots(attempts, 5);
+  eq(spots[0], { string: 2, fret: 5, missed: 2 }, 'most-missed position ranks first');
+  eq(spots[1], { string: 3, fret: 7, missed: 1 }, 'second place');
+  eq(spots.length, 2, 'null-detail attempt contributes nothing');
+  eq(classWeakSpots([{ wrongPositions: [] }, { wrongPositions: null }]), [], 'no misses => empty list');
+  eq(classWeakSpots(
+    [{ wrongPositions: Array.from({ length: 10 }, (_, i) => ({ string: 1, fret: i })) }],
+    3,
+  ).length, 3, 'limit caps the list');
 }
 
 // Codes and invite links.

@@ -17,7 +17,7 @@
 
 import type { DrillConfig } from '../drill/DrillConfig';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
-import type { AccidentalMode, OrderMode } from '../utils/music';
+import type { AccidentalMode, OrderMode, HistoryEntry } from '../utils/music';
 
 /** Instruments a teacher may assign. Mandolin and banjo are Pro-only for a
  *  student, so homework on them could lock a Free student out. */
@@ -139,6 +139,49 @@ export interface StudentResult {
   bestCorrect: number;
   bestTotal: number;
   lastAt: string;
+}
+
+/** One fretboard position, 1-based string / 0-based fret — the shape stored
+ *  in `homework_attempts.wrong_positions` (migration 0030). */
+export interface WrongPosition {
+  string: number;
+  fret: number;
+}
+
+/** The positions a student did not get right on one run: wrong, skipped, or
+ *  timed out (anything `correct !== true`), one entry per such question —
+ *  same in-memory history sink HomeworkRun already builds its result from.
+ *  Mirrors the right/wrong aggregation `fretMasteryMap` does for Practice,
+ *  but keeps per-question entries (not a tally) so `classWeakSpots` can
+ *  count occurrences across many students' attempts. */
+export function extractWrongPositions(history: HistoryEntry[]): WrongPosition[] {
+  return history
+    .filter((e) => e.correct !== true)
+    .map((e) => ({ string: e.string, fret: e.fret }));
+}
+
+/** Ranks fretboard positions by how many times students got them wrong
+ *  across a homework's attempts, most-missed first. Attempts with no stored
+ *  detail (`wrongPositions` null — rows predating migration 0030) are
+ *  skipped, not treated as "nothing missed". `limit` caps the list for a
+ *  compact teacher-facing summary. */
+export function classWeakSpots(
+  attempts: Array<{ wrongPositions: WrongPosition[] | null }>,
+  limit = 5,
+): Array<{ string: number; fret: number; missed: number }> {
+  const tally = new Map<string, { string: number; fret: number; missed: number }>();
+  for (const a of attempts) {
+    if (!a.wrongPositions) continue;
+    for (const p of a.wrongPositions) {
+      const key = `${p.string}:${p.fret}`;
+      const prev = tally.get(key);
+      if (prev) prev.missed += 1;
+      else tally.set(key, { string: p.string, fret: p.fret, missed: 1 });
+    }
+  }
+  return [...tally.values()]
+    .sort((a, b) => b.missed - a.missed || a.string - b.string || a.fret - b.fret)
+    .slice(0, limit);
 }
 
 export function summariseAttempts(
