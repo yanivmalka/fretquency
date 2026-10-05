@@ -1,4 +1,4 @@
-package com.guitarfretpractice.app;
+package com.fretquency.app;
 
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;

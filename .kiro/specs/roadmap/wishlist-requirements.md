@@ -1,4 +1,4 @@
-# Guitar Fret Practice — Roadmap
+# Fretquency — Roadmap
 
 Based on everything we discussed, here's the full roadmap organized by version.
 

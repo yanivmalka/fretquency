@@ -81,7 +81,7 @@ export default function Onboarding({ onDone, onInstrument, onPlacement }: Props)
     <div className="onboarding">
       <div className="onboarding-card">
         <div className="onboarding-logo">🎸</div>
-        <h2 className="onboarding-title">{t('Guitar Fret Practice')}</h2>
+        <h2 className="onboarding-title">{t('Fretquency')}</h2>
         <p className="onboarding-sub">{t('Master the fretboard with the clock method — one string at a time.')}</p>
         <p className="onboarding-question">{t('What do you play?')}</p>
         <div className="onboarding-options">

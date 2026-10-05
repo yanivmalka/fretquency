@@ -2,7 +2,7 @@
 <!--
   Overrides the AndroidManifest.xml that `npx cap add android` generates. It is
   the stock Capacitor 8 template PLUS two additions. First: a second <intent-filter> on
-  MainActivity for the `com.guitarfretpractice.app://auth-callback` deep link,
+  MainActivity for the `com.fretquency.app://auth-callback` deep link,
   so Google's OAuth redirect returns into the app (handled in src/hooks/useAuth
   via @capacitor/app's appUrlOpen) instead of being stranded in a browser tab.
 
@@ -52,7 +52,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.guitarfretpractice.app" android:host="auth-callback" />
+                <data android:scheme="com.fretquency.app" android:host="auth-callback" />
             </intent-filter>
 
         </activity>

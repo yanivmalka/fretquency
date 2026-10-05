@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const URL = 'http://localhost:5173/guitar-fret-practice/';
+const URL = 'http://localhost:5173/fretquency/';
 
 function log(label, msg) {
   console.log(`[${label}] ${msg}`);

@@ -8,7 +8,7 @@ import { verror } from '../../../utils/debugLog';
 import type { AuthState } from '../../../hooks/useAuth';
 import { dateLocale, type Lang } from '../../../i18n/translations';
 
-const PRIVACY_POLICY_URL = 'https://yanivmalka.github.io/guitar-fret-practice/privacy.html';
+const PRIVACY_POLICY_URL = 'https://yanivmalka.github.io/fretquency/privacy.html';
 
 /**
  * The "Account" drawer section body: sign-in / sign-out, the plan tile, the

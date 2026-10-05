@@ -29,7 +29,7 @@ function Phone({
 function TopBurger({ dir }: { dir: Dir }) {
   return (
     <div className="dp-topline">
-      <div className="dp-app-title">🎸 Guitar Fret Practice</div>
+      <div className="dp-app-title">🎸 Fretquency</div>
       <div className="dp-burger">{dir === 'rtl' ? '☰' : '☰'}</div>
     </div>
   );
@@ -112,7 +112,7 @@ export default function DesignPreview() {
     <div className="dp-root" data-theme={globalTheme} dir={globalDir}>
       <div className="dp-topbar">
         <div className="dp-brand">
-          <span className="dp-brand-title">🎸 Guitar Fret Practice</span>
+          <span className="dp-brand-title">🎸 Fretquency</span>
           <span className="dp-brand-sub">Design System Playground</span>
         </div>
         <div className="dp-controls">
@@ -661,7 +661,7 @@ export default function DesignPreview() {
             <div className="dp-onboarding">
               <div className="dp-onboard-card">
                 <div className="dp-onboard-logo">🎸</div>
-                <div className="dp-onboard-title">Guitar Fret Practice</div>
+                <div className="dp-onboard-title">Fretquency</div>
                 <div className="dp-onboard-sub">Master the fretboard with the clock method — one string at a time.</div>
                 <div className="dp-onboard-title" style={{ fontSize: 13 }}>What do you play?</div>
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>

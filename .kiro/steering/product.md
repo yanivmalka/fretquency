@@ -1,6 +1,6 @@
 # Product Overview
 
-Guitar Fret Practice is a progressive web app (PWA) and Capacitor mobile app that helps guitarists memorize note positions on the fretboard.
+Fretquency is a progressive web app (PWA) and Capacitor mobile app that helps guitarists memorize note positions on the fretboard.
 
 ## Core Concept
 

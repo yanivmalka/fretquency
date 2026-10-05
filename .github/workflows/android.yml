@@ -86,9 +86,9 @@ jobs:
           cp android-overrides/mipmap-anydpi-v26/ic_launcher_round.xml android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
           cp assets/ic-adaptive-fg.png android/app/src/main/res/drawable-nodpi/ic_adaptive_fg.png
       # Swap in the immersive full-screen MainActivity (hides both system bars).
-      - run: cp android-overrides/MainActivity.java android/app/src/main/java/com/guitarfretpractice/app/MainActivity.java
+      - run: cp android-overrides/MainActivity.java android/app/src/main/java/com/fretquency/app/MainActivity.java
       # The in-app self-update plugin (registered by that MainActivity).
-      - run: cp android-overrides/AppUpdaterPlugin.java android/app/src/main/java/com/guitarfretpractice/app/AppUpdaterPlugin.java
+      - run: cp android-overrides/AppUpdaterPlugin.java android/app/src/main/java/com/fretquency/app/AppUpdaterPlugin.java
       # ...and the FileProvider path its downloaded APK lives under.
       - run: cp android-overrides/xml/file_paths.xml android/app/src/main/res/xml/file_paths.xml
       # Swap in the manifest with the OAuth-callback deep-link intent-filter.

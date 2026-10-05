@@ -32,10 +32,10 @@ export const isSupabaseConfigured = supabase !== null;
 // override (`android-overrides/AndroidManifest.xml`); `useAuth` listens for it
 // through `@capacitor/app`'s `appUrlOpen`. This exact string must also be in the
 // Supabase "Redirect URLs" allowlist.
-export const NATIVE_AUTH_REDIRECT = 'com.guitarfretpractice.app://auth-callback';
+export const NATIVE_AUTH_REDIRECT = 'com.fretquency.app://auth-callback';
 
 // Where Google should send the user back to after auth. On the web it's the
-// Vite `base` (/guitar-fret-practice/) so it lines up with the Supabase
+// Vite `base` (/fretquency/) so it lines up with the Supabase
 // "Redirect URLs" allowlist in both dev and production; inside the APK it's the
 // custom-scheme deep link that returns to the app instead of a browser tab.
 export function authRedirectTo(): string {

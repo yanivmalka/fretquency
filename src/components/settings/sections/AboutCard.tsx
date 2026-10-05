@@ -35,7 +35,7 @@ export default function AboutCard() {
   return (
     <SettingCard label={t('About')}>
       <p className="account-about-copy">
-        {t('Guitar Fret Practice is a small labor of love — built to turn learning the fretboard into a game instead of a chore. Made by an independent developer, with patient help from family and friends.')}
+        {t('Fretquency is a small labor of love — built to turn learning the fretboard into a game instead of a chore. Made by an independent developer, with patient help from family and friends.')}
       </p>
       {isSupabaseConfigured && (
         <div className="account-community sp2-hero">

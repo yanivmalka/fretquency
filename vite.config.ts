@@ -11,12 +11,12 @@ const commitDate = execSync('git log -1 --format=%ci').toString().trim();
 // the root (https://localhost/), so a sub-path base 404s every asset and the
 // app renders a black screen. The APK workflow sets CAP_BUILD=1 to opt into a
 // relative base; every other build (Pages deploy, local dev/build) is unchanged.
-const BASE = process.env.CAP_BUILD === '1' ? './' : '/guitar-fret-practice/';
+const BASE = process.env.CAP_BUILD === '1' ? './' : '/fretquency/';
 
 export default defineConfig({
   base: BASE,
   // Dev server only. Bind to all interfaces so the app is reachable over
-  // the LAN (e.g. from a phone) at http://<host>:5173/guitar-fret-practice/.
+  // the LAN (e.g. from a phone) at http://<host>:5173/fretquency/.
   server: {
     host: true,
   },
@@ -46,11 +46,11 @@ export default defineConfig({
       //      request in HTTP absolute-form (`GET http://host:5173/path`).
       //      Vite's base middleware only understands origin-form (`/path`),
       //      so it fails to strip the base and rewrites the redirect to
-      //      `/guitar-fret-practice/http://host:5173/...`. Normalising
+      //      `/fretquency/http://host:5173/...`. Normalising
       //      req.url back to origin-form before Vite sees it fixes this.
       //   2. Vite serves the app at the base path WITH a trailing slash and
       //      404s the slash-less form; redirect the bare base path to the
-      //      canonical one so `http://<host>:5173/guitar-fret-practice` works.
+      //      canonical one so `http://<host>:5173/fretquency` works.
       name: 'dev-lan-base-path-fixes',
       apply: 'serve',
       configureServer(server) {
@@ -135,8 +135,8 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: 'Fretboard Practice',
-        short_name: 'Fret Practice',
+        name: 'Fretquency',
+        short_name: 'Fretquency',
         description: 'Practice guitar & bass fretboard note recognition',
         theme_color: '#1a1a2e',
         background_color: '#1a1a2e',

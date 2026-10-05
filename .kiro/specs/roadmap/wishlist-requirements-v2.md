@@ -1,4 +1,4 @@
-# Guitar Fret Practice — Roadmap v2 (Selector-Model)
+# Fretquency — Roadmap v2 (Selector-Model)
 
 This supersedes the planning direction (not the content) of `wishlist-requirements.md`. That file is kept as-is for historical reference and is **not modified**.
 

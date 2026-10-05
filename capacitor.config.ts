@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.guitarfretpractice.app',
-  appName: 'Guitar Fret Practice',
+  appId: 'com.fretquency.app',
+  appName: 'Fretquency',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

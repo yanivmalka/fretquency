@@ -139,7 +139,7 @@ export function useAuth(): AuthState {
 
   // Native (Capacitor) OAuth callback. `signInWithGoogle` opens Google's
   // consent screen in an in-app Chrome Custom Tab; when it finishes, Android
-  // routes the `com.guitarfretpractice.app://auth-callback?code=…` deep link
+  // routes the `com.fretquency.app://auth-callback?code=…` deep link
   // back here via `@capacitor/app`. We exchange the `code` for a session on the
   // same client that started the flow (its PKCE verifier is in localStorage),
   // then close the tab. The web build never registers this — it uses the

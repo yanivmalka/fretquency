@@ -1,4 +1,4 @@
-# Guitar Fret Practice — Premium Product Plan
+# Fretquency — Premium Product Plan
 
 Status: **product planning only. No code, no schema, nothing built in this pass.**
 
@@ -24,7 +24,7 @@ Ground rules carried in from the product owner:
 
 **The one-sentence promise:**
 
-> Premium turns Guitar Fret Practice from a drill you configure into a teacher that plans your
+> Premium turns Fretquency from a drill you configure into a teacher that plans your
 > practice — it finds your weak spots, decides what you should do next, brings them back on a
 > schedule, and grows with you from single notes into intervals, scales, triads, chords and
 > reading.

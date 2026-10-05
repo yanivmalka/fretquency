@@ -24,7 +24,7 @@ There is no test framework configured in this project.
 ## Build Notes
 
 - Vite config injects `__COMMIT_HASH__` and `__COMMIT_DATE__` as compile-time constants (via `git rev-parse` / `git log`)
-- Base path is `/guitar-fret-practice/` for GitHub Pages hosting
+- Base path is `/fretquency/` for GitHub Pages hosting
 - The PWA manifest uses `standalone` display mode with portrait orientation
 - TypeScript is configured with `noEmit`, bundler module resolution, and strict unused-variable checks
 

@@ -14,7 +14,7 @@ Three entitlement tiers: **Free**, **Pro**, **Premium** (`free < pro < premium`;
 
 ## Commands
 
-- `npm run dev` — start Vite dev server (binds to all interfaces for LAN/phone testing at `http://<host>:5173/guitar-fret-practice/`)
+- `npm run dev` — start Vite dev server (binds to all interfaces for LAN/phone testing at `http://<host>:5173/fretquency/`)
 - `npm run build` — type-check (`tsc -b`) then production build via Vite
 - `npm run lint` — ESLint over the whole repo
 - `npm run preview` — serve the production build locally
@@ -32,7 +32,7 @@ SQL lives in `supabase/migrations/` (`0001`…`0021`, applied via the Supabase S
 
 ### Android (Capacitor)
 
-The `android/` project is generated, not committed (it's in `.gitignore`). Config in `capacitor.config.ts` (`appId: com.guitarfretpractice.app`); native overrides that survive a regen live in `android-overrides/` (`AndroidManifest.xml`, `MainActivity.java`, `AppUpdaterPlugin.java`, `xml/file_paths.xml`, a committed `debug.keystore`).
+The `android/` project is generated, not committed (it's in `.gitignore`). Config in `capacitor.config.ts` (`appId: com.fretquency.app`); native overrides that survive a regen live in `android-overrides/` (`AndroidManifest.xml`, `MainActivity.java`, `AppUpdaterPlugin.java`, `xml/file_paths.xml`, a committed `debug.keystore`).
 
 - `npx cap add android` — one-time, regenerates `android/`
 - `npm run cap:sync` — `npm run build` then `npx cap sync android`
@@ -45,7 +45,7 @@ Native plugins: `@capacitor/app`, `@capacitor/browser` (deep-link OAuth callback
 
 ### Build/deploy notes
 
-Vite `base` is `/guitar-fret-practice/` for the GitHub Pages target (`.github/workflows/deploy.yml` builds + deploys on push to `main`); `CAP_BUILD=1` switches it to `./`. The build embeds `__COMMIT_HASH__`/`__COMMIT_DATE__` (from `git rev-parse`/`git log`), so `npm run build` must run inside a git checkout. The PWA manifest uses `display: 'minimal-ui'` (not `standalone`) because Android Chrome disables the Web Speech API inside a standalone PWA. The service worker precaches app assets and runtime-caches the soundfont sample URLs + the lazy synthetic-voice template chunk. `vite.config.ts` also builds two extra standalone HTML entries (`design-preview.html`, `stats-redesign.html`) used as design labs.
+Vite `base` is `/fretquency/` for the GitHub Pages target (`.github/workflows/deploy.yml` builds + deploys on push to `main`); `CAP_BUILD=1` switches it to `./`. The build embeds `__COMMIT_HASH__`/`__COMMIT_DATE__` (from `git rev-parse`/`git log`), so `npm run build` must run inside a git checkout. The PWA manifest uses `display: 'minimal-ui'` (not `standalone`) because Android Chrome disables the Web Speech API inside a standalone PWA. The service worker precaches app assets and runtime-caches the soundfont sample URLs + the lazy synthetic-voice template chunk. `vite.config.ts` also builds two extra standalone HTML entries (`design-preview.html`, `stats-redesign.html`) used as design labs.
 
 ## Architecture
 

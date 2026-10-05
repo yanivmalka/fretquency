@@ -153,8 +153,8 @@ export const ptBR: Record<string, string> = {
 
   // Account → About tile + live community counts
   'About': 'Sobre',
-  'Guitar Fret Practice is a small labor of love — built to turn learning the fretboard into a game instead of a chore. Made by an independent developer, with patient help from family and friends.':
-    'Guitar Fret Practice é um pequeno projeto feito com carinho — criado para transformar o aprendizado do braço num jogo, e não numa obrigação. Feito por um desenvolvedor independente, com a ajuda paciente de família e amigos.',
+  'Fretquency is a small labor of love — built to turn learning the fretboard into a game instead of a chore. Made by an independent developer, with patient help from family and friends.':
+    'Fretquency é um pequeno projeto feito com carinho — criado para transformar o aprendizado do braço num jogo, e não numa obrigação. Feito por um desenvolvedor independente, com a ajuda paciente de família e amigos.',
   'Registered users': 'Usuários cadastrados',
   'Active now': 'Ativos agora',
   'Guests online': 'Visitantes online',
@@ -320,7 +320,7 @@ export const ptBR: Record<string, string> = {
   'Auto Advance to next difficulty': 'Avanço automático para a próxima dificuldade',
 
   // Onboarding
-  'Guitar Fret Practice': 'Guitar Fret Practice',
+  'Fretquency': 'Fretquency',
   'Master the fretboard with the clock method — one string at a time.':
     'Domine o braço com o método do relógio — uma corda de cada vez.',
   'What do you play?': 'O que você toca?',
