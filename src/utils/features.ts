@@ -38,10 +38,18 @@ export type Feature =
                            // name it / find it on the neck, with its own
                            // staff SRS schedule. Its own domain, independent
                            // of the others — see staff-reading-spec.md.
-  | 'tabReading';          // Tab reading: a fret number on a tab line →
+  | 'tabReading'           // Tab reading: a fret number on a tab line →
                            // name it / find that place / write it / read a
                            // riff, with its own tab SRS schedule. Its own
                            // domain — see tab-reading-spec.md.
+  | 'classroomJoin';       // Joining a class as a student (not creating one).
+                           // Owner decision 2026-10-06, interim child-safety/
+                           // consent base layer: a paid tier stands in as a
+                           // COPPA-recognized signal an adult's payment method
+                           // was involved, paired with a join-time self-
+                           // certification checkbox (join_class RPC, migration
+                           // 0031). Full legal/COPPA review is deferred to the
+                           // Google Play publishing phase.
 
 const MIN_TIER: Record<Feature, Tier> = {
   historyBeyond7Days: 'pro',
@@ -59,6 +67,7 @@ const MIN_TIER: Record<Feature, Tier> = {
   scaleDrill:         'premium',
   staffReading:       'premium',
   tabReading:         'premium',
+  classroomJoin:      'pro',
 };
 // `fretRange` gates the precise "from fret N to fret M" window control that
 // lives in Settings → Playing (its "Precise fret range" toggle + two-handle

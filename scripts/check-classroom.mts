@@ -27,6 +27,11 @@ const {
 const { classActivityStatus } = await import('../src/teacher/classActivity.ts');
 const { buildClassInviteUrl, parseClassLink } = await import('../src/teacher/classLink.ts');
 const { getInstrument } = await import('../src/utils/instruments.ts');
+const { classifyJoinError } = await import('../src/teacher/classJoinError.ts');
+// Not imported from src/utils/trial.ts: that module pulls in utils/supabase.ts,
+// which reads import.meta.env and crashes outside a Vite build. Keep this
+// literal in step with trial.ts's TRIAL_DAYS by hand.
+const TRIAL_DAYS = 7;
 
 let failed = 0;
 const fail = (msg: string) => { failed++; console.error('FAIL', msg); };
@@ -193,6 +198,47 @@ for (let i = 0; i < 200; i++) {
   eq(exp.kind, 'expiring', '5 months idle is expiring');
   if (exp.kind === 'expiring') eq(exp.deletesOn.toISOString(), '2026-11-06T12:00:00.000Z', 'deletes 6 months after last activity');
   eq(classActivityStatus('not a date', now).kind, 'active', 'bad timestamp ignored');
+}
+
+// join_class RPC error mapping (migrations 0026/0028/0031): classifyJoinError
+// is the pure string-matching half of joinClass(), testable without a live
+// Supabase client.
+eq(classifyJoinError('own class'), 'ownClass', 'own-class exception mapped');
+eq(classifyJoinError('The teacher of this class removed you and you are blocked'), 'blocked', 'blocked exception mapped');
+eq(classifyJoinError('too many attempts'), 'tooManyAttempts', 'throttle exception mapped');
+eq(classifyJoinError('requires_pro'), 'requiresPro', '0031 tier-gate exception mapped');
+eq(classifyJoinError('not signed in'), null, 'not-signed-in stays a generic error, not a named outcome');
+eq(classifyJoinError('name required'), null, 'name-required stays a generic error');
+eq(classifyJoinError('certification required'), null, '0031 checkbox-missing stays a generic error (should never fire — client disables Join until checked)');
+eq(classifyJoinError(null), null, 'no message => no mapping');
+
+// 0031's tier-gate math, mirrored here so a change to this logic or to
+// TRIAL_DAYS is caught by eye even though the real check runs in Postgres
+// (supabase/migrations/0031_classroom_join_requires_pro.sql's join_class).
+// Kept intentionally independent of src/utils/entitlement.ts / trial.ts
+// internals — this is the SQL's `exists (...) or exists (...)` restated.
+function qualifiesForClassroomJoin(
+  entitlement: { tier: 'free' | 'pro' | 'premium'; expiresAt: string | null } | null,
+  trialStartedAt: string | null,
+  now: Date,
+): boolean {
+  const entitlementLive = !!entitlement
+    && entitlement.tier !== 'free'
+    && (entitlement.expiresAt === null || new Date(entitlement.expiresAt) > now);
+  const trialLive = !!trialStartedAt
+    && new Date(trialStartedAt).getTime() > now.getTime() - TRIAL_DAYS * 86_400_000;
+  return entitlementLive || trialLive;
+}
+{
+  const now = new Date('2026-10-06T12:00:00Z');
+  eq(qualifiesForClassroomJoin(null, null, now), false, 'free, no trial: refused');
+  eq(qualifiesForClassroomJoin({ tier: 'pro', expiresAt: null }, null, now), true, 'non-expiring Pro: allowed');
+  eq(qualifiesForClassroomJoin({ tier: 'premium', expiresAt: null }, null, now), true, 'Premium (incl. source=teacher): allowed');
+  eq(qualifiesForClassroomJoin({ tier: 'pro', expiresAt: '2026-01-01T00:00:00Z' }, null, now), false, 'expired Pro row: refused');
+  eq(qualifiesForClassroomJoin({ tier: 'pro', expiresAt: '2027-01-01T00:00:00Z' }, null, now), true, 'not-yet-expired Pro row: allowed');
+  eq(qualifiesForClassroomJoin(null, '2026-10-05T12:00:00Z', now), true, 'day-1 of trial, no entitlements row: allowed');
+  eq(qualifiesForClassroomJoin(null, new Date(now.getTime() - (TRIAL_DAYS - 1) * 86_400_000).toISOString(), now), true, 'last day of trial: still allowed');
+  eq(qualifiesForClassroomJoin(null, new Date(now.getTime() - (TRIAL_DAYS + 1) * 86_400_000).toISOString(), now), false, 'trial expired: refused');
 }
 
 if (failed) { console.error(`\n${failed} check(s) failed`); process.exit(1); }

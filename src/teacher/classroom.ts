@@ -186,22 +186,21 @@ export async function deleteClass(classId: string): Promise<void> {
   if (error) throw error;
 }
 
-export type JoinOutcome =
-  | { kind: 'joined'; classId: string; name: string }
-  | { kind: 'notFound' }
-  | { kind: 'ownClass' }
-  | { kind: 'blocked' }
-  | { kind: 'tooManyAttempts' };
+export type { JoinOutcome } from './classJoinError';
+export { classifyJoinError } from './classJoinError';
+import { classifyJoinError, type JoinOutcome } from './classJoinError';
 
-export async function joinClass(code: string, displayName: string): Promise<JoinOutcome> {
+/** `ageCertified` must be true (the join form's required checkbox) — the
+ *  server re-checks it and stamps `class_members.age_certified_at` on
+ *  success; passing false always fails with a thrown error, never a kind. */
+export async function joinClass(code: string, displayName: string, ageCertified: boolean): Promise<JoinOutcome> {
   if (!supabase) return { kind: 'notFound' };
   const { data, error } = await supabase.rpc('join_class', {
-    join_code: code, member_name: displayName,
+    join_code: code, member_name: displayName, self_certified: ageCertified,
   });
   if (error) {
-    if (error.message?.includes('own class')) return { kind: 'ownClass' };
-    if (error.message?.includes('blocked')) return { kind: 'blocked' };
-    if (error.message?.includes('too many attempts')) return { kind: 'tooManyAttempts' };
+    const kind = classifyJoinError(error.message);
+    if (kind) return { kind } as JoinOutcome;
     throw error;
   }
   const row = (data as Array<{ id: string; name: string }> | null)?.[0];
@@ -277,6 +276,33 @@ export async function assignHomework(input: {
       drill: input.drill,
       due_on: input.dueOn,
     })
+    .select(HOMEWORK_COLS).single();
+  if (error) throw error;
+  return toHomework(data as DbHomework);
+}
+
+/** Edit an existing homework in place (title/instrument/drill/due date).
+ *  RLS (`homework_teacher_all`, 0026) already restricts this to the class's
+ *  own teacher, so there is no extra check here beyond the policy.
+ *
+ *  `homework_attempts` rows already posted against this homework are left
+ *  exactly as they are: they record what a student actually ran *at the
+ *  time*, so editing the drill afterwards does not retroactively invalidate
+ *  or re-label them. Only attempts submitted after the edit run against the
+ *  new drill. */
+export async function updateHomework(input: {
+  homeworkId: string; title: string; instrumentId: InstrumentId; drill: DrillConfig; dueOn: string | null;
+}): Promise<HomeworkRow | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('homework')
+    .update({
+      title: input.title.trim().slice(0, 80),
+      instrument_id: input.instrumentId,
+      drill: input.drill,
+      due_on: input.dueOn,
+    })
+    .eq('id', input.homeworkId)
     .select(HOMEWORK_COLS).single();
   if (error) throw error;
   return toHomework(data as DbHomework);

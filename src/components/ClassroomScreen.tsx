@@ -31,6 +31,7 @@ import { getInstrument, type InstrumentId } from '../utils/instruments';
 import type { AccidentalMode, OrderMode, NotationMode } from '../utils/music';
 import { shareResult } from '../utils/share';
 import { shareBaseUrl } from '../utils/publicUrl';
+import { openUpgrade } from '../utils/upgradeDrawer';
 import {
   fetchTeacherStatus, fetchTeachingClasses, fetchJoinedClasses,
   createClass, changeClassCode, deleteClass, joinClass, leaveClass, fetchMembers, removeMember,
@@ -285,14 +286,16 @@ function JoinCard({ profileName, initialCode, onJoined }: {
   const { t } = useTranslation();
   const [code, setCode] = useState(initialCode ?? '');
   const [name, setName] = useState(profileName ?? '');
+  const [ageCertified, setAgeCertified] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const ready = isJoinableCode(code) && name.trim().length > 0 && !busy;
+  const [needsPro, setNeedsPro] = useState(false);
+  const ready = isJoinableCode(code) && name.trim().length > 0 && ageCertified && !busy;
 
   const submit = async () => {
-    setBusy(true); setMsg(null);
+    setBusy(true); setMsg(null); setNeedsPro(false);
     try {
-      const out = await joinClass(code, name.trim());
+      const out = await joinClass(code, name.trim(), ageCertified);
       if (out.kind === 'joined') {
         track('class_joined');
         setMsg(t('You joined {name}.').replace('{name}', out.name));
@@ -304,6 +307,8 @@ function JoinCard({ profileName, initialCode, onJoined }: {
         setMsg(t('The teacher of this class removed you from it, so you cannot join it again.'));
       } else if (out.kind === 'tooManyAttempts') {
         setMsg(t('Too many wrong codes. Wait a few minutes and try again.'));
+      } else if (out.kind === 'requiresPro') {
+        setNeedsPro(true);
       } else {
         setMsg(t('No class has that code. Check it with your teacher.'));
       }
@@ -329,9 +334,21 @@ function JoinCard({ profileName, initialCode, onJoined }: {
         <span>{t('Your name, as your teacher will see it')}</span>
         <input className="class-input" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
       </label>
+      <label className="class-check">
+        <input type="checkbox" checked={ageCertified} onChange={(e) => setAgeCertified(e.target.checked)} />
+        <span>{t("I'm 13 or older, or a parent/guardian is helping me join.")}</span>
+      </label>
       <button className="class-btn-primary" disabled={!ready} onClick={tap(() => { void submit(); })}>
         {t('Join')}
       </button>
+      {needsPro && (
+        <div className="class-upsell" role="status">
+          <p className="class-muted">{t('Joining a class needs Pro — ask a parent or guardian, or upgrade yourself.')}</p>
+          <button className="class-btn-secondary" onClick={tap(() => openUpgrade('classroomJoin'))}>
+            {t('See Pro')}
+          </button>
+        </div>
+      )}
       {msg && <p className="class-muted" role="status">{msg}</p>}
     </section>
   );

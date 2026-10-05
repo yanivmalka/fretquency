@@ -74,6 +74,7 @@ const FEATURE_PITCH: Record<Feature, string> = {
   scaleDrill: 'Practise building scale shapes on the neck',
   staffReading: 'Practise reading notes on the staff and finding them on the neck',
   tabReading: 'Practise reading tabs and finding every number on the neck',
+  classroomJoin: 'Joining a class needs Pro — ask a parent or guardian, or upgrade yourself.',
 };
 
 // Whole sentences (not glued fragments) so the Hebrew reads naturally.
