@@ -137,7 +137,7 @@ export default defineConfig({
       manifest: {
         name: 'Fretquency',
         short_name: 'Fretquency',
-        description: 'Practice guitar & bass fretboard note recognition',
+        description: 'Learn every note on the fretboard of guitar, bass, ukulele, mandolin or banjo, plus intervals, scales, staff and tab reading — with a tuner built in.',
         theme_color: '#1a1a2e',
         background_color: '#1a1a2e',
         // 'minimal-ui', not 'standalone': Android Chrome disables the Web
