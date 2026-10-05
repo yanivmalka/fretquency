@@ -62,7 +62,13 @@ function startedDate(): Date | null {
   const raw = readStarted();
   if (!raw || raw === INELIGIBLE) return null;
   const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? null : d;
+  if (Number.isNaN(d.getTime())) return null;
+  // Clamp a future-dated value (a guest editing localStorage, or a stray
+  // server row) to now, so it can never push `trialEndsAt` further out than
+  // a real start would — closes the "set trialStartedAt to the future for
+  // indefinite free Premium" gap (product review 2026-10-05 §3ב item 12).
+  const now = Date.now();
+  return d.getTime() > now ? new Date(now) : d;
 }
 
 /** When the trial ends, or null if this device never had one. */
