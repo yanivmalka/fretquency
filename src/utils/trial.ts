@@ -11,7 +11,7 @@
 // Local-first like everything else here: `trialStartedAt` lives in
 // localStorage and starts once per device, only on a genuinely new install
 // (see `ensureTrialStarted`). For a signed-in user it is also reconciled
-// against `public.premium_trial` (migration 0022) so the trial can't be
+// against `public.premium_trial` (migration 0024) so the trial can't be
 // restarted by signing out/in, reinstalling, or switching devices — the first
 // device to reach the server for a given account wins the start date, and
 // every later sync adopts that date instead of keeping a later local one. A
@@ -91,7 +91,7 @@ export function markTrialSummaryShown(): void {
 
 /**
  * Reconcile this device's trial start against `public.premium_trial`
- * (migration 0022) for a signed-in user, so switching devices or signing out
+ * (migration 0024) for a signed-in user, so switching devices or signing out
  * and back in can't restart the trial. A no-op if Supabase isn't configured
  * or this device was never trial-eligible. First writer for the account wins;
  * every call after that adopts whatever the server already has.
