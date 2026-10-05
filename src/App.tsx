@@ -46,6 +46,8 @@ import { startPresence, stopPresence, setPresenceIdentity } from './utils/presen
 import { useVoiceProfileSummary } from './hooks/useVoiceProfileSummary';
 import { useMasteryOverlay } from './hooks/useMasteryOverlay';
 import { useAppPreferences } from './hooks/useAppPreferences';
+import { useDailyReminder } from './hooks/useDailyReminder';
+import DailyStreakBar from './components/DailyStreakBar';
 import { useSelector, type DerivedSettings } from './hooks/useSelector';
 import { useDerivedNotes } from './hooks/useDerivedNotes';
 import { useDrillSession } from './hooks/useDrillSession';
@@ -317,6 +319,7 @@ export default function App() {
     seasonDeco, setSeasonDeco,
     colorblindHeat, setColorblindHeat,
   } = useAppPreferences();
+  const reminder = useDailyReminder();
   useEffect(() => { setAudioNoteVolume(noteVolume); }, [noteVolume]);
   const [showVoiceCalibration, setShowVoiceCalibration] = useState(false);
   // Voice-engine calibration epoch + the stored-profile summary shown in
@@ -970,6 +973,7 @@ export default function App() {
           setSeasonDeco={setSeasonDeco}
           colorblindHeat={colorblindHeat}
           setColorblindHeat={setColorblindHeat}
+          reminder={reminder}
         />
       ),
     },
@@ -1442,6 +1446,16 @@ export default function App() {
           live on their own learning-type tabs (drawer "Learn" group →
           DailyPracticeScreen / IntervalPracticeScreen), not stacked here on
           the home screen. This screen is the 'notes' tab: the Selector. */}
+
+      {/* Days-in-a-row + a small daily goal, every tier — hidden while a
+          drill is running/paused so it never crowds the fretboard. */}
+      {!gameActive && onboardingDone && (
+        <DailyStreakBar
+          allHistory={historyOps.allHistory}
+          instrument={instrument}
+          onOpenStats={() => setShowStats(true)}
+        />
+      )}
 
       {/* All playing settings live inline on the page; a compact read-only HUD
           replaces the panel during play. */}
