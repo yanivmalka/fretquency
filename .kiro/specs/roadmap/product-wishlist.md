@@ -102,7 +102,7 @@ A compressed, priority-ordered view of everything in this document that is **not
   - **Update 2026-10-01:** "Name the note" and "Read a riff" can now be answered by playing the guitar instead of naming it (spec §12 item 5), same shape as Staff reading. A played pitch can't say which string it came from, so this covers only the name-judged exercises, not `findOnNeck`/`writeTab`; the octave is folded (same as Scales), not strict (unlike Staff), since a tab item is a place, not a tested pitch.
 
 ### D. Fully open decisions (no direction yet)
-- **Pro price and trial length** — blocks building the payment rail (phase 7, RevenueCat expected).
+- **Premium price and trial length** — block building the payment rail (phase 7, RevenueCat expected). Pro's price is settled: **$1/month (owner, 2026-10-05)**; Premium's price and the trial length (both tiers) are still open.
 - **Ads in Free** — undecided; current build has none.
 - Longer-horizon, explicitly parked/low-priority: named expertise tests, dedicated admin dashboard, public user profiles, a real social/friends layer, iOS port — see §4 for each item's product-decision note. (Additional string instruments — ukulele/mandolin/banjo — have since shipped, gated `pro` via `extraInstruments`; see §4's Built & Shipped note.)
 
@@ -1309,7 +1309,7 @@ monotonically with recent accuracy and with SRS bucket).
 - **Free history limit** — ~~"current combination only" vs "last 7 days"~~. **DECIDED: last 7 days**, as a view filter over the Stats & Progress screen and mastery overlays only, never a data/sync cut.
 - **Ads in Free** — still open; the current build carries no ads and relies purely on the Pro upsell.
 - **Grandfathering** — **DECIDED: none.** No user base yet, so everyone starts Free; `admin` does not imply Pro.
-- **Pro price / trial length** — still open, needed before the payment rail (phase 7) can be built.
+- **Pro price / trial length** — **Pro price DECIDED 2026-10-05: $1/month.** Premium's price and the trial length are still open, needed before the payment rail (phase 7) can be built.
 
 ---
 
