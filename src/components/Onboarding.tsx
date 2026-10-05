@@ -16,11 +16,13 @@ interface Props {
   onPlacement?: (difficulty: Difficulty) => void;
 }
 
-// Quick placement questions: string 6, by fret, dots only
+// Quick placement questions on the low E string, one per Selector difficulty
+// (a dot fret, a natural note between the dots, a sharp), so a full score
+// really means the whole chromatic neck and not just the landmarks.
 const PLACEMENT_QUESTIONS: { fret: number; answer: string }[] = [
   { fret: 5,  answer: 'A'  },
-  { fret: 12, answer: 'E'  },
-  { fret: 3,  answer: 'G'  },
+  { fret: 8,  answer: 'C'  },
+  { fret: 6,  answer: 'A#' },
 ];
 
 type Step = 'instrument' | 'level' | 'test' | 'result';

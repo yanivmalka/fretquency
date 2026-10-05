@@ -182,7 +182,7 @@
   margin: 2px 0;
 }
 .game-timer {
-  color: #ff0;
+  color: var(--gold);
   font-weight: bold;
   font-size: 0.9rem;
 }

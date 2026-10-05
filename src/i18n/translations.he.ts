@@ -339,7 +339,7 @@ export const he: Record<string, string> = {
   'Dot Frets': 'סריגי נקודות',
   'Natural notes': 'תווים טבעיים',
   'the full chromatic neck': 'כל הצוואר הכרומטי',
-  "correct — we've set you up on": 'נכונות — הגדרנו לך',
+  "correct — we've set you up on": 'נכונות — נקודת ההתחלה שלך:',
   'Change it anytime in the selector panel.': 'אפשר לשנות זאת בכל עת בפאנל הבחירה.',
   "Let's go →": 'בוא נתחיל →',
 
