@@ -78,8 +78,8 @@
 /* The drawer sheet itself: dock it to the left edge and slide it in from
    the left, with the border and drop shadow on the inner (right) side. */
 [data-hand="left"] .settings-overlay { justify-content: flex-start; }
-/* <MenuHandoff>'s clear sheet spacer sits on the sheet's side too. */
-[data-hand="left"] .settings-overlay.menu-handoff { flex-direction: row-reverse; }
+/* <MenuDim>'s clear sheet spacer sits on the sheet's side too. */
+[data-hand="left"] .settings-overlay.menu-dim { flex-direction: row-reverse; }
 [data-hand="left"] .settings-panel {
   border-inline-start: none;
   border-inline-end: 1px solid var(--surface-border);

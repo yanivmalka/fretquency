@@ -6,15 +6,12 @@
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(0, 0, 0, 0.6);
+  /* Clear: the dim is <MenuDim> (below), which outlives this overlay. */
   display: flex;
   align-items: stretch;
   justify-content: flex-end;
   padding: 0;
   overscroll-behavior: contain;
-  /* Fade the dim in with the sheet's slide: cutting the whole screen to dark
-     at once left the sheet's side flashing dark before the sheet got there. */
-  animation: settings-dim-in 0.22s ease-out;
 }
 .settings-panel {
   background: var(--menu-bg);
@@ -36,35 +33,38 @@
   to { transform: translateX(0); }
 }
 /* Back from a section page remounts the list: show it in place rather than
-   sliding it in again, and fade its dim in over the page instead of cutting
-   to dark. Doubled class to outrank the left-handed `animation-name`
-   override in 27-left-handed.css. */
-.settings-overlay.settings-overlay--static { animation: settings-dim-in 0.18s ease-out; }
+   sliding it in again. Doubled class to outrank the left-handed
+   `animation-name` override in 27-left-handed.css. */
 .settings-overlay.settings-overlay--static .settings-panel { animation: none; }
-@keyframes settings-dim-in {
-  from { background-color: transparent; }
-}
-/* The way out (<MenuHandoff>): once the list unmounts, its dim fades off the
-   strip the sheet left uncovered, over whatever screen replaced it. The
-   sheet's own area is a clear spacer sized like .settings-panel, so it cuts
-   straight to the new screen — dimming it too flashed that side dark. */
-.settings-overlay.menu-handoff {
-  background: none;
+/* The menu's dim (<MenuDim>, outside <App>): one layer that is always there
+   and only fades its opacity — in while the list is up, out over whatever
+   screen replaced it. Never re-created and never repainted: a fresh
+   translucent full-screen layer per open/close, with an animated
+   background-color, flashed in the Android WebView (the seasonal backdrop
+   popping in full colour on open, the dimmed strip going black on close).
+   It shades only the strip beside the sheet; the sheet's own area is a clear
+   spacer sized like .settings-panel, so once the sheet is gone that side cuts
+   straight to the next screen instead of flashing dark. Just under the
+   overlay, so the sheet stays on top. */
+.settings-overlay.menu-dim {
+  z-index: 49;
   pointer-events: none;
-  animation: none;
+  opacity: 0;
+  transition: opacity 0.18s ease-out;
+  will-change: opacity;
 }
-.menu-handoff__dim {
+.settings-overlay.menu-dim.menu-dim--on {
+  opacity: 1;
+  transition-duration: 0.22s;
+}
+.menu-dim__shade {
   flex: 1;
   background: rgba(0, 0, 0, 0.6);
-  animation: settings-dim-out 0.18s ease-out forwards;
 }
-.menu-handoff__sheet {
+.menu-dim__sheet {
   width: 50%;
   min-width: 260px;
   max-width: 460px;
-}
-@keyframes settings-dim-out {
-  to { background-color: transparent; }
 }
 /* The drawer's Back button sits inside a .sp2-head row and reuses .sp2-back /
    .sp2-title so the drawer header matches every settings sub-page. */
