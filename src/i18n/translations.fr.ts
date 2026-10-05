@@ -1682,6 +1682,7 @@ export const fr: Record<string, string> = {
   // Fret of the Day / Challenge a friend
   'Fret of the Day': 'La case du jour',
   'The same {count} positions for every player in the world, today.': 'Les mêmes {count} positions pour tous les joueurs du monde, aujourd’hui.',
+  '{count} positions, today': '{count} positions, aujourd’hui',
   '{name} got {correct}/{total} in {seconds}s — beat it!': '{name} a eu {correct}/{total} en {seconds}s — à vous de faire mieux !',
   '{n}-day streak': 'Série de {n} jours',
   'Come back tomorrow for a new puzzle.': 'Revenez demain pour un nouveau défi.',
@@ -1691,6 +1692,11 @@ export const fr: Record<string, string> = {
   'Copied to clipboard': 'Copié dans le presse-papiers',
   'A friend': 'Un ami',
   "Beat my score on today's Fret of the Day!": 'Battez mon score sur la case du jour !',
+  'You beat {name} by {n}!': 'Vous avez battu {name} de {n} !',
+  '{name} still leads': '{name} mène toujours',
+  'You beat {name} — same score, faster!': 'Vous avez battu {name} — même score, plus rapide !',
+  'You tied {name}!': 'Match nul avec {name} !',
+  'Want to learn the whole neck? A few minutes a day.': 'Envie d\'apprendre tout le manche ? Quelques minutes par jour.',
   // ── Teacher mode: the Class screen (ClassroomScreen / HomeworkRun) ──
   "Class": "Classe",
   "Classes need an internet connection and are not available in this build.": "Les classes ont besoin d’une connexion internet et ne sont pas disponibles dans cette version.",

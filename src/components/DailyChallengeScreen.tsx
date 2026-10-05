@@ -43,8 +43,31 @@ import { todaysDailyChallengeResult, recordDailyChallengeResult, type DailyChall
 import { buildDailyChallengeUrl, buildFriendChallengeUrl, type ChallengeLinkData } from '../utils/challengeLink';
 import { shareResult } from '../utils/share';
 import { shareBaseUrl } from '../utils/publicUrl';
+import { track } from '../utils/analytics';
 
 const INSTRUMENT_IDS: InstrumentId[] = ['guitar', 'bass', 'mandolin', 'banjo', 'ukulele'];
+
+// Compares the player's finished result against the challenger carried on a
+// "challenge a friend" link — shown on the result screen whether the round
+// was just played or (the friend already played today) loaded from storage.
+function compareToChallenger(
+  result: DailyChallengeResult,
+  challenger: { name: string; correct: number; total: number; seconds: number },
+  t: (s: string) => string,
+): string {
+  if (result.correct !== challenger.correct) {
+    const diff = Math.abs(result.correct - challenger.correct);
+    return result.correct > challenger.correct
+      ? t('You beat {name} by {n}!').replace('{name}', challenger.name).replace('{n}', String(diff))
+      : t('{name} still leads').replace('{name}', challenger.name);
+  }
+  if (result.seconds !== challenger.seconds) {
+    return result.seconds < challenger.seconds
+      ? t('You beat {name} — same score, faster!').replace('{name}', challenger.name)
+      : t('{name} still leads').replace('{name}', challenger.name);
+  }
+  return t('You tied {name}!').replace('{name}', challenger.name);
+}
 
 interface Props {
   /** The instrument currently active elsewhere in the app — just the initial
@@ -57,13 +80,22 @@ interface Props {
    *  so mastery/leaderboard/Stats count this round like any other. */
   addEntry: (key: string, entry: HistoryEntry) => void;
   markPlayed: (key: string) => void;
+  /** Whether the player has ever finished Onboarding — gates the guest CTA
+   *  on the result screen (an already-onboarded player doesn't need it).
+   *  Defaults to true (CTA hidden) so a caller that hasn't wired this up yet
+   *  degrades to the old behaviour instead of failing to compile. */
+  onboardingDone?: boolean;
+  /** Opens Onboarding right after this screen closes, skipping its marketing
+   *  slides since the player already played a round here. */
+  onStartOnboarding?: () => void;
   onClose: () => void;
 }
 
 type Phase = 'idle' | 'playing' | 'result';
 
 export default function DailyChallengeScreen({
-  defaultInstrumentId, linkData, addEntry, markPlayed, onClose,
+  defaultInstrumentId, linkData, addEntry, markPlayed,
+  onboardingDone = true, onStartOnboarding, onClose,
 }: Props) {
   const { t, lang } = useTranslation();
   const accidental: AccidentalMode = loadSetting('pref_accidental', 'sharps');
@@ -169,6 +201,7 @@ export default function DailyChallengeScreen({
     });
     const url = buildDailyChallengeUrl(baseUrl, instrumentId);
     const outcome = await shareResult({ title: t('Fret of the Day'), text: caption, url });
+    track('share_used', { kind: 'fotd' });
     if (outcome === 'copied') { setShareState('copied'); window.setTimeout(() => setShareState('idle'), 2000); }
   };
 
@@ -180,6 +213,7 @@ export default function DailyChallengeScreen({
     });
     const caption = t('Beat my score on today\'s Fret of the Day!');
     const outcome = await shareResult({ title: t('Challenge a friend'), text: caption, url });
+    track('share_used', { kind: 'challenge' });
     if (outcome === 'copied') { setShareState('copied'); window.setTimeout(() => setShareState('idle'), 2000); }
   };
 
@@ -297,7 +331,26 @@ export default function DailyChallengeScreen({
               {storedResult.streak > 1 && (
                 <div className="fotd-streak">🔥 {t('{n}-day streak').replace('{n}', String(storedResult.streak))}</div>
               )}
+              {linkData?.challenger && (
+                <div className="fotd-vs-result">
+                  {compareToChallenger(storedResult, linkData.challenger, t)}
+                </div>
+              )}
               <p className="fotd-result-note">{t('Come back tomorrow for a new puzzle.')}</p>
+
+              {!onboardingDone && (
+                <div className="fotd-guest-cta">
+                  <p className="fotd-guest-cta-text">
+                    {t('Want to learn the whole neck? A few minutes a day.')}
+                  </p>
+                  <button
+                    className="clear-btn"
+                    onClick={() => { playClickSound(); haptic.tap(); onStartOnboarding?.(); }}
+                  >
+                    {t('Get started')}
+                  </button>
+                </div>
+              )}
 
               <div className="fotd-share-row">
                 <button className="clear-btn" onClick={() => { playClickSound(); haptic.tap(); void doShare(); }}>

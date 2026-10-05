@@ -1675,6 +1675,7 @@ export const ptBR: Record<string, string> = {
   // Fret of the Day / Challenge a friend
   'Fret of the Day': 'A casa do dia',
   'The same {count} positions for every player in the world, today.': 'As mesmas {count} posições para todos os jogadores do mundo, hoje.',
+  '{count} positions, today': '{count} posições, hoje',
   '{name} got {correct}/{total} in {seconds}s — beat it!': '{name} fez {correct}/{total} em {seconds}s — supere!',
   '{n}-day streak': 'Sequência de {n} dias',
   'Come back tomorrow for a new puzzle.': 'Volte amanhã para um novo desafio.',
@@ -1684,6 +1685,11 @@ export const ptBR: Record<string, string> = {
   'Copied to clipboard': 'Copiado para a área de transferência',
   'A friend': 'Um amigo',
   "Beat my score on today's Fret of the Day!": 'Supere minha pontuação na casa do dia de hoje!',
+  'You beat {name} by {n}!': 'Você venceu {name} por {n}!',
+  '{name} still leads': '{name} ainda está na frente',
+  'You beat {name} — same score, faster!': 'Você venceu {name} — mesma pontuação, mais rápido!',
+  'You tied {name}!': 'Você empatou com {name}!',
+  'Want to learn the whole neck? A few minutes a day.': 'Quer aprender todo o braço do instrumento? Alguns minutos por dia.',
   // ── Teacher mode: the Class screen (ClassroomScreen / HomeworkRun) ──
   "Class": "Turma",
   "Classes need an internet connection and are not available in this build.": "As turmas precisam de internet e não estão disponíveis nesta versão.",
