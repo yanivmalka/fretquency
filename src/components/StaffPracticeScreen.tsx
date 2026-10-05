@@ -37,6 +37,7 @@ import {
   rollDailyGoal, type StaffForm,
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
+import { recordDailyActivity } from '../utils/dailyActivity';
 import StaffNotation, { type StaffNote } from './StaffNotation';
 import StaffNeckBoard from './StaffNeckBoard';
 import StaffProgressBoard from './StaffProgressBoard';
@@ -168,6 +169,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
     // A no-op for a guest / offline; the reconcile merges per item.
     cloudPushLearning();
     setNow(ts);
+    recordDailyActivity();
   }, [instrument.id]);
 
   const notesPerQuestion = NOTES_PER_QUESTION[exercise];

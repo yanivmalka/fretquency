@@ -50,6 +50,7 @@ import {
   rollDailyGoal, type TabForm,
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
+import { recordDailyActivity } from '../utils/dailyActivity';
 import TabNotation, { type TabNote } from './TabNotation';
 import StaffNeckBoard from './StaffNeckBoard';
 import TabProgressBoard, { TabStatusList } from './TabProgressBoard';
@@ -259,6 +260,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
     // A no-op for a guest / offline; the reconcile merges per item.
     cloudPushLearning();
     setNow(ts);
+    recordDailyActivity();
   }, [instrument.id]);
 
   const notesPerQuestion = NOTES_PER_QUESTION[exercise];

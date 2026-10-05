@@ -43,6 +43,7 @@ import { buildScaleBoard } from '../learning/scaleMastery';
 import { loadLearningState, saveLearningStateLocal, getInstrumentState, withInstrumentState, recordScaleAnswer } from '../learning/learningState';
 import type { ScaleHistoryRow } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
+import { recordDailyActivity } from '../utils/dailyActivity';
 import ScaleFallBoard from './ScaleFallBoard';
 import ScaleOrderBoard from './ScaleOrderBoard';
 import RecallLevelCard from './RecallLevelCard';
@@ -189,6 +190,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
       saveLearningStateLocal(withInstrumentState(state, instrument.id, next));
       cloudPushLearning();
       setNow(ts);
+      recordDailyActivity();
     },
     [instrument.id],
   );
@@ -276,6 +278,7 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
     saveLearningStateLocal(withInstrumentState(state, instrument.id, next));
     cloudPushLearning();
     setNow(ts);
+    recordDailyActivity();
     const up = sel.recallAuto && a.fadeLevel === sel.recallLevel
       ? recallPromotion(next.scaleHistory, itemId, a.fadeLevel, sel.recallSince)
       : null;

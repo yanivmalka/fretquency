@@ -21,6 +21,7 @@ import { useDrillSession } from '../hooks/useDrillSession';
 import { useDerivedNotes } from '../hooks/useDerivedNotes';
 import { useScoring } from '../hooks/useScoring';
 import { useDrillHistorySink } from '../game/useDrillHistorySink';
+import { recordDailyActivity } from '../utils/dailyActivity';
 import { unlockAudio, setAudioInstrument } from '../utils/audio';
 import { setActiveInstrument, type AccidentalMode, type OrderMode, type NotationMode } from '../utils/music';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
@@ -92,6 +93,10 @@ export default function HomeworkRun({
       setResult(r);
       setPhase('result');
       save(r);
+      // Homework otherwise writes only to an in-memory sink (see the module
+      // comment) — without this, a student's home-screen streak and daily
+      // goal would never move on a day they only did homework.
+      recordDailyActivity(drill.questionCount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.running, session.paused, session.result]);

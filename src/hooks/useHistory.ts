@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { HistoryEntry } from '../utils/music';
 import { withIds, cloudInsertEntry, cloudDeleteKey, cloudDeleteAll } from '../utils/sync';
+import { recordDailyActivity } from '../utils/dailyActivity';
 
 export function useHistory() {
   // All history keyed by selector-derived string key (e.g. "6|0-12|byFret|dots")
@@ -40,6 +41,7 @@ export function useHistory() {
     }));
     // Write-through to the cloud for signed-in users (no-op for guests/offline).
     void cloudInsertEntry(key, stamped);
+    recordDailyActivity();
   }, []);
 
   const markPlayed = useCallback((key: string) => {

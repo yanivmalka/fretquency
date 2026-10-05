@@ -34,6 +34,7 @@ import {
   type DailyGoal,
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
+import { recordDailyActivity } from '../utils/dailyActivity';
 import {
   buildDailyPlan,
   buildWeakSpotsPlan,
@@ -289,6 +290,10 @@ export function useLearning(opts: UseLearningOptions): UseLearningResult {
         cloudPushLearning();
         return next;
       });
+      // Interval drill is its own isolated history sink (never Practice's
+      // real history) — without this, a day spent only on Intervals would
+      // never move the home-screen streak/goal.
+      recordDailyActivity();
     },
     [isPremium, instrumentId],
   );
@@ -342,6 +347,7 @@ export function useLearning(opts: UseLearningOptions): UseLearningResult {
         cloudPushLearning();
         return next;
       });
+      recordDailyActivity();
     },
     [isPremium, instrumentId],
   );

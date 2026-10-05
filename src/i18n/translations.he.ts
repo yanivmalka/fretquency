@@ -73,6 +73,10 @@ export const he: Record<string, string> = {
   'Time to practice': 'הגיע הזמן לתרגל',
   "A couple of minutes keeps your streak alive — don't lose it today.":
     'כמה דקות שומרות על הרצף שלכם — אל תאבדו אותו היום.',
+  'Want a daily reminder?': 'רוצים תזכורת יומית?',
+  "A quick nudge at a time you pick, so your streak doesn't slip. You can change or turn it off anytime in Settings.":
+    'תזכורת קצרה בשעה שתבחרו, כדי שהרצף שלכם לא יישבר. אפשר לשנות או לכבות בכל שלב בהגדרות.',
+  'Remind me': 'תזכירו לי',
 
   'On': 'פעיל',
   'Off': 'כבוי',

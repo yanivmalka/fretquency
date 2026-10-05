@@ -30,6 +30,7 @@ import {
   loadLearningState, saveLearningStateLocal, getInstrumentState, withInstrumentState, recordScaleAnswer,
 } from '../learning/learningState';
 import { cloudPushLearning } from '../learning/learningSync';
+import { recordDailyActivity } from '../utils/dailyActivity';
 import { questionFingering } from '../learning/scaleFingering';
 import { useScaleOrderEngine, type ScaleOrderAnswer, type ScaleStepHit } from '../hooks/useScaleOrderEngine';
 import { usePitchStream } from '../hooks/usePitchStream';
@@ -183,6 +184,7 @@ export default function ScaleEchoCard({
     ));
     cloudPushLearning();
     onRecorded(ts);
+    recordDailyActivity();
 
     const clean = slippedRef.current === 0;
     if (licksOnRef.current) {

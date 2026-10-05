@@ -15,6 +15,7 @@
 
 import { Capacitor } from '@capacitor/core';
 import { loadSetting, saveSetting } from './settings';
+import { localDay } from './dailyActivity';
 
 export const DEFAULT_REMINDER_TIME = '19:00';
 const NOTIFICATION_ID = 190001;
@@ -61,11 +62,26 @@ export async function requestReminderPermission(): Promise<boolean> {
   return result === 'granted';
 }
 
-/** Schedules (or re-schedules) the Android daily alarm. No-op on web — the
- *  web path is the foreground check below. */
-export async function scheduleDailyReminder(time: string, title: string, body: string): Promise<void> {
-  if (!isNative()) return;
+/** Next moment the reminder should fire: today at `hour:minute` if that time
+ *  hasn't passed yet and the player hasn't already practised today, else
+ *  tomorrow at the same time. A recurring daily alarm can't skip a single
+ *  occurrence (review §4 item 8 — it used to fire even after the player
+ *  already practised), so this schedules one shot at a time instead; the
+ *  app re-arms it (see useDailyReminder) on every mount and the moment
+ *  `dailyActivity` records today's first answer. */
+export function nextReminderAt(time: string, alreadyPracticedToday: boolean, now: Date = new Date()): Date {
   const { hour, minute } = parseTime(time);
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
+  if (alreadyPracticedToday || d <= now) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+/** Schedules (or re-schedules) the Android alarm's next occurrence. No-op on
+ *  web — the web path is the foreground check below. */
+export async function scheduleDailyReminder(
+  time: string, title: string, body: string, alreadyPracticedToday: boolean,
+): Promise<void> {
+  if (!isNative()) return;
   const { LocalNotifications } = await import('@capacitor/local-notifications');
   await LocalNotifications.cancel({ notifications: [{ id: NOTIFICATION_ID }] });
   await LocalNotifications.schedule({
@@ -73,7 +89,7 @@ export async function scheduleDailyReminder(time: string, title: string, body: s
       id: NOTIFICATION_ID,
       title,
       body,
-      schedule: { on: { hour, minute }, allowWhileIdle: true },
+      schedule: { at: nextReminderAt(time, alreadyPracticedToday, new Date()), allowWhileIdle: true },
     }],
   });
 }
@@ -85,16 +101,19 @@ export async function cancelDailyReminder(): Promise<void> {
 }
 
 /** Web-only foreground check: fires a browser Notification at most once a
- *  calendar day, and only once the chosen time has passed. Call this from a
- *  poll (useDailyReminder ticks it every minute while mounted) — it is cheap
- *  and idempotent when there is nothing to do. */
-export function maybeFireWebReminder(time: string, title: string, body: string): void {
+ *  local calendar day, only once the chosen time has passed, and never once
+ *  the player has already practised today (review §3ב item 10). Call this
+ *  from a poll (useDailyReminder ticks it every minute while mounted) — it
+ *  is cheap and idempotent when there is nothing to do. */
+export function maybeFireWebReminder(
+  time: string, title: string, body: string, alreadyPracticedToday: boolean,
+): void {
   if (isNative() || typeof window === 'undefined' || !('Notification' in window)) return;
-  if (Notification.permission !== 'granted') return;
+  if (Notification.permission !== 'granted' || alreadyPracticedToday) return;
   const { hour, minute } = parseTime(time);
   const now = new Date();
   if (now.getHours() < hour || (now.getHours() === hour && now.getMinutes() < minute)) return;
-  const today = now.toISOString().slice(0, 10);
+  const today = localDay(now);
   if (loadSetting<string>(WEB_FIRED_KEY, '') === today) return;
   saveSetting(WEB_FIRED_KEY, today);
   try { new Notification(title, { body }); } catch { /* best-effort */ }
