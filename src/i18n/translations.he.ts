@@ -400,6 +400,7 @@ export const he: Record<string, string> = {
     'קראתי את תנאי השימוש ואת מדיניות הפרטיות ואני מסכים להם.',
   'That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.':
     'הכלי הזה דורש Pro. בחר גיטרה, בס או יוקולילי לעת עתה — אפשר לשדרג בכל עת מהתפריט.',
+  'See what Pro unlocks': 'לראות מה Pro פותח',
   'Strings, frets and tuning can be changed later from the menu → Playing.':
     'את המיתרים, הסריגים והכיוון אפשר לשנות אחר כך מהתפריט ← נגינה.',
   'Start with the dot frets':

@@ -404,6 +404,7 @@ export const ptBR: Record<string, string> = {
     'Li os termos de uso e a política de privacidade e concordo com eles.',
   'That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.':
     'Esse instrumento precisa do Pro. Por enquanto escolha violão/guitarra, baixo ou ukulele — você pode assinar o Pro quando quiser pelo menu.',
+  'See what Pro unlocks': 'Ver o que o Pro desbloqueia',
   'Strings, frets and tuning can be changed later from the menu → Playing.':
     'Cordas, trastes e afinação podem ser mudados depois pelo menu → Prática.',
   'Start with the dot frets':

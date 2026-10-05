@@ -7,6 +7,7 @@ import { CHROMATIC, INSTRUMENTS, type InstrumentConfig, type InstrumentId } from
 import { withClick as click } from '../utils/withClick';
 import { PRIVACY_POLICY_URL, TERMS_URL, recordLegalAccepted } from '../utils/onboardingState';
 import { can, PRO_ONLY_INSTRUMENTS } from '../utils/features';
+import { openUpgrade } from '../utils/upgradeDrawer';
 import type { Tier } from '../utils/entitlement';
 
 interface Props {
@@ -227,6 +228,14 @@ export default function Onboarding({
     {lockedNotice && (
       <p className="onboarding-hint onboarding-locked-notice">
         {t('That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.')}
+        {' '}
+        <button
+          type="button"
+          className="onboarding-upgrade-link"
+          onClick={click(() => openUpgrade('extraInstruments'))}
+        >
+          {t('See what Pro unlocks')}
+        </button>
       </p>
     )}
     <p className="onboarding-hint">{t('Strings, frets and tuning can be changed later from the menu → Playing.')}</p>

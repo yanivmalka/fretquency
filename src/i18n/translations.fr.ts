@@ -404,6 +404,7 @@ export const fr: Record<string, string> = {
     'J’ai lu les conditions d’utilisation et la politique de confidentialité et je les accepte.',
   'That instrument needs Pro. Pick Guitar, Bass or Ukulele for now — you can upgrade any time from the menu.':
     'Cet instrument demande Pro. Choisis pour l’instant guitare, basse ou ukulélé — tu peux passer à Pro à tout moment depuis le menu.',
+  'See what Pro unlocks': 'Voir ce que Pro débloque',
   'Strings, frets and tuning can be changed later from the menu → Playing.':
     'Les cordes, les cases et l’accordage se changent plus tard depuis le menu → Jeu.',
   'Start with the dot frets':
