@@ -60,6 +60,19 @@ export function useAppNavigation({
   const [activeDomain, setActiveDomain] = useState<LearnDomain>('notes');
   // Which settings sub-page is open inside the drawer; null = the list of titles.
   const [drawerSection, setDrawerSection] = useState<string | null>(() => initialView?.section ?? null);
+  // Whether the drawer's list slides in when it mounts. Only a fresh open
+  // does: each screen is its own return in App, so Back from a section page
+  // remounts the list, and replaying the slide there flashed the screen dark
+  // with an empty half before the sheet came back. Once a section has been
+  // opened from the menu, the list reappears in place until the menu closes.
+  // Derived during render from the previous values (no effect, no ref).
+  const [drawerSlideIn, setDrawerSlideIn] = useState(() => !initialView?.section);
+  const [prevDrawer, setPrevDrawer] = useState({ settingsOpen, drawerSection });
+  if (prevDrawer.settingsOpen !== settingsOpen || prevDrawer.drawerSection !== drawerSection) {
+    setPrevDrawer({ settingsOpen, drawerSection });
+    if (!settingsOpen) setDrawerSlideIn(true);
+    else if (drawerSection !== null) setDrawerSlideIn(false);
+  }
   // The Tuner is a single-screen full-page takeover (no sub-screens of its
   // own), so it needs no backRef — Back just closes it. Not persisted to
   // gfp_view.
@@ -237,7 +250,7 @@ export function useAppNavigation({
     showPath, setShowPath,
     settingsOpen, setSettingsOpen,
     activeDomain, setActiveDomain,
-    drawerSection, setDrawerSection,
+    drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen,
     micPrompt, setMicPrompt,
     showInfo, setShowInfo,

@@ -32,6 +32,10 @@
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
+/* Back from a section page remounts the list: show it in place rather than
+   sliding it in again. Doubled class to outrank the left-handed
+   `animation-name` override in 27-left-handed.css. */
+.settings-overlay.settings-overlay--static .settings-panel { animation: none; }
 /* The drawer's Back button sits inside a .sp2-head row and reuses .sp2-back /
    .sp2-title so the drawer header matches every settings sub-page. */
 .settings-menu .sp2-back {

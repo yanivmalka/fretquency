@@ -33,9 +33,11 @@ export interface DrawerSearch {
 }
 
 export function SettingsDrawerNav({
-  sections, lang, t, setSettingsOpen, setDrawerSection, search,
+  sections, lang, t, setSettingsOpen, setDrawerSection, search, slideIn,
 }: {
   sections: SettingsSection[];
+  /** Slide the sheet in (a fresh open) or show it in place (Back from a section). */
+  slideIn: boolean;
   lang: Lang;
   t: (s: string) => string;
   setSettingsOpen: (v: boolean) => void;
@@ -54,7 +56,7 @@ export function SettingsDrawerNav({
   // mirrored in Hebrew.
   const sep = lang === 'he' ? ' ‹ ' : ' › ';
   return (
-    <div className="settings-overlay" onClick={click(() => setSettingsOpen(false))}>
+    <div className={`settings-overlay${slideIn ? '' : ' settings-overlay--static'}`} onClick={click(() => setSettingsOpen(false))}>
       <div
         className="settings-panel"
         role="dialog"

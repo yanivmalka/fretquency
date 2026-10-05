@@ -602,7 +602,7 @@ export default function App() {
   const nav = useAppNavigation({ signInPromptSeen, dismissSignInPrompt, hasAnyHistory, voice });
   const {
     showStats, setShowStats, showPath, setShowPath, settingsOpen, setSettingsOpen,
-    activeDomain, setActiveDomain, drawerSection, setDrawerSection,
+    activeDomain, setActiveDomain, drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen,
     micPrompt, setMicPrompt, showInfo, upgradeFromAccountRef,
     askForMic, grantMic, openInfo,
@@ -1272,6 +1272,7 @@ export default function App() {
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
             search={drawerSearch}
+            slideIn={drawerSlideIn}
           />
         )}
         {/* Quick Access is offered on the intervals page too — same rules as
@@ -1307,6 +1308,7 @@ export default function App() {
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
             search={drawerSearch}
+            slideIn={drawerSlideIn}
           />
         )}
       </>
@@ -1334,6 +1336,7 @@ export default function App() {
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
             search={drawerSearch}
+            slideIn={drawerSlideIn}
           />
         )}
       </>
@@ -1360,6 +1363,7 @@ export default function App() {
             setSettingsOpen={setSettingsOpen}
             setDrawerSection={setDrawerSection}
             search={drawerSearch}
+            slideIn={drawerSlideIn}
           />
         )}
       </>
@@ -1446,6 +1450,7 @@ export default function App() {
           setSettingsOpen={setSettingsOpen}
           setDrawerSection={setDrawerSection}
           search={drawerSearch}
+          slideIn={drawerSlideIn}
         />
       )}
 
