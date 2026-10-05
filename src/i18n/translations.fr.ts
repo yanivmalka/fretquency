@@ -289,6 +289,13 @@ export const fr: Record<string, string> = {
   'Leagues aren’t available right now. Here is everyone’s week instead.': 'Les ligues ne sont pas disponibles pour le moment. Voici plutôt la semaine de tout le monde.',
   'Moves up': 'Monte',
   'Moves down': 'Descend',
+  // Weekly leagues (end-of-round card league line)
+  'Rank #{rank} in {league}': 'Rang #{rank} en {league}',
+  'Promoted to {league}!': 'Promu en {league} !',
+  'Moved to {league}': 'Rétrogradé en {league}',
+  'Moving up this week!': 'Monte cette semaine !',
+  'Moving down this week': 'Descend cette semaine',
+  '{n} more to move up': 'Encore {n} pour monter',
   'Loading…': 'Chargement…',
   'Couldn’t load the leaderboard. Check your connection and try again.':
     'Impossible de charger le classement. Vérifie ta connexion et réessaie.',

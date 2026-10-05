@@ -289,6 +289,13 @@ export const ptBR: Record<string, string> = {
   'Leagues aren’t available right now. Here is everyone’s week instead.': 'As ligas não estão disponíveis agora. No lugar delas, veja a semana de todo mundo.',
   'Moves up': 'Sobe',
   'Moves down': 'Desce',
+  // Weekly leagues (end-of-round card league line)
+  'Rank #{rank} in {league}': 'Posição #{rank} na {league}',
+  'Promoted to {league}!': 'Promovido para a {league}!',
+  'Moved to {league}': 'Rebaixado para a {league}',
+  'Moving up this week!': 'Subindo essa semana!',
+  'Moving down this week': 'Descendo essa semana',
+  '{n} more to move up': 'Faltam {n} para subir',
   'Loading…': 'Carregando…',
   'Couldn’t load the leaderboard. Check your connection and try again.':
     'Não foi possível carregar o ranking. Verifique sua conexão e tente de novo.',

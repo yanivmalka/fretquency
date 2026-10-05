@@ -289,6 +289,13 @@ export const he: Record<string, string> = {
   'Leagues aren’t available right now. Here is everyone’s week instead.': 'הליגות לא זמינות כרגע. במקומן, הנה השבוע של כולם.',
   'Moves up': 'עולה ליגה',
   'Moves down': 'יורד ליגה',
+  // Weekly leagues (end-of-round card league line)
+  'Rank #{rank} in {league}': 'מקום #{rank} ב{league}',
+  'Promoted to {league}!': 'עלית ל{league}!',
+  'Moved to {league}': 'ירדת ל{league}',
+  'Moving up this week!': 'עולה ליגה השבוע!',
+  'Moving down this week': 'יורד ליגה השבוע',
+  '{n} more to move up': 'עוד {n} כדי לעלות ליגה',
   'Loading…': 'טוען…',
   'Couldn’t load the leaderboard. Check your connection and try again.':
     'לא ניתן לטעון את טבלת המובילים. בדוק את החיבור ונסה שוב.',
