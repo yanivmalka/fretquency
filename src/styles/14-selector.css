@@ -1,4 +1,52 @@
 
+/* ── Daily streak + goal bar (home screen, every tier) ─────────────── */
+.daily-streak-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 420px;
+  margin: 8px auto 0;
+  padding: 7px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--bg-2);
+  font: inherit;
+  cursor: pointer;
+}
+.daily-streak-flame {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-0);
+  flex-shrink: 0;
+}
+.daily-streak-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.daily-streak-goal-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-soft);
+  overflow: hidden;
+}
+.daily-streak-goal-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+.daily-streak-goal-label {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ── Selector Panel ──────────────────────────────────────────────── */
 .selector-panel {
   display: flex;

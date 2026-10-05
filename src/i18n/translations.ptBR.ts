@@ -1601,4 +1601,17 @@ export const ptBR: Record<string, string> = {
   'Also on: {list}': 'Também em: {list}',
   'Correct: {list}': 'Corretos: {list}',
   'It was {note}': 'Era {note}',
+
+  // Fret of the Day / Challenge a friend
+  'Fret of the Day': 'A casa do dia',
+  'The same {count} positions for every player in the world, today.': 'As mesmas {count} posições para todos os jogadores do mundo, hoje.',
+  '{name} got {correct}/{total} in {seconds}s — beat it!': '{name} fez {correct}/{total} em {seconds}s — supere!',
+  '{n}-day streak': 'Sequência de {n} dias',
+  'Come back tomorrow for a new puzzle.': 'Volte amanhã para um novo desafio.',
+  'Share result': 'Compartilhar resultado',
+  'Your name (optional)': 'Seu nome (opcional)',
+  'Challenge a friend': 'Desafiar um amigo',
+  'Copied to clipboard': 'Copiado para a área de transferência',
+  'A friend': 'Um amigo',
+  "Beat my score on today's Fret of the Day!": 'Supere minha pontuação na casa do dia de hoje!',
 };

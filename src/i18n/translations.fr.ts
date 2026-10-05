@@ -1608,4 +1608,17 @@ export const fr: Record<string, string> = {
   'Also on: {list}': 'Aussi sur : {list}',
   'Correct: {list}': 'Bonnes cases : {list}',
   'It was {note}': "C'était {note}",
+
+  // Fret of the Day / Challenge a friend
+  'Fret of the Day': 'La case du jour',
+  'The same {count} positions for every player in the world, today.': 'Les mêmes {count} positions pour tous les joueurs du monde, aujourd’hui.',
+  '{name} got {correct}/{total} in {seconds}s — beat it!': '{name} a eu {correct}/{total} en {seconds}s — à vous de faire mieux !',
+  '{n}-day streak': 'Série de {n} jours',
+  'Come back tomorrow for a new puzzle.': 'Revenez demain pour un nouveau défi.',
+  'Share result': 'Partager le résultat',
+  'Your name (optional)': 'Votre nom (facultatif)',
+  'Challenge a friend': 'Défier un ami',
+  'Copied to clipboard': 'Copié dans le presse-papiers',
+  'A friend': 'Un ami',
+  "Beat my score on today's Fret of the Day!": 'Battez mon score sur la case du jour !',
 };

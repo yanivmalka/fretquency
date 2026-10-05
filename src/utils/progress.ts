@@ -97,6 +97,21 @@ export function practiceStreak(days: DayStat[]): StreakInfo {
   return { current, longest: Math.max(longest, current) };
 }
 
+// Free, every-tier home-screen goal (not the Premium Teacher's per-domain
+// `DailyGoal` in learningState.ts — this one needs no SRS plan, just "answer
+// this many questions today", so it's derived straight from history with no
+// new persistence, same as the streak above.
+export const DAILY_GOAL_TARGET = 10;
+
+/** Today's question count from an already-computed `DayStat[]` (oldest
+ *  first, one row per day that has history) — 0 if nothing is recorded yet
+ *  today. */
+export function todayCount(days: DayStat[]): number {
+  const today = new Date().toISOString().slice(0, 10);
+  const last = days[days.length - 1];
+  return last && last.date === today ? last.count : 0;
+}
+
 export interface LifetimeTotals {
   totalQuestions: number;
   accuracy: number; // 0-1

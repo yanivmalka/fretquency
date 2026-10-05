@@ -32,6 +32,7 @@ const SYNCED_KEYS = new Set([
   'pref_instrument', 'pref_instrumentVariant', 'pref_voiceEngine', 'pref_noteVolume',
   'pref_language', 'pref_pinnedBadges', 'pref_theme', 'pref_season', 'pref_seasonPickedIn', 'pref_leftHanded', 'pref_buttonDepth', 'pref_seasonDeco',
   'pref_feedbackMode', 'pref_colorblindHeat',
+  'pref_reminderEnabled', 'pref_reminderTime',
   'pref_quickAccessEnabled', 'pref_pinnedQuickAccess', 'qaHintSeen',
   'onboardingDone', 'infoBubbleSeen',
   // Precise Pro fret window (global, clamped to the active neck on read).

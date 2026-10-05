@@ -1616,4 +1616,17 @@ export const he: Record<string, string> = {
   'Also on: {list}': 'גם בסריגים: {list}',
   'Correct: {list}': 'הסריגים הנכונים: {list}',
   'It was {note}': 'התשובה: {note}',
+
+  // Fret of the Day / Challenge a friend
+  'Fret of the Day': 'הסריג של היום',
+  'The same {count} positions for every player in the world, today.': '{count} המיקומים הזהים לכל שחקן בעולם, היום.',
+  '{name} got {correct}/{total} in {seconds}s — beat it!': '{name} קיבל/ה {correct}/{total} תוך {seconds} שניות — תוכלו לנצח?',
+  '{n}-day streak': 'רצף של {n} ימים',
+  'Come back tomorrow for a new puzzle.': 'חזרו מחר לחידה חדשה.',
+  'Share result': 'שתפו תוצאה',
+  'Your name (optional)': 'השם שלכם (לא חובה)',
+  'Challenge a friend': 'אתגרו חבר',
+  'Copied to clipboard': 'הועתק ללוח',
+  'A friend': 'חבר',
+  "Beat my score on today's Fret of the Day!": 'תוכלו לנצח את הניקוד שלי בסריג של היום?',
 };

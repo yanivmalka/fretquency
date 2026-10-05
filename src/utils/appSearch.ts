@@ -24,6 +24,7 @@ export type SearchTarget =
   | { kind: 'domain'; domain: LearnDomain; anchor?: string }
   | { kind: 'stats' }
   | { kind: 'tuner' }
+  | { kind: 'dailyChallenge' }
   | { kind: 'path' };
 
 export interface SearchEntry {
@@ -133,6 +134,11 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
     keywords: ['tune', 'tuning', 'pitch', 'כוונן', 'כיוון', 'לכוון', 'טיונר', 'afinador', 'afinar', 'accordeur', 'accorder', 'accordatore', 'accordare'],
   },
   {
+    id: 'daily-challenge', label: 'Fret of the Day', emoji: '🔥', path: [LEARN],
+    target: { kind: 'dailyChallenge' },
+    keywords: ['daily challenge', 'challenge a friend', 'wordle', 'streak', 'share', 'אתגר יומי', 'אתגר חבר', 'שיתוף', 'רצף', 'desafío diario', 'reto diario', 'compartir', 'desafio diário', 'compartilhar', 'défi quotidien', 'partager', 'sfida del giorno', 'condividi'],
+  },
+  {
     id: 'path', label: 'Learning Path', emoji: '🗺️', path: [...NOTES], feature: 'learningPath',
     target: { kind: 'path' },
     keywords: ['path', 'checkpoints', 'roadmap', 'מסלול למידה', 'נקודות ציון', 'ruta', 'camino', 'trilha', 'parcours', 'percorso'],
@@ -192,6 +198,11 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
     id: 'showScore', label: 'Score & celebrations', emoji: '🎉', path: [SETTINGS],
     target: { kind: 'section', section: 'settings', anchor: 'showScore' },
     keywords: ['score', 'streak', 'points', 'confetti', 'ניקוד', 'נקודות', 'רצף', 'חגיגות', 'puntuación', 'racha', 'pontuação', 'sequência', 'score', 'série', 'punteggio', 'serie'],
+  },
+  {
+    id: 'dailyReminder', label: 'Daily reminder', emoji: '⏰', path: [SETTINGS],
+    target: { kind: 'section', section: 'settings', anchor: 'dailyReminder' },
+    keywords: ['notification', 'notify', 'alarm', 'remind', 'streak', 'תזכורת', 'התראה', 'התראות', 'שעון מעורר', 'רצף', 'recordatorio', 'notificación', 'lembrete', 'notificação', 'rappel', 'notification', 'promemoria', 'notifica'],
   },
   {
     id: 'soundLevel', label: 'Sound & vibration', emoji: '🔊', path: [SETTINGS],

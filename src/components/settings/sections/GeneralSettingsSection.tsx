@@ -8,6 +8,7 @@ import { QuickAccessEnableToggle, QuickAccessLegendLink, QuickAccessPinButton } 
 import AppearancePicker from '../AppearancePicker';
 import { withClick as click } from '../../../utils/withClick';
 import { saveSetting } from '../../../utils/settings';
+import { isNative } from '../../../utils/reminder';
 import { LANGUAGES, type Lang } from '../../../i18n/translations';
 import { useTranslation } from '../../../i18n/useTranslation';
 import {
@@ -89,6 +90,15 @@ export interface GeneralSettingsSectionProps {
   setSeasonDeco: (v: boolean) => void;
   colorblindHeat: boolean;
   setColorblindHeat: (v: boolean) => void;
+  reminder: {
+    enabled: boolean;
+    time: string;
+    setEnabled: (v: boolean) => void;
+    setTime: (v: string) => void;
+    canPrompt: boolean;
+    permissionDenied: boolean;
+    supported: boolean;
+  };
 }
 
 export default function GeneralSettingsSection({
@@ -98,6 +108,7 @@ export default function GeneralSettingsSection({
   voiceEnginePref, pickVoiceEngine, voiceProfileStat, setSettingsOpen,
   setShowVoiceCalibration, showMastery, setShowMastery, masteryWindow, setMasteryWindow,
   leftHanded, setLeftHanded, buttonDepth, setButtonDepth, seasonDeco, setSeasonDeco, colorblindHeat, setColorblindHeat,
+  reminder,
 }: GeneralSettingsSectionProps) {
   // Progress of a switch to a language whose dictionary is still downloading.
   const { languageLoad } = useTranslation();
@@ -158,6 +169,46 @@ export default function GeneralSettingsSection({
           onChange={(v) => { const on = v === 'on'; setShowScore(on); saveSetting('pref_showScore', on); }}
         />
       </SettingCard>
+      {reminder.supported && (
+        <SettingCard
+          anchor="dailyReminder"
+          label={t('Daily reminder')}
+          help={isNative()
+            ? t('A notification at the time you pick, reminding you to practice.')
+            : t('A browser notification at the time you pick — only while this app is open in a tab. For a reminder that works with the app closed, install the Android app.')}
+        >
+          <SegmentedControl
+            ariaLabel={t('Daily reminder')}
+            value={reminder.enabled ? 'on' : 'off'}
+            options={[
+              { value: 'on', label: t('On') },
+              { value: 'off', label: t('Off') },
+            ]}
+            onChange={(v) => reminder.setEnabled(v === 'on')}
+          />
+          {!reminder.enabled && !reminder.canPrompt && (
+            <p className="set-card-help">
+              {t('Finish one more round first — then we can ask for notification permission.')}
+            </p>
+          )}
+          {reminder.permissionDenied && (
+            <p className="set-card-help">
+              {t('Notifications are blocked — turn them on for this app in your device/browser settings.')}
+            </p>
+          )}
+          {reminder.enabled && (
+            <label className="set-date-field">
+              <span>{t('Reminder time')}</span>
+              <input
+                type="time"
+                className="set-date-input"
+                value={reminder.time}
+                onChange={(e) => { if (e.target.value) reminder.setTime(e.target.value); }}
+              />
+            </label>
+          )}
+        </SettingCard>
+      )}
       <SettingCard
         anchor="soundLevel"
         label={t('Sound & vibration')}
