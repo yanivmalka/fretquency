@@ -87,6 +87,7 @@ import {
 } from './utils/quickAccess';
 import MicPermissionCard from './components/MicPermissionCard';
 import SignInNudge from './components/SignInNudge';
+import ReminderOfferCard from './components/ReminderOfferCard';
 import CountdownOverlay from './components/drill/CountdownOverlay';
 import StageTransition from './components/drill/StageTransition';
 import GameEndSummary from './components/drill/GameEndSummary';
@@ -98,11 +99,16 @@ import { FeedbackBoard } from './components/FeedbackBoard';
 import { LeaderboardPanel } from './components/LeaderboardPanel';
 import { BadgeGrid } from './components/BadgeGrid';
 import { UpgradeCard } from './components/UpgradeCard';
-import { can, PRO_ONLY_INSTRUMENTS } from './utils/features';
-import { ensureTrialStarted, trialJustEnded, markTrialSummaryShown } from './utils/trial';
+import { can, PRO_ONLY_INSTRUMENTS, FREE_MULTI_STRING_LIMIT } from './utils/features';
+import {
+  ensureTrialStarted, trialJustEnded, markTrialSummaryShown, isTrialActive,
+  trialDaysLeft, trialEndingSoon, markTrialEndingSoonShown,
+} from './utils/trial';
 import { openUpgrade } from './utils/upgradeDrawer';
 import { loadLearningState, getInstrumentState } from './learning/learningState';
 import TrialEndedCard from './components/TrialEndedCard';
+import TrialBanner from './components/TrialBanner';
+import TrialEndingSoonCard from './components/TrialEndingSoonCard';
 import { setDrillHold } from './utils/adPacing';
 import { track } from './utils/analytics';
 import { GuestMergePrompt } from './components/GuestMergePrompt';
@@ -612,6 +618,30 @@ export default function App() {
       ? Object.keys(getInstrumentState(loadLearningState(), instrument.id, Date.now()).srs).length
       : 0
   ));
+  // What actually reverts now that the trial is over, in plain language —
+  // read straight from the raw, uncapped prefs (not `effectiveInstrumentId` /
+  // `eff`, which already silently fell back) so the card can say what changed
+  // instead of letting it happen quietly (product review 2026-10-05 §3ב/4,
+  // item 4). Captured once at mount, same as `trialTrackedCount`.
+  const [trialReverted] = useState<string[]>(() => {
+    if (!trialJustEnded()) return [];
+    const items: string[] = [];
+    if (PRO_ONLY_INSTRUMENTS.includes(instrumentId)) {
+      items.push(t(getInstrument(instrumentId).label));
+    }
+    const multiOn = loadSetting<boolean>(`sel_multi_${instrumentId}`, false);
+    const strings = loadSetting<number[]>(`sel_strings_${instrumentId}`, []);
+    if (multiOn && strings.length > FREE_MULTI_STRING_LIMIT) {
+      items.push(t('multi-string drills'));
+    }
+    if (loadSetting<boolean>('sel_useFretRange', false)) {
+      items.push(t('the precise fret window'));
+    }
+    return items;
+  });
+  // One-time "ends soon" nudge, a couple of days before a still-active trial
+  // runs out (product review 2026-10-05 §3ב/4, item 3).
+  const [showTrialEndingSoon, setShowTrialEndingSoon] = useState(() => trialEndingSoon());
   // One-time nudge for guests to sign in, shown right after onboarding. "Maybe
   // later" sets this device-local flag so it never nags again; the account is
   // still reachable any time from Settings → Account.
@@ -682,7 +712,7 @@ export default function App() {
   // on every re-render (settingsSections' `body` elements are reconstructed
   // on each render regardless of which section is actually showing).
   useEffect(() => {
-    if (drawerSection === 'upgrade') track('upgrade_page_viewed');
+    if (drawerSection === 'upgrade') track('upgrade_page_viewed', { duringTrial: isTrialActive() });
     else if (drawerSection === 'learn') track('learn_area_opened');
   }, [drawerSection]);
 
@@ -740,9 +770,13 @@ export default function App() {
   // second Back within 2s actually leave.
   const signInPromptOpen = auth.configured && !auth.loading && !auth.user
     && hasAnyHistory && !signInPromptSeen && !gameActive && onboardingDone;
+  // Forwarded into ClassroomScreen (and, while its exam sub-screen is open,
+  // from there into TeacherExamScreen) so Back can reach their own back-ladders.
+  const classroomBackRef = useRef<(() => void) | null>(null);
   const { exitHint } = useBackNavigation({
     nav, running, paused, stop,
     revealBadges, setRevealBadges, signInPromptOpen, dismissSignInPrompt,
+    classroomBackRef,
   });
 
   const { adjustSuggestion, dismissSuggestion } = useAdjustSuggestion({
@@ -799,7 +833,7 @@ export default function App() {
   // the historyKey reset effect above.
   const {
     newBadges, setNewBadges, toastQueue, setToastQueue, beginRun: celebrationsBeginRun,
-    roundCompletedNaturally, suggestion,
+    roundCompletedNaturally, suggestion, leagueResult, leaguePromotion,
   } = useRoundEndCelebrations({
     running, paused, pendingAutoAdvance, completedNaturally, scoring, selector, sessionResult,
     historyOps, instrument, showScore, histKey,
@@ -971,7 +1005,7 @@ export default function App() {
             setDrawerSection(null);
           }}
           onLocked={(feature) => {
-            track('locked_tile_tapped');
+            track('locked_tile_tapped', { feature });
             upgradeFromAccountRef.current = false;
             setUpgradeFeature(feature);
             setDrawerSection('upgrade');
@@ -1267,6 +1301,7 @@ export default function App() {
         initialCode={classLinkCode}
         onSignIn={() => { void auth.signInWithGoogle(); }}
         onClose={() => { clearPendingClassCode(); setClassroomOpen(false); teacherRoles.refresh(); }}
+        backRef={classroomBackRef}
       />
     );
   }
@@ -1603,9 +1638,29 @@ export default function App() {
           drill is running/paused so it never crowds the fretboard. */}
       {!gameActive && onboardingDone && (
         <DailyStreakBar
-          allHistory={historyOps.allHistory}
-          instrument={instrument}
           onOpenStats={() => setShowStats(true)}
+        />
+      )}
+
+      {/* Reverse Premium trial countdown — at rest only, every tier page this
+          can appear on reads Premium only because of the trial (utils/trial.ts;
+          product review 2026-10-05 §3ב/4, item 2). Tapping it jumps straight
+          into today's Premium Teacher plan. */}
+      {!gameActive && onboardingDone && auth.isPremium
+        && auth.entitlement.source === 'trial' && isTrialActive() && (
+        <TrialBanner
+          daysLeft={trialDaysLeft() ?? 0}
+          onOpenDaily={() => setActiveDomain('daily')}
+        />
+      )}
+
+      {/* Fret of the Day used to live only as a Learn-drawer tile — a small
+          entry at rest, right under the streak bar, so the app's own viral
+          loop isn't buried ten tiles deep (product review 2026-10-05 §4/7). */}
+      {!gameActive && onboardingDone && (
+        <FotdHomeCard
+          instrument={instrument}
+          onOpen={() => { playClickSound(); haptic.tap(); setDailyChallengeOpen(true); }}
         />
       )}
 
@@ -1670,6 +1725,21 @@ export default function App() {
         />
       )}
 
+      {/* One-time "want a daily reminder?" offer, right after the player's
+          2nd finished round (review §3ב item 10 / §4 item 8) — the reminder
+          used to be reachable only by finding it in Settings. Held back
+          behind the sign-in nudge so a guest never sees two overlays at
+          once; whichever this player sees first, the other still gets its
+          turn on a later round since each has its own "seen" flag. */}
+      {reminder.shouldOfferReminder && onboardingDone && !gameActive
+        && !(auth.configured && !auth.loading && !auth.user && hasAnyHistory && !signInPromptSeen) && (
+        <ReminderOfferCard
+          t={t}
+          onEnable={() => { reminder.setEnabled(true); reminder.dismissOffer(); }}
+          onDismiss={reminder.dismissOffer}
+        />
+      )}
+
       {/* One-time "your Premium trial ended" summary (utils/trial.ts). Shown
           once, after onboarding, outside an active round. trackedCount reads
           learningState.ts directly — useLearning goes inert the instant the
@@ -1678,12 +1748,30 @@ export default function App() {
         <TrialEndedCard
           t={t}
           trackedCount={trialTrackedCount}
+          reverted={trialReverted}
           onSeeUpgrade={() => {
             setShowTrialEnded(false);
             markTrialSummaryShown();
             openUpgrade('premiumTeacher');
           }}
           onDismiss={() => { setShowTrialEnded(false); markTrialSummaryShown(); }}
+        />
+      )}
+
+      {/* One-time "ends soon" nudge, a couple of days before a still-active
+          trial runs out (utils/trial.ts `trialEndingSoon`). Suppressed once
+          the trial has actually ended so it never shows alongside, or after,
+          TrialEndedCard. */}
+      {showTrialEndingSoon && onboardingDone && !gameActive && !showTrialEnded && (
+        <TrialEndingSoonCard
+          t={t}
+          daysLeft={trialDaysLeft() ?? 0}
+          onSeeUpgrade={() => {
+            setShowTrialEndingSoon(false);
+            markTrialEndingSoonShown();
+            openUpgrade('premiumTeacher');
+          }}
+          onDismiss={() => { setShowTrialEndingSoon(false); markTrialEndingSoonShown(); }}
         />
       )}
 
@@ -1755,6 +1843,8 @@ export default function App() {
               newBadges={newBadges}
               instrument={instrument}
               suggestion={suggestion}
+              leagueResult={leagueResult}
+              leaguePromotion={leaguePromotion}
               onApplySuggestion={applyRoundSuggestion}
               onOk={dismissRoundEnd}
             />
