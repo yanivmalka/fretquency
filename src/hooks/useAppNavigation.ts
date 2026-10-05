@@ -81,6 +81,11 @@ export function useAppNavigation({
   // own), so it needs no backRef — Back just closes it. Not persisted to
   // gfp_view.
   const [tunerOpen, setTunerOpen] = useState(false);
+  // Fret of the Day / Challenge a friend — same single-screen takeover
+  // shape as the Tuner. Not persisted to gfp_view either: a reload while a
+  // shared link is open should re-parse the link (see useChallengeLinkRoute
+  // in App.tsx), not restore a stale "was open" flag.
+  const [dailyChallengeOpen, setDailyChallengeOpen] = useState(false);
   // The `upgrade` (Pro) sub-page is reachable both from the Account tab's plan
   // tile and from any locked <ProGate> in the app (via registerUpgradeHandler,
   // which may open it without Account ever being shown). Back should return to
@@ -238,6 +243,14 @@ export function useAppNavigation({
     return () => window.removeEventListener('keydown', onKey);
   }, [tunerOpen]);
 
+  // Close Fret of the Day with Escape, back to the home screen.
+  useEffect(() => {
+    if (!dailyChallengeOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDailyChallengeOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [dailyChallengeOpen]);
+
   // Escape steps a learning-type tab (Daily practice / Intervals) back to the
   // Selector, matching the on-screen Back button and hardware Back.
   useEffect(() => {
@@ -263,6 +276,7 @@ export function useAppNavigation({
     activeDomain, setActiveDomain,
     drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen,
+    dailyChallengeOpen, setDailyChallengeOpen,
     micPrompt, setMicPrompt,
     showInfo, setShowInfo,
     infoAutoShown, setInfoAutoShown,

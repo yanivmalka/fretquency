@@ -21,6 +21,9 @@ for (const e of SEARCH_ENTRIES) {
 const expectFirst: Array<[string, string]> = [
   ['tuner', 'tuner'],
   ['כוונן', 'tuner'],
+  ['fret of the day', 'daily-challenge'],
+  ['challenge a friend', 'daily-challenge'],
+  ['אתגר יומי', 'daily-challenge'],
   ['יד שמאל', 'leftHanded'],
   ['שמאלי', 'leftHanded'],
   ['ווליום', 'soundLevel'],

@@ -43,7 +43,7 @@ export function useBackNavigation({
     settingsOpen, setSettingsOpen, drawerSection, setDrawerSection,
     showStats, setShowStats, showPath, setShowPath,
     activeDomain, setActiveDomain, upgradeFromAccountRef,
-    tunerOpen, setTunerOpen,
+    tunerOpen, setTunerOpen, dailyChallengeOpen, setDailyChallengeOpen,
   } = nav;
 
   const [exitHint, setExitHint] = useState(false);
@@ -51,12 +51,12 @@ export function useBackNavigation({
   // listeners (bound once) always see current values without re-subscribing.
   const backNav = useRef({
     micPrompt, showInfo, revealBadges, signInPromptOpen, settingsOpen, drawerSection,
-    showStats, showPath, activeDomain, tunerOpen, running, paused, stop,
+    showStats, showPath, activeDomain, tunerOpen, dailyChallengeOpen, running, paused, stop,
   });
   useEffect(() => {
     backNav.current = {
       micPrompt, showInfo, revealBadges, signInPromptOpen, settingsOpen, drawerSection,
-      showStats, showPath, activeDomain, tunerOpen, running, paused, stop,
+      showStats, showPath, activeDomain, tunerOpen, dailyChallengeOpen, running, paused, stop,
     };
   });
   useEffect(() => {
@@ -90,6 +90,7 @@ export function useBackNavigation({
         return true;
       }
       if (s.tunerOpen) { setTunerOpen(false); return true; }
+      if (s.dailyChallengeOpen) { setDailyChallengeOpen(false); return true; }
       if (s.running || s.paused) { s.stop(); return true; }
       return false;
     };

@@ -60,6 +60,8 @@ import StaffPracticeScreen from './components/StaffPracticeScreen';
 import TabPracticeScreen from './components/TabPracticeScreen';
 import LearnHub from './components/LearnHub';
 import TunerScreen from './components/TunerScreen';
+import DailyChallengeScreen from './components/DailyChallengeScreen';
+import { useChallengeLinkRoute } from './hooks/useChallengeLinkRoute';
 import { useLearning } from './hooks/useLearning';
 import { useDrillHistorySink } from './game/useDrillHistorySink';
 import type { HistoryOps } from './hooks/useGameEngine';
@@ -608,10 +610,19 @@ export default function App() {
   const {
     showStats, setShowStats, showPath, setShowPath, settingsOpen, setSettingsOpen,
     activeDomain, setActiveDomain, drawerSection, setDrawerSection, drawerSlideIn,
-    tunerOpen, setTunerOpen,
+    tunerOpen, setTunerOpen, dailyChallengeOpen, setDailyChallengeOpen,
     micPrompt, setMicPrompt, showInfo, upgradeFromAccountRef,
     askForMic, grantMic, openInfo,
   } = nav;
+
+  // A Fret of the Day / Challenge a friend link (?fotd=...) opens straight
+  // into that screen, bypassing Onboarding/Selector entirely — a guest must
+  // be able to land on and finish the challenge with zero setup.
+  const challengeLinkData = useChallengeLinkRoute();
+  useEffect(() => {
+    if (challengeLinkData) setDailyChallengeOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [challengeLinkData]);
 
   // Usage measurement: fire once per transition into these drawer views, not
   // on every re-render (settingsSections' `body` elements are reconstructed
@@ -838,6 +849,10 @@ export default function App() {
           leaveDrawer();
           setTunerOpen(true);
           return;
+        case 'dailyChallenge':
+          leaveDrawer();
+          setDailyChallengeOpen(true);
+          return;
         case 'path':
           if (entry.feature && !can(entry.feature, auth.tier)) { toUpgrade(); return; }
           leaveDrawer();
@@ -885,6 +900,13 @@ export default function App() {
             setSettingsOpen(false);
             setDrawerSection(null);
             setTunerOpen(true);
+          }}
+          onOpenDailyChallenge={() => {
+            setShowStats(false);
+            setShowPath(false);
+            setSettingsOpen(false);
+            setDrawerSection(null);
+            setDailyChallengeOpen(true);
           }}
         />
       ),
@@ -1117,6 +1139,21 @@ export default function App() {
   // its own mic/pitch-detection state (src/tuner/useTuner.ts) entirely.
   if (tunerOpen) {
     return <TunerScreen onClose={() => setTunerOpen(false)} />;
+  }
+
+  // Fret of the Day / Challenge a friend — same self-contained full-screen
+  // takeover shape as the Tuner. Reachable with no onboarding and no sign-in
+  // (a shared link opens straight here, before Onboarding ever mounts below).
+  if (dailyChallengeOpen) {
+    return (
+      <DailyChallengeScreen
+        defaultInstrumentId={effectiveInstrumentId}
+        linkData={challengeLinkData}
+        addEntry={historyOps.addEntry}
+        markPlayed={historyOps.markPlayed}
+        onClose={() => setDailyChallengeOpen(false)}
+      />
+    );
   }
 
   // The unified "Stats & progress" screen replaces the game entirely — its own

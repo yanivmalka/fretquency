@@ -1,0 +1,128 @@
+/* ── Fret of the Day / Challenge a friend ────────────────────────────────
+   Same page-replacing chrome as the Tuner (.settings-page / .sp2); this
+   file only covers what's specific to this screen. Free for every tier —
+   no Premium gold accent. Theme-token driven, no per-theme block. */
+
+.fotd-puzzle-number {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.fotd-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  width: 100%;
+}
+
+.fotd-instrument-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fotd-instrument-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-2);
+  color: var(--text-1);
+  font: inherit;
+  cursor: pointer;
+}
+.fotd-instrument-btn.active {
+  border-color: var(--accent-dim);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.fotd-challenger-banner {
+  max-width: 320px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  font-size: 0.88rem;
+  color: var(--text-1);
+}
+
+.fotd-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.fotd-tagline {
+  max-width: 320px;
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.fotd-question-col {
+  width: 100%;
+}
+
+.fotd-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.fotd-result-score {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.fotd-result-emoji {
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+}
+
+.fotd-streak {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.fotd-result-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+
+.fotd-share-row,
+.fotd-challenge-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.fotd-name-input {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-2);
+  color: var(--text-1);
+  font: inherit;
+  max-width: 160px;
+}
+
+.fotd-copied-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
