@@ -197,3 +197,39 @@
 }
 .pro-card.is-current { box-shadow: 0 0 0 2px rgba(245, 210, 112, 0.35) inset; }
 .plan-free.is-current { box-shadow: 0 0 0 2px rgba(127, 214, 148, 0.35) inset; }
+
+/* Premium — a distinct lane from Pro's gold, so the two don't blur together
+   when both appear in the same stack. Borrows the badge-shelf violet. */
+.plan-premium {
+  border-color: #8a63d8;
+  background: #171229;
+}
+.premium-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8a63d8, #c7a8ff);
+  color: #1c1230;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.plan-premium .pro-card-tier { color: #c7a8ff; }
+.plan-premium .pro-perks li span { color: #c7a8ff; }
+.plan-premium.is-current { box-shadow: 0 0 0 2px rgba(138, 99, 216, 0.4) inset; }
+
+/* The plan the tapped feature actually needs — a brighter outline so the
+   right card reads as "this one" at a glance, distinct from "is-current". */
+.pro-card.is-target { outline: 2px solid #f5d270; outline-offset: 2px; }
+.plan-premium.is-target { outline-color: #c7a8ff; }
+
+/* Account tab's "somewhere calm" trial countdown, under the plan tile. */
+.account-trial-note {
+  margin: -4px 0 0;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #c7a8ff;
+  text-align: center;
+}

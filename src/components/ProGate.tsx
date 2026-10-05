@@ -46,12 +46,12 @@ export function ProGate({ feature, children, variant = 'overlay', pitch, anchor 
     ? t('Unlock with Premium')
     : t('Unlock with Pro');
 
-  const go = () => { playClickSound(); haptic.tap(); openUpgrade(); };
+  const go = () => { playClickSound(); haptic.tap(); openUpgrade(feature); };
 
   if (variant === 'replace') {
     return anchor
-      ? <div data-search-anchor={anchor}><UpgradeCard pitch={pitch} /></div>
-      : <UpgradeCard pitch={pitch} />;
+      ? <div data-search-anchor={anchor}><UpgradeCard feature={feature} pitch={pitch} /></div>
+      : <UpgradeCard feature={feature} pitch={pitch} />;
   }
 
   if (variant === 'inline-badge') {

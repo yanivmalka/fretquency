@@ -3,6 +3,7 @@ import { loadSetting, saveSetting } from '../utils/settings';
 import { registerUpgradeHandler } from '../utils/upgradeDrawer';
 import type { LearnDomain } from '../components/LearnHub';
 import type { UseVoiceAnswerResult } from './useVoiceAnswer';
+import type { Feature } from '../utils/features';
 
 type MicPrompt = null | 'primer' | 'denied';
 
@@ -85,6 +86,12 @@ export function useAppNavigation({
   // which may open it without Account ever being shown). Back should return to
   // Account only in the former case, so track which way we got there.
   const upgradeFromAccountRef = useRef(initialView?.upgradeFromAccount ?? false);
+  // Which Feature opened the `upgrade` page (via openUpgrade(feature) — a
+  // locked <ProGate>, a locked Learn tile, or a capped Selector control), so
+  // <UpgradeCard> can open on the tier that actually gates it and explain
+  // what was tapped. `undefined` when reached from the Account tab's plain
+  // "Your plan" tile — no specific feature, just browsing.
+  const [upgradeFeature, setUpgradeFeature] = useState<Feature | undefined>(undefined);
   // Friendly in-app microphone card shown *before* the browser's own bare
   // permission prompt: 'primer' explains why we need the mic, 'denied' is the
   // recovery card for when the browser has already refused (it won't re-ask).
@@ -180,10 +187,11 @@ export function useAppNavigation({
   // through this handler (see utils/upgradeDrawer.ts). Leave any full-screen
   // view (Stats, an open sub-page) first so the section actually renders.
   useEffect(() => {
-    registerUpgradeHandler(() => {
+    registerUpgradeHandler((feature) => {
       setShowStats(false);
       setSettingsOpen(true);
       upgradeFromAccountRef.current = false;
+      setUpgradeFeature(feature);
       setDrawerSection('upgrade');
     });
     return () => registerUpgradeHandler(null);
@@ -259,6 +267,7 @@ export function useAppNavigation({
     showInfo, setShowInfo,
     infoAutoShown, setInfoAutoShown,
     upgradeFromAccountRef,
+    upgradeFeature, setUpgradeFeature,
     askForMic, grantMic, openInfo,
   };
 }

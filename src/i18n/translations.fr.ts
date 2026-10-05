@@ -508,6 +508,54 @@ export const fr: Record<string, string> = {
   'Access runs until': 'Accès valable jusqu’au',
   'Pro isn’t on sale yet — everything above stays free to try in the meantime.':
     'Pro n’est pas encore en vente — en attendant, tout ce qui précède reste gratuit à essayer.',
+  // Premium tier + the reverse 7-day trial (Task D)
+  'Upgrade': 'Mettre à niveau',
+  'Included with Premium': 'Inclus avec Premium',
+  'Everything in Pro, plus:': 'Tout ce qu’il y a dans Pro, plus :',
+  'Your trial': 'Ton essai',
+  'Premium is a teacher, not a timer — it plans your practice for you.':
+    'Premium est un professeur, pas un minuteur — il planifie ton entraînement à ta place.',
+  'Your Premium trial is active.': 'Ton essai Premium est actif.',
+  'Your access is complimentary.': 'Ton accès est offert.',
+  'Your access came from a promotion.': 'Ton accès provient d’une promotion.',
+  'Your access was granted manually.': 'Ton accès a été accordé manuellement.',
+  'Your access is from your subscription.': 'Ton accès provient de ton abonnement.',
+  'Your access is active.': 'Ton accès est actif.',
+  'Your 7-day Premium trial has ended. Everything below Premium stays free.':
+    'Ton essai Premium de 7 jours est terminé. Tout ce qui est en dessous de Premium reste gratuit.',
+  'Ends in': 'Se termine dans',
+  'day': 'jour',
+  'days': 'jours',
+  'Ends today.': 'Se termine aujourd’hui.',
+  'Premium isn’t on sale yet — every new install gets a 7-day free trial in the meantime.':
+    'Premium n’est pas encore en vente — en attendant, chaque nouvelle installation reçoit un essai gratuit de 7 jours.',
+  'Up to 2 strings at once in multi-string mode': 'Jusqu’à 2 cordes à la fois en mode multi-cordes',
+  'Occasional ads between rounds': 'Publicités occasionnelles entre les manches',
+  'No ads': 'Sans publicité',
+  'Drill three or more strings at once.': 'Entraîne-toi sur trois cordes ou plus à la fois.',
+  'A daily session the Teacher builds from your actual weak spots':
+    'Une séance quotidienne que le Professeur construit à partir de tes vraies lacunes',
+  'Spaced review that brings what you missed back until it sticks':
+    'Une révision espacée qui fait revenir ce que tu as raté jusqu’à ce que ça rentre',
+  'A guided Learning Path across the whole fretboard':
+    'Un parcours guidé sur tout le manche',
+  'Interval training, scale training, staff reading and tab reading':
+    'Entraînement aux intervalles, aux gammes, lecture de partition et lecture de tablature',
+  'See your full practice history, not just the last 7 days.':
+    'Consulte tout ton historique d’entraînement, pas seulement les 7 derniers jours.',
+  'Practice without ads.': 'Entraîne-toi sans publicité.',
+  'Premium trial': 'Essai Premium',
+  'day left': 'jour restant',
+  'days left': 'jours restants',
+  'Premium trial — ends today': 'Essai Premium — se termine aujourd’hui',
+  'Your Premium trial has ended': 'Ton essai Premium est terminé',
+  'This week the Teacher kept track of': 'Cette semaine, le Professeur a suivi',
+  'positions on your fretboard.': 'positions sur ton manche.',
+  'This week the Teacher started learning your fretboard.':
+    'Cette semaine, le Professeur a commencé à apprendre ton manche.',
+  'You’re back on Free — everything you’ve already learned stays yours.':
+    'Tu es de retour sur Free — tout ce que tu as déjà appris reste acquis.',
+  'See what’s in Premium': 'Découvre ce qu’il y a dans Premium',
   'Free': 'Gratuit',
 
   // Adaptive difficulty suggestion banner (wishlist §3)

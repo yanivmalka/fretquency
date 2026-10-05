@@ -9,6 +9,7 @@ import { verror } from '../../../utils/debugLog';
 import type { AuthState } from '../../../hooks/useAuth';
 import { dateLocale, type Lang } from '../../../i18n/translations';
 import { PRIVACY_POLICY_URL, TERMS_URL } from '../../../utils/onboardingState';
+import { trialDaysLeft } from '../../../utils/trial';
 
 /**
  * The "Account" drawer section body: sign-in / sign-out, the plan tile, the
@@ -22,11 +23,27 @@ export interface AccountSectionProps {
   auth: AuthState;
   setDrawerSection: (id: string | null) => void;
   upgradeFromAccountRef: { current: boolean };
+  /** Open the `upgrade` sub-page for no specific feature — just browsing the
+   *  plan tiers (clears any feature a previous locked tile had set). */
+  onOpenUpgrade?: () => void;
 }
 
 export default function AccountSection({
-  t, lang, auth, setDrawerSection, upgradeFromAccountRef,
+  t, lang, auth, setDrawerSection, upgradeFromAccountRef, onOpenUpgrade,
 }: AccountSectionProps) {
+  // The reverse Premium trial's "somewhere calm" countdown (utils/trial.ts):
+  // a plain line under the plan tile, not a banner or a badge — it shows
+  // while the trial is the reason the account reads Premium, on every tier
+  // page this component renders (signed in or a guest).
+  const onTrial = auth.isPremium && auth.entitlement.source === 'trial';
+  const trialDays = onTrial ? trialDaysLeft() : null;
+  const trialNote = onTrial && trialDays !== null && (
+    <p className="account-trial-note">
+      {trialDays > 0
+        ? `${t('Premium trial')} — ${trialDays} ${trialDays === 1 ? t('day left') : t('days left')}`
+        : t('Premium trial — ends today')}
+    </p>
+  );
   return (
     <>
       {auth.user ? (
@@ -67,13 +84,14 @@ export default function AccountSection({
           <button
             type="button"
             className={`account-plan${auth.isPro ? ' is-pro' : ''}`}
-            onClick={click(() => { upgradeFromAccountRef.current = true; setDrawerSection('upgrade'); })}
+            onClick={click(() => { upgradeFromAccountRef.current = true; (onOpenUpgrade ?? (() => setDrawerSection('upgrade')))(); })}
           >
             <span className="account-plan-icon" aria-hidden="true">⭐</span>
             <span className="account-plan-tier">
               {auth.isPremium ? t('Premium') : auth.isPro ? t('Pro') : t('Free')}
             </span>
           </button>
+          {trialNote}
           <button
             className="set-card-danger"
             onClick={click(() => { void auth.signOut(); })}
@@ -92,11 +110,12 @@ export default function AccountSection({
           <button
             type="button"
             className="account-plan account-plan-lg"
-            onClick={click(() => { upgradeFromAccountRef.current = true; setDrawerSection('upgrade'); })}
+            onClick={click(() => { upgradeFromAccountRef.current = true; (onOpenUpgrade ?? (() => setDrawerSection('upgrade')))(); })}
           >
             <span className="account-plan-icon" aria-hidden="true">⭐</span>
             <span className="account-plan-tier">{t('Free')}</span>
           </button>
+          {trialNote}
           <button
             className="set-card-btn set-card-btn-primary"
             onClick={click(() => { void auth.signInWithGoogle(); })}

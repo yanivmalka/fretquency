@@ -12,6 +12,7 @@ import {
   fetchEntitlement, cachedEntitlement, FREE, tierAtLeast,
   type Entitlement, type Tier,
 } from '../utils/entitlement';
+import { isTrialActive, syncTrialStart, trialEndsAt } from '../utils/trial';
 import {
   getDevSimulateTier, subscribeDevSimulateTier, setDevSimulateTier, type SimTier,
 } from '../utils/devSimulateTier';
@@ -231,6 +232,28 @@ export function useAuth(): AuthState {
     };
   }, [user]);
 
+  // Reverse Premium trial (utils/trial.ts): reconcile this device's local
+  // trial start against the server once per sign-in, so it can't be restarted
+  // by signing out/in or switching devices. No-op for guests (local only) and
+  // for an account that was never trial-eligible.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    void syncTrialStart(user.id).then(() => { if (!cancelled) setTrialTick(t => t + 1); });
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // `isTrialActive()` depends on Date.now(), not on any state change, so bump
+  // a tick to force a re-render on foreground return — otherwise an app left
+  // open past the trial's end, or across midnight, would keep showing stale
+  // Premium access until some unrelated state change happened to re-render.
+  const [, setTrialTick] = useState(0);
+  useEffect(() => {
+    const onForeground = () => { if (document.visibilityState === 'visible') setTrialTick(t => t + 1); };
+    document.addEventListener('visibilitychange', onForeground);
+    return () => document.removeEventListener('visibilitychange', onForeground);
+  }, []);
+
   const refreshEntitlement = useCallback(async () => {
     if (!user) { setEntitlement(FREE); return; }
     setEntitlement(await fetchEntitlement(user.id));
@@ -268,7 +291,15 @@ export function useAuth(): AuthState {
   // builds, so `effectiveTier` is just the real entitlement there.
   const simTier: SimTier = import.meta.env.DEV ? devSimulateTier : 'off';
   const realTier: Tier = user ? entitlement.tier : 'free';
-  const effectiveTier: Tier = simTier === 'off' ? realTier : simTier;
+  // The reverse trial floors the tier at 'premium' for its duration — applies
+  // to guests too (the whole point is a taste of Premium before any sign-in
+  // or payment). A real paid tier already at/above premium is left untouched.
+  const onTrial = isTrialActive() && !tierAtLeast(realTier, 'premium');
+  const tierWithTrial: Tier = onTrial ? 'premium' : realTier;
+  const effectiveTier: Tier = simTier === 'off' ? tierWithTrial : simTier;
+  const effectiveEntitlement: Entitlement = onTrial
+    ? { tier: 'premium', source: 'trial', expiresAt: trialEndsAt()?.toISOString() ?? null }
+    : (user ? entitlement : FREE);
 
   return {
     user,
@@ -280,7 +311,7 @@ export function useAuth(): AuthState {
     tier: effectiveTier,
     isPro: tierAtLeast(effectiveTier, 'pro'),
     isPremium: tierAtLeast(effectiveTier, 'premium'),
-    entitlement: user ? entitlement : FREE,
+    entitlement: effectiveEntitlement,
     entitlementLoading: !!user && entitlementLoading,
     loading,
     configured: isSupabaseConfigured,

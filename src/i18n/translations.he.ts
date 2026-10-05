@@ -734,6 +734,54 @@ export const he: Record<string, string> = {
   'Access runs until': 'הגישה בתוקף עד',
   'Pro isn’t on sale yet — everything above stays free to try in the meantime.':
     'מסלול Pro עדיין אינו נמכר — עד אז כל מה שלמעלה זמין לניסיון בחינם.',
+  // Premium tier + the reverse 7-day trial (Task D)
+  'Upgrade': 'שדרוג',
+  'Included with Premium': 'כלול גם ב-Premium',
+  'Everything in Pro, plus:': 'כל מה שיש ב-Pro, ובנוסף:',
+  'Your trial': 'תקופת הניסיון שלך',
+  'Premium is a teacher, not a timer — it plans your practice for you.':
+    'Premium הוא מורה, לא טיימר — הוא מתכנן עבורך את התרגול.',
+  'Your Premium trial is active.': 'תקופת הניסיון שלך ל-Premium פעילה.',
+  'Your access is complimentary.': 'הגישה שלך ניתנה ללא תשלום.',
+  'Your access came from a promotion.': 'הגישה שלך התקבלה במסגרת מבצע.',
+  'Your access was granted manually.': 'הגישה שלך הוענקה ידנית.',
+  'Your access is from your subscription.': 'הגישה שלך היא חלק מהמנוי שלך.',
+  'Your access is active.': 'הגישה שלך פעילה.',
+  'Your 7-day Premium trial has ended. Everything below Premium stays free.':
+    'תקופת הניסיון של 7 הימים ל-Premium הסתיימה. כל מה שמתחת ל-Premium נשאר חינמי.',
+  'Ends in': 'מסתיימת בעוד',
+  'day': 'יום',
+  'days': 'ימים',
+  'Ends today.': 'מסתיימת היום.',
+  'Premium isn’t on sale yet — every new install gets a 7-day free trial in the meantime.':
+    'מסלול Premium עדיין אינו נמכר — בינתיים כל התקנה חדשה מקבלת תקופת ניסיון חינמית של 7 ימים.',
+  'Up to 2 strings at once in multi-string mode': 'עד 2 מיתרים בו-זמנית במצב רב-מיתרים',
+  'Occasional ads between rounds': 'פרסומות מדי פעם בין הסבבים',
+  'No ads': 'בלי פרסומות',
+  'Drill three or more strings at once.': 'תרגול של שלושה מיתרים או יותר בו-זמנית.',
+  'A daily session the Teacher builds from your actual weak spots':
+    'סבב יומי שהמורה בונה מהחולשות האמיתיות שלך',
+  'Spaced review that brings what you missed back until it sticks':
+    'חזרה מרווחת שמחזירה את מה שפספסת עד שהוא נטמע',
+  'A guided Learning Path across the whole fretboard':
+    'מסלול לימוד מודרך על פני כל סרגל הסריגים',
+  'Interval training, scale training, staff reading and tab reading':
+    'תרגול מרווחים, תרגול סולמות, קריאת תווים וקריאת טאבים',
+  'See your full practice history, not just the last 7 days.':
+    'צפייה בכל היסטוריית התרגול שלך, לא רק שבעת הימים האחרונים.',
+  'Practice without ads.': 'תרגול בלי פרסומות.',
+  'Premium trial': 'תקופת ניסיון ל-Premium',
+  'day left': 'יום נותר',
+  'days left': 'ימים נותרו',
+  'Premium trial — ends today': 'תקופת ניסיון ל-Premium — מסתיימת היום',
+  'Your Premium trial has ended': 'תקופת הניסיון שלך ל-Premium הסתיימה',
+  'This week the Teacher kept track of': 'השבוע המורה עקב אחרי',
+  'positions on your fretboard.': 'מיקומים על סרגל הסריגים שלך.',
+  'This week the Teacher started learning your fretboard.':
+    'השבוע המורה התחיל ללמוד את סרגל הסריגים שלך.',
+  'You’re back on Free — everything you’ve already learned stays yours.':
+    'חזרת למסלול החינמי — כל מה שכבר למדת נשאר שלך.',
+  'See what’s in Premium': 'לראות מה יש ב-Premium',
   // Admin-only account tools (settings ▸ Account)
   'Admin: plan on your account': 'מנהל: המסלול בחשבון שלך',
   'Sets the plan on your own account only (Free, Pro or Premium). Writes to the entitlements table and syncs across your devices.':

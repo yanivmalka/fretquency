@@ -237,7 +237,7 @@ export default function SelectorPanel({
               className={`string-pill ${selected ? 'active' : ''} ${capped ? 'string-pill-locked' : ''}`}
               aria-disabled={capped || undefined}
               onClick={() => {
-                if (capped) { playClickSound(); openUpgrade(); return; }
+                if (capped) { playClickSound(); openUpgrade('multiStringFull'); return; }
                 if (selected) playToggleOffSound(); else playToggleOnSound();
                 onStringSelect(num);
               }}

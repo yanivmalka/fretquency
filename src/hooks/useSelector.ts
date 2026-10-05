@@ -290,7 +290,7 @@ export function useSelector(instrument: InstrumentConfig, isPro = false) {
           // once; reaching for one more opens the upgrade drawer and leaves
           // the selection untouched.
           if (!isPro && prev.length >= FREE_MULTI_STRING_LIMIT) {
-            openUpgrade();
+            openUpgrade('multiStringFull');
             return prev;
           }
           next = [...prev, stringNum];
