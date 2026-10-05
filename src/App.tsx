@@ -62,6 +62,8 @@ import LearnHub from './components/LearnHub';
 import TunerScreen from './components/TunerScreen';
 import DailyChallengeScreen from './components/DailyChallengeScreen';
 import { useChallengeLinkRoute } from './hooks/useChallengeLinkRoute';
+import { useStartLinkRoute } from './hooks/useStartLinkRoute';
+import { isBootDone, subscribeBootDone } from './utils/bootState';
 import { useLearning } from './hooks/useLearning';
 import { useDrillHistorySink } from './game/useDrillHistorySink';
 import type { HistoryOps } from './hooks/useGameEngine';
@@ -667,6 +669,21 @@ export default function App() {
     preloaded, setPreloaded, askForMic, answerMode, running, paused,
     celebrationsBeginRunRef,
   });
+
+  // A landing-page link (?start=notes, from guitar-neck-notes.html) starts a
+  // Notes round as soon as the boot splash is gone. A first-time visitor goes
+  // through Onboarding instead — it already ends by starting a round.
+  const startLink = useStartLinkRoute();
+  const bootDone = useSyncExternalStore(subscribeBootDone, isBootDone);
+  const startLinkUsedRef = useRef(false);
+  useEffect(() => {
+    if (!startLink || startLinkUsedRef.current) return;
+    if (!onboardingDone) { startLinkUsedRef.current = true; return; }
+    if (!bootDone) return;
+    startLinkUsedRef.current = true;
+    if (!gameActive && countdown === null && !dailyChallengeOpen) start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startLink, bootDone]);
 
   // During the 3-2-1 count-in the engine hasn't started yet (`running` is still
   // false), but the fretboard/circle should already wear the stage's play
