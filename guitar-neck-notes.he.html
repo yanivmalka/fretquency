@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="color-scheme" content="dark light" />
+    <title>התווים על צוואר הגיטרה — טבלה ותרגיל חינמי</title>
+    <meta name="description" content="כל התווים על צוואר הגיטרה בכיוון סטנדרטי, מסריג 0 עד 12, בטבלה אחת — ותרגיל חינמי שמלמד את הצוואר, מיקום אחד בכל פעם." />
+    <meta property="og:title" content="התווים על צוואר הגיטרה — טבלה ותרגיל חינמי" />
+    <meta property="og:description" content="כל התווים על צוואר הגיטרה בטבלה אחת, ותרגיל חינמי בדפדפן." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yanivmalka.github.io/fretquency/guitar-neck-notes.he.html" />
+    <meta property="og:image" content="https://yanivmalka.github.io/fretquency/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="התווים על צוואר הגיטרה — טבלה ותרגיל חינמי" />
+    <meta name="twitter:description" content="כל התווים על צוואר הגיטרה בטבלה אחת, ותרגיל חינמי בדפדפן." />
+    <meta name="twitter:image" content="https://yanivmalka.github.io/fretquency/og-image.png" />
+    <link rel="canonical" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.he.html" />
+    <link rel="alternate" hreflang="en" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.html" />
+    <link rel="alternate" hreflang="es" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.es.html" />
+    <link rel="alternate" hreflang="pt-BR" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.pt-br.html" />
+    <link rel="alternate" hreflang="fr" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.fr.html" />
+    <link rel="alternate" hreflang="it" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.it.html" />
+    <link rel="alternate" hreflang="he" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.he.html" />
+    <link rel="alternate" hreflang="x-default" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.html" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <!--
+      Static Hebrew (RTL) landing page for the "התווים על צוואר הגיטרה" search
+      intent, mirroring guitar-neck-notes.html's structure/meta pattern.
+      Static copy per CLAUDE.md's i18n note: landing-page marketing prose
+      needs natural per-language text, not a JS-driven swap over app-UI
+      strings. Note names stay as plain letters (E, F, F#...), the app's
+      convention for Hebrew (src/utils/music.ts's solfège notation is never
+      used for 'he' — see the English page's inline swap script, which skips
+      the Do-Re-Mi substitution when lang === 'he'). The fret chart itself
+      keeps dir="ltr" so frets 0→12 stay left-to-right regardless of page
+      direction, same as the app pins neck boards against the UI language
+      (src/styles/27-left-handed.css) rather than mirroring with RTL.
+    -->
+    <style>
+      :root {
+        --bg: #1a1a2e; --card: #22223a; --line: #34345a; --text: #ecebf5; --text-2: #b4b3c8;
+        --accent: #4fd1c5; --accent-ink: #0c1a1a; --acc: #8f8eb0;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #eef2f8; --card: #ffffff; --line: #d3d9e6; --text: #1b1d2a; --text-2: #50566b;
+          --accent: #0f8f86; --accent-ink: #ffffff; --acc: #7a7f93;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; background: var(--bg); color: var(--text);
+        font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      main { max-width: 760px; margin: 0 auto; padding: 28px 16px 48px; }
+      h1 { margin: 0 0 8px; font-size: 1.9rem; line-height: 1.2; }
+      h2 { margin: 32px 0 8px; font-size: 1.2rem; }
+      p { margin: 0 0 12px; color: var(--text-2); }
+      .cta {
+        display: inline-block; margin: 8px 0 4px; padding: 13px 22px; border-radius: 12px;
+        background: var(--accent); color: var(--accent-ink); font-weight: 800; text-decoration: none;
+      }
+      .chart { margin: 24px 0 8px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+      table { border-collapse: collapse; width: 100%; min-width: 560px; font-variant-numeric: tabular-nums; }
+      caption { caption-side: bottom; padding: 10px 12px; text-align: start; font-size: 0.82rem; color: var(--text-2); }
+      th, td { padding: 7px 4px; text-align: center; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+      thead th { font-size: 0.72rem; color: var(--text-2); font-weight: 700; }
+      tbody th { padding-inline: 10px; text-align: start; white-space: nowrap; font-size: 0.78rem; color: var(--text-2); }
+      td { font-weight: 700; }
+      td:nth-child(2) { border-inline-end: 3px solid var(--line); }
+      td.acc { color: var(--acc); font-weight: 500; font-size: 0.8rem; }
+      thead th.dot { color: var(--accent); }
+      tbody tr:last-child th, tbody tr:last-child td { border-bottom: none; }
+      ul { margin: 0 0 12px; padding-inline-start: 20px; color: var(--text-2); }
+      li { margin-bottom: 6px; }
+      footer { margin-top: 36px; font-size: 0.85rem; }
+      footer a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>התווים על צוואר הגיטרה</h1>
+      <p>כל התווים בגיטרה בכיוון סטנדרטי, מסריג 0 עד 12 — ותרגיל חינמי שמלמד אותם, מיקום אחד בכל פעם.</p>
+      <a class="cta" href="./?start=notes">לתרגל את התווים עכשיו — בחינם</a>
+
+      <div class="chart" dir="ltr">
+        <table>
+          <caption>כיוון סטנדרטי (E A D G B E). המיתר העבה ביותר למעלה. אחרי סריג 12 הכול חוזר אוקטבה גבוה יותר.</caption>
+          <thead>
+            <tr><th scope="col">מיתר</th><th scope="col">0</th><th scope="col">1</th><th scope="col">2</th><th scope="col" class="dot">3</th><th scope="col">4</th><th scope="col" class="dot">5</th><th scope="col">6</th><th scope="col" class="dot">7</th><th scope="col">8</th><th scope="col" class="dot">9</th><th scope="col">10</th><th scope="col">11</th><th scope="col" class="dot">12</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">6 (E)</th><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td></tr>
+            <tr><th scope="row">5 (A)</th><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td></tr>
+            <tr><th scope="row">4 (D)</th><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td></tr>
+            <tr><th scope="row">3 (G)</th><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td></tr>
+            <tr><th scope="row">2 (B)</th><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td></tr>
+            <tr><th scope="row">1 (e)</th><td>E</td><td>F</td><td class="acc">F♯</td><td>G</td><td class="acc">G♯</td><td>A</td><td class="acc">A♯</td><td>B</td><td>C</td><td class="acc">C♯</td><td>D</td><td class="acc">D♯</td><td>E</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>איך לומדים אותם</h2>
+      <ul>
+        <li>מתחילים מהתווים הטבעיים בשני המיתרים הנמוכים — הם הבסיס של רוב צורות האקורדים.</li>
+        <li>זוכרים את שני הזוגות שאין ביניהם דיאז: E–F ו־B–C.</li>
+        <li>מתרגלים כמה דקות ביום. Fretquency שואל על מיקום אחד בכל פעם ומחזיר את אלה שטעיתם בהם, עד שהם נטבעים באמת.</li>
+      </ul>
+
+      <h2>בחינם, בדפדפן</h2>
+      <p>בלי התקנה ובלי צורך בחשבון. עובד גם לבס, יוקלילי, מנדולינה ובנג׳ו, עם טיונר מובנה. עובד בטלפון ובמחשב, בעברית ובעוד כמה שפות.</p>
+      <a class="cta" href="./?start=notes">לתרגל את התווים עכשיו — בחינם</a>
+
+      <footer><a href="./">לפתוח את Fretquency</a></footer>
+    </main>
+  </body>
+</html>

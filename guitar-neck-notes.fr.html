@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Les notes sur le manche de la guitare — Tableau et exercice gratuit</title>
+    <meta name="description" content="Toutes les notes de la guitare en accordage standard, des cases 0 à 12, dans un tableau — plus un exercice gratuit qui vous apprend le manche, une position à la fois." />
+    <meta property="og:title" content="Les notes sur le manche de la guitare — Tableau et exercice gratuit" />
+    <meta property="og:description" content="Toutes les notes de la guitare dans un tableau, plus un exercice gratuit dans le navigateur." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yanivmalka.github.io/fretquency/guitar-neck-notes.fr.html" />
+    <meta property="og:image" content="https://yanivmalka.github.io/fretquency/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Les notes sur le manche de la guitare — Tableau et exercice gratuit" />
+    <meta name="twitter:description" content="Toutes les notes de la guitare dans un tableau, plus un exercice gratuit dans le navigateur." />
+    <meta name="twitter:image" content="https://yanivmalka.github.io/fretquency/og-image.png" />
+    <link rel="canonical" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.fr.html" />
+    <link rel="alternate" hreflang="en" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.html" />
+    <link rel="alternate" hreflang="es" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.es.html" />
+    <link rel="alternate" hreflang="pt-BR" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.pt-br.html" />
+    <link rel="alternate" hreflang="fr" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.fr.html" />
+    <link rel="alternate" hreflang="it" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.it.html" />
+    <link rel="alternate" hreflang="he" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.he.html" />
+    <link rel="alternate" hreflang="x-default" href="https://yanivmalka.github.io/fretquency/guitar-neck-notes.html" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <!--
+      Static French landing page for the "notes sur le manche de la guitare"
+      search intent, mirroring guitar-neck-notes.html's structure/meta
+      pattern. Static copy per CLAUDE.md's i18n note: landing-page marketing
+      prose needs natural per-language text, not a JS-driven swap over app-UI
+      strings. Note names use Do-Ré-Mi, the app's default for French
+      (src/utils/music.ts's LANG_SOLFEGE override: only "Ré" differs from the
+      Italian/Spanish base spelling).
+    -->
+    <style>
+      :root {
+        --bg: #1a1a2e; --card: #22223a; --line: #34345a; --text: #ecebf5; --text-2: #b4b3c8;
+        --accent: #4fd1c5; --accent-ink: #0c1a1a; --acc: #8f8eb0;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #eef2f8; --card: #ffffff; --line: #d3d9e6; --text: #1b1d2a; --text-2: #50566b;
+          --accent: #0f8f86; --accent-ink: #ffffff; --acc: #7a7f93;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; background: var(--bg); color: var(--text);
+        font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      main { max-width: 760px; margin: 0 auto; padding: 28px 16px 48px; }
+      h1 { margin: 0 0 8px; font-size: 1.9rem; line-height: 1.2; }
+      h2 { margin: 32px 0 8px; font-size: 1.2rem; }
+      p { margin: 0 0 12px; color: var(--text-2); }
+      .cta {
+        display: inline-block; margin: 8px 0 4px; padding: 13px 22px; border-radius: 12px;
+        background: var(--accent); color: var(--accent-ink); font-weight: 800; text-decoration: none;
+      }
+      .chart { margin: 24px 0 8px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+      table { border-collapse: collapse; width: 100%; min-width: 560px; font-variant-numeric: tabular-nums; }
+      caption { caption-side: bottom; padding: 10px 12px; text-align: start; font-size: 0.82rem; color: var(--text-2); }
+      th, td { padding: 7px 4px; text-align: center; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+      thead th { font-size: 0.72rem; color: var(--text-2); font-weight: 700; }
+      tbody th { padding-inline: 10px; text-align: start; white-space: nowrap; font-size: 0.78rem; color: var(--text-2); }
+      td { font-weight: 700; }
+      td:nth-child(2) { border-inline-end: 3px solid var(--line); }
+      td.acc { color: var(--acc); font-weight: 500; font-size: 0.8rem; }
+      thead th.dot { color: var(--accent); }
+      tbody tr:last-child th, tbody tr:last-child td { border-bottom: none; }
+      ul { margin: 0 0 12px; padding-inline-start: 20px; color: var(--text-2); }
+      li { margin-bottom: 6px; }
+      footer { margin-top: 36px; font-size: 0.85rem; }
+      footer a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Les notes sur le manche de la guitare</h1>
+      <p>Toutes les notes de la guitare en accordage standard, des cases 0 à 12 — et un exercice gratuit qui te les apprend, une position à la fois.</p>
+      <a class="cta" href="./?start=notes">Pratique les notes maintenant, gratuitement</a>
+
+      <div class="chart">
+        <table>
+          <caption>Accordage standard (Mi La Ré Sol Si Mi). La corde la plus grave est en haut. Après la case 12, tout se répète une octave plus haut.</caption>
+          <thead>
+            <tr><th scope="col">Corde</th><th scope="col">0</th><th scope="col">1</th><th scope="col">2</th><th scope="col" class="dot">3</th><th scope="col">4</th><th scope="col" class="dot">5</th><th scope="col">6</th><th scope="col" class="dot">7</th><th scope="col">8</th><th scope="col" class="dot">9</th><th scope="col">10</th><th scope="col">11</th><th scope="col" class="dot">12</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">6 (Mi)</th><td>Mi</td><td>Fa</td><td class="acc">Fa♯</td><td>Sol</td><td class="acc">Sol♯</td><td>La</td><td class="acc">La♯</td><td>Si</td><td>Do</td><td class="acc">Do♯</td><td>Ré</td><td class="acc">Ré♯</td><td>Mi</td></tr>
+            <tr><th scope="row">5 (La)</th><td>La</td><td class="acc">La♯</td><td>Si</td><td>Do</td><td class="acc">Do♯</td><td>Ré</td><td class="acc">Ré♯</td><td>Mi</td><td>Fa</td><td class="acc">Fa♯</td><td>Sol</td><td class="acc">Sol♯</td><td>La</td></tr>
+            <tr><th scope="row">4 (Ré)</th><td>Ré</td><td class="acc">Ré♯</td><td>Mi</td><td>Fa</td><td class="acc">Fa♯</td><td>Sol</td><td class="acc">Sol♯</td><td>La</td><td class="acc">La♯</td><td>Si</td><td>Do</td><td class="acc">Do♯</td><td>Ré</td></tr>
+            <tr><th scope="row">3 (Sol)</th><td>Sol</td><td class="acc">Sol♯</td><td>La</td><td class="acc">La♯</td><td>Si</td><td>Do</td><td class="acc">Do♯</td><td>Ré</td><td class="acc">Ré♯</td><td>Mi</td><td>Fa</td><td class="acc">Fa♯</td><td>Sol</td></tr>
+            <tr><th scope="row">2 (Si)</th><td>Si</td><td>Do</td><td class="acc">Do♯</td><td>Ré</td><td class="acc">Ré♯</td><td>Mi</td><td>Fa</td><td class="acc">Fa♯</td><td>Sol</td><td class="acc">Sol♯</td><td>La</td><td class="acc">La♯</td><td>Si</td></tr>
+            <tr><th scope="row">1 (mi)</th><td>Mi</td><td>Fa</td><td class="acc">Fa♯</td><td>Sol</td><td class="acc">Sol♯</td><td>La</td><td class="acc">La♯</td><td>Si</td><td>Do</td><td class="acc">Do♯</td><td>Ré</td><td class="acc">Ré♯</td><td>Mi</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Comment les apprendre</h2>
+      <ul>
+        <li>Commence par les notes naturelles des deux cordes les plus graves : ce sont les fondamentales de la plupart des accords.</li>
+        <li>Retiens les deux paires sans dièse entre elles : Mi–Fa et Si–Do.</li>
+        <li>Entraîne-toi quelques minutes par jour. Fretquency te demande une position à la fois et revient sur celles que tu rates, jusqu'à ce que tu les maîtrises vraiment.</li>
+      </ul>
+
+      <h2>Gratuit, dans ton navigateur</h2>
+      <p>Sans installation et sans compte. Ça marche aussi pour la basse, le ukulélé, la mandoline et le banjo, avec un accordeur intégré. Fonctionne sur mobile et sur ordinateur, en français et dans plusieurs autres langues.</p>
+      <a class="cta" href="./?start=notes">Pratique les notes maintenant, gratuitement</a>
+
+      <footer><a href="./">Ouvrir Fretquency</a></footer>
+    </main>
+  </body>
+</html>
