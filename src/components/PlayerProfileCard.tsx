@@ -73,7 +73,7 @@ export function PlayerProfileCard({
 
         <div className="lb-profile-stats">
           <div className="lb-profile-stat">
-            <span className="lb-profile-stat-n">{(scope === 'thisWeek' ? row.weeklyXp : row.xp).toLocaleString()}</span>
+            <span className="lb-profile-stat-n">{(row.leagueXp ?? (scope === 'thisWeek' ? row.weeklyXp : row.xp)).toLocaleString()}</span>
             <span className="lb-profile-stat-l">XP</span>
           </div>
           <div className="lb-profile-stat">

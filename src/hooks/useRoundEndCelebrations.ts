@@ -5,6 +5,7 @@ import { suggestAdjustment } from '../utils/progress';
 import { historyForInstrument, flattenHistory } from '../utils/mastery';
 import type { StageStep } from '../utils/stageSequence';
 import { computeMyStats, leaderboardName, upsertMyEntry } from '../utils/leaderboard';
+import { computeLeagueXp, syncLeague } from '../utils/leagues';
 import { mergeCelebrated } from '../utils/badgeCelebration';
 import { trackRoundFinished } from '../utils/analytics';
 import {
@@ -259,6 +260,9 @@ export function useRoundEndCelebrations({
       name,
       computeMyStats(allHistoryEntries),
     );
+    // Keep this week's league figure current too (joins a group on the
+    // week's first correct answer). Best-effort, like the row above.
+    void syncLeague(instrument.id, name, computeLeagueXp(allHistoryEntries)).catch(() => {});
   }, [gameEnded, auth.user, auth.profile, instrument.id, allHistoryEntries]);
 
   return {

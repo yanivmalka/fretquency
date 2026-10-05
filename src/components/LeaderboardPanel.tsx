@@ -14,7 +14,31 @@ import {
   type LeaderboardRow,
   type LeaderboardScope,
 } from '../utils/leaderboard';
+import {
+  syncLeague,
+  fetchLeagueGroup,
+  computeLeagueXp,
+  leagueZone,
+  leagueMoveCount,
+  LEAGUE_MIN_PLAYERS,
+  LEAGUE_DEMOTE_MIN_SIZE,
+  LEAGUE_TIERS,
+  type LeagueTier,
+} from '../utils/leagues';
+import { supabase } from '../utils/supabase';
 import { PlayerProfileCard } from './PlayerProfileCard';
+
+/** The board's scope toggle: the two global scopes plus the player's own
+ *  weekly league (signed-in only). */
+type BoardScope = LeaderboardScope | 'league';
+
+/** Why the League tab is showing the global weekly board instead of a group. */
+type LeagueFallback = 'notJoined' | 'tooFew' | 'unavailable';
+
+// League tier metals, low → high, for the league card's accent.
+const TIER_COLOR: Record<LeagueTier, string> = {
+  0: '#cd7f32', 1: '#c8d0e0', 2: 'var(--gold)', 3: '#7fd1e0', 4: '#b79cff',
+};
 
 /**
  * The leaderboard, rendered as a hamburger settings sub-page (the wrapper in
@@ -65,8 +89,12 @@ export function LeaderboardPanel({
 }) {
   const { t, lang } = useTranslation();
   const [view, setView] = useState<InstrumentId>(activeInstrumentId);
-  const [scope, setScope] = useState<LeaderboardScope>('allTime');
+  const [scope, setScope] = useState<BoardScope>('allTime');
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
+  // League tab only: the group's tier when a real league is showing, or why
+  // it fell back to the global weekly board.
+  const [leagueTier, setLeagueTier] = useState<LeagueTier | null>(null);
+  const [leagueFallback, setLeagueFallback] = useState<LeagueFallback | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [xpOpen, setXpOpen] = useState(false);
@@ -85,6 +113,13 @@ export function LeaderboardPanel({
     () => computeMyStats(historyForInstrument(allHistory, view)),
     [allHistory, view],
   );
+  const myLeagueXp = useMemo(
+    () => computeLeagueXp(historyForInstrument(allHistory, view)),
+    [allHistory, view],
+  );
+  // Leagues need an account and a backend; a guest never sees the tab.
+  const leaguesAvailable = !!userId && !!supabase;
+  const activeScope: BoardScope = scope === 'league' && !leaguesAvailable ? 'thisWeek' : scope;
 
   // On open (and on instrument / sign-in change): push our own up-to-date row
   // first, then load the standings so our position is current. A push failure
@@ -100,8 +135,42 @@ export function LeaderboardPanel({
             await upsertMyEntry(userId, view, myName, myStats);
           } catch { /* keep going — show whatever is on the board */ }
         }
-        const list = await fetchLeaderboard(view, userId, scope);
-        if (alive) setRows(list);
+        if (activeScope === 'league' && userId) {
+          // Our own group if it has enough players to be worth showing;
+          // otherwise (not joined yet / too few players / migration not
+          // applied) the global weekly board, with a note saying why.
+          let fallback: LeagueFallback = 'notJoined';
+          try {
+            const membership = await syncLeague(view, myName, myLeagueXp);
+            if (membership) {
+              const group = await fetchLeagueGroup(membership.groupId, view, userId);
+              if (group.length >= LEAGUE_MIN_PLAYERS) {
+                if (alive) {
+                  setRows(group);
+                  setLeagueTier(membership.tier);
+                  setLeagueFallback(null);
+                }
+                return;
+              }
+              fallback = 'tooFew';
+            }
+          } catch {
+            fallback = 'unavailable';
+          }
+          const weekly = await fetchLeaderboard(view, userId, 'thisWeek');
+          if (alive) {
+            setRows(weekly);
+            setLeagueTier(null);
+            setLeagueFallback(fallback);
+          }
+          return;
+        }
+        const list = await fetchLeaderboard(view, userId, activeScope === 'league' ? 'thisWeek' : activeScope);
+        if (alive) {
+          setRows(list);
+          setLeagueTier(null);
+          setLeagueFallback(null);
+        }
       } catch {
         if (alive) setError(t('Couldn’t load the leaderboard. Check your connection and try again.'));
       } finally {
@@ -109,9 +178,9 @@ export function LeaderboardPanel({
       }
     })();
     return () => { alive = false; };
-    // myStats / myName are snapshots captured at open; intentionally not deps.
+    // myStats / myLeagueXp / myName are snapshots captured at open; intentionally not deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, userId, scope]);
+  }, [view, userId, activeScope]);
 
   const switchView = (next: InstrumentId) => {
     if (next === view) return;
@@ -120,14 +189,18 @@ export function LeaderboardPanel({
     setView(next);
   };
 
-  const switchScope = (next: LeaderboardScope) => {
+  const switchScope = (next: BoardScope) => {
     if (next === scope) return;
     playClickSound();
     haptic.tap();
     setScope(next);
   };
 
-  const xpOf = (r: LeaderboardRow) => (scope === 'thisWeek' ? r.weeklyXp : r.xp);
+  // A real league ranks by league XP; the League tab's fallback is the weekly board.
+  const inLeague = activeScope === 'league' && leagueTier !== null;
+  const weeklyView = activeScope === 'thisWeek' || (activeScope === 'league' && !inLeague);
+  const xpOf = (r: LeaderboardRow) => (inLeague ? (r.leagueXp ?? 0) : weeklyView ? r.weeklyXp : r.xp);
+  const zoneOf = (r: LeaderboardRow) => (inLeague && leagueTier !== null ? leagueZone(r.rank, rows.length, leagueTier) : null);
   const mine = rows.find((r) => r.mine);
   const podium = rows.length >= 3 ? rows.slice(0, 3) : [];
   const listRows = podium.length ? rows.slice(3) : rows;
@@ -168,9 +241,53 @@ export function LeaderboardPanel({
         >
           {t('This week')}
         </button>
+        {leaguesAvailable && (
+          <button
+            className={`sp2-scope-btn${scope === 'league' ? ' sp2-scope-active' : ''}`}
+            onClick={() => switchScope('league')}
+          >
+            {t('League')}
+          </button>
+        )}
       </div>
     </div>
   );
+
+  // League tab: the group's tier and how the week ends, or — while there's
+  // no league worth showing — why the weekly board is standing in for it.
+  const leagueBlock = activeScope !== 'league' || loading ? null : inLeague && leagueTier !== null ? (
+    <div className="lb-league" style={{ borderColor: TIER_COLOR[leagueTier] }}>
+      <div className="lb-league-name" style={{ color: TIER_COLOR[leagueTier] }}>
+        {t(`${LEAGUE_TIERS[leagueTier]} League`)}
+      </div>
+      <p className="lb-league-copy">
+        {(rows.length >= LEAGUE_DEMOTE_MIN_SIZE && leagueTier > 0
+          ? t('Top {n} move up, bottom {n} move down when the week ends.')
+          : t('Top {n} move up when the week ends.')
+        ).replace(/\{n\}/g, String(leagueMoveCount(rows.length)))}
+        {' '}
+        {t('Correct answers since Monday count. A new week starts Monday 00:00 UTC.')}
+      </p>
+    </div>
+  ) : leagueFallback ? (
+    <p className="lb-league-note">
+      {leagueFallback === 'notJoined'
+        ? t('Answer a question correctly this week to join a league of up to 30 players. Until then, here is everyone’s week.')
+        : leagueFallback === 'tooFew'
+          ? t('Your league opens once {n} players have joined it this week. Until then, here is everyone’s week.').replace('{n}', String(LEAGUE_MIN_PLAYERS))
+          : t('Leagues aren’t available right now. Here is everyone’s week instead.')}
+    </p>
+  ) : null;
+
+  const zoneMark = (r: LeaderboardRow) => {
+    const z = zoneOf(r);
+    if (!z) return null;
+    return (
+      <span className={`lb-zone lb-zone-${z}`} title={t(z === 'up' ? 'Moves up' : 'Moves down')}>
+        {z === 'up' ? '▲' : '▼'}
+      </span>
+    );
+  };
 
   const meCard = user ? (
     <div className="lb-standing">
@@ -188,7 +305,7 @@ export function LeaderboardPanel({
         </div>
         <div className="lb-standing-xp">
           <div className="lb-standing-xp-n">
-            {(scope === 'thisWeek' ? myStats.weeklyXp : myStats.xp).toLocaleString()}
+            {(inLeague ? myLeagueXp : weeklyView ? myStats.weeklyXp : myStats.xp).toLocaleString()}
           </div>
           <div className="lb-standing-xp-l">XP</div>
         </div>
@@ -231,6 +348,7 @@ export function LeaderboardPanel({
           <div className="lb-pod-medal" style={{ color: medalColor(r.rank) }}>
             <Medal />
             <span>{r.rank}</span>
+            {zoneMark(r)}
           </div>
           <div className="lb-pod-name">{r.displayName}</div>
           <div className="lb-pod-xp">{xpOf(r).toLocaleString()}</div>
@@ -243,7 +361,7 @@ export function LeaderboardPanel({
   const listBlock = (
     <ol className="lb-list">
       {listRows.map((r) => (
-        <li key={r.userId} className={`lb-item${r.mine ? ' lb-item-me' : ''}`}>
+        <li key={r.userId} className={`lb-item${r.mine ? ' lb-item-me' : ''}${zoneOf(r) ? ` lb-item-${zoneOf(r)}` : ''}`}>
           <button type="button" className="lb-item-btn" onClick={() => openProfile(r)}>
             <span className="lb-rk" style={r.rank <= 3 ? { color: medalColor(r.rank) } : undefined}>
               {r.rank}
@@ -252,6 +370,7 @@ export function LeaderboardPanel({
             <span className="lb-name">
               {r.displayName}
               {r.mine && <span className="lb-you"> {t('(you)')}</span>}
+              {zoneMark(r)}
             </span>
             <span className="lb-stat">
               <span className="lb-xp">{xpOf(r).toLocaleString()}</span>
@@ -344,6 +463,7 @@ export function LeaderboardPanel({
       {subtitle}
       {toggles}
       {meCard}
+      {leagueBlock}
       {error && <p className="board-error">{error}</p>}
       {loading ? (
         <p className="board-empty">{t('Loading…')}</p>
@@ -359,7 +479,7 @@ export function LeaderboardPanel({
       {profileRow && (
         <PlayerProfileCard
           row={profileRow}
-          scope={scope}
+          scope={weeklyView ? 'thisWeek' : 'allTime'}
           instrument={instrument}
           onClose={() => setProfileRow(null)}
         />
