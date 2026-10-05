@@ -557,6 +557,14 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* Always a pixel taller than the sheet, so .settings-panel is a real
+     scroll container even when the list fits. In the Android WebView the
+     sheet flickered on open/close (the screen showing through, the dimmed
+     strip flashing black) only while the list fit: on-device switches
+     (APK 1.0.39) showed that making the list overflow — by extra height or
+     by an extra box at the top — stopped it every time, while keeping the
+     page drawing frames did not. Desktop Chrome never flickered either way. */
+  min-height: calc(100% + 1px);
 }
 
 /* Hebrew: the settings drawer, its sub-pages and the stats screen read
