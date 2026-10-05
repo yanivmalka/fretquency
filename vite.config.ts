@@ -32,6 +32,8 @@ export default defineConfig({
         statsRedesign: resolve(__dirname, 'stats-redesign.html'),
         tuner: resolve(__dirname, 'tuner.html'),
         guitarNeckNotes: resolve(__dirname, 'guitar-neck-notes.html'),
+        guitarNeckNotesEs: resolve(__dirname, 'guitar-neck-notes.es.html'),
+        guitarNeckNotesPtBr: resolve(__dirname, 'guitar-neck-notes.pt-br.html'),
         pitchSpike: resolve(__dirname, 'pitch-spike.html'),
         scaleSpike: resolve(__dirname, 'scale-spike.html'),
       },

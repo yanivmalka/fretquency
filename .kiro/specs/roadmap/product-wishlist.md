@@ -150,6 +150,10 @@ A compressed, priority-ordered view of everything in this document that is **not
 - **The guitar-neck-notes.html landing page is not linked from anywhere in the app or the main site** (by design, like tuner.html — it's meant to be found by search, not navigated to from inside the app). It isn't registered in `src/utils/appSearch.ts` either, since that index is for the in-app hamburger search, not external landing pages.
 - Both items were reviewed in English and Hebrew locally with `devSimulateTier` / `onboardingDone` set directly in localStorage (no live Supabase project at hand this pass); the League tab's "not signed in" and "no backend" fallbacks were exercised, but the actual `league_sync` RPC path could not be — that needs re-checking once migration 0025 is applied.
 
+### J. Deferred from the 2026-10-06 findability task (sitemap, robots.txt, canonical tags, localized landing pages)
+- **Only Spanish and Portuguese (pt-BR) got static localized `guitar-neck-notes` landing pages** (`guitar-neck-notes.es.html`, `guitar-neck-notes.pt-br.html`), picked as the two highest-value markets per the task's direction. French and Italian variants (`guitar-neck-notes.fr.html`, `guitar-neck-notes.it.html`) were not built — same template, need accurate native-speaker marketing copy (not the i18n app-UI dictionaries) plus a `vite.config.ts` rollupOptions.input entry each and hreflang updates across all existing variants + `public/sitemap.xml`. Hebrew was not given a static variant either (RTL landing page, lower urgency per the task's priority call), though the English page's inline i18n script already covers an `he` visitor who opens it directly.
+- **`public/sitemap.xml` and canonical/hreflang tags were hand-written, not generated** — if more localized pages or static entries get added later, remember to update all three in lockstep (the HTML `<link rel="alternate">` tags, the sitemap's `<xhtml:link>` alternates, and `vite.config.ts`).
+
 ---
 
 ## 1. Fix Now

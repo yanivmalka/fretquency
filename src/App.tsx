@@ -48,6 +48,7 @@ import { useMasteryOverlay } from './hooks/useMasteryOverlay';
 import { useAppPreferences } from './hooks/useAppPreferences';
 import { useDailyReminder } from './hooks/useDailyReminder';
 import DailyStreakBar from './components/DailyStreakBar';
+import FotdHomeCard from './components/FotdHomeCard';
 import { useSelector, type DerivedSettings } from './hooks/useSelector';
 import { useDerivedNotes } from './hooks/useDerivedNotes';
 import { useDrillSession } from './hooks/useDrillSession';
@@ -621,6 +622,10 @@ export default function App() {
     setSignInPromptSeen(true);
     saveSetting('pref_signInPromptSeen', true);
   };
+  // Set when a guest taps the "learn the whole neck" CTA on the Fret of the
+  // Day / Challenge result screen — skips Onboarding's marketing slides
+  // straight to the privacy step, since they've already played a round.
+  const [onboardingSkipWelcome, setOnboardingSkipWelcome] = useState(false);
   // `countdown` / `gameEnded` / the Play handler `start()` live in
   // useRoundLifecycle; the per-run badge & personal-best celebration state
   // lives in useRoundEndCelebrations. Both are called below, once their inputs
@@ -655,7 +660,10 @@ export default function App() {
   // be able to land on and finish the challenge with zero setup.
   const challengeLinkData = useChallengeLinkRoute();
   useEffect(() => {
-    if (challengeLinkData) setDailyChallengeOpen(true);
+    if (challengeLinkData) {
+      setDailyChallengeOpen(true);
+      track('opened_from_link', { kind: challengeLinkData.challenger ? 'challenge' : 'fotd' });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [challengeLinkData]);
 
@@ -663,7 +671,10 @@ export default function App() {
   // Google sign-in redirect, opens Teacher mode's Class screen the same way.
   const classLinkCode = useClassLinkRoute();
   useEffect(() => {
-    if (classLinkCode) setClassroomOpen(true);
+    if (classLinkCode) {
+      setClassroomOpen(true);
+      track('opened_from_link', { kind: 'class' });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classLinkCode]);
 
@@ -691,6 +702,10 @@ export default function App() {
   // through Onboarding instead — it already ends by starting a round.
   const startLink = useStartLinkRoute();
   const bootDone = useSyncExternalStore(subscribeBootDone, isBootDone);
+  useEffect(() => {
+    if (startLink) track('opened_from_link', { kind: 'start' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startLink]);
   const startLinkUsedRef = useRef(false);
   useEffect(() => {
     if (!startLink || startLinkUsedRef.current) return;
@@ -724,7 +739,7 @@ export default function App() {
   // behaviour. Only on the bare home screen with nothing left to undo does a
   // second Back within 2s actually leave.
   const signInPromptOpen = auth.configured && !auth.loading && !auth.user
-    && hasAnyHistory && !signInPromptSeen && !gameActive;
+    && hasAnyHistory && !signInPromptSeen && !gameActive && onboardingDone;
   const { exitHint } = useBackNavigation({
     nav, running, paused, stop,
     revealBadges, setRevealBadges, signInPromptOpen, dismissSignInPrompt,
@@ -1235,6 +1250,8 @@ export default function App() {
         linkData={challengeLinkData}
         addEntry={historyOps.addEntry}
         markPlayed={historyOps.markPlayed}
+        onboardingDone={onboardingDone}
+        onStartOnboarding={() => { setOnboardingSkipWelcome(true); setDailyChallengeOpen(false); }}
         onClose={() => setDailyChallengeOpen(false)}
       />
     );
@@ -1528,6 +1545,7 @@ export default function App() {
           notation={notation}
           accidental={accidental}
           tier={auth.tier}
+          skipWelcome={onboardingSkipWelcome}
           onInstrument={applyInstrument}
           onPlacement={selector.onDifficultySelect}
           onDone={() => {
@@ -1644,7 +1662,7 @@ export default function App() {
           dismisses it for good on this device; the account stays reachable
           from Settings. */}
       {auth.configured && !auth.loading && !auth.user && hasAnyHistory
-        && !signInPromptSeen && !gameActive && (
+        && !signInPromptSeen && !gameActive && onboardingDone && (
         <SignInNudge
           t={t}
           onSignIn={() => { void auth.signInWithGoogle(); }}
