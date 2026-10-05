@@ -210,3 +210,18 @@
 .lb-item-down .lb-item-btn { box-shadow: inset 3px 0 0 #e0605a; }
 [dir='rtl'] .lb-item-up .lb-item-btn { box-shadow: inset -3px 0 0 #3fbf7f; }
 [dir='rtl'] .lb-item-down .lb-item-btn { box-shadow: inset -3px 0 0 #e0605a; }
+
+/* League line on the end-of-round card (GameEndSummary): current rank/zone,
+   or the one-time promotion/demotion note — color comes in inline
+   (leagues.ts's LEAGUE_TIER_COLOR). */
+.game-end-league {
+  font-size: 0.82rem; font-weight: 700; margin-top: 2px;
+}
+
+/* Quiet home-screen league-tier chip (LeagueTierChip), next to
+   DailyStreakBar — a small pill, no border fuss, color comes in inline. */
+.league-tier-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border: none; border-radius: 999px; background: var(--bg-2);
+  font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+}

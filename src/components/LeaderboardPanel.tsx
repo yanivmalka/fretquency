@@ -23,6 +23,7 @@ import {
   LEAGUE_MIN_PLAYERS,
   LEAGUE_DEMOTE_MIN_SIZE,
   LEAGUE_TIERS,
+  LEAGUE_TIER_COLOR,
   type LeagueTier,
 } from '../utils/leagues';
 import { supabase } from '../utils/supabase';
@@ -34,11 +35,6 @@ type BoardScope = LeaderboardScope | 'league';
 
 /** Why the League tab is showing the global weekly board instead of a group. */
 type LeagueFallback = 'notJoined' | 'tooFew' | 'unavailable';
-
-// League tier metals, low → high, for the league card's accent.
-const TIER_COLOR: Record<LeagueTier, string> = {
-  0: '#cd7f32', 1: '#c8d0e0', 2: 'var(--gold)', 3: '#7fd1e0', 4: '#b79cff',
-};
 
 /**
  * The leaderboard, rendered as a hamburger settings sub-page (the wrapper in
@@ -256,8 +252,8 @@ export function LeaderboardPanel({
   // League tab: the group's tier and how the week ends, or — while there's
   // no league worth showing — why the weekly board is standing in for it.
   const leagueBlock = activeScope !== 'league' || loading ? null : inLeague && leagueTier !== null ? (
-    <div className="lb-league" style={{ borderColor: TIER_COLOR[leagueTier] }}>
-      <div className="lb-league-name" style={{ color: TIER_COLOR[leagueTier] }}>
+    <div className="lb-league" style={{ borderColor: LEAGUE_TIER_COLOR[leagueTier] }}>
+      <div className="lb-league-name" style={{ color: LEAGUE_TIER_COLOR[leagueTier] }}>
         {t(`${LEAGUE_TIERS[leagueTier]} League`)}
       </div>
       <p className="lb-league-copy">

@@ -48,6 +48,7 @@ import { useMasteryOverlay } from './hooks/useMasteryOverlay';
 import { useAppPreferences } from './hooks/useAppPreferences';
 import { useDailyReminder } from './hooks/useDailyReminder';
 import DailyStreakBar from './components/DailyStreakBar';
+import LeagueTierChip from './components/LeagueTierChip';
 import FotdHomeCard from './components/FotdHomeCard';
 import { useSelector, type DerivedSettings } from './hooks/useSelector';
 import { useDerivedNotes } from './hooks/useDerivedNotes';
@@ -1639,6 +1640,17 @@ export default function App() {
       {!gameActive && onboardingDone && (
         <DailyStreakBar
           onOpenStats={() => setShowStats(true)}
+        />
+      )}
+
+      {/* Quiet league-tier chip, next to the streak bar — a signed-in player
+          who's in a weekly league sees it without digging into Leaderboard
+          → League. No-op for a guest or a player not (yet) in a league. */}
+      {!gameActive && onboardingDone && (
+        <LeagueTierChip
+          userId={auth.user?.id ?? null}
+          instrumentId={instrument.id}
+          onOpenLeaderboard={() => { setSettingsOpen(true); setDrawerSection('leaderboard'); }}
         />
       )}
 

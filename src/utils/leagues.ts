@@ -23,6 +23,12 @@ export const LEAGUE_DEMOTE_MIN_SIZE = 10;
 export const LEAGUE_TIERS = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'] as const;
 export type LeagueTier = 0 | 1 | 2 | 3 | 4;
 
+/** Tier accent colors, low → high, reused by the board's League tab and the
+ *  end-of-round card's league line. */
+export const LEAGUE_TIER_COLOR: Record<LeagueTier, string> = {
+  0: '#cd7f32', 1: '#c8d0e0', 2: 'var(--gold)', 3: '#7fd1e0', 4: '#b79cff',
+};
+
 export interface LeagueMembership {
   groupId: number;
   tier: LeagueTier;
@@ -118,4 +124,40 @@ export async function fetchLeagueGroup(
       mine: m.user_id === viewerId,
     };
   });
+}
+
+interface LastSeenLeagueTier {
+  week: string;
+  tier: LeagueTier;
+  /** Whether the group met `LEAGUE_MIN_PLAYERS` at that sync — a quiet,
+   *  no-network badge (e.g. on the home screen) reads this instead of
+   *  re-fetching the group just to decide whether to show itself. */
+  inLeague: boolean;
+}
+
+function lastSeenLeagueTierKey(instrument: string): string {
+  return `leagueLastSeen:${instrument}`;
+}
+
+/** The tier + week this device last saw the signed-in player's league result
+ *  at, so a later sync can tell a promotion/demotion apart from "unchanged
+ *  since last week" and surface it once, and so a quiet UI element can show
+ *  the current tier without its own network round-trip. `null` if never
+ *  recorded here. */
+export function loadLastSeenLeagueTier(instrument: string): LastSeenLeagueTier | null {
+  try {
+    const raw = localStorage.getItem(lastSeenLeagueTierKey(instrument));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<LastSeenLeagueTier>;
+    if (typeof parsed.week !== 'string' || typeof parsed.tier !== 'number') return null;
+    return { week: parsed.week, tier: parsed.tier as LeagueTier, inLeague: parsed.inLeague !== false };
+  } catch {
+    return null;
+  }
+}
+
+export function saveLastSeenLeagueTier(instrument: string, week: string, tier: LeagueTier, inLeague: boolean): void {
+  try {
+    localStorage.setItem(lastSeenLeagueTierKey(instrument), JSON.stringify({ week, tier, inLeague }));
+  } catch { /* best effort */ }
 }

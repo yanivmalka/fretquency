@@ -5,7 +5,10 @@ import { suggestAdjustment } from '../utils/progress';
 import { historyForInstrument, flattenHistory } from '../utils/mastery';
 import type { StageStep } from '../utils/stageSequence';
 import { computeMyStats, leaderboardName, upsertMyEntry } from '../utils/leaderboard';
-import { computeLeagueXp, syncLeague } from '../utils/leagues';
+import {
+  computeLeagueXp, syncLeague, fetchLeagueGroup, leagueZone, leagueMoveCount, leagueWeekStart,
+  loadLastSeenLeagueTier, saveLastSeenLeagueTier, LEAGUE_MIN_PLAYERS, type LeagueTier,
+} from '../utils/leagues';
 import { mergeCelebrated } from '../utils/badgeCelebration';
 import { trackRoundFinished } from '../utils/analytics';
 import {
@@ -26,6 +29,24 @@ import type { HistoryEntry } from '../utils/music';
 export type RoundSuggestion =
   | { kind: 'nextStage'; step: StageStep }
   | { kind: 'exploreLearn' };
+
+/** This week's weekly-league standing, for the end-of-round card's league
+ *  line. Only set when the player is actually in a league (a group with at
+ *  least `LEAGUE_MIN_PLAYERS`). */
+export interface RoundLeagueResult {
+  tier: LeagueTier;
+  rank: number;
+  size: number;
+  zone: 'up' | 'down' | null;
+  moveCount: number;
+}
+
+/** A one-time "moved from Bronze to Silver" note: this device last saw the
+ *  player in `from` on an earlier week, and this week's sync came back `to`. */
+export interface RoundLeaguePromotion {
+  from: LeagueTier;
+  to: LeagueTier;
+}
 
 interface Params {
   running: boolean;
@@ -87,6 +108,11 @@ export function useRoundEndCelebrations({
   // The "what's next" nudge the end-of-round card offers, or null when recent
   // accuracy on this combination doesn't clear the bar.
   const [suggestion, setSuggestion] = useState<RoundSuggestion | null>(null);
+  // This week's league standing / a one-time tier-change note, set by the
+  // post-run league sync below. Cleared per run so a stale result never
+  // lingers on the next round's card.
+  const [leagueResult, setLeagueResult] = useState<RoundLeagueResult | null>(null);
+  const [leaguePromotion, setLeaguePromotion] = useState<RoundLeaguePromotion | null>(null);
   // Last answered-question count a mid-game badge sweep ran at, so each answer
   // triggers at most one sweep. A per-run running id for celebrated badges.
   const midSweepCountRef = useRef(0);
@@ -102,6 +128,8 @@ export function useRoundEndCelebrations({
     setToastQueue([]);
     setRevealBadges([]);
     setSuggestion(null);
+    setLeagueResult(null);
+    setLeaguePromotion(null);
   }, [wasTeacherRunRef, wasIntervalRunRef, setRevealBadges]);
 
   // Evaluate this run's session badges plus a retroactive pass over all-time
@@ -261,12 +289,43 @@ export function useRoundEndCelebrations({
       computeMyStats(allHistoryEntries),
     );
     // Keep this week's league figure current too (joins a group on the
-    // week's first correct answer). Best-effort, like the row above.
-    void syncLeague(instrument.id, name, computeLeagueXp(allHistoryEntries)).catch(() => {});
+    // week's first correct answer), then surface the result on the
+    // end-of-round card: current rank/zone, plus a one-time note if the
+    // tier this device last saw differs (a promotion/demotion since the
+    // player was last here). Best-effort, like the row above.
+    const userId = auth.user.id;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const membership = await syncLeague(instrument.id, name, computeLeagueXp(allHistoryEntries));
+        if (!membership || cancelled) return;
+        const week = leagueWeekStart();
+        const lastSeen = loadLastSeenLeagueTier(instrument.id);
+        const group = await fetchLeagueGroup(membership.groupId, instrument.id, userId);
+        if (cancelled) return;
+        const inLeague = group.length >= LEAGUE_MIN_PLAYERS;
+        saveLastSeenLeagueTier(instrument.id, week, membership.tier, inLeague);
+        if (!inLeague) return;
+        const mine = group.find((r) => r.mine);
+        if (!mine) return;
+        setLeagueResult({
+          tier: membership.tier,
+          rank: mine.rank,
+          size: group.length,
+          zone: leagueZone(mine.rank, group.length, membership.tier),
+          moveCount: leagueMoveCount(group.length),
+        });
+        if (lastSeen?.inLeague && lastSeen.week !== week && lastSeen.tier !== membership.tier) {
+          setLeaguePromotion({ from: lastSeen.tier, to: membership.tier });
+        }
+      } catch { /* best effort */ }
+    })();
+    return () => { cancelled = true; };
   }, [gameEnded, auth.user, auth.profile, instrument.id, allHistoryEntries]);
 
   return {
     newBadges, setNewBadges, toastQueue, setToastQueue, beginRun,
     roundCompletedNaturally, suggestion, setSuggestion,
+    leagueResult, leaguePromotion,
   };
 }

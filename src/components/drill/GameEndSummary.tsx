@@ -3,8 +3,9 @@ import { BadgeMedal, BadgeMedalDefs } from '../BadgeMedal';
 import type { CelebratedBadge } from '../BadgeCelebration';
 import { badgeDef, TIER_LABEL } from '../../utils/badges';
 import { withClick as click } from '../../utils/withClick';
+import { LEAGUE_TIERS, LEAGUE_TIER_COLOR } from '../../utils/leagues';
 import type { InstrumentConfig } from '../../utils/instruments';
-import type { RoundSuggestion } from '../../hooks/useRoundEndCelebrations';
+import type { RoundSuggestion, RoundLeagueResult, RoundLeaguePromotion } from '../../hooks/useRoundEndCelebrations';
 
 /**
  * The end-of-round card (score, streak, correct count and any badges won this
@@ -15,7 +16,7 @@ import type { RoundSuggestion } from '../../hooks/useRoundEndCelebrations';
  */
 export default function GameEndSummary({
   t, showScore, completed, score, longestStreak, questionsCorrect, questionsAnswered,
-  newBadges, instrument, suggestion, onApplySuggestion, onOk,
+  newBadges, instrument, suggestion, leagueResult, leaguePromotion, onApplySuggestion, onOk,
 }: {
   t: (s: string) => string;
   showScore: boolean;
@@ -27,6 +28,8 @@ export default function GameEndSummary({
   newBadges: CelebratedBadge[];
   instrument: InstrumentConfig;
   suggestion: RoundSuggestion | null;
+  leagueResult: RoundLeagueResult | null;
+  leaguePromotion: RoundLeaguePromotion | null;
   onApplySuggestion: () => void;
   onOk: () => void;
 }) {
@@ -40,6 +43,26 @@ export default function GameEndSummary({
         {longestStreak >= 2 && <span>🔥 {longestStreak} {t('streak')}</span>}
         <span>✓ {questionsCorrect}/{questionsAnswered}</span>
       </div>
+      {leaguePromotion && leaguePromotion.to !== leaguePromotion.from && (
+        <div className="game-end-league" style={{ color: LEAGUE_TIER_COLOR[leaguePromotion.to] }}>
+          {(leaguePromotion.to > leaguePromotion.from ? t('Promoted to {league}!') : t('Moved to {league}'))
+            .replace('{league}', t(`${LEAGUE_TIERS[leaguePromotion.to]} League`))}
+        </div>
+      )}
+      {leagueResult && (
+        <div className="game-end-league" style={{ color: LEAGUE_TIER_COLOR[leagueResult.tier] }}>
+          {t('Rank #{rank} in {league}')
+            .replace('{rank}', String(leagueResult.rank))
+            .replace('{league}', t(`${LEAGUE_TIERS[leagueResult.tier]} League`))}
+          {leagueResult.zone === 'up'
+            ? ` · ${t('Moving up this week!')}`
+            : leagueResult.zone === 'down'
+              ? ` · ${t('Moving down this week')}`
+              : leagueResult.tier < 4 && leagueResult.rank > leagueResult.moveCount
+                ? ` · ${t('{n} more to move up').replace('{n}', String(leagueResult.rank - leagueResult.moveCount))}`
+                : ''}
+        </div>
+      )}
       {newBadges.length > 0 && (
         <div className="game-end-badges">
           <BadgeMedalDefs />
