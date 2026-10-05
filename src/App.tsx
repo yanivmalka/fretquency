@@ -92,6 +92,10 @@ import { LeaderboardPanel } from './components/LeaderboardPanel';
 import { BadgeGrid } from './components/BadgeGrid';
 import { UpgradeCard } from './components/UpgradeCard';
 import { can, PRO_ONLY_INSTRUMENTS } from './utils/features';
+import { ensureTrialStarted, trialJustEnded, markTrialSummaryShown } from './utils/trial';
+import { openUpgrade } from './utils/upgradeDrawer';
+import { loadLearningState, getInstrumentState } from './learning/learningState';
+import TrialEndedCard from './components/TrialEndedCard';
 import { setDrillHold } from './utils/adPacing';
 import { track } from './utils/analytics';
 import { GuestMergePrompt } from './components/GuestMergePrompt';
@@ -576,7 +580,28 @@ export default function App() {
   useAutoPauseOnBackground(pause, running);
 
   const [preloaded, setPreloaded] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(() => loadSetting<boolean>('onboardingDone', false));
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    const done = loadSetting<boolean>('onboardingDone', false);
+    // Start the reverse Premium trial clock exactly once, at first mount —
+    // before onboarding can possibly complete this session — so an existing
+    // install (onboarding already done) is correctly marked ineligible rather
+    // than granted a surprise trial (utils/trial.ts).
+    ensureTrialStarted(done);
+    return done;
+  });
+  // One-time end-of-trial summary (see the TrialEndedCard render below).
+  // Captured once at mount — including trackedCount, read directly from
+  // learningState.ts rather than in the JSX (an impure localStorage read
+  // isn't allowed during render) — since useLearning goes inert the instant
+  // the tier drops back to Free and can't supply this number itself.
+  // Dismissing the card (or tapping through to the upgrade page) marks it
+  // shown for good via markTrialSummaryShown().
+  const [showTrialEnded, setShowTrialEnded] = useState(() => trialJustEnded());
+  const [trialTrackedCount] = useState(() => (
+    trialJustEnded()
+      ? Object.keys(getInstrumentState(loadLearningState(), instrument.id, Date.now()).srs).length
+      : 0
+  ));
   // One-time nudge for guests to sign in, shown right after onboarding. "Maybe
   // later" sets this device-local flag so it never nags again; the account is
   // still reachable any time from Settings → Account.
@@ -611,7 +636,7 @@ export default function App() {
     showStats, setShowStats, showPath, setShowPath, settingsOpen, setSettingsOpen,
     activeDomain, setActiveDomain, drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen, dailyChallengeOpen, setDailyChallengeOpen,
-    micPrompt, setMicPrompt, showInfo, upgradeFromAccountRef,
+    micPrompt, setMicPrompt, showInfo, upgradeFromAccountRef, upgradeFeature, setUpgradeFeature,
     askForMic, grantMic, openInfo,
   } = nav;
 
@@ -817,6 +842,7 @@ export default function App() {
       const target = entry.target;
       const toUpgrade = () => {
         upgradeFromAccountRef.current = false;
+        setUpgradeFeature(entry.feature);
         setSettingsOpen(true);
         setDrawerSection('upgrade');
       };
@@ -829,7 +855,10 @@ export default function App() {
       switch (target.kind) {
         case 'section':
           // Badges / Your plan are sub-pages of Account: Back returns there.
-          if (target.section === 'upgrade') upgradeFromAccountRef.current = true;
+          if (target.section === 'upgrade') {
+            upgradeFromAccountRef.current = true;
+            setUpgradeFeature(undefined);
+          }
           setSettingsOpen(true);
           setDrawerSection(target.section);
           if (target.anchor) jumpToSearchAnchor(target.anchor, target.fallback);
@@ -889,9 +918,10 @@ export default function App() {
             setSettingsOpen(false);
             setDrawerSection(null);
           }}
-          onLocked={() => {
+          onLocked={(feature) => {
             track('locked_tile_tapped');
             upgradeFromAccountRef.current = false;
+            setUpgradeFeature(feature);
             setDrawerSection('upgrade');
           }}
           onOpenTuner={() => {
@@ -1049,18 +1079,23 @@ export default function App() {
           auth={auth}
           setDrawerSection={setDrawerSection}
           upgradeFromAccountRef={upgradeFromAccountRef}
+          onOpenUpgrade={() => setUpgradeFeature(undefined)}
         />
       ),
     }] : []),
-    ...(auth.configured ? [{
+    {
       id: 'upgrade',
-      title: `⭐ ${t('Pro')}`,
+      title: `⭐ ${t('Upgrade')}`,
       blurb: '',
       // The admin Pro toggle used to live here; it now sits in the Account tab
       // (design note: admin controls are grouped under Account, not on the
-      // customer-facing subscription screen).
-      body: <UpgradeCard />,
-    }] : []),
+      // customer-facing subscription screen). Not gated on auth.configured: a
+      // build with no Supabase env vars still has the local-only reverse
+      // trial, so a locked tile must still land somewhere instead of a dead
+      // end (sign-in, cloud sync and the real purchase CTA stay disabled in
+      // that build, same as everywhere else in guest mode).
+      body: <UpgradeCard feature={upgradeFeature} />,
+    },
     {
       id: 'badges',
       title: `🏅 ${t('Badges')}`,
@@ -1551,6 +1586,23 @@ export default function App() {
           t={t}
           onSignIn={() => { void auth.signInWithGoogle(); }}
           onDismiss={dismissSignInPrompt}
+        />
+      )}
+
+      {/* One-time "your Premium trial ended" summary (utils/trial.ts). Shown
+          once, after onboarding, outside an active round. trackedCount reads
+          learningState.ts directly — useLearning goes inert the instant the
+          tier drops back to Free, so it can't supply this number itself. */}
+      {showTrialEnded && onboardingDone && !gameActive && (
+        <TrialEndedCard
+          t={t}
+          trackedCount={trialTrackedCount}
+          onSeeUpgrade={() => {
+            setShowTrialEnded(false);
+            markTrialSummaryShown();
+            openUpgrade('premiumTeacher');
+          }}
+          onDismiss={() => { setShowTrialEnded(false); markTrialSummaryShown(); }}
         />
       )}
 
