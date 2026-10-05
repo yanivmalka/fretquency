@@ -6,7 +6,7 @@ import type { InstrumentConfig } from '../../utils/instruments';
 import type { Lang } from '../../i18n/translations';
 import { searchApp, type SearchContext, type SearchEntry } from '../../utils/appSearch';
 import { minTier, type Feature } from '../../utils/features';
-import { endMenuHandoff, getMenuHandoff, startMenuHandoff, subscribeMenuHandoff } from '../../utils/menuHandoff';
+import { getMenuDim, setMenuDim, subscribeMenuDim } from '../../utils/menuDim';
 
 /**
  * The hamburger settings drawer, split out of <App> as pure presentation:
@@ -48,13 +48,13 @@ export function SettingsDrawerNav({
   // Local on purpose: the drawer unmounts on close, so every open starts
   // with an empty field and the plain section list.
   const [query, setQuery] = useState('');
-  // Leaving the list for anything (a page, a search pick, close) fades its
-  // dim out over the next screen via <MenuHandoff>. A layout effect so the
-  // fade is in that screen's first frame; the setup half cancels a fade still
-  // running when the list comes back (and StrictMode's dev re-mount).
+  // The dim behind the sheet is <MenuDim>, outside <App>: it fades in while
+  // the list is up and out over whatever screen replaces it (a page, a search
+  // pick, close). A layout effect so the change lands in the same frame as
+  // the list itself.
   useLayoutEffect(() => {
-    endMenuHandoff();
-    return startMenuHandoff;
+    setMenuDim(true);
+    return () => setMenuDim(false);
   }, []);
   const results = useMemo(
     () => searchApp(query, t, search.ctx),
@@ -239,20 +239,19 @@ export function SettingsSubPage({
 }
 
 /**
- * The hamburger list's dim fading out after the list unmounts (see
- * utils/menuHandoff.ts). It dims only the strip the sheet left uncovered: the
- * sheet's own area cuts straight to the next screen, so nothing there flashes
- * dark between the sheet and what replaced it. Reuses .settings-overlay for
- * its placement (the phone frame on desktop, the left-handed side); never
- * takes a tap. Mounted once, outside <App>, like the ad strip.
+ * The hamburger menu's dim (see utils/menuDim.ts): always mounted, outside
+ * <App>, and only its opacity changes — in while the list is up, out once it
+ * goes. It dims only the strip beside the sheet: the sheet covers its own
+ * area while open and, once gone, that area cuts straight to the next screen
+ * instead of flashing dark. Reuses .settings-overlay for its placement (the
+ * phone frame on desktop, the left-handed side); never takes a tap.
  */
-export function MenuHandoff() {
-  const key = useSyncExternalStore(subscribeMenuHandoff, getMenuHandoff);
-  if (key === 0) return null;
+export function MenuDim() {
+  const on = useSyncExternalStore(subscribeMenuDim, getMenuDim);
   return (
-    <div key={key} className="settings-overlay menu-handoff" aria-hidden="true">
-      <div className="menu-handoff__dim" onAnimationEnd={endMenuHandoff} />
-      <div className="menu-handoff__sheet" />
+    <div className={`settings-overlay menu-dim${on ? ' menu-dim--on' : ''}`} aria-hidden="true">
+      <div className="menu-dim__shade" />
+      <div className="menu-dim__sheet" />
     </div>
   );
 }

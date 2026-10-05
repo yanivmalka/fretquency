@@ -6,7 +6,7 @@ import './index.css'
 import App from './App'
 import { LanguageProvider } from './i18n/LanguageContext'
 import AdBanner from './components/AdBanner'
-import { MenuHandoff } from './components/settings/SettingsDrawer'
+import { MenuDim } from './components/settings/SettingsDrawer'
 import { loadDictionary, type Lang } from './i18n/translations'
 import { initialLanguage } from './i18n/initialLanguage'
 import { markBootDone } from './utils/bootState'
@@ -26,7 +26,7 @@ Promise.race([
     <StrictMode>
       <LanguageProvider>
         <App />
-        <MenuHandoff />
+        <MenuDim />
         <AdBanner />
       </LanguageProvider>
     </StrictMode>,

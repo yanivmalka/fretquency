@@ -66,8 +66,7 @@ export function useAppNavigation({
   // Stats via its row's onSelect) remounts the list, and replaying the slide
   // there flashed the screen dark with an empty half. Only a fresh open
   // slides; once a page has been opened from the menu, the list reappears in
-  // place (its dim fading in) until the menu closes. The way out — the list's
-  // dim fading over the next screen — is <MenuHandoff>'s job.
+  // place until the menu closes. The dim fading in and out is <MenuDim>'s job.
   // Derived during render from the previous values (no effect, no ref).
   const [drawerSlideIn, setDrawerSlideIn] = useState(() => !initialView?.section && !initialView?.stats);
   const [prevDrawer, setPrevDrawer] = useState({ settingsOpen, drawerSection, showStats });
