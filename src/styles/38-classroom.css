@@ -162,6 +162,19 @@
   gap: 8px;
   padding: 8px 4px 4px;
 }
+.class-weak-spots {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-soft);
+}
+.class-weak-spots-h { margin: 0; font-size: 0.8rem; font-weight: 700; color: var(--text-1); }
+.class-weak-spots-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.class-weak-spots-list li { font-size: 0.85rem; color: var(--text-2); }
+
 .class-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .class-results li {
   display: flex;

@@ -26,7 +26,7 @@ import { unlockAudio, setAudioInstrument } from '../utils/audio';
 import { setActiveInstrument, type AccidentalMode, type OrderMode, type NotationMode } from '../utils/music';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
 import type { DrillConfig } from '../drill/DrillConfig';
-import { describeHomework } from '../teacher/homework';
+import { describeHomework, extractWrongPositions, type WrongPosition } from '../teacher/homework';
 
 interface Props {
   title: string;
@@ -36,7 +36,7 @@ interface Props {
   order: OrderMode;
   notation: NotationMode;
   /** Called once when every question has been answered. */
-  onFinished: (r: { correct: number; total: number; seconds: number }) => Promise<void>;
+  onFinished: (r: { correct: number; total: number; seconds: number; wrongPositions: WrongPosition[] }) => Promise<void>;
   onDone: () => void;
 }
 
@@ -72,9 +72,15 @@ export default function HomeworkRun({
     false, drill.isMulti ? drill.strings : [], instrumentId,
   );
 
+  // Captured at the moment a run ends, so a "Try again" retry after a failed
+  // save resends the same positions rather than whatever the next run leaves
+  // in the (by-then-reset) history sink.
+  const wrongPositionsRef = useRef<WrongPosition[]>([]);
+
   const save = (r: { correct: number; total: number; seconds: number }) => {
     setSaveState('saving');
-    onFinished(r).then(() => setSaveState('saved'), () => setSaveState('failed'));
+    onFinished({ ...r, wrongPositions: wrongPositionsRef.current })
+      .then(() => setSaveState('saved'), () => setSaveState('failed'));
   };
 
   // End-of-run detection, as in DailyChallengeScreen: watch `running` fall
@@ -90,6 +96,7 @@ export default function HomeworkRun({
       finishedRef.current = true;
       const seconds = historySink.history.reduce((sum, e) => sum + (e.seconds || 0), 0);
       const r = { correct: session.result.questionsCorrect, total: drill.questionCount, seconds: Math.round(seconds) };
+      wrongPositionsRef.current = extractWrongPositions(historySink.history);
       setResult(r);
       setPhase('result');
       save(r);

@@ -42,7 +42,7 @@ import TeacherExamScreen from './TeacherExamScreen';
 import {
   HOMEWORK_INSTRUMENTS, HOMEWORK_QUESTION_COUNTS,
   defaultHomeworkPicks, buildHomeworkDrill, parseHomeworkDrill, describeHomework,
-  summariseAttempts, isHomeworkInstrument, type HomeworkPicks, type StudentResult,
+  summariseAttempts, isHomeworkInstrument, classWeakSpots, type HomeworkPicks, type StudentResult,
 } from '../teacher/homework';
 import {
   CLASS_CODE_MAX, normaliseClassCode, isJoinableCode, classCodeProblem, suggestClassCode,
@@ -677,6 +677,8 @@ function HomeworkResults({ hw, members, attempts, onDeleted }: {
   const [open, setOpen] = useState(false);
   const byStudent = useMemo(() => summariseAttempts(attempts), [attempts]);
   const practised = members.filter((m) => byStudent.has(m.userId)).length;
+  const weakSpots = useMemo(() => classWeakSpots(attempts, 5), [attempts]);
+  const attemptsWithDetail = useMemo(() => attempts.filter((a) => a.wrongPositions != null).length, [attempts]);
   const drill = parseHomeworkDrill(hw.drill, hw.instrumentId, { accidental: 'sharps', order: 'fifths' });
   const instrumentEmoji = isHomeworkInstrument(hw.instrumentId) ? getInstrument(hw.instrumentId).emoji : '🎸';
 
@@ -693,6 +695,20 @@ function HomeworkResults({ hw, members, attempts, onDeleted }: {
         <div className="class-hw-body">
           {drill && <p className="class-muted">{describeHomework(drill, t)}</p>}
           {hw.dueOn && <p className="class-muted">{t('Due {date}').replace('{date}', shortDate(hw.dueOn))}</p>}
+          {weakSpots.length > 0 && (
+            <div className="class-weak-spots">
+              <h4 className="class-weak-spots-h">{t('Class weak spots')}</h4>
+              <ul className="class-weak-spots-list">
+                {weakSpots.map((w) => (
+                  <li key={`${w.string}:${w.fret}`}>
+                    {t('Fret {fret} on string {string}: {missed} of {total} attempts missed')
+                      .replace('{fret}', String(w.fret)).replace('{string}', String(w.string))
+                      .replace('{missed}', String(w.missed)).replace('{total}', String(attemptsWithDetail))}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <ul className="class-results">
             {members.map((m) => {
               const r = byStudent.get(m.userId);

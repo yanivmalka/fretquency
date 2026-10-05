@@ -1803,6 +1803,8 @@ export const he: Record<string, string> = {
   "Delete class": "מחיקת הכיתה",
   "{n} of {total} practised": "{n} מתוך {total} תרגלו",
   "Due {date}": "להגשה עד {date}",
+  "Class weak spots": "נקודות חולשה של הכיתה",
+  "Fret {fret} on string {string}: {missed} of {total} attempts missed": "סריג {fret} במיתר {string}: {missed} מתוך {total} ניסיונות טעו",
   "best {correct}/{total} · {n} tries · {date}": "הכי טוב {correct}/{total} · {n} ניסיונות · {date}",
   "best {correct}/{total} · {n} tries": "הכי טוב {correct}/{total} · {n} ניסיונות",
   "Not yet": "עדיין לא",

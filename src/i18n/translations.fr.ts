@@ -1791,6 +1791,8 @@ export const fr: Record<string, string> = {
   "Delete class": "Supprimer la classe",
   "{n} of {total} practised": "{n} sur {total} ont pratiqué",
   "Due {date}": "Pour le {date}",
+  "Class weak spots": "Points faibles de la classe",
+  "Fret {fret} on string {string}: {missed} of {total} attempts missed": "Case {fret} sur la corde {string} : manquée {missed} fois sur {total} essais",
   "best {correct}/{total} · {n} tries · {date}": "meilleur {correct}/{total} · {n} essais · {date}",
   "best {correct}/{total} · {n} tries": "meilleur {correct}/{total} · {n} essais",
   "Not yet": "Pas encore",
