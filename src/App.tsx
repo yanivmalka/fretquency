@@ -62,8 +62,11 @@ import LearnHub from './components/LearnHub';
 import TunerScreen from './components/TunerScreen';
 import DailyChallengeScreen from './components/DailyChallengeScreen';
 import { useChallengeLinkRoute } from './hooks/useChallengeLinkRoute';
+import ClassroomScreen from './components/ClassroomScreen';
+import { useClassLinkRoute } from './teacher/useClassLinkRoute';
 import { useStartLinkRoute } from './hooks/useStartLinkRoute';
 import { isBootDone, subscribeBootDone } from './utils/bootState';
+import { clearPendingClassCode } from './teacher/classLink';
 import { useLearning } from './hooks/useLearning';
 import { useDrillHistorySink } from './game/useDrillHistorySink';
 import type { HistoryOps } from './hooks/useGameEngine';
@@ -638,6 +641,7 @@ export default function App() {
     showStats, setShowStats, showPath, setShowPath, settingsOpen, setSettingsOpen,
     activeDomain, setActiveDomain, drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen, dailyChallengeOpen, setDailyChallengeOpen,
+    classroomOpen, setClassroomOpen,
     micPrompt, setMicPrompt, showInfo, upgradeFromAccountRef, upgradeFeature, setUpgradeFeature,
     askForMic, grantMic, openInfo,
   } = nav;
@@ -650,6 +654,14 @@ export default function App() {
     if (challengeLinkData) setDailyChallengeOpen(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [challengeLinkData]);
+
+  // A class invite link (?class=CODE), or a code a guest saved before the
+  // Google sign-in redirect, opens Teacher mode's Class screen the same way.
+  const classLinkCode = useClassLinkRoute();
+  useEffect(() => {
+    if (classLinkCode) setClassroomOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classLinkCode]);
 
   // Usage measurement: fire once per transition into these drawer views, not
   // on every re-render (settingsSections' `body` elements are reconstructed
@@ -681,7 +693,7 @@ export default function App() {
     if (!onboardingDone) { startLinkUsedRef.current = true; return; }
     if (!bootDone) return;
     startLinkUsedRef.current = true;
-    if (!gameActive && countdown === null && !dailyChallengeOpen) start();
+    if (!gameActive && countdown === null && !dailyChallengeOpen && !classroomOpen) start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startLink, bootDone]);
 
@@ -899,6 +911,10 @@ export default function App() {
           leaveDrawer();
           setDailyChallengeOpen(true);
           return;
+        case 'classroom':
+          leaveDrawer();
+          setClassroomOpen(true);
+          return;
         case 'path':
           if (entry.feature && !can(entry.feature, auth.tier)) { toUpgrade(); return; }
           leaveDrawer();
@@ -954,6 +970,13 @@ export default function App() {
             setSettingsOpen(false);
             setDrawerSection(null);
             setDailyChallengeOpen(true);
+          }}
+          onOpenClassroom={() => {
+            setShowStats(false);
+            setShowPath(false);
+            setSettingsOpen(false);
+            setDrawerSection(null);
+            setClassroomOpen(true);
           }}
         />
       ),
@@ -1204,6 +1227,20 @@ export default function App() {
         addEntry={historyOps.addEntry}
         markPlayed={historyOps.markPlayed}
         onClose={() => setDailyChallengeOpen(false)}
+      />
+    );
+  }
+
+  // Teacher mode's Class screen — same self-contained takeover shape; it
+  // routes its own sub-views (src/components/ClassroomScreen.tsx).
+  if (classroomOpen) {
+    return (
+      <ClassroomScreen
+        user={auth.user}
+        profileName={auth.profile?.name ?? null}
+        initialCode={classLinkCode}
+        onSignIn={() => { void auth.signInWithGoogle(); }}
+        onClose={() => { clearPendingClassCode(); setClassroomOpen(false); }}
       />
     );
   }

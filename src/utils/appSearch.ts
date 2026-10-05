@@ -25,6 +25,7 @@ export type SearchTarget =
   | { kind: 'stats' }
   | { kind: 'tuner' }
   | { kind: 'dailyChallenge' }
+  | { kind: 'classroom' }
   | { kind: 'path' };
 
 export interface SearchEntry {
@@ -137,6 +138,11 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
     id: 'daily-challenge', label: 'Fret of the Day', emoji: '🔥', path: [LEARN],
     target: { kind: 'dailyChallenge' },
     keywords: ['daily challenge', 'challenge a friend', 'wordle', 'streak', 'share', 'אתגר יומי', 'אתגר חבר', 'שיתוף', 'רצף', 'desafío diario', 'reto diario', 'compartir', 'desafio diário', 'compartilhar', 'défi quotidien', 'partager', 'sfida del giorno', 'condividi'],
+  },
+  {
+    id: 'classroom', label: 'Class', emoji: '🏫', path: [LEARN],
+    target: { kind: 'classroom' },
+    keywords: ['class', 'classroom', 'teacher', 'student', 'homework', 'join code', 'כיתה', 'מורה', 'תלמיד', 'שיעורי בית', 'קוד כיתה', 'clase', 'profesor', 'alumno', 'deberes', 'turma', 'professor', 'aluno', 'lição de casa', 'classe', 'professeur', 'élève', 'devoirs', 'insegnante', 'studente', 'compiti'],
   },
   {
     id: 'path', label: 'Learning Path', emoji: '🗺️', path: [...NOTES], feature: 'learningPath',

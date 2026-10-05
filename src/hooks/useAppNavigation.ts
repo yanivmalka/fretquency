@@ -86,6 +86,9 @@ export function useAppNavigation({
   // shared link is open should re-parse the link (see useChallengeLinkRoute
   // in App.tsx), not restore a stale "was open" flag.
   const [dailyChallengeOpen, setDailyChallengeOpen] = useState(false);
+  // Teacher mode's Class screen (ClassroomScreen) — a takeover with its own
+  // internal sub-views and its own Escape handling. Not persisted to gfp_view.
+  const [classroomOpen, setClassroomOpen] = useState(false);
   // The `upgrade` (Pro) sub-page is reachable both from the Account tab's plan
   // tile and from any locked <ProGate> in the app (via registerUpgradeHandler,
   // which may open it without Account ever being shown). Back should return to
@@ -277,6 +280,7 @@ export function useAppNavigation({
     drawerSection, setDrawerSection, drawerSlideIn,
     tunerOpen, setTunerOpen,
     dailyChallengeOpen, setDailyChallengeOpen,
+    classroomOpen, setClassroomOpen,
     micPrompt, setMicPrompt,
     showInfo, setShowInfo,
     infoAutoShown, setInfoAutoShown,

@@ -1,0 +1,245 @@
+// Classroom data access — Teacher mode, first slice. Backed by the tables and
+// RLS in supabase/migrations/0026_classroom.sql:
+//   - a self-declared teacher (row in `teachers`) creates classes; the server
+//     generates the 6-character join code
+//   - a signed-in student joins with the code through the `join_class` RPC
+//   - the teacher assigns homework (a DrillConfig as jsonb); members read it
+//   - a student posts one `homework_attempts` row per finished run; the
+//     class's teacher reads them all (the "who practised" list)
+//
+// Every helper no-ops / returns an empty result when `supabase` is null, so a
+// config-less guest build never breaks. Errors are thrown to the caller (the
+// Class screen shows them); there is no local cache — the whole feature is
+// online-only by nature (it exists to move results between two people).
+
+import { supabase } from '../utils/supabase';
+import type { DrillConfig } from '../drill/DrillConfig';
+import type { InstrumentId } from '../utils/instruments';
+
+export interface ClassRow {
+  id: string;
+  name: string;
+  code: string;
+  teacherName: string | null;
+  teacherId: string;
+  createdAt: string;
+}
+
+export interface MemberRow {
+  userId: string;
+  displayName: string;
+  joinedAt: string;
+}
+
+export interface HomeworkRow {
+  id: string;
+  classId: string;
+  title: string;
+  instrumentId: string;
+  /** Raw stored jsonb — run it only through `parseHomeworkDrill`. */
+  drill: unknown;
+  dueOn: string | null;
+  createdAt: string;
+}
+
+export interface AttemptRow {
+  homework_id: string;
+  user_id: string;
+  correct: number;
+  total: number;
+  seconds: number;
+  created_at: string;
+}
+
+interface DbClass {
+  id: string; name: string; code: string; teacher_name: string | null;
+  teacher_id: string; created_at: string;
+}
+interface DbHomework {
+  id: string; class_id: string; title: string; instrument_id: string;
+  drill: unknown; due_on: string | null; created_at: string;
+}
+
+const toClass = (r: DbClass): ClassRow => ({
+  id: r.id, name: r.name, code: r.code, teacherName: r.teacher_name,
+  teacherId: r.teacher_id, createdAt: r.created_at,
+});
+const toHomework = (r: DbHomework): HomeworkRow => ({
+  id: r.id, classId: r.class_id, title: r.title, instrumentId: r.instrument_id,
+  drill: r.drill, dueOn: r.due_on, createdAt: r.created_at,
+});
+
+const CLASS_COLS = 'id, name, code, teacher_name, teacher_id, created_at';
+const HOMEWORK_COLS = 'id, class_id, title, instrument_id, drill, due_on, created_at';
+
+// ── Teacher role ────────────────────────────────────────────────────────
+
+export interface TeacherStatus {
+  isTeacher: boolean;
+  verified: boolean;
+}
+
+export async function fetchTeacherStatus(userId: string): Promise<TeacherStatus> {
+  if (!supabase) return { isTeacher: false, verified: false };
+  const { data, error } = await supabase
+    .from('teachers').select('verified_at').eq('user_id', userId).maybeSingle();
+  if (error) throw error;
+  return { isTeacher: !!data, verified: !!data?.verified_at };
+}
+
+/** Self-declare as a teacher. Idempotent: an existing row is left as it is. */
+export async function becomeTeacher(userId: string, displayName: string | null): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase
+    .from('teachers')
+    .upsert({ user_id: userId, display_name: displayName?.slice(0, 60) ?? null },
+      { onConflict: 'user_id', ignoreDuplicates: true });
+  if (error) throw error;
+}
+
+// ── Classes ─────────────────────────────────────────────────────────────
+
+export async function fetchTeachingClasses(userId: string): Promise<ClassRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('classes').select(CLASS_COLS).eq('teacher_id', userId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data as DbClass[]).map(toClass);
+}
+
+/** Classes this user has joined as a student. */
+export async function fetchJoinedClasses(userId: string): Promise<ClassRow[]> {
+  if (!supabase) return [];
+  const { data: mem, error: memErr } = await supabase
+    .from('class_members').select('class_id').eq('user_id', userId);
+  if (memErr) throw memErr;
+  const ids = (mem ?? []).map((m) => m.class_id as string);
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase
+    .from('classes').select(CLASS_COLS).in('id', ids)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data as DbClass[]).map(toClass);
+}
+
+export async function createClass(name: string, teacherName: string | null): Promise<ClassRow | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('classes')
+    .insert({ name: name.trim().slice(0, 60), teacher_name: teacherName?.slice(0, 60) ?? null })
+    .select(CLASS_COLS).single();
+  if (error) throw error;
+  return toClass(data as DbClass);
+}
+
+export async function deleteClass(classId: string): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase.from('classes').delete().eq('id', classId);
+  if (error) throw error;
+}
+
+export type JoinOutcome =
+  | { kind: 'joined'; classId: string; name: string }
+  | { kind: 'notFound' }
+  | { kind: 'ownClass' };
+
+export async function joinClass(code: string, displayName: string): Promise<JoinOutcome> {
+  if (!supabase) return { kind: 'notFound' };
+  const { data, error } = await supabase.rpc('join_class', {
+    join_code: code, member_name: displayName,
+  });
+  if (error) {
+    if (error.message?.includes('own class')) return { kind: 'ownClass' };
+    throw error;
+  }
+  const row = (data as Array<{ id: string; name: string }> | null)?.[0];
+  return row ? { kind: 'joined', classId: row.id, name: row.name } : { kind: 'notFound' };
+}
+
+export async function leaveClass(classId: string, userId: string): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase
+    .from('class_members').delete().eq('class_id', classId).eq('user_id', userId);
+  if (error) throw error;
+}
+
+export async function fetchMembers(classId: string): Promise<MemberRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('class_members').select('user_id, display_name, joined_at')
+    .eq('class_id', classId).order('display_name');
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    userId: r.user_id as string, displayName: r.display_name as string, joinedAt: r.joined_at as string,
+  }));
+}
+
+export async function removeMember(classId: string, userId: string): Promise<void> {
+  return leaveClass(classId, userId);
+}
+
+// ── Homework ────────────────────────────────────────────────────────────
+
+export async function fetchHomework(classId: string): Promise<HomeworkRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('homework').select(HOMEWORK_COLS).eq('class_id', classId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data as DbHomework[]).map(toHomework);
+}
+
+export async function assignHomework(input: {
+  classId: string; title: string; instrumentId: InstrumentId; drill: DrillConfig; dueOn: string | null;
+}): Promise<HomeworkRow | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('homework')
+    .insert({
+      class_id: input.classId,
+      title: input.title.trim().slice(0, 80),
+      instrument_id: input.instrumentId,
+      drill: input.drill,
+      due_on: input.dueOn,
+    })
+    .select(HOMEWORK_COLS).single();
+  if (error) throw error;
+  return toHomework(data as DbHomework);
+}
+
+export async function deleteHomework(homeworkId: string): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase.from('homework').delete().eq('id', homeworkId);
+  if (error) throw error;
+}
+
+// ── Attempts ────────────────────────────────────────────────────────────
+
+/** Every attempt in a class the caller may read: all of them for the class's
+ *  teacher, only their own for a student (RLS decides). */
+export async function fetchAttempts(classId: string): Promise<AttemptRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('homework_attempts')
+    .select('homework_id, user_id, correct, total, seconds, created_at')
+    .eq('class_id', classId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as AttemptRow[];
+}
+
+export async function submitAttempt(input: {
+  homeworkId: string; classId: string; userId: string; correct: number; total: number; seconds: number;
+}): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase.from('homework_attempts').insert({
+    homework_id: input.homeworkId,
+    class_id: input.classId,
+    user_id: input.userId,
+    correct: input.correct,
+    total: input.total,
+    seconds: Math.max(0, Math.round(input.seconds)),
+  });
+  if (error) throw error;
+}

@@ -1,0 +1,227 @@
+/* ── Teacher mode: the Class screen (ClassroomScreen / HomeworkRun) ───────
+   Same page-replacing chrome as the Tuner and Fret of the Day (.settings-page
+   / .sp2); this file only covers what's specific to this screen. Free on
+   every tier — no Premium gold. Theme-token driven, works in both
+   directions (logical properties only). */
+
+.class-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+.class-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+}
+
+.class-h {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-0);
+}
+.class-h-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.class-lead { margin: 0; color: var(--text-0); font-weight: 600; }
+.class-muted { margin: 0; font-size: 0.85rem; line-height: 1.45; color: var(--text-2); }
+
+.class-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-1);
+}
+.class-input {
+  min-width: 0;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-1);
+  color: var(--text-0);
+  font: inherit;
+  font-size: 1rem;
+}
+.class-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.class-code-input {
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-align: center;
+}
+
+.class-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--text-1);
+}
+
+.class-inline-form,
+.class-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.class-inline-form .class-input { flex: 1 1 140px; }
+.class-row { justify-content: center; }
+
+.class-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.class-string-chip {
+  min-width: 44px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-1);
+  color: var(--text-1);
+  font: inherit;
+  cursor: pointer;
+}
+.class-string-chip small { color: var(--text-3); }
+.class-string-chip.active {
+  border-color: var(--accent-dim);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.class-string-chip.active small { color: inherit; opacity: 0.75; }
+
+.class-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.class-list-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-1);
+  color: var(--text-0);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.class-list-name { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+
+.class-code-chip {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: var(--text-2);
+}
+.class-code-card { align-items: center; text-align: center; }
+.class-code-big {
+  font-family: ui-monospace, monospace;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.class-small-btn { padding: 8px 16px; font-size: 0.9rem; }
+.class-link-btn {
+  padding: 4px 6px;
+  border: none;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.class-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 2px;
+  color: var(--text-1);
+}
+
+.class-hw-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 4px 4px;
+}
+.class-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.class-results li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--bg-1);
+  color: var(--text-1);
+  border-inline-start: 3px solid var(--border-soft);
+}
+.class-results li.done { border-inline-start-color: var(--success); }
+
+.class-hw-student {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-soft);
+}
+.class-hw-student.done { border-inline-start: 3px solid var(--success); }
+.class-hw-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.class-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+/* ── Homework run ── */
+.class-run {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: center;
+}
+.class-run-head { display: flex; align-items: center; gap: 12px; text-align: start; }
+.class-run-emoji { font-size: 1.8rem; }
+.class-run-title { font-weight: 700; color: var(--text-0); }
+.class-question-col { width: 100%; }
+.class-run-result { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.class-run-score { font-size: 2rem; font-weight: 800; color: var(--text-0); }
+
+/* Primary action button. Local to this screen: the app has no shared
+   primary-button class outside the Selector's Play button. */
+.class-btn-primary {
+  align-self: center;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.class-btn-primary:disabled { opacity: 0.45; cursor: default; }
+.class-btn-primary:focus-visible { outline: 2px solid var(--text-0); outline-offset: 2px; }

@@ -49,6 +49,8 @@ interface Props {
   onOpenTuner: () => void;
   /** The Fret of the Day tile was tapped — open that screen (closes the drawer). */
   onOpenDailyChallenge: () => void;
+  /** The Class tile was tapped — open Teacher mode's Class screen. */
+  onOpenClassroom: () => void;
 }
 
 interface OpenTile {
@@ -82,6 +84,7 @@ export default function LearnHub({
   onLocked,
   onOpenTuner,
   onOpenDailyChallenge,
+  onOpenClassroom,
 }: Props) {
   const { t } = useTranslation();
 
@@ -98,6 +101,9 @@ export default function LearnHub({
     // Also free for every tier, and not a teaching domain either — a daily
     // puzzle anyone can share, like the Tuner.
     { kind: 'action', emoji: '🔥', label: 'Fret of the Day', onSelect: onOpenDailyChallenge },
+    // Teacher mode: join a class / run one. Free for every tier — a student
+    // must never hit a paywall to do their homework.
+    { kind: 'action', emoji: '🏫', label: 'Class', onSelect: onOpenClassroom },
     // The inert roadmap placeholders are a dev/admin-only preview — a regular
     // user only sees domains they can actually open.
     ...(showRoadmap
