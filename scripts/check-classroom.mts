@@ -18,7 +18,7 @@ register(
 
 // src modules import each other without extensions; resolve them to .ts.
 const {
-  buildHomeworkDrill, parseHomeworkDrill, defaultHomeworkPicks, summariseAttempts,
+  buildHomeworkDrill, homeworkPicksFromDrill, parseHomeworkDrill, defaultHomeworkPicks, summariseAttempts,
   HOMEWORK_INSTRUMENTS, extractWrongPositions, classWeakSpots, studentWeakSpots,
 } = await import('../src/teacher/homework.ts');
 const {
@@ -55,6 +55,17 @@ for (const id of HOMEWORK_INSTRUMENTS) {
     eq(parsed.accidental, 'flats', `${id}/${mode} student accidental wins`);
     eq(parsed.order, 'alpha', `${id}/${mode} student order wins`);
     if (parsed.fretTo > getInstrument(id).maxFret) fail(`${id}/${mode}: fretTo past the neck`);
+  }
+}
+
+// homeworkPicksFromDrill (the edit form's prefill) inverts buildHomeworkDrill
+// for every assignable instrument and both directions.
+for (const id of HOMEWORK_INSTRUMENTS) {
+  for (const mode of ['byFret', 'byNote'] as const) {
+    const picks = { ...defaultHomeworkPicks(id), mode, strings: [1, 2], fretFrom: 2, fretTo: 9, naturalsOnly: false, questionCount: 20 };
+    const drill = buildHomeworkDrill(picks);
+    const back = homeworkPicksFromDrill(drill, id);
+    eq(back, picks, `${id}/${mode}: homeworkPicksFromDrill inverts buildHomeworkDrill`);
   }
 }
 

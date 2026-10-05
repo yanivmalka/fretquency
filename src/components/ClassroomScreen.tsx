@@ -6,7 +6,7 @@
 // no App.tsx involvement past open/close:
 //
 //   home ─┬─ teach (a class I run: code + invite, roster, homework + results)
-//         │    └─ assign (new homework form)
+//         │    └─ assign (new or edited homework form)
 //         └─ study (a class I joined: homework list)
 //              └─ run (HomeworkRun — the drill itself)
 //
@@ -36,13 +36,13 @@ import {
   fetchTeacherStatus, fetchTeachingClasses, fetchJoinedClasses,
   createClass, changeClassCode, deleteClass, joinClass, leaveClass, fetchMembers, removeMember,
   fetchBlocked, unblockMember, ClassWriteError,
-  fetchHomework, assignHomework, deleteHomework, fetchAttempts, submitAttempt,
+  fetchHomework, assignHomework, updateHomework, deleteHomework, fetchAttempts, submitAttempt,
   type ClassRow, type MemberRow, type HomeworkRow, type AttemptRow, type TeacherStatus,
 } from '../teacher/classroom';
 import TeacherExamScreen from './TeacherExamScreen';
 import {
   HOMEWORK_INSTRUMENTS, HOMEWORK_QUESTION_COUNTS,
-  defaultHomeworkPicks, buildHomeworkDrill, parseHomeworkDrill, describeHomework,
+  defaultHomeworkPicks, buildHomeworkDrill, homeworkPicksFromDrill, parseHomeworkDrill, describeHomework,
   summariseAttempts, isHomeworkInstrument, classWeakSpots, studentWeakSpots, type HomeworkPicks, type StudentResult,
 } from '../teacher/homework';
 import {
@@ -68,7 +68,7 @@ type View =
   | { kind: 'home' }
   | { kind: 'exam' }
   | { kind: 'teach'; cls: ClassRow }
-  | { kind: 'assign'; cls: ClassRow }
+  | { kind: 'assign'; cls: ClassRow; editing?: HomeworkRow }
   | { kind: 'study'; cls: ClassRow }
   | { kind: 'run'; cls: ClassRow; homework: HomeworkRow };
 
@@ -159,10 +159,11 @@ export default function ClassroomScreen({ user, profileName, initialCode, onSign
             <Home user={user} profileName={profileName} initialCode={initialCode} setView={setView} />
           ) : view.kind === 'teach' ? (
             <TeachView cls={view.cls} onAssign={() => setView({ kind: 'assign', cls: view.cls })}
+              onEditHomework={(hw) => setView({ kind: 'assign', cls: view.cls, editing: hw })}
               onChanged={(cls) => setView({ kind: 'teach', cls })}
               onDeleted={() => setView({ kind: 'home' })} />
           ) : view.kind === 'assign' ? (
-            <AssignView cls={view.cls} onDone={() => setView({ kind: 'teach', cls: view.cls })} />
+            <AssignView cls={view.cls} editing={view.editing} onDone={() => setView({ kind: 'teach', cls: view.cls })} />
           ) : view.kind === 'study' ? (
             <StudyView user={user} cls={view.cls}
               onRun={(homework) => setView({ kind: 'run', cls: view.cls, homework })}
@@ -518,8 +519,9 @@ function ChangeCodeForm({ cls, onChanged, onCancel }: {
 
 // ── Teacher: one class ──────────────────────────────────────────────────
 
-function TeachView({ cls, onAssign, onChanged, onDeleted }: {
+function TeachView({ cls, onAssign, onEditHomework, onChanged, onDeleted }: {
   cls: ClassRow; onAssign: () => void;
+  onEditHomework: (hw: HomeworkRow) => void;
   /** The class row changed (a new code): kept in the view state so Assign → back shows it too. */
   onChanged: (cls: ClassRow) => void;
   onDeleted: () => void;
@@ -599,7 +601,7 @@ function TeachView({ cls, onAssign, onChanged, onDeleted }: {
                 {data.data.homework.map((hw) => (
                   <HomeworkResults key={hw.id} hw={hw} members={data.data!.members}
                     attempts={data.data!.attempts.filter((a) => a.homework_id === hw.id)}
-                    onDeleted={data.reload} />
+                    onEdit={() => onEditHomework(hw)} onDeleted={data.reload} />
                 ))}
               </ul>
             )}
@@ -686,8 +688,8 @@ function useShortDate() {
   }, [lang]);
 }
 
-function HomeworkResults({ hw, members, attempts, onDeleted }: {
-  hw: HomeworkRow; members: MemberRow[]; attempts: AttemptRow[]; onDeleted: () => void;
+function HomeworkResults({ hw, members, attempts, onEdit, onDeleted }: {
+  hw: HomeworkRow; members: MemberRow[]; attempts: AttemptRow[]; onEdit: () => void; onDeleted: () => void;
 }) {
   const { t } = useTranslation();
   const shortDate = useShortDate();
@@ -765,12 +767,17 @@ function HomeworkResults({ hw, members, attempts, onDeleted }: {
               );
             })}
           </ul>
-          <button className="class-link-btn" onClick={tap(() => {
-            if (!window.confirm(t('Delete this homework and its results?'))) return;
-            deleteHomework(hw.id).then(onDeleted, (e) => console.warn('[classroom] deleteHomework', e));
-          })}>
-            {t('Delete homework')}
-          </button>
+          <div className="class-row">
+            <button className="class-link-btn" onClick={tap(onEdit)}>
+              {t('Edit homework')}
+            </button>
+            <button className="class-link-btn" onClick={tap(() => {
+              if (!window.confirm(t('Delete this homework and its results?'))) return;
+              deleteHomework(hw.id).then(onDeleted, (e) => console.warn('[classroom] deleteHomework', e));
+            })}>
+              {t('Delete homework')}
+            </button>
+          </div>
         </div>
       )}
     </li>
@@ -779,11 +786,17 @@ function HomeworkResults({ hw, members, attempts, onDeleted }: {
 
 // ── Teacher: assign homework ────────────────────────────────────────────
 
-function AssignView({ cls, onDone }: { cls: ClassRow; onDone: () => void }) {
+function AssignView({ cls, editing, onDone }: { cls: ClassRow; editing?: HomeworkRow; onDone: () => void }) {
   const { t } = useTranslation();
-  const [picks, setPicks] = useState<HomeworkPicks>(() => defaultHomeworkPicks('guitar'));
-  const [title, setTitle] = useState('');
-  const [dueOn, setDueOn] = useState('');
+  const [picks, setPicks] = useState<HomeworkPicks>(() => {
+    if (editing && isHomeworkInstrument(editing.instrumentId)) {
+      const parsed = parseHomeworkDrill(editing.drill, editing.instrumentId, { accidental: 'sharps', order: 'fifths' });
+      if (parsed) return homeworkPicksFromDrill(parsed, editing.instrumentId);
+    }
+    return defaultHomeworkPicks('guitar');
+  });
+  const [title, setTitle] = useState(editing?.title ?? '');
+  const [dueOn, setDueOn] = useState(editing?.dueOn ?? '');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const instrument = getInstrument(picks.instrumentId);
@@ -796,7 +809,7 @@ function AssignView({ cls, onDone }: { cls: ClassRow; onDone: () => void }) {
 
   return (
     <section className="class-card class-assign">
-      <h3 className="class-h">{t('Assign homework')}</h3>
+      <h3 className="class-h">{editing ? t('Edit homework') : t('Assign homework')}</h3>
       <p className="class-muted">
         {picks.mode === 'byNote'
           ? t('A Notes drill: a note is shown, the student finds every matching fret.')
@@ -895,11 +908,14 @@ function AssignView({ cls, onDone }: { cls: ClassRow; onDone: () => void }) {
         <button className="clear-btn" onClick={tap(onDone)}>{t('Cancel')}</button>
         <button className="class-btn-primary" disabled={!ready} onClick={tap(() => {
           setBusy(true); setFailed(false);
-          assignHomework({ classId: cls.id, title, instrumentId: picks.instrumentId, drill, dueOn: dueOn || null })
+          const save = editing
+            ? updateHomework({ homeworkId: editing.id, title, instrumentId: picks.instrumentId, drill, dueOn: dueOn || null })
+            : assignHomework({ classId: cls.id, title, instrumentId: picks.instrumentId, drill, dueOn: dueOn || null });
+          save
             .then(onDone, (e) => { console.warn('[classroom] assign', e); setFailed(true); })
             .finally(() => setBusy(false));
         })}>
-          {t('Assign')}
+          {editing ? t('Save changes') : t('Assign')}
         </button>
       </div>
       {failed && <p className="class-muted" role="status">{t('Something went wrong. Check your connection and try again.')}</p>}

@@ -74,6 +74,21 @@ export function buildHomeworkDrill(p: HomeworkPicks): DrillConfig {
   };
 }
 
+/** Inverse of buildHomeworkDrill, for pre-filling the edit form from an
+ *  already-validated drill (run the stored row through parseHomeworkDrill
+ *  first — this trusts its input). */
+export function homeworkPicksFromDrill(drill: DrillConfig, instrumentId: InstrumentId): HomeworkPicks {
+  return {
+    instrumentId,
+    mode: drill.mode,
+    strings: [...drill.strings],
+    fretFrom: drill.fretFrom,
+    fretTo: drill.fretTo,
+    naturalsOnly: drill.wholeToneOnly,
+    questionCount: drill.questionCount,
+  };
+}
+
 const isInt = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
 
 export function isHomeworkInstrument(v: unknown): v is InstrumentId {
