@@ -25,12 +25,17 @@
 // players who already settled into the Free experience.
 
 import { supabase } from './supabase';
+import { track } from './analytics';
 
 export const TRIAL_DAYS = 7;
 
 const STARTED_KEY = 'trialStartedAt';
 const INELIGIBLE = 'ineligible';
 const SUMMARY_SHOWN_KEY = 'trialSummaryShown';
+const ENDING_SOON_SHOWN_KEY = 'trialEndingSoonShown';
+// How many days-left count as "ending soon" for the one-time day-5 nudge
+// below (a 7-day trial reaches this on day 5).
+const ENDING_SOON_THRESHOLD_DAYS = 2;
 
 function readStarted(): string | null {
   try { return localStorage.getItem(STARTED_KEY); } catch { return null; }
@@ -48,7 +53,9 @@ function writeStarted(v: string): void {
  */
 export function ensureTrialStarted(alreadyOnboarded: boolean): void {
   if (readStarted() !== null) return;
-  writeStarted(alreadyOnboarded ? INELIGIBLE : new Date().toISOString());
+  if (alreadyOnboarded) { writeStarted(INELIGIBLE); return; }
+  writeStarted(new Date().toISOString());
+  track('trial_started');
 }
 
 function startedDate(): Date | null {
@@ -86,7 +93,22 @@ export function trialJustEnded(): boolean {
 }
 
 export function markTrialSummaryShown(): void {
+  track('trial_ended');
   try { localStorage.setItem(SUMMARY_SHOWN_KEY, 'true'); } catch { /* ignore */ }
+}
+
+/** True once, a few days before a still-active trial ends, so the one-time
+ *  "ends soon" nudge can fire exactly once (product review 2026-10-05 §3ב/4,
+ *  item 3). Pair a read with `markTrialEndingSoonShown`. */
+export function trialEndingSoon(): boolean {
+  const days = trialDaysLeft();
+  if (days === null || !isTrialActive()) return false;
+  if (days > ENDING_SOON_THRESHOLD_DAYS) return false;
+  try { return localStorage.getItem(ENDING_SOON_SHOWN_KEY) !== 'true'; } catch { return false; }
+}
+
+export function markTrialEndingSoonShown(): void {
+  try { localStorage.setItem(ENDING_SOON_SHOWN_KEY, 'true'); } catch { /* ignore */ }
 }
 
 /**
