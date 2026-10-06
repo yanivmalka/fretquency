@@ -183,9 +183,18 @@ export function summarize(takes: StoredTake[]): { key: string; n: number }[] {
 
 // ── export ───────────────────────────────────────────────────────────
 
-/** Lower-case, filename-safe, `__`-free (the field separator). */
+/**
+ * Lower-case, filename-safe, `__`-free (the field separator), ASCII only —
+ * the tar header is single-byte. A name with no Latin letters at all (a
+ * Hebrew name) becomes `s` + a short hash of it, so two such speakers stay
+ * apart; the manifest keeps the real name.
+ */
 export function slug(s: string, max = 16): string {
-  return s.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, max) || 'x';
+  const ascii = s.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, max);
+  if (ascii) return ascii;
+  let h = 5381;
+  for (const ch of s.trim()) h = ((h * 33) ^ ch.codePointAt(0)!) >>> 0;
+  return `s${h.toString(36)}`;
 }
 
 /**

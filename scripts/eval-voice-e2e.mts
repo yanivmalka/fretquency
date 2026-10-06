@@ -152,11 +152,13 @@ for (const input of inputs) {
   }
 }
 
-const liveSamplesByFile = new Map<string, number>();
+// The manifest carries the real speaker name (a file name holds only an
+// ASCII slug of it) and the live capture length for the replay check.
+const manifestByFile = new Map<string, { speaker?: string; liveCaptureSamples?: number }>();
 for (const f of files) {
   if (f.name !== 'manifest.json') continue;
-  for (const m of JSON.parse(f.data.toString('utf8')) as { file: string; liveCaptureSamples?: number }[]) {
-    if (m.liveCaptureSamples) liveSamplesByFile.set(m.file, m.liveCaptureSamples);
+  for (const m of JSON.parse(f.data.toString('utf8')) as { file: string; speaker?: string; liveCaptureSamples?: number }[]) {
+    manifestByFile.set(m.file, m);
   }
 }
 
@@ -169,9 +171,10 @@ for (const f of files) {
   if (parts.length !== 7 || (parts[4] !== 'cal' && parts[4] !== 'ans')) { skipped++; continue; }
   const [speaker, condition, device, notation, kind, label, id] = parts;
   const { pcm, sampleRate } = decodeWav(f.data);
+  const m = manifestByFile.get(f.name);
   takes.push({
-    file: f.name, speaker, condition, device, notation, kind: kind as 'cal' | 'ans', label,
-    id: Number(id), pcm, sampleRate, liveCaptureSamples: liveSamplesByFile.get(f.name),
+    file: f.name, speaker: m?.speaker || speaker, condition, device, notation, kind: kind as 'cal' | 'ans', label,
+    id: Number(id), pcm, sampleRate, liveCaptureSamples: m?.liveCaptureSamples || undefined,
   });
 }
 takes.sort((a, b) => a.id - b.id);
@@ -229,6 +232,55 @@ for (const key of new Set(takes.filter((t) => t.kind === 'ans').map(profileKey))
   profileNotes.push(`${key}: ${templates.length} templates from ${preferred.length ? calCondition : 'any condition'}`
     + `${dropped ? `, ${dropped} takes had no capture` : ''}${missing.length ? `, MISSING ${missing.join(' ')}` : ''}`);
   if (templates.length) profiles.set(key, templates);
+}
+
+// ── calibration leave-one-out (--cal-loo) ─────────────────────────────
+// Each isolated calibration word matched against the speaker's other
+// calibration takes — letters against letters, accidental words against
+// accidental words, as the two stages do. No answer takes needed: it says how
+// separable this speaker's own nine words are before any segmentation, i.e.
+// the ceiling the letter stage works under.
+if (argv.includes('--cal-loo')) {
+  const { matchTemplates } = await import('../src/utils/dtw.ts');
+  const isAcc = (l: string) => l === '#' || l === 'b';
+  for (const key of new Set(takes.filter((t) => t.kind === 'cal').map(profileKey))) {
+    const items: { label: string; frames: Float32Array[] }[] = [];
+    for (const t of takes) {
+      if (t.kind !== 'cal' || profileKey(t) !== key) continue;
+      const pcm = capture(t, CAL_VAD);
+      if (!pcm) continue;
+      const { frames } = computeMfcc(isolateWord(pcm, t.sampleRate), t.sampleRate);
+      if (frames.length) items.push({ label: truthOf(t), frames });
+    }
+    let ok = 0;
+    const conf = new Map<string, number>();
+    // For each word: distance to its own nearest take ÷ distance to the
+    // nearest take of any other word. ≥ 1 means it was misread; close to 1
+    // means it nearly was.
+    const margins = new Map<string, { other: string; ratio: number }[]>();
+    items.forEach((it, i) => {
+      const pool = items.filter((o, j) => j !== i && isAcc(o.label) === isAcc(it.label));
+      const ranked = matchTemplates(it.frames, pool);
+      const own = ranked.find((r) => r.label === it.label);
+      const other = ranked.find((r) => r.label !== it.label);
+      if (ranked[0]?.label === it.label) ok++;
+      else conf.set(`${it.label}→${ranked[0]?.label}`, (conf.get(`${it.label}→${ranked[0]?.label}`) ?? 0) + 1);
+      if (own && other) {
+        if (!margins.has(it.label)) margins.set(it.label, []);
+        margins.get(it.label)!.push({ other: other.label, ratio: own.distance / other.distance });
+      }
+    });
+    const [lo, hi] = wilson(ok, items.length);
+    console.log(`\ncalibration leave-one-out — ${key}: ${ok}/${items.length} ${((100 * ok) / Math.max(1, items.length)).toFixed(1)}% [${lo.toFixed(0)}–${hi.toFixed(0)}]`);
+    if (conf.size) console.log(`  misread: ${[...conf].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k}×${n}`).join('  ')}`);
+    console.log('  per word: worst own/other distance ratio (≥1 = misread, near 1 = nearly), and the word it was closest to');
+    for (const [label, ms] of [...margins].sort(([a], [b]) => a.localeCompare(b))) {
+      const worst = ms.reduce((w, m) => (m.ratio > w.ratio ? m : w));
+      const near = new Map<string, number>();
+      for (const m of ms) near.set(m.other, (near.get(m.other) ?? 0) + 1);
+      console.log(`  ${label.padEnd(2)} worst ${worst.ratio.toFixed(2)} (vs ${worst.other})   nearest other: ${[...near].map(([k, n]) => `${k}×${n}`).join(' ')}`);
+    }
+  }
 }
 
 // ── answers ───────────────────────────────────────────────────────────
