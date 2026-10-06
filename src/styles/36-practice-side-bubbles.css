@@ -18,13 +18,18 @@
    the other fixed controls. */
 .psb-row {
   position: absolute;
-  left: 4px;
+  /* Anchored to the Play button's left edge (it is 56px wide, centred), so it
+     holds whether the controls row is full width (phone) or shrink-wrapped to
+     the button (desktop). */
+  right: calc(50% + 40px);
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
-  max-width: calc(50% - 48px);
+  width: max-content;
+  max-width: 132px;
 }
 .psb-row .psb-bubble { width: 40px; height: 40px; }
 .psb-row .psb-glyph { font-size: 17px; }
@@ -114,7 +119,3 @@
   -webkit-tap-highlight-color: transparent;
 }
 .psb-sheet-close:hover { color: var(--text-1); }
-
-/* The controls row can shrink-wrap to the Play button (desktop); the floating
-   bubbles size themselves off its width, so give it the full row. */
-.controls:has(> .psb-row) { width: 100%; }
