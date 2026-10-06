@@ -36,6 +36,14 @@ export function accidentalAbsMax(): number {
   return 22.5;
 }
 
+// The seventeen spellings the app ever shows: sharps on C D F G A, flats on
+// D E G A B. Nobody answers "F flat" or "E sharp".
+const SHARPABLE = new Set(['C', 'D', 'F', 'G', 'A']);
+const FLATTABLE = new Set(['D', 'E', 'G', 'A', 'B']);
+function canCarry(letter: string, accidental: string): boolean {
+  return accidental === '#' ? SHARPABLE.has(letter) : FLATTABLE.has(letter);
+}
+
 // When the second segment fails the accidental gate, answer the letter alone
 // only if it beat the runner-up letter by at least this ratio and the letter
 // segment is at least this long.
@@ -256,10 +264,19 @@ export function recognizeSegmented(
         need: LETTER_FALLBACK_RATIO, letterMs, minMs: LETTER_FALLBACK_MIN_MS,
         taken: letterFallback,
       });
-    } else if (accLabel === '#') {
-      note = SHARP_WRAP[`${letter}#`] ?? `${letter}#`;
     } else {
-      note = FLAT_TO_SHARP[letter] ?? letter;
+      // Only one of the seventeen spellings a player actually says. A letter
+      // that cannot carry this accidental (F/C flat, E/B sharp) is the letter
+      // stage being pulled by the accidental's own onset: in a fluent "B
+      // flat" the letter segment ends on the "fl", matches F, and F + flat
+      // composed to E — five of fifteen wrong answers in the first lab set.
+      // Take the best letter that can carry it instead.
+      let l = letter;
+      if (!canCarry(letter, accLabel)) {
+        l = lRanked.find((r) => canCarry(r.label, accLabel!))?.label ?? letter;
+        vlog('[voice] spelling fix', { engine: kind, letter, accidental: accLabel, now: l });
+      }
+      note = accLabel === '#' ? SHARP_WRAP[`${l}#`] ?? `${l}#` : FLAT_TO_SHARP[l] ?? l;
     }
   }
 
@@ -283,6 +300,7 @@ export function recognizeSegmented(
     const combos: Template[] = [...letters];
     for (const l of letters) {
       for (const a of accidentals) {
+        if (!canCarry(l.label, a.label)) continue;
         const label = a.label === '#'
           ? SHARP_WRAP[`${l.label}#`] ?? `${l.label}#`
           : FLAT_TO_SHARP[l.label] ?? l.label;
