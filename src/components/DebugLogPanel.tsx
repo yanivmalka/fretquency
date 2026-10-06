@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   clearDebugLog,
   debugLogAsText,
@@ -9,6 +9,10 @@ import {
 } from '../utils/debugLog';
 import { useTranslation } from '../i18n/useTranslation';
 import type { SimTier } from '../utils/devSimulateTier';
+
+// Admin recording tool for the offline voice score — its own chunk, loaded
+// only when opened.
+const VoiceTestLab = lazy(() => import('./VoiceTestLab'));
 
 interface Props {
   /** Current dev "simulate tier" state (always `'off'` in production). */
@@ -26,6 +30,7 @@ export default function DebugLogPanel({ simTier, onSetSimTier }: Props = {}) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [labOpen, setLabOpen] = useState(false);
 
   const count = useSyncExternalStore(
     subscribeDebugLog,
@@ -64,8 +69,16 @@ export default function DebugLogPanel({ simTier, onSetSimTier }: Props = {}) {
     window.setTimeout(() => setCopied(false), 1200);
   };
 
+  const lab = labOpen && (
+    <Suspense fallback={null}>
+      <VoiceTestLab onClose={() => setLabOpen(false)} />
+    </Suspense>
+  );
+
   if (!open) {
     return (
+      <>
+      {lab}
       <button
         className="debuglog-fab"
         onClick={() => setOpen(true)}
@@ -74,10 +87,13 @@ export default function DebugLogPanel({ simTier, onSetSimTier }: Props = {}) {
       >
         🐞{count ? <span className="debuglog-fab-count">{count}</span> : null}
       </button>
+      </>
     );
   }
 
   return (
+    <>
+    {lab}
     <div className="debuglog-panel" role="dialog" aria-label={t('Debug log')}>
       <div className="debuglog-head">
         <span className="debuglog-title">
@@ -93,6 +109,7 @@ export default function DebugLogPanel({ simTier, onSetSimTier }: Props = {}) {
           <button className="debuglog-btn" onClick={() => { void copy(); }}>
             {copied ? t('Copied') : t('Copy')}
           </button>
+          <button className="debuglog-btn" onClick={() => { setLabOpen(true); setOpen(false); }}>🎙 {t('Voice test lab')}</button>
           <button className="debuglog-btn" onClick={clearDebugLog}>{t('Clear')}</button>
           <button className="debuglog-btn" onClick={() => setOpen(false)}>{t('Close')}</button>
         </div>
@@ -112,5 +129,6 @@ export default function DebugLogPanel({ simTier, onSetSimTier }: Props = {}) {
       )}
       <pre ref={preRef} className="debuglog-body">{text || t('(no errors)')}</pre>
     </div>
+    </>
   );
 }

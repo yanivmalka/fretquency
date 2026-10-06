@@ -118,6 +118,203 @@ export async function openMicSession(): Promise<MicSession | null> {
   };
 }
 
+/** Samples per audio block — the ScriptProcessor buffer size, and the VAD's step. */
+export const CAPTURE_BLOCK = 2048;
+
+/** What one block did to an `UtteranceVad`. */
+export type VadStep =
+  | { kind: 'waiting' }
+  | { kind: 'onset' }
+  | { kind: 'speech' }
+  /** A lone click was dropped; the VAD is waiting for speech again. */
+  | { kind: 'transient' }
+  | { kind: 'done'; pcm: Float32Array };
+
+/**
+ * The endpointing decisions of `captureUtterance`, block by block, with no
+ * audio graph and no timers — so the exact same logic can be replayed over a
+ * recorded stream offline (`replayCapture`, `scripts/eval-voice-e2e.mts`).
+ * The onset timeout is the caller's: live it is a wall-clock timer, offline
+ * it is `waitedSamples`.
+ */
+export class UtteranceVad {
+  private readonly preRollBlocks: number;
+  private readonly preRoll: Float32Array[] = [];
+  private readonly speech: Float32Array[] = [];
+  private readonly levels: number[] = [];
+  private noiseFloor = 0.003;
+  private noiseSamples = 0;
+  private silenceRun = 0;
+  private speechSamples = 0;
+  private peak = 0;
+  private loudest = 0;
+  started = false;
+  /** RMS of the last block pushed. */
+  lastRms = 0;
+  /** Samples heard since listening (re)started with no onset yet. */
+  waitedSamples = 0;
+
+  readonly sampleRate: number;
+  private readonly trailingSilenceMs: number;
+  private readonly maxSpeechMs: number;
+
+  constructor(sampleRate: number, trailingSilenceMs: number, maxSpeechMs: number, blockSize = CAPTURE_BLOCK) {
+    this.sampleRate = sampleRate;
+    this.trailingSilenceMs = trailingSilenceMs;
+    this.maxSpeechMs = maxSpeechMs;
+    this.preRollBlocks = Math.ceil((0.15 * sampleRate) / blockSize);
+  }
+
+  /**
+   * Nothing crossed the onset gate. Whether the speaker was silent or spoke
+   * under a gate raised by a contaminated noise floor is only visible from
+   * the loudest block against the gate.
+   */
+  logOnsetTimeout(): void {
+    const gate = Math.max(0.012, this.noiseFloor * 3.5);
+    vlog('[voice] onset timeout', {
+      noiseFloor: +this.noiseFloor.toFixed(4),
+      gate: +gate.toFixed(4),
+      loudest: +this.loudest.toFixed(4),
+      loudestOverGate: +(this.loudest / gate).toFixed(2),
+    });
+  }
+
+  push(block: Float32Array): VadStep {
+    let sumSq = 0;
+    for (let i = 0; i < block.length; i++) sumSq += block[i] * block[i];
+    const rms = Math.sqrt(sumSq / block.length);
+    this.lastRms = rms;
+
+    if (!this.started) {
+      this.waitedSamples += block.length;
+      if (rms > this.loudest) this.loudest = rms;
+      // Noise floor = the quietest block heard so far, not an average of
+      // the first ~200ms. Listening restarts ~90ms after a rejected answer,
+      // usually while the speaker is already repeating it, so those first
+      // blocks are their voice. Averaging them once set the floor to 0.10
+      // and the onset gate to 0.36 — above the speaker's own peak of 0.13 —
+      // and the turn ended deaf on the onset timeout. A minimum drops back
+      // as soon as there is any gap between words.
+      this.noiseFloor = this.noiseSamples === 0 ? rms : Math.min(this.noiseFloor, rms);
+      this.noiseSamples++;
+      this.preRoll.push(new Float32Array(block));
+      while (this.preRoll.length > this.preRollBlocks) this.preRoll.shift();
+
+      const gate = Math.max(0.012, this.noiseFloor * 3.5);
+      if (rms > gate) {
+        this.started = true;
+        for (const b of this.preRoll) this.speech.push(b);
+        this.speechSamples = this.speech.reduce((n, b) => n + b.length, 0);
+        return { kind: 'onset' };
+      }
+      return { kind: 'waiting' };
+    }
+
+    this.speech.push(new Float32Array(block));
+    this.speechSamples += block.length;
+    if (rms > this.peak) this.peak = rms;
+    this.levels.push(rms);
+
+    const gate = Math.max(0.010, this.noiseFloor * 2.5);
+    if (rms < gate) {
+      this.silenceRun += block.length;
+    } else {
+      this.silenceRun = 0;
+    }
+
+    const trailing = (this.trailingSilenceMs / 1000) * this.sampleRate;
+    const cap = (this.maxSpeechMs / 1000) * this.sampleRate;
+    if (this.silenceRun >= trailing && this.peak < gate * TRANSIENT_PEAK_OVER_GATE) {
+      // Onset fired on a single block (a click, a knock) and nothing after
+      // it came close to speech level — no word was spoken. Live rounds
+      // took such captures and answered "E" from a 100–140ms segment, at
+      // post-onset peaks of 0.7× and 1.0× the silence gate (and a stray
+      // tail at 1.3×); every real word in the same logs peaked at 3.9× or
+      // more, even in a noisy room. Go back to waiting for real speech
+      // instead of handing it to the matcher.
+      vlog('[voice] transient ignored', {
+        ms: Math.round((this.speechSamples / this.sampleRate) * 1000),
+        noiseFloor: +this.noiseFloor.toFixed(4),
+        gate: +gate.toFixed(4),
+        peak: +this.peak.toFixed(4),
+      });
+      this.started = false;
+      this.speech.length = 0;
+      this.preRoll.length = 0;
+      this.speechSamples = 0;
+      this.silenceRun = 0;
+      this.peak = 0;
+      this.loudest = 0;
+      this.levels.length = 0;
+      this.waitedSamples = 0;
+      return { kind: 'transient' };
+    }
+    if (this.silenceRun >= trailing || this.speechSamples >= cap) {
+      // Why the recording stopped, and the levels that decided it. Ending
+      // on 'cap' means the level never fell below `gate` for long enough —
+      // with people talking nearby it never does, and the segmenter is
+      // then handed seconds of audio instead of one spoken word.
+      vlog('[voice] vad', {
+        reason: this.silenceRun >= trailing ? 'silence' : 'cap',
+        ms: Math.round((this.speechSamples / this.sampleRate) * 1000),
+        noiseFloor: +this.noiseFloor.toFixed(4),
+        gate: +gate.toFixed(4),
+        peak: +this.peak.toFixed(4),
+        peakOverGate: +(this.peak / gate).toFixed(1),
+        // The level distribution during the capture, relative to its own
+        // peak — what an endpoint "silence = a fraction of the peak" rule
+        // would have to sit between. `tail` is the last ~500ms: on a 'cap'
+        // stop it is the room noise that kept the recording open.
+        ...levelStats(this.levels, this.peak),
+      });
+      const pcm = new Float32Array(this.speechSamples);
+      let off = 0;
+      for (const b of this.speech) { pcm.set(b, off); off += b.length; }
+      return { kind: 'done', pcm };
+    }
+    return { kind: 'speech' };
+  }
+}
+
+/**
+ * Run `captureUtterance`'s endpointing over an already-recorded stream, the
+ * way it would have run live on that audio: the same blocks, the same onset
+ * timeout (counted in samples). Resolves the captured PCM or `null` for an
+ * onset timeout. A stream that ends mid-word is padded with silence.
+ */
+export function replayCapture(
+  stream: Float32Array,
+  sampleRate: number,
+  opts: Pick<CaptureOptions, 'onsetTimeoutMs' | 'trailingSilenceMs' | 'maxSpeechMs'> = {},
+  blockSize = CAPTURE_BLOCK,
+): Float32Array | null {
+  const cfg = { ...DEFAULTS, ...opts };
+  const vad = new UtteranceVad(sampleRate, cfg.trailingSilenceMs, cfg.maxSpeechMs, blockSize);
+  const onsetSamples = (cfg.onsetTimeoutMs / 1000) * sampleRate;
+  const silent = new Float32Array(blockSize);
+  const maxBlocks = Math.ceil(stream.length / blockSize)
+    + Math.ceil(((cfg.maxSpeechMs + cfg.onsetTimeoutMs) / 1000) * sampleRate / blockSize);
+  for (let b = 0; b < maxBlocks; b++) {
+    const off = b * blockSize;
+    let block: Float32Array = silent;
+    if (off + blockSize <= stream.length) {
+      block = stream.subarray(off, off + blockSize);
+    } else if (off < stream.length) {
+      // The last partial block, zero-padded to a full one.
+      block = new Float32Array(blockSize);
+      block.set(stream.subarray(off));
+    }
+    const step = vad.push(block);
+    if (step.kind === 'done') return step.pcm;
+    if (!vad.started && vad.waitedSamples >= onsetSamples) {
+      vad.logOnsetTimeout();
+      return null;
+    }
+  }
+  return null;
+}
+
 /**
  * Record one spoken word. Resolves `null` if nothing was said before the
  * onset timeout, or if the capture was aborted, or if the mic is
@@ -142,21 +339,8 @@ export async function captureUtterance(
     try { await ctx.resume(); } catch { /* noop */ }
   }
 
-  const BLOCK = 2048;
-  const processor = ctx.createScriptProcessor(BLOCK, 1, 1);
-
-  const preRollBlocks = Math.ceil((0.15 * sampleRate) / BLOCK);
-  const preRoll: Float32Array[] = [];
-  const speech: Float32Array[] = [];
-
-  let started = false;
-  let noiseFloor = 0.003;
-  let noiseSamples = 0;
-  let silenceRun = 0;
-  let speechSamples = 0;
-  let peak = 0;
-  let loudest = 0;
-  const levels: number[] = [];
+  const processor = ctx.createScriptProcessor(CAPTURE_BLOCK, 1, 1);
+  const vad = new UtteranceVad(sampleRate, cfg.trailingSilenceMs, cfg.maxSpeechMs, CAPTURE_BLOCK);
 
   return await new Promise<CapturedUtterance | null>((resolve) => {
     let done = false;
@@ -189,114 +373,22 @@ export async function captureUtterance(
     opts.signal?.addEventListener('abort', onAbort);
 
     const onOnsetTimeout = () => {
-      if (started) return;
-      // Nothing crossed the onset gate. Whether the speaker was silent or
-      // spoke under a gate raised by a contaminated noise floor is only
-      // visible from the loudest block against the gate.
-      const gate = Math.max(0.012, noiseFloor * 3.5);
-      vlog('[voice] onset timeout', {
-        noiseFloor: +noiseFloor.toFixed(4),
-        gate: +gate.toFixed(4),
-        loudest: +loudest.toFixed(4),
-        loudestOverGate: +(loudest / gate).toFixed(2),
-      });
+      if (vad.started) return;
+      vad.logOnsetTimeout();
       finish(null);
     };
     let onsetTimer = setTimeout(onOnsetTimeout, cfg.onsetTimeoutMs);
 
     processor.onaudioprocess = (e: AudioProcessingEvent) => {
       if (done) return;
-      const block = e.inputBuffer.getChannelData(0);
-      let sumSq = 0;
-      for (let i = 0; i < block.length; i++) sumSq += block[i] * block[i];
-      const rms = Math.sqrt(sumSq / block.length);
-      opts.onLevel?.(rms);
-
-      if (!started) {
-        if (rms > loudest) loudest = rms;
-        // Noise floor = the quietest block heard so far, not an average of
-        // the first ~200ms. Listening restarts ~90ms after a rejected answer,
-        // usually while the speaker is already repeating it, so those first
-        // blocks are their voice. Averaging them once set the floor to 0.10
-        // and the onset gate to 0.36 — above the speaker's own peak of 0.13 —
-        // and the turn ended deaf on the onset timeout. A minimum drops back
-        // as soon as there is any gap between words.
-        noiseFloor = noiseSamples === 0 ? rms : Math.min(noiseFloor, rms);
-        noiseSamples++;
-        preRoll.push(new Float32Array(block));
-        while (preRoll.length > preRollBlocks) preRoll.shift();
-
-        const gate = Math.max(0.012, noiseFloor * 3.5);
-        if (rms > gate) {
-          started = true;
-          clearTimeout(onsetTimer);
-          for (const b of preRoll) speech.push(b);
-          speechSamples = speech.reduce((n, b) => n + b.length, 0);
-        }
-        return;
-      }
-
-      speech.push(new Float32Array(block));
-      speechSamples += block.length;
-      if (rms > peak) peak = rms;
-      levels.push(rms);
-
-      const gate = Math.max(0.010, noiseFloor * 2.5);
-      if (rms < gate) {
-        silenceRun += block.length;
-      } else {
-        silenceRun = 0;
-      }
-
-      const trailing = (cfg.trailingSilenceMs / 1000) * sampleRate;
-      const cap = (cfg.maxSpeechMs / 1000) * sampleRate;
-      if (silenceRun >= trailing && peak < gate * TRANSIENT_PEAK_OVER_GATE) {
-        // Onset fired on a single block (a click, a knock) and nothing after
-        // it came close to speech level — no word was spoken. Live rounds
-        // took such captures and answered "E" from a 100–140ms segment, at
-        // post-onset peaks of 0.7× and 1.0× the silence gate (and a stray
-        // tail at 1.3×); every real word in the same logs peaked at 3.9× or
-        // more, even in a noisy room. Go back to waiting for real speech
-        // instead of handing it to the matcher.
-        vlog('[voice] transient ignored', {
-          ms: Math.round((speechSamples / sampleRate) * 1000),
-          noiseFloor: +noiseFloor.toFixed(4),
-          gate: +gate.toFixed(4),
-          peak: +peak.toFixed(4),
-        });
-        started = false;
-        speech.length = 0;
-        preRoll.length = 0;
-        speechSamples = 0;
-        silenceRun = 0;
-        peak = 0;
-        loudest = 0;
-        levels.length = 0;
+      const step = vad.push(e.inputBuffer.getChannelData(0));
+      opts.onLevel?.(vad.lastRms);
+      if (step.kind === 'onset') {
+        clearTimeout(onsetTimer);
+      } else if (step.kind === 'transient') {
         onsetTimer = setTimeout(onOnsetTimeout, cfg.onsetTimeoutMs);
-        return;
-      }
-      if (silenceRun >= trailing || speechSamples >= cap) {
-        // Why the recording stopped, and the levels that decided it. Ending
-        // on 'cap' means the level never fell below `gate` for long enough —
-        // with people talking nearby it never does, and the segmenter is
-        // then handed seconds of audio instead of one spoken word.
-        vlog('[voice] vad', {
-          reason: silenceRun >= trailing ? 'silence' : 'cap',
-          ms: Math.round((speechSamples / sampleRate) * 1000),
-          noiseFloor: +noiseFloor.toFixed(4),
-          gate: +gate.toFixed(4),
-          peak: +peak.toFixed(4),
-          peakOverGate: +(peak / gate).toFixed(1),
-          // The level distribution during the capture, relative to its own
-          // peak — what an endpoint "silence = a fraction of the peak" rule
-          // would have to sit between. `tail` is the last ~500ms: on a 'cap'
-          // stop it is the room noise that kept the recording open.
-          ...levelStats(levels, peak),
-        });
-        const pcm = new Float32Array(speechSamples);
-        let off = 0;
-        for (const b of speech) { pcm.set(b, off); off += b.length; }
-        finish({ pcm, sampleRate });
+      } else if (step.kind === 'done') {
+        finish({ pcm: step.pcm, sampleRate });
       }
     };
 

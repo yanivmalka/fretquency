@@ -20,7 +20,7 @@ Three entitlement tiers: **Free**, **Pro**, **Premium** (`free < pro < premium`;
 - `npm run preview` — serve the production build locally
 - `npm run gen:icons` — regenerate PWA/app icons from `assets/note-mark.png` into `public/`
 
-There is no test suite/runner configured in this repo. Instead, `scripts/check-*.mts` are hand-run diagnostics that assert an invariant of one subsystem (`check-intervals`, `check-learning`, `check-learning-path`, `check-game-curriculum`, `check-game-progress`, `check-game-sync`, `check-candidates`, `check-candidate-rendering`, `check-tiering-db`, `check-staff`, `check-tabs`, `check-app-search`, `eval-voice`). Run one with `node --experimental-strip-types scripts/<name>.mts`. They are never part of a build.
+There is no test suite/runner configured in this repo. Instead, `scripts/check-*.mts` are hand-run diagnostics that assert an invariant of one subsystem (`check-intervals`, `check-learning`, `check-learning-path`, `check-game-curriculum`, `check-game-progress`, `check-game-sync`, `check-candidates`, `check-candidate-rendering`, `check-tiering-db`, `check-staff`, `check-tabs`, `check-app-search`, `eval-voice`, `eval-voice-e2e` — the end-to-end voice score over takes recorded in the admin Voice test lab, 🐞 → 🎙). Run one with `node --experimental-strip-types scripts/<name>.mts`. They are never part of a build.
 
 ### Supabase env
 
