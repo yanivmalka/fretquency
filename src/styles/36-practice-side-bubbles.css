@@ -12,28 +12,23 @@
   z-index: 71;
 }
 
-/* Home screen: the same circles, but in the page flow right under the title
-   (where the streak / Fret-of-the-Day pills used to sit), never over the
-   controls or the note circle. */
+/* Home screen: the same circles, floating in the empty band left of the Play
+   button (inside .controls, which is position: relative). Absolutely placed,
+   so they take no layout space and push nothing down. `left` is physical, like
+   the other fixed controls. */
 .psb-row {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px 16px;
-  margin: 10px auto 4px;
+  gap: 6px;
+  max-width: calc(50% - 48px);
 }
-.psb-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.psb-caption {
-  font-size: 0.72rem;
-  color: var(--text-3);
-  white-space: nowrap;
-}
+.psb-row .psb-bubble { width: 40px; height: 40px; }
+.psb-row .psb-glyph { font-size: 17px; }
+.psb-item { display: flex; }
 
 .psb-bubble {
   position: relative;

@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { withClick as click } from '../../utils/withClick';
 import { playClickSound, haptic } from '../../utils/feedback';
 
@@ -8,7 +8,7 @@ import { playClickSound, haptic } from '../../utils/feedback';
  * engine and passes its lifecycle handlers in.
  */
 export default function DrillControls({
-  running, paused, countdown, t, playBtnRef, start, pause, resume, stop, onStopPlan,
+  running, paused, countdown, t, playBtnRef, start, pause, resume, stop, onStopPlan, side,
 }: {
   running: boolean;
   paused: boolean;
@@ -21,9 +21,13 @@ export default function DrillControls({
   stop: () => void;
   /** Clear any Teacher / interval plan alongside Stop. */
   onStopPlan: () => void;
+  /** Floating shortcut bubbles, absolutely placed in the free band left of the
+   *  Play button — they take no layout space, so nothing is pushed down. */
+  side?: ReactNode;
 }) {
   return (
     <div className="controls">
+      {side}
       {!running && !paused && !countdown ? (
         <button ref={playBtnRef} className="icon-btn play-btn" onClick={click(start)} title={t('Start')}>
           <svg viewBox="0 0 24 24" width="24" height="24"><polygon points="6,4 20,12 6,20" fill="currentColor"/></svg>

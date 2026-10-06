@@ -15,6 +15,7 @@
 // caller (App.tsx) decides which bubbles exist for the current screen.
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from '../i18n/useTranslation';
 import { playClickSound, haptic } from '../utils/feedback';
 
@@ -27,8 +28,6 @@ export interface SideBubble {
   badge?: number;
   /** Draws attention with a soft pulse (e.g. the Premium first-week bubble). */
   pulse?: boolean;
-  /** A short line under the circle in `row` layout (e.g. "1/10"). */
-  caption?: string;
   /** Rendered when the sheet is open; `close` lets an action inside (e.g. a
    *  "start" button) dismiss the sheet itself before navigating away. */
   content?: (close: () => void) => React.ReactNode;
@@ -40,8 +39,8 @@ export interface SideBubble {
 interface Props {
   bubbles: SideBubble[];
   /** `stack` = fixed on the screen's left edge (the other practice screens);
-   *  `row` = in the page flow, centred right under the title (the home
-   *  screen, where a fixed stack landed on top of the controls). */
+   *  `row` = absolutely placed inside the Play-button row (home screen: a
+   *  fixed stack covered the controls, an in-flow row pushed the page down). */
   layout?: 'stack' | 'row';
 }
 
@@ -70,11 +69,10 @@ export default function PracticeSideBubbles({ bubbles, layout = 'stack' }: Props
               <span className="psb-glyph" aria-hidden="true">{b.icon}</span>
               {!!b.badge && <span className="psb-badge">{b.badge > 9 ? '9+' : b.badge}</span>}
             </button>
-            {layout === 'row' && b.caption && <span className="psb-caption">{b.caption}</span>}
           </div>
         ))}
       </div>
-      {open && (
+      {open && createPortal(
         <div className="psb-overlay" onClick={() => setOpenId(null)}>
           <div
             className="psb-sheet"
@@ -91,7 +89,8 @@ export default function PracticeSideBubbles({ bubbles, layout = 'stack' }: Props
             </button>
             {open.content?.(() => setOpenId(null))}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

@@ -1769,12 +1769,6 @@ export default function App() {
 
       <h1>{instrument.emoji} {t(instrument.label)} {t('Fret Practice')}</h1>
 
-      {/* Shortcut bubbles right under the title — streak + daily goal, Fret of
-          the Day, and the Teacher / homework / Premium ones. In the page flow,
-          so they never cover the controls; hidden while a drill runs. */}
-      {!gameActive && countdown === null && onboardingDone && !settingsOpen
-        && renderPracticeSideBubbles('notes')}
-
       {/* The Premium Teacher's Today card and the interval-drill entry now
           live on their own learning-type tabs (drawer "Learn" group →
           DailyPracticeScreen / IntervalPracticeScreen), not stacked here on
@@ -1989,6 +1983,8 @@ export default function App() {
             />
           )}
           <DrillControls
+            side={!gameActive && countdown === null && onboardingDone && !settingsOpen
+              ? renderPracticeSideBubbles('notes') : undefined}
             running={running}
             paused={paused}
             countdown={countdown}

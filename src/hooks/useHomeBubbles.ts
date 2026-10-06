@@ -31,8 +31,6 @@ export function useHomeBubbles(
 
   const dayNumber = useMemo(() => dailyChallengeNumber(todayISO()), []);
   const fotdDone = todaysDailyChallengeResult(instrument.id) !== null;
-  const goalDone = today >= DAILY_GOAL_TARGET;
-  const goalText = goalDone ? `✓ ${t('Daily goal')}` : `${today}/${DAILY_GOAL_TARGET}`;
 
   return [
     {
@@ -40,14 +38,12 @@ export function useHomeBubbles(
       icon: '🔥',
       label: `${t('Daily goal')}: ${today}/${DAILY_GOAL_TARGET}`,
       badge: streak.current,
-      caption: goalText,
       onSelect: onOpenStats,
     },
     {
       id: 'fotd',
       icon: '🧩',
-      label: t('Fret of the Day'),
-      caption: fotdDone ? `#${dayNumber} ✓` : `#${dayNumber}`,
+      label: `${t('Fret of the Day')} #${dayNumber}`,
       pulse: !fotdDone,
       onSelect: onOpenFotd,
     },
