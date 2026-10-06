@@ -251,6 +251,43 @@ export function correctChimeRemainingMs(): number {
   return Math.max(0, _chimeEndTime - Date.now());
 }
 
+// Escalating streak tone, layered over the chime from a streak of 3 on: one
+// short triangle note whose pitch climbs with the streak (the steps line up
+// with useScoring's multiplier tiers at 3/5/7/10/15/20), so a run of right
+// answers is heard climbing, not just seen in the HUD.
+const STREAK_TONE_STEPS = [
+  { min: 20, freq: 1567.98, gain: 0.11, dur: 0.13 }, // G6
+  { min: 15, freq: 1318.51, gain: 0.10, dur: 0.12 }, // E6
+  { min: 10, freq: 1174.66, gain: 0.09, dur: 0.12 }, // D6
+  { min: 7,  freq: 987.77,  gain: 0.08, dur: 0.11 }, // B5
+  { min: 5,  freq: 783.99,  gain: 0.07, dur: 0.10 }, // G5
+  { min: 3,  freq: 659.25,  gain: 0.06, dur: 0.10 }, // E5
+] as const;
+
+/** Play the streak tone for a streak just reached by a correct answer. Silent
+ *  below 3. Call right after `playCorrectChime()`; it is shorter than the
+ *  chime's tail, so `correctChimeRemainingMs()` already covers it. */
+export function playStreakTone(streak: number) {
+  if (_silent) return;
+  const step = STREAK_TONE_STEPS.find((s) => streak >= s.min);
+  if (!step) return;
+  const ctx = getCtx();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = step.freq;
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  const t = ctx.currentTime + 0.04; // 40ms after the chime's onset, so the attacks don't collide
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(step.gain, t + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + step.dur);
+  osc.start(t);
+  osc.stop(t + step.dur);
+}
+
 // Badge fanfare — a bright rising triad + octave, capped with a fast sparkle.
 // Used by the achievement toast and the end-of-round reveal. Reuses the shared
 // AudioContext so it stays audible on mobile like the other feedback sounds.

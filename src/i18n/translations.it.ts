@@ -185,6 +185,10 @@ export const it: Record<string, string> = {
   'Could not download the language. Check your connection and try again.': 'Impossibile scaricare la lingua. Controlla la connessione e riprova.',
   'Left-handed': 'Mancino',
   'Seasonal background': 'Sfondo stagionale',
+  'Background beats': 'Ritmo di sottofondo',
+  'A quiet drum loop under a Practice round to keep your pace. It stops while the round is paused.': 'Un loop di batteria leggero durante un round di pratica per tenere il tempo. Si ferma quando il round è in pausa.',
+  'Not playing now: Sound & vibration is on Silent or Vibrate. Pick a Sound level to hear the beats.': 'Ora non suona: Suono e vibrazione è su Silenzioso o Vibrazione. Scegli un livello di suono per sentire il ritmo.',
+  'Not playing now: you answer by voice or by playing, and the microphone would hear the beats. Switch “How you answer” to Tap to hear them.': 'Ora non suona: rispondi con la voce o suonando, e il microfono sentirebbe il ritmo. Imposta “Come rispondi” su Tocco per sentirlo.',
   'Snowflakes, anemones, sunflowers or falling leaves behind the app, following the season': 'Fiocchi di neve, anemoni, girasoli o foglie che cadono dietro l’app, secondo la stagione',
   'Light seasonal decorations behind the app: snowflakes in winter, anemones in spring, sunflowers in summer, falling leaves in autumn. They follow the season above. Off keeps the background plain.':
     'Decorazioni leggere di stagione dietro l’app: fiocchi di neve in inverno, anemoni in primavera, girasoli in estate e foglie che cadono in autunno. Seguono la stagione scelta sopra. Disattivato lascia lo sfondo semplice.',

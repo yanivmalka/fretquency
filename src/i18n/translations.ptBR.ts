@@ -187,6 +187,10 @@ export const ptBR: Record<string, string> = {
   'Could not download the language. Check your connection and try again.': 'Não foi possível baixar o idioma. Verifique sua conexão e tente de novo.',
   'Left-handed': 'Canhoto',
   'Seasonal background': 'Fundo da estação',
+  'Background beats': 'Batida de fundo',
+  'A quiet drum loop under a Practice round to keep your pace. It stops while the round is paused.': 'Um loop suave de bateria durante uma rodada de prática para manter o ritmo. Para enquanto a rodada está pausada.',
+  'Not playing now: Sound & vibration is on Silent or Vibrate. Pick a Sound level to hear the beats.': 'Não está tocando agora: Som e vibração está em Silencioso ou Vibrar. Escolha um nível de som para ouvir a batida.',
+  'Not playing now: you answer by voice or by playing, and the microphone would hear the beats. Switch “How you answer” to Tap to hear them.': 'Não está tocando agora: você responde por voz ou tocando, e o microfone ouviria a batida. Mude “Como você responde” para Toque para ouvi-la.',
   'Snowflakes, anemones, sunflowers or falling leaves behind the app, following the season': 'Flocos de neve, anêmonas, girassóis ou folhas caindo atrás do app, de acordo com a estação',
   'Light seasonal decorations behind the app: snowflakes in winter, anemones in spring, sunflowers in summer, falling leaves in autumn. They follow the season above. Off keeps the background plain.':
     'Decorações leves da estação atrás do app: flocos de neve no inverno, anêmonas na primavera, girassóis no verão e folhas caindo no outono. Seguem a estação escolhida acima. Desligado deixa o fundo liso.',

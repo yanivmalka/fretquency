@@ -39,6 +39,7 @@ import { useHandednessEffect } from './hooks/useHandednessEffect';
 import { useButtonDepthEffect } from './hooks/useButtonDepthEffect';
 import { useSeasonDecoEffect } from './hooks/useSeasonDecoEffect';
 import { useFeedbackModeEffect } from './hooks/useFeedbackModeEffect';
+import { useBackgroundBeat } from './hooks/useBackgroundBeat';
 import { useBootReadyEvent } from './hooks/useBootReadyEvent';
 import { useAutoPauseOnBackground } from './hooks/useAutoPauseOnBackground';
 import { useQuestionChangeAnimation } from './hooks/useQuestionChangeAnimation';
@@ -354,6 +355,7 @@ export default function App() {
     buttonDepth, setButtonDepth,
     seasonDeco, setSeasonDeco,
     colorblindHeat, setColorblindHeat,
+    backgroundBeats, setBackgroundBeats,
   } = useAppPreferences();
   const reminder = useDailyReminder();
   useEffect(() => { setAudioNoteVolume(noteVolume); }, [noteVolume]);
@@ -686,6 +688,13 @@ export default function App() {
   // false between stages, but the game screen must stay mounted (frozen on the
   // last question) so the transition never collapses the layout.
   const gameActive = running || paused || pendingAutoAdvance;
+  // The background beat bed: only with sound on and tap answers (a voice or
+  // guitar answer would hear the loop through the mic), and only while the
+  // round plays — through an Auto Advance hand-off, silent while paused.
+  useBackgroundBeat(
+    backgroundBeats && feedbackMode === 'sound' && answerMode === 'tap'
+    && (running || pendingAutoAdvance) && !paused,
+  );
 
   const hasHistory = historyOps.getEntriesForKey(histKey).length > 0;
   const hasAnyHistory = hasHistory || Object.values(historyOps.allHistory).some(list => list.length > 0);
@@ -1135,6 +1144,8 @@ export default function App() {
           setSeasonDeco={setSeasonDeco}
           colorblindHeat={colorblindHeat}
           setColorblindHeat={setColorblindHeat}
+          backgroundBeats={backgroundBeats}
+          setBackgroundBeats={setBackgroundBeats}
           reminder={reminder}
         />
       ),

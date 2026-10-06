@@ -187,6 +187,10 @@ export const fr: Record<string, string> = {
   'Could not download the language. Check your connection and try again.': 'Impossible de télécharger la langue. Vérifie ta connexion et réessaie.',
   'Left-handed': 'Gaucher',
   'Seasonal background': 'Fond de saison',
+  'Background beats': 'Rythme de fond',
+  'A quiet drum loop under a Practice round to keep your pace. It stops while the round is paused.': 'Une boucle de batterie discrète pendant une partie d’entraînement pour garder le tempo. Elle s’arrête quand la partie est en pause.',
+  'Not playing now: Sound & vibration is on Silent or Vibrate. Pick a Sound level to hear the beats.': 'Inactif pour le moment : Son et vibration est sur Silencieux ou Vibreur. Choisis un niveau de son pour entendre le rythme.',
+  'Not playing now: you answer by voice or by playing, and the microphone would hear the beats. Switch “How you answer” to Tap to hear them.': 'Inactif pour le moment : tu réponds à la voix ou en jouant, et le micro entendrait le rythme. Passe « Comment tu réponds » sur Toucher pour l’entendre.',
   'Snowflakes, anemones, sunflowers or falling leaves behind the app, following the season': 'Flocons de neige, anémones, tournesols ou feuilles qui tombent derrière l’appli, au fil des saisons',
   'Light seasonal decorations behind the app: snowflakes in winter, anemones in spring, sunflowers in summer, falling leaves in autumn. They follow the season above. Off keeps the background plain.':
     'Décorations légères de saison derrière l’appli : flocons de neige en hiver, anémones au printemps, tournesols en été et feuilles qui tombent en automne. Elles suivent la saison choisie plus haut. Désactivé laisse le fond uni.',

@@ -12,7 +12,7 @@ import {
 } from '../utils/intervals';
 import { intervalItemId } from '../learning/intervalItem';
 import { playNote, playNoteSingle, playNoteSequence, stopPlayback, beep, isSoundPlaying, soundRemainingMs, pauseAudioContext, resumeAudioContext } from '../utils/audio';
-import { haptic, playCorrectChime, correctChimeRemainingMs, showFloatingText } from '../utils/feedback';
+import { haptic, playCorrectChime, playStreakTone, correctChimeRemainingMs, showFloatingText } from '../utils/feedback';
 import { vlog, verror } from '../utils/debugLog';
 import { noteRoundEnded, noteRoundStarted } from '../utils/adPacing';
 
@@ -254,6 +254,9 @@ export function useGameEngine(
   const scoreCorrect = useCallback((elapsedSeconds: number): ScoreResult => {
     const result = onCorrect(elapsedSeconds, questionTimeRef.current);
     playCorrectChime();
+    // The climbing streak tone belongs with the rest of the score display, so
+    // "Score & celebrations: Off" drops it along with the HUD.
+    if (showScore) playStreakTone(result.streak);
     haptic.correct();
 
     // A small floating "+N" by the live score — a clean "you scored" cue with

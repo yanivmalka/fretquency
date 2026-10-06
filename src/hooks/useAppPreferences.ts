@@ -167,6 +167,16 @@ export function useAppPreferences() {
     saveSetting('pref_colorblindHeat', v);
   }, []);
 
+  // A quiet kick + hi-hat loop under a Practice round (useBackgroundBeat).
+  // Off by default. Persists internally, like setTheme.
+  const [backgroundBeats, setBackgroundBeatsState] = useState<boolean>(
+    () => loadSetting<boolean>('pref_backgroundBeats', false),
+  );
+  const setBackgroundBeats = useCallback((v: boolean) => {
+    setBackgroundBeatsState(v);
+    saveSetting('pref_backgroundBeats', v);
+  }, []);
+
   return {
     byString, setByString,
     notation, setNotation,
@@ -185,5 +195,6 @@ export function useAppPreferences() {
     buttonDepth, setButtonDepth,
     seasonDeco, setSeasonDeco,
     colorblindHeat, setColorblindHeat,
+    backgroundBeats, setBackgroundBeats,
   };
 }

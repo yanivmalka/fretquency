@@ -187,6 +187,10 @@ export const he: Record<string, string> = {
   'Could not download the language. Check your connection and try again.': 'לא ניתן היה להוריד את השפה. בדוק את החיבור ונסה שוב.',
   'Left-handed': 'שמאלי',
   'Seasonal background': 'רקע עונתי',
+  'Background beats': 'ביט ברקע',
+  'A quiet drum loop under a Practice round to keep your pace. It stops while the round is paused.': 'לופ תופים שקט מתחת לסיבוב תרגול, שעוזר לשמור על קצב. נעצר כשהסיבוב מושהה.',
+  'Not playing now: Sound & vibration is on Silent or Vibrate. Pick a Sound level to hear the beats.': 'לא מתנגן כרגע: "צליל ורטט" מכוון לשקט או לרטט. בחרו רמת צליל כדי לשמוע את הביט.',
+  'Not playing now: you answer by voice or by playing, and the microphone would hear the beats. Switch “How you answer” to Tap to hear them.': 'לא מתנגן כרגע: אתם עונים בקול או בנגינה, והמיקרופון היה שומע את הביט. העבירו את "איך עונים" להקשה כדי לשמוע אותו.',
   'Snowflakes, anemones, sunflowers or falling leaves behind the app, following the season': 'פתיתי שלג, כלניות, חמניות או עלי שלכת ברקע האפליקציה, לפי העונה',
   'Light seasonal decorations behind the app: snowflakes in winter, anemones in spring, sunflowers in summer, falling leaves in autumn. They follow the season above. Off keeps the background plain.':
     'קישוטים עדינים לפי העונה מאחורי האפליקציה: פתיתי שלג בחורף, כלניות באביב, חמניות בקיץ ועלי שלכת בסתיו. הם הולכים לפי העונה שנבחרה למעלה. כבוי משאיר רקע נקי.',

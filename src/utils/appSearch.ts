@@ -216,6 +216,11 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
     keywords: ['sound', 'volume', 'mute', 'silent', 'vibrate', 'haptics', 'audio', 'צליל', 'צלילים', 'עוצמה', 'ווליום', 'השתקה', 'שקט', 'רטט', 'סאונד', 'sonido', 'volumen', 'silencio', 'vibración', 'som', 'vibração', 'son', 'muet', 'vibration', 'suono', 'muto', 'vibrazione'],
   },
   {
+    id: 'backgroundBeats', label: 'Background beats', emoji: '🥁', path: [SETTINGS],
+    target: { kind: 'section', section: 'settings', anchor: 'backgroundBeats' },
+    keywords: ['beat', 'beats', 'drums', 'loop', 'rhythm', 'metronome', 'tempo', 'ביט', 'תופים', 'לופ', 'קצב', 'מטרונום', 'ritmo', 'batería', 'bucle', 'batida', 'bateria', 'rythme', 'batterie', 'boucle', 'batteria'],
+  },
+  {
     id: 'appearance', label: 'Appearance', emoji: '🎨', path: [SETTINGS],
     target: { kind: 'section', section: 'settings', anchor: 'appearance' },
     keywords: ['theme', 'season', 'dark', 'light', 'night', 'day', 'colors', 'colours', 'מראה', 'ערכת נושא', 'עונה', 'כהה', 'בהיר', 'לילה', 'יום', 'צבעים', 'tema', 'apariencia', 'oscuro', 'claro', 'aparência', 'escuro', 'thème', 'apparence', 'sombre', 'clair', 'aspetto', 'scuro', 'chiaro'],

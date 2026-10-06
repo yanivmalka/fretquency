@@ -185,6 +185,10 @@ export const es: Record<string, string> = {
   'Could not download the language. Check your connection and try again.': 'No se pudo descargar el idioma. Revisa tu conexión e inténtalo de nuevo.',
   'Left-handed': 'Zurdo',
   'Seasonal background': 'Fondo de temporada',
+  'Background beats': 'Ritmo de fondo',
+  'A quiet drum loop under a Practice round to keep your pace. It stops while the round is paused.': 'Un bucle suave de batería durante una ronda de práctica para mantener el ritmo. Se detiene mientras la ronda está en pausa.',
+  'Not playing now: Sound & vibration is on Silent or Vibrate. Pick a Sound level to hear the beats.': 'Ahora no suena: Sonido y vibración está en Silencio o Vibración. Elige un nivel de sonido para oír el ritmo.',
+  'Not playing now: you answer by voice or by playing, and the microphone would hear the beats. Switch “How you answer” to Tap to hear them.': 'Ahora no suena: respondes con la voz o tocando, y el micrófono oiría el ritmo. Cambia «Cómo respondes» a Tocar para oírlo.',
   'Snowflakes, anemones, sunflowers or falling leaves behind the app, following the season': 'Copos de nieve, anémonas, girasoles u hojas que caen detrás de la app, según la estación',
   'Light seasonal decorations behind the app: snowflakes in winter, anemones in spring, sunflowers in summer, falling leaves in autumn. They follow the season above. Off keeps the background plain.':
     'Decoraciones suaves de temporada detrás de la app: copos de nieve en invierno, anémonas en primavera, girasoles en verano y hojas cayendo en otoño. Siguen la estación elegida arriba. Desactivado deja el fondo liso.',

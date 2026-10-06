@@ -91,6 +91,8 @@ export interface GeneralSettingsSectionProps {
   setSeasonDeco: (v: boolean) => void;
   colorblindHeat: boolean;
   setColorblindHeat: (v: boolean) => void;
+  backgroundBeats: boolean;
+  setBackgroundBeats: (v: boolean) => void;
   reminder: {
     enabled: boolean;
     time: string;
@@ -109,7 +111,7 @@ export default function GeneralSettingsSection({
   voiceEnginePref, pickVoiceEngine, voiceProfileStat, setSettingsOpen,
   setShowVoiceCalibration, showMastery, setShowMastery, masteryWindow, setMasteryWindow,
   leftHanded, setLeftHanded, buttonDepth, setButtonDepth, seasonDeco, setSeasonDeco, colorblindHeat, setColorblindHeat,
-  reminder,
+  backgroundBeats, setBackgroundBeats, reminder,
 }: GeneralSettingsSectionProps) {
   // Progress of a switch to a language whose dictionary is still downloading.
   const { languageLoad } = useTranslation();
@@ -233,6 +235,31 @@ export default function GeneralSettingsSection({
             }
           }}
         />
+      </SettingCard>
+      <SettingCard
+        anchor="backgroundBeats"
+        label={t('Background beats')}
+        help={t('A quiet drum loop under a Practice round to keep your pace. It stops while the round is paused.')}
+      >
+        <SegmentedControl
+          ariaLabel={t('Background beats')}
+          value={backgroundBeats ? 'on' : 'off'}
+          options={[
+            { value: 'on', label: t('On') },
+            { value: 'off', label: t('Off') },
+          ]}
+          onChange={(v) => { setBackgroundBeats(v === 'on'); }}
+        />
+        {backgroundBeats && feedbackMode !== 'sound' && (
+          <p className="set-card-help">
+            {t('Not playing now: Sound & vibration is on Silent or Vibrate. Pick a Sound level to hear the beats.')}
+          </p>
+        )}
+        {backgroundBeats && feedbackMode === 'sound' && answerMode !== 'tap' && (
+          <p className="set-card-help">
+            {t('Not playing now: you answer by voice or by playing, and the microphone would hear the beats. Switch “How you answer” to Tap to hear them.')}
+          </p>
+        )}
       </SettingCard>
       <SettingCard
         anchor="appearance"

@@ -114,3 +114,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 .psb-sheet-close:hover { color: var(--text-1); }
+
+/* The controls row can shrink-wrap to the Play button (desktop); the floating
+   bubbles size themselves off its width, so give it the full row. */
+.controls:has(> .psb-row) { width: 100%; }
