@@ -31,7 +31,7 @@ const SYNCED_KEYS = new Set([
   'pref_answerMode', 'pref_showScore', 'pref_showMastery', 'pref_masteryWindow',
   'pref_instrument', 'pref_instrumentVariant', 'pref_voiceEngine', 'pref_noteVolume',
   'pref_language', 'pref_pinnedBadges', 'pref_theme', 'pref_season', 'pref_seasonPickedIn', 'pref_leftHanded', 'pref_buttonDepth', 'pref_seasonDeco',
-  'pref_feedbackMode', 'pref_colorblindHeat', 'pref_backgroundBeats',
+  'pref_feedbackMode', 'pref_colorblindHeat', 'pref_backgroundBeats', 'pref_beatStyle', 'pref_beatFollowPace',
   'pref_reminderEnabled', 'pref_reminderTime',
   'pref_quickAccessEnabled', 'pref_pinnedQuickAccess', 'qaHintSeen',
   'onboardingDone', 'infoBubbleSeen',

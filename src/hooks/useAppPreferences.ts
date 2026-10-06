@@ -8,6 +8,7 @@ import {
 import { currentSeason, resolveSeason } from '../utils/region';
 import { NOTE_VOLUME_DEFAULT } from '../utils/audio';
 import type { FeedbackMode } from '../utils/feedback';
+import { BEAT_STYLES, BEAT_STYLE_DEFAULT, type BeatStyle } from '../utils/backgroundBeat';
 import { DEFAULT_MASTERY_WINDOW, type MasteryWindow } from '../utils/mastery';
 import { useTranslation } from '../i18n/useTranslation';
 import type { Lang } from '../i18n/translations';
@@ -176,6 +177,23 @@ export function useAppPreferences() {
     setBackgroundBeatsState(v);
     saveSetting('pref_backgroundBeats', v);
   }, []);
+  // Which groove plays, and whether its tempo follows the round's timing ramp
+  // (on by default) or stays at the style's own tempo.
+  const [beatStyle, setBeatStyleState] = useState<BeatStyle>(() => {
+    const v = loadSetting<string>('pref_beatStyle', BEAT_STYLE_DEFAULT);
+    return (BEAT_STYLES as readonly string[]).includes(v) ? (v as BeatStyle) : BEAT_STYLE_DEFAULT;
+  });
+  const setBeatStyle = useCallback((v: BeatStyle) => {
+    setBeatStyleState(v);
+    saveSetting('pref_beatStyle', v);
+  }, []);
+  const [beatFollowPace, setBeatFollowPaceState] = useState<boolean>(
+    () => loadSetting<boolean>('pref_beatFollowPace', true),
+  );
+  const setBeatFollowPace = useCallback((v: boolean) => {
+    setBeatFollowPaceState(v);
+    saveSetting('pref_beatFollowPace', v);
+  }, []);
 
   return {
     byString, setByString,
@@ -196,5 +214,7 @@ export function useAppPreferences() {
     seasonDeco, setSeasonDeco,
     colorblindHeat, setColorblindHeat,
     backgroundBeats, setBackgroundBeats,
+    beatStyle, setBeatStyle,
+    beatFollowPace, setBeatFollowPace,
   };
 }

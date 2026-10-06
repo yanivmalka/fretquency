@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { previewBackgroundBeat, type BeatStyle } from '../../../utils/backgroundBeat';
 import { SettingCard, SegmentedControl, PickRow, LevelBar } from '../../SettingCard';
 import {
   SOUND_LEVEL_COUNT, soundLevelFromPrefs, soundLevelToPrefs, soundLevelLabel, previewSoundLevel,
@@ -93,6 +94,10 @@ export interface GeneralSettingsSectionProps {
   setColorblindHeat: (v: boolean) => void;
   backgroundBeats: boolean;
   setBackgroundBeats: (v: boolean) => void;
+  beatStyle: BeatStyle;
+  setBeatStyle: (v: BeatStyle) => void;
+  beatFollowPace: boolean;
+  setBeatFollowPace: (v: boolean) => void;
   reminder: {
     enabled: boolean;
     time: string;
@@ -111,8 +116,13 @@ export default function GeneralSettingsSection({
   voiceEnginePref, pickVoiceEngine, voiceProfileStat, setSettingsOpen,
   setShowVoiceCalibration, showMastery, setShowMastery, masteryWindow, setMasteryWindow,
   leftHanded, setLeftHanded, buttonDepth, setButtonDepth, seasonDeco, setSeasonDeco, colorblindHeat, setColorblindHeat,
-  backgroundBeats, setBackgroundBeats, reminder,
+  backgroundBeats, setBackgroundBeats, beatStyle, setBeatStyle, beatFollowPace, setBeatFollowPace,
+  reminder,
 }: GeneralSettingsSectionProps) {
+  // Cancels the style preview still playing, when another style is picked or
+  // the drawer closes.
+  const stopBeatPreview = useRef<(() => void) | null>(null);
+  useEffect(() => () => stopBeatPreview.current?.(), []);
   // Progress of a switch to a language whose dictionary is still downloading.
   const { languageLoad } = useTranslation();
   const todayStr = localDayStr(new Date());
@@ -250,6 +260,43 @@ export default function GeneralSettingsSection({
           ]}
           onChange={(v) => { setBackgroundBeats(v === 'on'); }}
         />
+        {backgroundBeats && (
+          <>
+            <PickRow
+              ariaLabel={t('Beat style')}
+              value={beatStyle}
+              wrap
+              options={[
+                { value: 'rock' as const, label: t('Rock') },
+                { value: 'shuffle' as const, label: t('Shuffle') },
+                { value: 'hiphop' as const, label: t('Hip-hop') },
+                { value: 'bossa' as const, label: t('Bossa nova') },
+              ]}
+              onChange={(s) => {
+                setBeatStyle(s);
+                // Let the player hear what they picked: two bars at its own tempo.
+                if (feedbackMode === 'sound') {
+                  stopBeatPreview.current?.();
+                  stopBeatPreview.current = previewBackgroundBeat(s);
+                }
+              }}
+            />
+            <SegmentedControl
+              ariaLabel={t('Beat tempo')}
+              value={beatFollowPace ? 'follow' : 'steady'}
+              options={[
+                { value: 'follow', label: t('Follows your pace') },
+                { value: 'steady', label: t('Steady') },
+              ]}
+              onChange={(v) => { setBeatFollowPace(v === 'follow'); }}
+            />
+            <p className="set-card-help">
+              {beatFollowPace
+                ? t('The beat speeds up as a streak shortens the time per question, and settles back when the timing resets.')
+                : t('The beat keeps its own tempo for the whole round.')}
+            </p>
+          </>
+        )}
         {backgroundBeats && feedbackMode !== 'sound' && (
           <p className="set-card-help">
             {t('Not playing now: Sound & vibration is on Silent or Vibrate. Pick a Sound level to hear the beats.')}

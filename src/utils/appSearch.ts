@@ -218,7 +218,7 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
   {
     id: 'backgroundBeats', label: 'Background beats', emoji: '🥁', path: [SETTINGS],
     target: { kind: 'section', section: 'settings', anchor: 'backgroundBeats' },
-    keywords: ['beat', 'beats', 'drums', 'loop', 'rhythm', 'metronome', 'tempo', 'ביט', 'תופים', 'לופ', 'קצב', 'מטרונום', 'ritmo', 'batería', 'bucle', 'batida', 'bateria', 'rythme', 'batterie', 'boucle', 'batteria'],
+    keywords: ['beat', 'beats', 'drums', 'loop', 'rhythm', 'metronome', 'tempo', 'rock', 'shuffle', 'hip-hop', 'bossa', 'groove', 'רוק', 'שאפל', 'היפ-הופ', 'בוסה', 'גרוב', 'ביט', 'תופים', 'לופ', 'קצב', 'מטרונום', 'ritmo', 'batería', 'bucle', 'batida', 'bateria', 'rythme', 'batterie', 'boucle', 'batteria'],
   },
   {
     id: 'appearance', label: 'Appearance', emoji: '🎨', path: [SETTINGS],

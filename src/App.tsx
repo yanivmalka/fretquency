@@ -356,6 +356,7 @@ export default function App() {
     seasonDeco, setSeasonDeco,
     colorblindHeat, setColorblindHeat,
     backgroundBeats, setBackgroundBeats,
+    beatStyle, setBeatStyle, beatFollowPace, setBeatFollowPace,
   } = useAppPreferences();
   const reminder = useDailyReminder();
   useEffect(() => { setAudioNoteVolume(noteVolume); }, [noteVolume]);
@@ -691,9 +692,14 @@ export default function App() {
   // The background beat bed: only with sound on and tap answers (a voice or
   // guitar answer would hear the loop through the mic), and only while the
   // round plays — through an Auto Advance hand-off, silent while paused.
+  // With "follow the pace" on, the tempo speeds up as the timing ramp
+  // shortens the questions (the same base / current ratio the question note's
+  // playback speed uses).
   useBackgroundBeat(
     backgroundBeats && feedbackMode === 'sound' && answerMode === 'tap'
     && (running || pendingAutoAdvance) && !paused,
+    beatStyle,
+    beatFollowPace && questionTime > 0 ? drillConfig.timeLimit / questionTime : 1,
   );
 
   const hasHistory = historyOps.getEntriesForKey(histKey).length > 0;
@@ -1146,6 +1152,10 @@ export default function App() {
           setColorblindHeat={setColorblindHeat}
           backgroundBeats={backgroundBeats}
           setBackgroundBeats={setBackgroundBeats}
+          beatStyle={beatStyle}
+          setBeatStyle={setBeatStyle}
+          beatFollowPace={beatFollowPace}
+          setBeatFollowPace={setBeatFollowPace}
           reminder={reminder}
         />
       ),
