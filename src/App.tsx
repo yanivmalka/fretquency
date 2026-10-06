@@ -50,9 +50,7 @@ import { useVoiceProfileSummary } from './hooks/useVoiceProfileSummary';
 import { useMasteryOverlay } from './hooks/useMasteryOverlay';
 import { useAppPreferences } from './hooks/useAppPreferences';
 import { useDailyReminder } from './hooks/useDailyReminder';
-import DailyStreakBar from './components/DailyStreakBar';
 import LeagueTierChip from './components/LeagueTierChip';
-import FotdHomeCard from './components/FotdHomeCard';
 import { useSelector, type DerivedSettings } from './hooks/useSelector';
 import { useDerivedNotes } from './hooks/useDerivedNotes';
 import { useDrillSession } from './hooks/useDrillSession';
@@ -61,6 +59,7 @@ import LearningPathScreen from './components/LearningPathScreen';
 import DailyPracticeScreen from './components/DailyPracticeScreen';
 import IntervalPracticeScreen from './components/IntervalPracticeScreen';
 import PracticeSideBubbles, { type SideBubble } from './components/PracticeSideBubbles';
+import { useHomeBubbles } from './hooks/useHomeBubbles';
 import TodayCard from './components/TodayCard';
 import IntervalTodayCard from './components/IntervalTodayCard';
 import StaffTodayCard from './components/StaffTodayCard';
@@ -1228,6 +1227,14 @@ export default function App() {
     },
   ];
 
+  // Home-screen shortcut bubbles (streak/goal, Fret of the Day) — a hook, so it
+  // must run before the early returns below.
+  const homeBubbles = useHomeBubbles(
+    instrument,
+    () => setShowStats(true),
+    () => setDailyChallengeOpen(true),
+  );
+
   // The Quick Access shortcut manager is an explicit user navigation from the
   // cap prompt on a pushpin, so it wins over every other screen. Back closes
   // it and drops straight back to the settings sub-page it was raised from
@@ -1348,7 +1355,10 @@ export default function App() {
     : null;
 
   const renderPracticeSideBubbles = (domain: 'notes' | 'intervals' | 'staff' | 'tabs') => {
-    const bubbles: SideBubble[] = [];
+    // The home screen ('notes') also carries the streak/goal and Fret of the
+    // Day shortcuts, and lays its bubbles out in a row under the title; the
+    // other screens keep the fixed left-edge stack.
+    const bubbles: SideBubble[] = domain === 'notes' ? [...homeBubbles] : [];
 
     if (domain === 'notes' && can('premiumTeacher', auth.tier) && learning.todayPlan) {
       bubbles.push({
@@ -1420,7 +1430,7 @@ export default function App() {
     if (homeworkBubble) bubbles.push(homeworkBubble);
     if (premiumWelcomeBubble) bubbles.push(premiumWelcomeBubble);
 
-    return <PracticeSideBubbles bubbles={bubbles} />;
+    return <PracticeSideBubbles bubbles={bubbles} layout={domain === 'notes' ? 'row' : 'stack'} />;
   };
 
   // The Tuner is a self-contained full-screen takeover — it owns
@@ -1756,23 +1766,19 @@ export default function App() {
           countdown, and not while the hamburger drawer is open. */}
       {!gameActive && countdown === null && onboardingDone && !settingsOpen
         && renderQuickAccess()}
-      {!gameActive && countdown === null && onboardingDone && !settingsOpen
-        && renderPracticeSideBubbles('notes')}
 
       <h1>{instrument.emoji} {t(instrument.label)} {t('Fret Practice')}</h1>
+
+      {/* Shortcut bubbles right under the title — streak + daily goal, Fret of
+          the Day, and the Teacher / homework / Premium ones. In the page flow,
+          so they never cover the controls; hidden while a drill runs. */}
+      {!gameActive && countdown === null && onboardingDone && !settingsOpen
+        && renderPracticeSideBubbles('notes')}
 
       {/* The Premium Teacher's Today card and the interval-drill entry now
           live on their own learning-type tabs (drawer "Learn" group →
           DailyPracticeScreen / IntervalPracticeScreen), not stacked here on
           the home screen. This screen is the 'notes' tab: the Selector. */}
-
-      {/* Days-in-a-row + a small daily goal, every tier — hidden while a
-          drill is running/paused so it never crowds the fretboard. */}
-      {!gameActive && onboardingDone && (
-        <DailyStreakBar
-          onOpenStats={() => setShowStats(true)}
-        />
-      )}
 
       {/* Quiet league-tier chip, next to the streak bar — a signed-in player
           who's in a weekly league sees it without digging into Leaderboard
@@ -1794,16 +1800,6 @@ export default function App() {
         <TrialBanner
           daysLeft={trialDaysLeft() ?? 0}
           onOpenDaily={() => setActiveDomain('daily')}
-        />
-      )}
-
-      {/* Fret of the Day used to live only as a Learn-drawer tile — a small
-          entry at rest, right under the streak bar, so the app's own viral
-          loop isn't buried ten tiles deep (product review 2026-10-05 §4/7). */}
-      {!gameActive && onboardingDone && (
-        <FotdHomeCard
-          instrument={instrument}
-          onOpen={() => { playClickSound(); haptic.tap(); setDailyChallengeOpen(true); }}
         />
       )}
 

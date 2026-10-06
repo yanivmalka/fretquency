@@ -27,37 +27,51 @@ export interface SideBubble {
   badge?: number;
   /** Draws attention with a soft pulse (e.g. the Premium first-week bubble). */
   pulse?: boolean;
+  /** A short line under the circle in `row` layout (e.g. "1/10"). */
+  caption?: string;
   /** Rendered when the sheet is open; `close` lets an action inside (e.g. a
    *  "start" button) dismiss the sheet itself before navigating away. */
-  content: (close: () => void) => React.ReactNode;
+  content?: (close: () => void) => React.ReactNode;
+  /** A bubble that is a plain shortcut: tapping runs this instead of opening
+   *  a sheet (then `content` is not needed). */
+  onSelect?: () => void;
 }
 
 interface Props {
   bubbles: SideBubble[];
+  /** `stack` = fixed on the screen's left edge (the other practice screens);
+   *  `row` = in the page flow, centred right under the title (the home
+   *  screen, where a fixed stack landed on top of the controls). */
+  layout?: 'stack' | 'row';
 }
 
-export default function PracticeSideBubbles({ bubbles }: Props) {
+export default function PracticeSideBubbles({ bubbles, layout = 'stack' }: Props) {
   const { t, lang } = useTranslation();
   const [openId, setOpenId] = useState<string | null>(null);
 
   if (bubbles.length === 0) return null;
-  const open = bubbles.find((b) => b.id === openId) ?? null;
+  const open = bubbles.find((b) => b.id === openId && b.content) ?? null;
 
   return (
     <>
-      <div className="psb-stack">
+      <div className={layout === 'row' ? 'psb-row' : 'psb-stack'}>
         {bubbles.map((b) => (
-          <button
-            key={b.id}
-            type="button"
-            className={`psb-bubble${b.pulse ? ' psb-pulse' : ''}`}
-            aria-label={b.label}
-            title={b.label}
-            onClick={() => { playClickSound(); haptic.tap(); setOpenId(b.id); }}
-          >
-            <span className="psb-glyph" aria-hidden="true">{b.icon}</span>
-            {!!b.badge && <span className="psb-badge">{b.badge > 9 ? '9+' : b.badge}</span>}
-          </button>
+          <div key={b.id} className="psb-item">
+            <button
+              type="button"
+              className={`psb-bubble${b.pulse ? ' psb-pulse' : ''}`}
+              aria-label={b.label}
+              title={b.label}
+              onClick={() => {
+                playClickSound(); haptic.tap();
+                if (b.onSelect) b.onSelect(); else setOpenId(b.id);
+              }}
+            >
+              <span className="psb-glyph" aria-hidden="true">{b.icon}</span>
+              {!!b.badge && <span className="psb-badge">{b.badge > 9 ? '9+' : b.badge}</span>}
+            </button>
+            {layout === 'row' && b.caption && <span className="psb-caption">{b.caption}</span>}
+          </div>
         ))}
       </div>
       {open && (
@@ -75,7 +89,7 @@ export default function PracticeSideBubbles({ bubbles }: Props) {
             >
               ✕
             </button>
-            {open.content(() => setOpenId(null))}
+            {open.content?.(() => setOpenId(null))}
           </div>
         </div>
       )}

@@ -44,29 +44,6 @@
   color: var(--accent-ink);
 }
 
-/* Home-screen entry — one line, right under the streak bar, matching its
-   shape so the two read as a pair rather than competing with the Selector. */
-.fotd-home-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  max-width: 420px;
-  margin: 6px auto 0;
-  padding: 6px 14px;
-  border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  background: var(--bg-2);
-  font: inherit;
-  font-size: 0.8rem;
-  color: var(--text-2);
-  cursor: pointer;
-}
-.fotd-home-card-done {
-  font-weight: 700;
-  color: var(--accent);
-}
-
 .fotd-challenger-banner {
   max-width: 320px;
   padding: 10px 14px;
