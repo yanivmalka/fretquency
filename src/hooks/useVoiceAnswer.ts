@@ -245,7 +245,7 @@ export function useVoiceAnswer(params: UseVoiceAnswerParams): UseVoiceAnswerResu
 
     void engine.start({
       lang: speechLangForNotation(p.notation, p.langOverride),
-      vocabulary: vocabularyFor(p.notation),
+      vocabulary: vocabularyFor(p.notation, p.langOverride),
       profileVocabId: profileVocabId(p.notation),
       onResult: (r) => {
         vlog('[voice] onResult', { isFinal: r.isFinal, transcript: r.transcript, alternatives: r.alternatives });

@@ -72,6 +72,7 @@ const alphaToSolfege: Record<string, string> = {
 const SOLFEGE_ACCENTS: Record<string, Record<string, string>> = {
   fr: { Re: 'Ré' },
   'pt-BR': { Do: 'Dó', Re: 'Ré', Fa: 'Fá', La: 'Lá' },
+  ja: { Do: 'ド', Re: 'レ', Mi: 'ミ', Fa: 'ファ', Sol: 'ソ', La: 'ラ', Si: 'シ' },
 };
 let solfegeAccents: Record<string, string> = {};
 export function setSolfegeLanguage(lang: string): void {
@@ -86,7 +87,9 @@ export function solfegeSample(): string {
 
 export type AccidentalMode = 'sharps' | 'flats';
 export type OrderMode = 'fifths' | 'alphabet';
-export type NotationMode = 'alpha' | 'solfege';
+// 'german' is the letter system German-speaking musicians use: B is written H
+// and B♭ is written B (everything else is as in 'alpha').
+export type NotationMode = 'alpha' | 'solfege' | 'german';
 
 export interface HistoryEntry {
   note: string;
@@ -146,6 +149,11 @@ export function displayNote(note: string, mode: AccidentalMode, notation: Notati
   let resolved = note;
   if (mode === 'flats') resolved = sharpToFlat[note] || note;
   if (mode === 'sharps') resolved = flatToSharp[note] || note;
+  // German letters: B♮ is H and B♭ (A♯) is B — the only two names that differ.
+  if (notation === 'german') {
+    if (resolved === 'B') return 'H';
+    if (resolved === 'Bb' || resolved === 'A#') return 'B';
+  }
   // Then apply notation
   let named = notation === 'solfege' ? (alphaToSolfege[resolved] || resolved) : resolved;
   if (notation === 'solfege') named = named.replace(/^[A-Z][a-z]+?(?=[#♭]|$)/, s => solfegeAccents[s] ?? s);

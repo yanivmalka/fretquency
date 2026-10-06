@@ -1866,4 +1866,8 @@ export const ptBR: Record<string, string> = {
   "These students cannot join this class again, even with a new code.": "Estes alunos não podem entrar nesta turma de novo, nem com um código novo.",
   "blocked {date}": "bloqueado em {date}",
   "Unblock": "Desbloquear",
+
+  // German note names (H for B) — Note names setting
+  'German letters write B as H and B♭ as B.': 'Nas letras alemãs, o Si é escrito H e o Si♭ é escrito B.',
+  'German letters (A H C)': 'Letras alemãs (A H C)',
 };

@@ -9,7 +9,7 @@
 // service worker keeps them out of the precache and caches each one the first
 // time it is fetched (vite.config.ts), so a language once used works offline.
 
-export type Lang = 'en' | 'he' | 'es' | 'pt-BR' | 'fr' | 'it';
+export type Lang = 'en' | 'he' | 'es' | 'pt-BR' | 'fr' | 'it' | 'de' | 'ja';
 
 export const LANGUAGES: Array<{ value: Lang; label: string }> = [
   { value: 'en', label: 'English' },
@@ -18,15 +18,17 @@ export const LANGUAGES: Array<{ value: Lang; label: string }> = [
   { value: 'pt-BR', label: 'Português (Brasil)' },
   { value: 'fr', label: 'Français' },
   { value: 'it', label: 'Italiano' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'ja', label: '日本語' },
 ];
 
 export function isLang(value: unknown): value is Lang {
-  return value === 'en' || value === 'he' || value === 'es' || value === 'pt-BR' || value === 'fr' || value === 'it';
+  return value === 'en' || value === 'he' || value === 'es' || value === 'pt-BR' || value === 'fr' || value === 'it' || value === 'de' || value === 'ja';
 }
 
 // BCP-47 locale for dates shown in the active language.
 export function dateLocale(lang: Lang): string {
-  return lang === 'he' ? 'he-IL' : lang === 'es' ? 'es-ES' : lang === 'pt-BR' ? 'pt-BR' : lang === 'fr' ? 'fr-FR' : lang === 'it' ? 'it-IT' : 'en-GB';
+  return lang === 'he' ? 'he-IL' : lang === 'es' ? 'es-ES' : lang === 'pt-BR' ? 'pt-BR' : lang === 'fr' ? 'fr-FR' : lang === 'it' ? 'it-IT' : lang === 'de' ? 'de-DE' : lang === 'ja' ? 'ja-JP' : 'en-GB';
 }
 
 type Dictionary = Record<string, string>;
@@ -37,6 +39,8 @@ const loaders: Record<Exclude<Lang, 'en'>, () => Promise<Dictionary>> = {
   'pt-BR': () => import('./translations.ptBR.ts').then((m) => m.ptBR),
   fr: () => import('./translations.fr.ts').then((m) => m.fr),
   it: () => import('./translations.it.ts').then((m) => m.it),
+  de: () => import('./translations.de.ts').then((m) => m.de),
+  ja: () => import('./translations.ja.ts').then((m) => m.ja),
 };
 
 const dictionaries: Partial<Record<Lang, Dictionary>> = { en: {} };

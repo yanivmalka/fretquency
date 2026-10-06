@@ -71,6 +71,9 @@ function vibrateMark() {
 function glyph(id: QuickAccessId, value: unknown) {
   switch (id) {
     case 'notation':
+      if (value === 'german') {
+        return <path d="M6 3h3.4v7h5.2V3H18v18h-3.4v-7.6H9.4V21H6z" fill="currentColor" />;
+      }
       return value === 'solfege'
         ? (
           <>

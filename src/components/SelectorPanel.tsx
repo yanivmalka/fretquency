@@ -113,6 +113,8 @@ export default function SelectorPanel({
         : lang === 'pt-BR' ? `a corda ${selectedStringLabels[0]}`
         : lang === 'fr' ? `la corde ${selectedStringLabels[0]}`
         : lang === 'it' ? `la corda ${selectedStringLabels[0]}`
+        : lang === 'de' ? `die ${selectedStringLabels[0]}-Saite`
+        : lang === 'ja' ? `${selectedStringLabels[0]}弦`
         : `the ${selectedStringLabels[0]} string`)
       : `${t('strings')} ${selectedStringLabels.join(', ')}`;
   const fretsPhrase = preciseActive
@@ -166,6 +168,10 @@ export default function SelectorPanel({
           className={`order-chip${notation === 'solfege' ? ' order-chip-active' : ''}`}
           onClick={() => onNotationChange('solfege')}
         >{solfegeSample()}</button>
+        <button
+          className={`order-chip${notation === 'german' ? ' order-chip-active' : ''}`}
+          onClick={() => onNotationChange('german')}
+        >A H C</button>
       </div>
     );
   }

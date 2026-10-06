@@ -85,11 +85,20 @@ const FRENCH_ZONE = new RegExp(
 // Italy, plus San Marino and Vatican City, which share its time zone.
 const ITALIAN_ZONES = new Set(['Europe/Rome', 'Europe/San_Marino', 'Europe/Vatican']);
 
+// Germany, Austria and Liechtenstein (plus Büsingen). Switzerland shares its zone
+// with French- and Italian-speaking cantons, so Europe/Zurich stays on English.
+const GERMAN_ZONES = new Set(['Europe/Berlin', 'Europe/Busingen', 'Europe/Vienna', 'Europe/Vaduz']);
+
+// Japan, including the legacy alias.
+const JAPANESE_ZONES = new Set(['Asia/Tokyo', 'Japan']);
+
 export function detectLanguage(tz: string = detectTimeZone()): Lang {
   if (HEBREW_ZONES.has(tz)) return 'he';
   if (SPANISH_ZONE.test(tz)) return 'es';
   if (BRAZIL_ZONE.test(tz)) return 'pt-BR';
   if (FRENCH_ZONE.test(tz)) return 'fr';
   if (ITALIAN_ZONES.has(tz)) return 'it';
+  if (GERMAN_ZONES.has(tz)) return 'de';
+  if (JAPANESE_ZONES.has(tz)) return 'ja';
   return 'en';
 }

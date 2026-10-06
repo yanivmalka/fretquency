@@ -5,7 +5,7 @@ import { useTranslation } from '../i18n/useTranslation';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import { CHROMATIC, INSTRUMENTS, type InstrumentConfig, type InstrumentId } from '../utils/instruments';
 import { withClick as click } from '../utils/withClick';
-import { PRIVACY_POLICY_URL, TERMS_URL, recordLegalAccepted } from '../utils/onboardingState';
+import { privacyPolicyUrl, TERMS_URL, recordLegalAccepted } from '../utils/onboardingState';
 import { can, PRO_ONLY_INSTRUMENTS } from '../utils/features';
 import { openUpgrade } from '../utils/upgradeDrawer';
 import type { Tier } from '../utils/entitlement';
@@ -78,7 +78,7 @@ function scoreToDifficulty(score: number): Difficulty {
 export default function Onboarding({
   onDone, onInstrument, onPlacement, instrument, notation, accidental, tier, skipWelcome,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [step, setStepState] = useState<Step>(() => {
     const saved = loadSetting<string>(STEP_KEY, 'welcome');
     const valid = (STEPS as string[]).includes(saved) && saved !== 'test' && saved !== 'result'
@@ -198,7 +198,7 @@ export default function Onboarding({
       <a className="onboarding-link" href={TERMS_URL} target="_blank" rel="noopener noreferrer">
         {t('Terms of use')} ↗
       </a>
-      <a className="onboarding-link" href={PRIVACY_POLICY_URL} target="_blank" rel="noopener noreferrer">
+      <a className="onboarding-link" href={privacyPolicyUrl(lang)} target="_blank" rel="noopener noreferrer">
         {t('Privacy policy')} ↗
       </a>
     </div>

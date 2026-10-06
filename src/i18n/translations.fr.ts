@@ -1873,4 +1873,8 @@ export const fr: Record<string, string> = {
   "These students cannot join this class again, even with a new code.": "Ces élèves ne peuvent plus rejoindre cette classe, même avec un nouveau code.",
   "blocked {date}": "bloqué le {date}",
   "Unblock": "Débloquer",
+
+  // German note names (H for B) — Note names setting
+  'German letters write B as H and B♭ as B.': 'Dans les lettres allemandes, le Si s’écrit H et le Si♭ s’écrit B.',
+  'German letters (A H C)': 'Lettres allemandes (A H C)',
 };

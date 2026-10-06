@@ -446,6 +446,17 @@ export function LeaderboardPanel({
               {t(instrument.label).toLowerCase()} — lo stesso totale di sempre che vedi nelle Statistiche. I
               bonus di velocità e di serie aumentano il tuo punteggio nel gioco, non i tuoi XP.
             </>
+          ) : lang === 'de' ? (
+            <>
+              1&nbsp;XP für jede richtige Antwort, summiert über dein gesamtes{' '}
+              {t(instrument.label)}-Training — dieselbe Gesamtsumme wie in deinen Statistiken. Tempo- und
+              Serienboni erhöhen deinen Punktestand im Spiel, nicht deine XP.
+            </>
+          ) : lang === 'ja' ? (
+            <>
+              正解1問につき1&nbsp;XP。{t(instrument.label)}の練習全体で合算され、統計画面の通算合計と同じです。
+              スピードボーナスと連続ボーナスはゲーム内スコアを上げますが、XPには加算されません。
+            </>
           ) : (
             <>
               1&nbsp;XP for every correct answer, added up across all your {instrument.label.toLowerCase()}{' '}

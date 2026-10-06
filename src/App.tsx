@@ -127,6 +127,7 @@ import { useAppNavigation } from './hooks/useAppNavigation';
 import { useBackNavigation } from './hooks/useBackNavigation';
 import { BadgeToast, BadgeRevealOverlay, type CelebratedBadge } from './components/BadgeCelebration';
 import type { SpeechNotation } from './utils/speechVocab';
+import { speechLocaleForLang } from './utils/speech';
 import { useTranslation } from './i18n/useTranslation';
 import { useAutoAdvance } from './hooks/useAutoAdvance';
 import { useRoundLifecycle } from './hooks/useRoundLifecycle';
@@ -575,6 +576,8 @@ export default function App() {
     questionSeq,
     hasActiveQuestion: eff.byNote ? currentNote !== null : currentFret !== null,
     notation: notation as SpeechNotation,
+    // Listen in the UI language so spoken "do sostenido" / "Cis" / "ドシャープ" is heard.
+    langOverride: speechLocaleForLang(lang),
     engineEpoch: voiceEngineEpoch,
     onNote: selectAnswer,
     onFret: selectFret,

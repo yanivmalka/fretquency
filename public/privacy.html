@@ -21,7 +21,7 @@
     ul { padding-inline-start: 1.3rem; }
     li { margin: 4px 0; }
     .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px 16px; margin-top: 16px; }
-    .switch { display:flex; gap:8px; margin-bottom: 8px; }
+    .switch { display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 8px; }
     .switch button { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 16px; font: inherit; cursor: pointer; }
     .switch button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
     [hidden] { display: none !important; }
@@ -32,6 +32,12 @@
   <div class="switch" role="group" aria-label="Language / שפה">
     <button type="button" data-lang="he" aria-pressed="true">עברית</button>
     <button type="button" data-lang="en" aria-pressed="false">English</button>
+    <button type="button" data-lang="es" aria-pressed="false">Español</button>
+    <button type="button" data-lang="pt" aria-pressed="false">Português</button>
+    <button type="button" data-lang="fr" aria-pressed="false">Français</button>
+    <button type="button" data-lang="it" aria-pressed="false">Italiano</button>
+    <button type="button" data-lang="de" aria-pressed="false">Deutsch</button>
+    <button type="button" data-lang="ja" aria-pressed="false">日本語</button>
   </div>
 
   <!-- ───────────────────────── עברית ───────────────────────── -->
@@ -219,15 +225,577 @@
       <p>For privacy questions and requests (including a deletion request), open the app, sign in and send a message through the feedback board. We are setting up a dedicated email address and will publish it here.</p>
     </div>
   </section>
+
+  <!-- ───────────────────────── Español ───────────────────────── -->
+  <section id="es" lang="es" dir="ltr" hidden>
+    <h1>Política de privacidad</h1>
+    <p class="meta">App Fretquency (ejercicios de mástil para instrumentos de cuerda) · Última actualización: 6 de octubre de 2026</p>
+    <p>Esta página explica qué información guarda la app sobre ti, para qué, y qué puedes hacer con ella. La app está pensada para que puedas usarla entera sin cuenta y sin enviar ningún dato de práctica a un servidor.</p>
+
+    <div class="card">
+      <h2>1. Uso como invitado (sin iniciar sesión)</h2>
+      <ul>
+        <li>Tu historial, tus mejores marcas personales, tus ajustes, tus insignias y tu progreso se guardan <strong>solo en tu dispositivo</strong> (en el almacenamiento local del navegador o de la app).</li>
+        <li>No podemos ver estos datos. Borrar los datos del sitio o desinstalar la app los elimina.</li>
+        <li>Los invitados también se cuentan en el contador de «personas usando la app ahora». Para ello se envía al servidor un mensaje anónimo («hay un invitado conectado»), sin identidad ni datos de práctica, y desaparece al cerrar la app.</li>
+        <li>Si iniciaste sesión antes y rechazaste añadir a tu cuenta la práctica hecha como invitado, esos registros de práctica (nota, traste, cuerda, tiempo, acierto o error) pueden haberse guardado en el servidor de forma anónima, sin vínculo con ninguna cuenta.</li>
+      </ul>
+
+      <h2>2. Inicio de sesión con Google</h2>
+      <p>Iniciar sesión es opcional y sirve para hacer una copia de seguridad y restaurar tus datos entre dispositivos. Al iniciar sesión recibimos de Google tu correo electrónico, tu nombre y tu foto de perfil. Nunca recibimos tu contraseña de Google.</p>
+      <p>Una vez iniciada la sesión, en nuestro servidor (Supabase) se guarda una copia de lo siguiente, vinculada a tu cuenta:</p>
+      <ul>
+        <li>Tu historial de respuestas y tus mejores marcas personales (incluidos los borrados que hayas hecho, para que sigan borrados en todos los dispositivos).</li>
+        <li>Tus ajustes y preferencias (por ejemplo, idioma, tema y selecciones de práctica).</li>
+        <li>Las insignias que has ganado, el progreso en el juego y el estado de aprendizaje (calendario de repaso, ruta de aprendizaje, intervalos, escalas, pentagrama y tablatura).</li>
+        <li>Tu plan (Free, Pro o Premium).</li>
+        <li>Tu perfil de voz personal, si creaste uno. Solo se guardan características numéricas de las grabaciones (MFCC), no archivos de audio.</li>
+      </ul>
+
+      <h2>3. Modo profesor (clases y tareas)</h2>
+      <ul>
+        <li>Un usuario que se marca como profesor en la app puede abrir una clase y obtener un código de unión.</li>
+        <li>Un alumno que se une a una clase con el código elige un <strong>nombre visible</strong> (no su identidad real) y lo comparte únicamente con el profesor de esa clase.</li>
+        <li>El profesor ve la lista de la clase (nombre visible y fecha de unión), las tareas que asignó y los resultados de cada alumno en ellas (respuestas correctas sobre el total, tiempo empleado y cuándo se hizo).</li>
+        <li>Un alumno no puede ver los resultados de otros alumnos de la clase, y no se le pide que revele al profesor nada más allá del nombre visible que eligió.</li>
+        <li>El profesor puede quitar a un alumno de la clase y, si hace falta, impedir que su cuenta vuelva a unirse a esa misma clase.</li>
+        <li>Una clase sin actividad (una unión, una tarea asignada o una completada) durante seis meses se elimina automáticamente del servidor, junto con todos sus datos.</li>
+      </ul>
+
+      <h2>4. Lo que pueden ver otras personas</h2>
+      <ul>
+        <li><strong>Clasificación:</strong> si participas, tu nombre visible, tu puntuación (XP), tu número de preguntas y tu precisión son visibles para todos.</li>
+        <li><strong>Grupos de liga semanales:</strong> si estás en una liga, tu nombre visible y tu puntuación semanal son visibles para los demás jugadores de tu grupo de liga (hasta unos 30 jugadores).</li>
+        <li><strong>Tablón de comentarios:</strong> el mensaje que envíes se guarda con tu nombre y tu correo, y solo los administradores de la app pueden leerlo.</li>
+        <li><strong>Contador de usuarios:</strong> todos ven un recuento general de cuentas registradas y de personas activas ahora, no quiénes son.</li>
+      </ul>
+
+      <h2>5. Micrófono y reconocimiento de voz</h2>
+      <p>La app solo pide acceso al micrófono si eliges responder con la voz (o crear un perfil de voz). El audio se usa para reconocer tu respuesta y no se guarda como archivo de audio.</p>
+      <ul>
+        <li>Con el motor «Personal» o «General», el reconocimiento se hace <strong>en tu dispositivo</strong>.</li>
+        <li>Con el motor automático, tu navegador o sistema operativo puede usar su propio servicio de reconocimiento de voz (por ejemplo, el de Google en Chrome y en Android). Entonces el audio se envía a ese proveedor y se trata según su política de privacidad, no la nuestra.</li>
+      </ul>
+
+      <h2>6. Publicidad</h2>
+      <p>El plan gratuito muestra una franja de anuncios. Los suscriptores de Pro y Premium no ven anuncios.</p>
+      <ul>
+        <li>En Android y iPhone los anuncios provienen de Google AdMob; en la web, de Google AdSense. Google puede recopilar un identificador de publicidad y datos de uso para mostrar y medir los anuncios.</li>
+        <li>Antes de mostrar anuncios se te pide tu consentimiento donde la ley lo exige (en la UE y el Reino Unido). En iPhone también se te pide permiso de seguimiento. Puedes cambiar tu elección en cualquier momento.</li>
+        <li>Más información: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Cómo usa Google los datos</a>.</li>
+      </ul>
+
+      <h2>7. Medición de uso</h2>
+      <p>Guardamos un pequeño registro anónimo de eventos para entender cómo se usa la app (por ejemplo, cuántas personas terminan una primera ronda de práctica o vuelven al día siguiente). Cada dispositivo recibe un identificador aleatorio generado en el propio dispositivo y guardado solo en su almacenamiento local: nunca se vincula a tu cuenta, a tu correo ni a ningún otro dato personal, y no podemos usarlo para identificarte. Registramos unos diez tipos de eventos (por ejemplo: app abierta, ronda terminada, se tocó una función bloqueada, se vio la página de mejora de plan), sin contenido de texto libre y sin datos de ubicación ni de huella del dispositivo. Esta tabla es de solo inserción por parte de la app: una vez escrito un evento, no puedes leer los de nadie más, y solo los administradores de la app pueden consultar recuentos agregados.</p>
+
+      <h2>8. Otros servicios de terceros</h2>
+      <ul>
+        <li><strong>Supabase</strong>: guarda los datos de los usuarios con sesión iniciada y el registro anónimo de medición de la sección 7.</li>
+        <li><strong>Google</strong>: inicio de sesión y anuncios, como se describe arriba.</li>
+        <li><strong>GitHub Pages</strong>: aloja la versión web.</li>
+        <li><strong>Biblioteca de muestras de guitarra</strong> (gleitz.github.io): de allí se cargan los sonidos de las notas. Como en cualquier sitio web, esas solicitudes incluyen tu dirección IP.</li>
+      </ul>
+      <p>No vendemos información personal y la usamos solo para hacer funcionar la app como se describe aquí.</p>
+
+      <h2>9. Tus derechos</h2>
+      <ul>
+        <li><strong>Cerrar sesión:</strong> al cerrar sesión, el dispositivo se desvincula de tu cuenta. Los datos locales se quedan en el dispositivo.</li>
+        <li><strong>Eliminación:</strong> puedes pedirnos que eliminemos tu cuenta y todos los datos asociados usando el contacto de más abajo. Atenderemos la solicitud en un plazo razonable y, como máximo, en 30 días.</li>
+        <li><strong>Acceso, rectificación y copia:</strong> puedes pedir una copia de los datos que tenemos sobre ti y que se corrijan.</li>
+        <li><strong>En tu dispositivo:</strong> borrar los datos del sitio o desinstalar la app elimina todo lo guardado localmente.</li>
+      </ul>
+
+      <h2>10. Menores</h2>
+      <p>La app no está dirigida a menores de 13 años y no recopilamos a sabiendas información sobre ellos. Si te enteras de que un menor se ha registrado, contáctanos y eliminaremos los datos.</p>
+
+      <h2>11. Seguridad y conservación</h2>
+      <p>La comunicación con el servidor está cifrada y el acceso a los datos del servidor está restringido por reglas de permisos, de modo que cada usuario con sesión iniciada solo puede leer y modificar sus propios datos (salvo los datos públicos de la sección 4 y los datos de clase de la sección 3 que puede ver un profesor). Conservamos los datos mientras exista la cuenta y los eliminamos cuando se elimina la cuenta.</p>
+
+      <h2>12. Cambios en esta política</h2>
+      <p>Actualizaremos esta página cuando la app cambie y la fecha de arriba cambiará con ella. Si el cambio es importante, mostraremos un aviso en la app.</p>
+
+      <h2>13. Contacto</h2>
+      <p>Para preguntas y solicitudes sobre privacidad (incluida una solicitud de eliminación), abre la app, inicia sesión y envía un mensaje a través del tablón de comentarios. Estamos preparando una dirección de correo dedicada y la publicaremos aquí.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Português (Brasil) ───────────────────────── -->
+  <section id="pt" lang="pt-BR" dir="ltr" hidden>
+    <h1>Política de privacidade</h1>
+    <p class="meta">App Fretquency (exercícios de braço para instrumentos de corda) · Última atualização: 6 de outubro de 2026</p>
+    <p>Esta página explica quais informações o app guarda sobre você, para quê, e o que você pode fazer com elas. O app foi feito para que você possa usá-lo por inteiro sem conta e sem enviar nenhum dado de prática a um servidor.</p>
+
+    <div class="card">
+      <h2>1. Uso como convidado (sem fazer login)</h2>
+      <ul>
+        <li>Seu histórico, seus recordes pessoais, suas configurações, seus emblemas e seu progresso ficam guardados <strong>somente no seu dispositivo</strong> (no armazenamento local do navegador ou do app).</li>
+        <li>Nós não conseguimos ver esses dados. Limpar os dados do site ou desinstalar o app os apaga.</li>
+        <li>Os convidados também são contados no contador de “pessoas usando o app agora”. Para isso, uma mensagem anônima (“um convidado está conectado”) é enviada ao servidor, sem identidade e sem dados de prática, e ela desaparece quando você fecha o app.</li>
+        <li>Se você já fez login antes e recusou adicionar à sua conta a prática feita como convidado, esses registros de prática (nota, casa, corda, tempo, certo ou errado) podem ter sido guardados no servidor de forma anônima, sem ligação com nenhuma conta.</li>
+      </ul>
+
+      <h2>2. Login com o Google</h2>
+      <p>O login é opcional e serve para fazer backup e restaurar seus dados entre dispositivos. Ao fazer login, recebemos do Google seu e-mail, seu nome e sua foto de perfil. Nunca recebemos sua senha do Google.</p>
+      <p>Depois do login, uma cópia do seguinte fica guardada em nosso servidor (Supabase), vinculada à sua conta:</p>
+      <ul>
+        <li>Seu histórico de respostas e seus recordes pessoais (incluindo as exclusões que você fez, para que continuem excluídas em todos os dispositivos).</li>
+        <li>Suas configurações e preferências (por exemplo, idioma, tema e escolhas de prática).</li>
+        <li>Os emblemas que você ganhou, o progresso no jogo e o estado de aprendizado (agenda de revisão, trilha de aprendizado, intervalos, escalas, pauta e tablatura).</li>
+        <li>Seu plano (Free, Pro ou Premium).</li>
+        <li>Seu perfil de voz pessoal, se você criou um. Somente características numéricas das gravações (MFCC) são guardadas, não arquivos de áudio.</li>
+      </ul>
+
+      <h2>3. Modo professor (turmas e lições de casa)</h2>
+      <ul>
+        <li>Um usuário que se define como professor no app pode abrir uma turma e receber um código de entrada.</li>
+        <li>Um aluno que entra em uma turma com o código escolhe um <strong>nome de exibição</strong> (não a identidade real) e o compartilha somente com o professor dessa turma.</li>
+        <li>O professor vê a lista da turma (nome de exibição e data de entrada), as lições de casa que atribuiu e os resultados de cada aluno nelas (acertos sobre o total, tempo gasto e quando foi feita).</li>
+        <li>Um aluno não consegue ver os resultados de outros alunos da turma e não precisa revelar ao professor nada além do nome de exibição que escolheu.</li>
+        <li>O professor pode remover um aluno da turma e, se necessário, impedir que a conta dele entre de novo nessa mesma turma.</li>
+        <li>Uma turma sem atividade (uma entrada, uma lição atribuída ou uma concluída) por seis meses é excluída automaticamente do servidor, junto com todos os seus dados.</li>
+      </ul>
+
+      <h2>4. O que outras pessoas podem ver</h2>
+      <ul>
+        <li><strong>Ranking:</strong> se você participar, seu nome de exibição, sua pontuação (XP), seu número de perguntas e sua precisão ficam visíveis para todos.</li>
+        <li><strong>Grupos de liga semanais:</strong> se você estiver em uma liga, seu nome de exibição e sua pontuação semanal ficam visíveis para os outros jogadores do seu grupo de liga (até cerca de 30 jogadores).</li>
+        <li><strong>Mural de feedback:</strong> a mensagem que você enviar é guardada com seu nome e e-mail, e somente os administradores do app podem lê-la.</li>
+        <li><strong>Contador de usuários:</strong> todos veem uma contagem geral de contas registradas e de pessoas ativas agora, não quem elas são.</li>
+      </ul>
+
+      <h2>5. Microfone e reconhecimento de voz</h2>
+      <p>O app só pede acesso ao microfone se você escolher responder por voz (ou criar um perfil de voz). O áudio é usado para reconhecer sua resposta e não é salvo como arquivo de áudio.</p>
+      <ul>
+        <li>Com o mecanismo “Pessoal” ou “Geral”, o reconhecimento acontece <strong>no seu dispositivo</strong>.</li>
+        <li>Com o mecanismo automático, seu navegador ou sistema operacional pode usar o próprio serviço de reconhecimento de voz (por exemplo, o do Google no Chrome e no Android). Nesse caso, o áudio é enviado a esse provedor e tratado conforme a política de privacidade dele, não a nossa.</li>
+      </ul>
+
+      <h2>6. Publicidade</h2>
+      <p>O plano gratuito mostra uma faixa de anúncios. Assinantes Pro e Premium não veem anúncios.</p>
+      <ul>
+        <li>No Android e no iPhone, os anúncios vêm do Google AdMob; na web, do Google AdSense. O Google pode coletar um ID de publicidade e dados de uso para exibir e medir anúncios.</li>
+        <li>Antes de exibir anúncios, pedimos seu consentimento onde a lei exige (na UE e no Reino Unido). No iPhone também pedimos permissão de rastreamento. Você pode mudar sua escolha a qualquer momento.</li>
+        <li>Mais informações: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Como o Google usa os dados</a>.</li>
+      </ul>
+
+      <h2>7. Medição de uso</h2>
+      <p>Mantemos um pequeno registro anônimo de eventos para entender como o app é usado (por exemplo, quantas pessoas terminam uma primeira rodada de prática ou voltam no dia seguinte). Cada dispositivo recebe um ID aleatório gerado no próprio dispositivo e guardado somente no armazenamento local dele — ele nunca é vinculado à sua conta, ao seu e-mail ou a qualquer outro dado pessoal, e não podemos usá-lo para identificar você. Registramos cerca de dez tipos de eventos (por exemplo: app aberto, rodada concluída, recurso bloqueado tocado, página de upgrade vista), sem conteúdo de texto livre e sem dados de localização ou de identificação do dispositivo. Essa tabela é somente de inserção do lado do app — depois que um evento é gravado, você não consegue ler os eventos de ninguém, e somente os administradores do app podem consultar contagens agregadas.</p>
+
+      <h2>8. Outros serviços de terceiros</h2>
+      <ul>
+        <li><strong>Supabase</strong> — guarda os dados dos usuários com login e o registro anônimo de medição da seção 7.</li>
+        <li><strong>Google</strong> — login e anúncios, como descrito acima.</li>
+        <li><strong>GitHub Pages</strong> — hospeda a versão web.</li>
+        <li><strong>Biblioteca de amostras de violão</strong> (gleitz.github.io) — os sons das notas são carregados de lá. Como em qualquer site, essas solicitações incluem seu endereço IP.</li>
+      </ul>
+      <p>Não vendemos informações pessoais e as usamos somente para fazer o app funcionar como descrito aqui.</p>
+
+      <h2>9. Seus direitos</h2>
+      <ul>
+        <li><strong>Sair:</strong> sair da conta desvincula o dispositivo da sua conta. Os dados locais permanecem no dispositivo.</li>
+        <li><strong>Exclusão:</strong> você pode pedir que excluamos sua conta e todos os dados associados usando o contato abaixo. Trataremos o pedido em prazo razoável e, no máximo, em 30 dias.</li>
+        <li><strong>Acesso, correção e cópia:</strong> você pode pedir uma cópia dos dados que temos sobre você e a correção deles.</li>
+        <li><strong>No seu dispositivo:</strong> limpar os dados do site ou desinstalar o app apaga tudo o que foi guardado localmente.</li>
+      </ul>
+
+      <h2>10. Crianças</h2>
+      <p>O app não é direcionado a crianças menores de 13 anos e não coletamos conscientemente informações sobre elas. Se você souber que uma criança se cadastrou, entre em contato e excluiremos os dados.</p>
+
+      <h2>11. Segurança e retenção</h2>
+      <p>A comunicação com o servidor é criptografada, e o acesso aos dados do servidor é restrito por regras de permissão, de modo que cada usuário com login só pode ler e alterar os próprios dados (exceto os dados públicos da seção 4 e os dados da turma da seção 3 que um professor pode ver). Guardamos os dados enquanto a conta existir e os excluímos quando a conta for excluída.</p>
+
+      <h2>12. Mudanças nesta política</h2>
+      <p>Atualizaremos esta página quando o app mudar, e a data no topo mudará junto. Em caso de mudança relevante, mostraremos um aviso no app.</p>
+
+      <h2>13. Contato</h2>
+      <p>Para dúvidas e pedidos sobre privacidade (incluindo um pedido de exclusão), abra o app, faça login e envie uma mensagem pelo mural de feedback. Estamos criando um endereço de e-mail dedicado e vamos publicá-lo aqui.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Français ───────────────────────── -->
+  <section id="fr" lang="fr" dir="ltr" hidden>
+    <h1>Politique de confidentialité</h1>
+    <p class="meta">Application Fretquency (exercices de manche pour instruments à cordes) · Dernière mise à jour : 6 octobre 2026</p>
+    <p>Cette page explique quelles informations l’application conserve sur vous, pourquoi, et ce que vous pouvez en faire. L’application est conçue pour que vous puissiez l’utiliser entièrement sans compte et sans envoyer aucune donnée d’entraînement à un serveur.</p>
+
+    <div class="card">
+      <h2>1. Utilisation en tant qu’invité (sans connexion)</h2>
+      <ul>
+        <li>Votre historique, vos records personnels, vos réglages, vos badges et votre progression sont stockés <strong>uniquement sur votre appareil</strong> (dans le stockage local du navigateur ou de l’application).</li>
+        <li>Nous ne pouvons pas voir ces données. Effacer les données du site ou désinstaller l’application les supprime.</li>
+        <li>Les invités sont aussi comptés dans le compteur « personnes utilisant l’application en ce moment ». Pour cela, un message anonyme (« un invité est connecté ») est envoyé au serveur, sans identité ni donnée d’entraînement, et il disparaît quand vous fermez l’application.</li>
+        <li>Si vous vous êtes connecté auparavant et avez refusé d’ajouter à votre compte l’entraînement fait en tant qu’invité, ces enregistrements d’entraînement (note, case, corde, temps, juste ou faux) ont pu être conservés sur le serveur de façon anonyme, sans lien avec aucun compte.</li>
+      </ul>
+
+      <h2>2. Connexion avec Google</h2>
+      <p>La connexion est facultative et sert à sauvegarder et restaurer vos données entre appareils. Lorsque vous vous connectez, nous recevons de Google votre adresse e-mail, votre nom et votre photo de profil. Nous ne recevons jamais votre mot de passe Google.</p>
+      <p>Une fois connecté, une copie de ce qui suit est sauvegardée sur notre serveur (Supabase) et liée à votre compte :</p>
+      <ul>
+        <li>Votre historique de réponses et vos records personnels (y compris les suppressions que vous avez faites, pour qu’elles restent supprimées sur tous les appareils).</li>
+        <li>Vos réglages et préférences (par exemple la langue, le thème et les choix d’entraînement).</li>
+        <li>Les badges que vous avez gagnés, la progression dans le jeu et l’état d’apprentissage (calendrier de révision, parcours d’apprentissage, intervalles, gammes, portée et tablature).</li>
+        <li>Votre formule (Free, Pro ou Premium).</li>
+        <li>Votre profil vocal personnel, si vous en avez créé un. Seules des caractéristiques numériques des enregistrements (MFCC) sont conservées, pas de fichiers audio.</li>
+      </ul>
+
+      <h2>3. Mode professeur (classes et devoirs)</h2>
+      <ul>
+        <li>Un utilisateur qui se déclare professeur dans l’application peut ouvrir une classe et obtenir un code d’accès.</li>
+        <li>Un élève qui rejoint une classe avec le code choisit un <strong>nom d’affichage</strong> (pas son identité réelle) et ne le partage qu’avec le professeur de cette classe.</li>
+        <li>Le professeur voit la liste de la classe (nom d’affichage et date d’arrivée), les devoirs qu’il a donnés et les résultats de chaque élève (bonnes réponses sur le total, temps passé et date de réalisation).</li>
+        <li>Un élève ne peut pas voir les résultats des autres élèves de la classe, et il n’a pas à révéler au professeur autre chose que le nom d’affichage qu’il a choisi.</li>
+        <li>Le professeur peut retirer un élève de la classe et, si nécessaire, empêcher son compte de rejoindre à nouveau cette même classe.</li>
+        <li>Une classe sans activité (une arrivée, un devoir donné ou un devoir terminé) pendant six mois est automatiquement supprimée du serveur, avec toutes ses données.</li>
+      </ul>
+
+      <h2>4. Ce que les autres personnes peuvent voir</h2>
+      <ul>
+        <li><strong>Classement :</strong> si vous y participez, votre nom d’affichage, votre score (XP), votre nombre de questions et votre précision sont visibles par tous.</li>
+        <li><strong>Groupes de ligue hebdomadaires :</strong> si vous êtes dans une ligue, votre nom d’affichage et votre score de la semaine sont visibles par les autres joueurs de votre groupe de ligue (environ 30 joueurs au maximum).</li>
+        <li><strong>Tableau de commentaires :</strong> un message que vous envoyez est conservé avec votre nom et votre e-mail, et seuls les administrateurs de l’application peuvent le lire.</li>
+        <li><strong>Compteur d’utilisateurs :</strong> tout le monde voit un nombre global de comptes inscrits et de personnes actives en ce moment, pas leur identité.</li>
+      </ul>
+
+      <h2>5. Microphone et reconnaissance vocale</h2>
+      <p>L’application ne demande l’accès au microphone que si vous choisissez de répondre à voix haute (ou de créer un profil vocal). L’audio sert à reconnaître votre réponse et n’est pas enregistré sous forme de fichier audio.</p>
+      <ul>
+        <li>Avec le moteur « Personnel » ou « Général », la reconnaissance s’effectue <strong>sur votre appareil</strong>.</li>
+        <li>Avec le moteur automatique, votre navigateur ou votre système d’exploitation peut utiliser son propre service de reconnaissance vocale (par exemple celui de Google dans Chrome et sur Android). L’audio est alors envoyé à ce fournisseur et traité selon sa politique de confidentialité, pas la nôtre.</li>
+      </ul>
+
+      <h2>6. Publicité</h2>
+      <p>La formule gratuite affiche un bandeau publicitaire. Les abonnés Pro et Premium ne voient pas de publicités.</p>
+      <ul>
+        <li>Sur Android et iPhone, les publicités proviennent de Google AdMob ; sur le web, de Google AdSense. Google peut collecter un identifiant publicitaire et des données d’utilisation pour afficher et mesurer les publicités.</li>
+        <li>Avant l’affichage des publicités, votre consentement vous est demandé là où la loi l’exige (dans l’UE et au Royaume-Uni). Sur iPhone, une autorisation de suivi vous est aussi demandée. Vous pouvez modifier votre choix à tout moment.</li>
+        <li>Plus d’informations : <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Comment Google utilise les données</a>.</li>
+      </ul>
+
+      <h2>7. Mesure d’usage</h2>
+      <p>Nous conservons un petit journal d’événements anonyme pour comprendre comment l’application est utilisée (par exemple, combien de personnes terminent une première série d’entraînement ou reviennent le lendemain). Chaque appareil reçoit un identifiant aléatoire généré sur l’appareil et stocké uniquement dans son stockage local — il n’est jamais lié à votre compte, à votre e-mail ni à aucune autre donnée personnelle, et nous ne pouvons pas l’utiliser pour vous identifier. Nous enregistrons une dizaine de types d’événements (par exemple : application ouverte, série terminée, fonctionnalité verrouillée touchée, page de mise à niveau consultée), sans contenu en texte libre et sans donnée de localisation ni d’empreinte d’appareil. Cette table est en insertion seule du côté de l’application — une fois un événement écrit, vous ne pouvez lire les événements de personne, et seuls les administrateurs de l’application peuvent interroger des totaux agrégés.</p>
+
+      <h2>8. Autres services tiers</h2>
+      <ul>
+        <li><strong>Supabase</strong> — stocke les données des utilisateurs connectés, ainsi que le journal de mesure anonyme de la section 7.</li>
+        <li><strong>Google</strong> — connexion, et publicités comme décrit ci-dessus.</li>
+        <li><strong>GitHub Pages</strong> — héberge la version web.</li>
+        <li><strong>Bibliothèque d’échantillons de guitare</strong> (gleitz.github.io) — les sons des notes y sont chargés. Comme pour tout site web, ces requêtes comprennent votre adresse IP.</li>
+      </ul>
+      <p>Nous ne vendons pas d’informations personnelles et ne les utilisons que pour faire fonctionner l’application comme décrit ici.</p>
+
+      <h2>9. Vos droits</h2>
+      <ul>
+        <li><strong>Déconnexion :</strong> se déconnecter dissocie l’appareil de votre compte. Les données locales restent sur l’appareil.</li>
+        <li><strong>Suppression :</strong> vous pouvez nous demander de supprimer votre compte et toutes les données associées via le contact ci-dessous. Nous traiterons la demande dans un délai raisonnable, et au plus tard sous 30 jours.</li>
+        <li><strong>Accès, rectification et copie :</strong> vous pouvez demander une copie des données que nous détenons sur vous et leur rectification.</li>
+        <li><strong>Sur votre appareil :</strong> effacer les données du site ou désinstaller l’application supprime tout ce qui est stocké localement.</li>
+      </ul>
+
+      <h2>10. Enfants</h2>
+      <p>L’application ne s’adresse pas aux enfants de moins de 13 ans et nous ne collectons pas sciemment d’informations les concernant. Si vous apprenez qu’un enfant s’est inscrit, contactez-nous et nous supprimerons les données.</p>
+
+      <h2>11. Sécurité et conservation</h2>
+      <p>La communication avec le serveur est chiffrée, et l’accès aux données du serveur est restreint par des règles d’autorisation, de sorte que chaque utilisateur connecté ne peut lire et modifier que ses propres données (hormis les données publiques de la section 4 et les données de classe de la section 3 que peut voir un professeur). Nous conservons les données tant que le compte existe et les supprimons lorsque le compte est supprimé.</p>
+
+      <h2>12. Modifications de cette politique</h2>
+      <p>Nous mettrons cette page à jour lorsque l’application évoluera, et la date en haut de page changera avec elle. En cas de modification importante, nous afficherons un avis dans l’application.</p>
+
+      <h2>13. Contact</h2>
+      <p>Pour toute question ou demande relative à la confidentialité (y compris une demande de suppression), ouvrez l’application, connectez-vous et envoyez un message via le tableau de commentaires. Nous mettons en place une adresse e-mail dédiée et la publierons ici.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Italiano ───────────────────────── -->
+  <section id="it" lang="it" dir="ltr" hidden>
+    <h1>Informativa sulla privacy</h1>
+    <p class="meta">App Fretquency (esercizi sulla tastiera per strumenti a corde) · Ultimo aggiornamento: 6 ottobre 2026</p>
+    <p>Questa pagina spiega quali informazioni l’app conserva su di te, per quale scopo e cosa puoi farne. L’app è pensata perché tu possa usarla interamente senza un account e senza inviare alcun dato di allenamento a un server.</p>
+
+    <div class="card">
+      <h2>1. Uso come ospite (senza accedere)</h2>
+      <ul>
+        <li>La tua cronologia, i tuoi record personali, le impostazioni, i badge e i progressi sono salvati <strong>solo sul tuo dispositivo</strong> (nella memoria locale del browser o dell’app).</li>
+        <li>Non possiamo vedere questi dati. Cancellare i dati del sito o disinstallare l’app li elimina.</li>
+        <li>Anche gli ospiti vengono contati nel contatore delle «persone che usano l’app in questo momento». A questo scopo viene inviato al server un messaggio anonimo («un ospite è connesso»), senza identità e senza dati di allenamento, che scompare quando chiudi l’app.</li>
+        <li>Se in passato hai effettuato l’accesso e hai rifiutato di aggiungere al tuo account l’allenamento fatto come ospite, quei registri di allenamento (nota, tasto, corda, tempo, giusto o sbagliato) potrebbero essere stati conservati sul server in forma anonima, senza collegamento ad alcun account.</li>
+      </ul>
+
+      <h2>2. Accesso con Google</h2>
+      <p>L’accesso è facoltativo e serve a fare il backup e a ripristinare i tuoi dati tra dispositivi. Quando accedi riceviamo da Google il tuo indirizzo e-mail, il tuo nome e la tua foto del profilo. Non riceviamo mai la tua password di Google.</p>
+      <p>Dopo l’accesso, una copia di quanto segue viene salvata sul nostro server (Supabase) e collegata al tuo account:</p>
+      <ul>
+        <li>La cronologia delle tue risposte e i tuoi record personali (comprese le cancellazioni che hai fatto, così restano cancellati su ogni dispositivo).</li>
+        <li>Le tue impostazioni e preferenze (per esempio lingua, tema e scelte di allenamento).</li>
+        <li>I badge che hai ottenuto, i progressi nel gioco e lo stato dell’apprendimento (calendario dei ripassi, percorso di apprendimento, intervalli, scale, pentagramma e tablatura).</li>
+        <li>Il tuo piano (Free, Pro o Premium).</li>
+        <li>Il tuo profilo vocale personale, se ne hai creato uno. Vengono salvate solo caratteristiche numeriche delle registrazioni (MFCC), non file audio.</li>
+      </ul>
+
+      <h2>3. Modalità insegnante (classi e compiti)</h2>
+      <ul>
+        <li>Un utente che si dichiara insegnante nell’app può aprire una classe e ottenere un codice di accesso.</li>
+        <li>Uno studente che entra in una classe con il codice sceglie un <strong>nome visualizzato</strong> (non la sua identità reale) e lo condivide solo con l’insegnante di quella classe.</li>
+        <li>L’insegnante vede l’elenco della classe (nome visualizzato e data di ingresso), i compiti che ha assegnato e i risultati di ogni studente (risposte giuste sul totale, tempo impiegato e quando è stato fatto).</li>
+        <li>Uno studente non può vedere i risultati degli altri studenti della classe e non gli viene chiesto di rivelare all’insegnante nulla oltre al nome visualizzato che ha scelto.</li>
+        <li>L’insegnante può rimuovere uno studente dalla classe e, se necessario, impedire al suo account di rientrare nella stessa classe.</li>
+        <li>Una classe senza attività (un ingresso, un compito assegnato o uno completato) per sei mesi viene eliminata automaticamente dal server, insieme a tutti i suoi dati.</li>
+      </ul>
+
+      <h2>4. Cosa possono vedere le altre persone</h2>
+      <ul>
+        <li><strong>Classifica:</strong> se partecipi, il tuo nome visualizzato, il punteggio (XP), il numero di domande e la precisione sono visibili a tutti.</li>
+        <li><strong>Gruppi di lega settimanali:</strong> se sei in una lega, il tuo nome visualizzato e il punteggio settimanale sono visibili agli altri giocatori del tuo gruppo di lega (fino a circa 30 giocatori).</li>
+        <li><strong>Bacheca dei commenti:</strong> un messaggio che invii viene salvato con il tuo nome e la tua e-mail e solo gli amministratori dell’app possono leggerlo.</li>
+        <li><strong>Contatore degli utenti:</strong> tutti vedono un numero complessivo di account registrati e di persone attive in questo momento, non chi sono.</li>
+      </ul>
+
+      <h2>5. Microfono e riconoscimento vocale</h2>
+      <p>L’app chiede l’accesso al microfono solo se scegli di rispondere a voce (o di creare un profilo vocale). L’audio serve a riconoscere la tua risposta e non viene salvato come file audio.</p>
+      <ul>
+        <li>Con il motore «Personale» o «Generale», il riconoscimento avviene <strong>sul tuo dispositivo</strong>.</li>
+        <li>Con il motore automatico, il tuo browser o sistema operativo può usare un proprio servizio di riconoscimento vocale (per esempio quello di Google in Chrome e su Android). In tal caso l’audio viene inviato a quel fornitore e trattato secondo la sua informativa sulla privacy, non la nostra.</li>
+      </ul>
+
+      <h2>6. Pubblicità</h2>
+      <p>Il piano gratuito mostra una fascia pubblicitaria. Gli abbonati Pro e Premium non vedono pubblicità.</p>
+      <ul>
+        <li>Su Android e iPhone gli annunci provengono da Google AdMob; sul web, da Google AdSense. Google può raccogliere un identificativo pubblicitario e dati di utilizzo per mostrare e misurare gli annunci.</li>
+        <li>Prima di mostrare gli annunci ti viene chiesto il consenso dove la legge lo richiede (nell’UE e nel Regno Unito). Su iPhone ti viene chiesta anche l’autorizzazione al tracciamento. Puoi cambiare la tua scelta in qualsiasi momento.</li>
+        <li>Maggiori informazioni: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Come Google utilizza i dati</a>.</li>
+      </ul>
+
+      <h2>7. Misurazione dell’utilizzo</h2>
+      <p>Conserviamo un piccolo registro anonimo di eventi per capire come viene usata l’app (per esempio, quante persone finiscono un primo giro di allenamento o tornano il giorno dopo). A ogni dispositivo viene assegnato un identificativo casuale generato sul dispositivo e salvato solo nella sua memoria locale: non viene mai collegato al tuo account, alla tua e-mail o ad altri dati personali e non possiamo usarlo per identificarti. Registriamo circa dieci tipi di eventi (per esempio: app aperta, giro terminato, funzione bloccata toccata, pagina di upgrade visualizzata), senza contenuti di testo libero e senza dati di posizione o di identificazione del dispositivo. Questa tabella è in sola scrittura dal lato dell’app: una volta scritto un evento, non puoi leggere quelli di nessun altro e solo gli amministratori dell’app possono interrogare conteggi aggregati.</p>
+
+      <h2>8. Altri servizi di terze parti</h2>
+      <ul>
+        <li><strong>Supabase</strong> — conserva i dati degli utenti che hanno effettuato l’accesso e il registro anonimo di misurazione della sezione 7.</li>
+        <li><strong>Google</strong> — accesso e pubblicità, come descritto sopra.</li>
+        <li><strong>GitHub Pages</strong> — ospita la versione web.</li>
+        <li><strong>Libreria di campioni di chitarra</strong> (gleitz.github.io) — da lì vengono caricati i suoni delle note. Come per qualsiasi sito web, queste richieste includono il tuo indirizzo IP.</li>
+      </ul>
+      <p>Non vendiamo informazioni personali e le usiamo solo per far funzionare l’app come descritto qui.</p>
+
+      <h2>9. I tuoi diritti</h2>
+      <ul>
+        <li><strong>Uscita:</strong> disconnettersi scollega il dispositivo dal tuo account. I dati locali restano sul dispositivo.</li>
+        <li><strong>Cancellazione:</strong> puoi chiederci di eliminare il tuo account e tutti i dati associati usando il contatto qui sotto. Gestiremo la richiesta entro un tempo ragionevole e comunque non oltre 30 giorni.</li>
+        <li><strong>Accesso, rettifica e copia:</strong> puoi chiedere una copia dei dati che conserviamo su di te e la loro correzione.</li>
+        <li><strong>Sul tuo dispositivo:</strong> cancellare i dati del sito o disinstallare l’app elimina tutto ciò che è salvato in locale.</li>
+      </ul>
+
+      <h2>10. Minori</h2>
+      <p>L’app non è rivolta ai minori di 13 anni e non raccogliamo consapevolmente informazioni su di loro. Se vieni a sapere che un minore si è registrato, contattaci e cancelleremo i dati.</p>
+
+      <h2>11. Sicurezza e conservazione</h2>
+      <p>La comunicazione con il server è cifrata e l’accesso ai dati sul server è limitato da regole di autorizzazione, in modo che ogni utente che ha effettuato l’accesso possa leggere e modificare solo i propri dati (a parte i dati pubblici della sezione 4 e i dati della classe della sezione 3 che un insegnante può vedere). Conserviamo i dati finché l’account esiste e li eliminiamo quando l’account viene eliminato.</p>
+
+      <h2>12. Modifiche a questa informativa</h2>
+      <p>Aggiorneremo questa pagina quando l’app cambierà e la data in alto cambierà di conseguenza. In caso di modifica sostanziale mostreremo un avviso nell’app.</p>
+
+      <h2>13. Contatti</h2>
+      <p>Per domande e richieste sulla privacy (compresa una richiesta di cancellazione), apri l’app, accedi e invia un messaggio tramite la bacheca dei commenti. Stiamo predisponendo un indirizzo e-mail dedicato e lo pubblicheremo qui.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Deutsch ───────────────────────── -->
+  <section id="de" lang="de" dir="ltr" hidden>
+    <h1>Datenschutzerklärung</h1>
+    <p class="meta">Fretquency-App (Griffbrett-Übungen für Saiteninstrumente) · Zuletzt aktualisiert: 6. Oktober 2026</p>
+    <p>Diese Seite erklärt, welche Informationen die App über dich speichert, wozu, und was du damit tun kannst. Die App ist so gebaut, dass du sie vollständig ohne Konto und ohne Übertragung von Übungsdaten an einen Server nutzen kannst.</p>
+
+    <div class="card">
+      <h2>1. Nutzung als Gast (nicht angemeldet)</h2>
+      <ul>
+        <li>Dein Verlauf, deine persönlichen Bestleistungen, Einstellungen, Abzeichen und dein Fortschritt werden <strong>nur auf deinem Gerät</strong> gespeichert (im lokalen Speicher des Browsers oder der App).</li>
+        <li>Wir können diese Daten nicht sehen. Das Löschen der Websitedaten oder das Deinstallieren der App löscht sie.</li>
+        <li>Gäste werden auch im Zähler „Personen, die die App gerade nutzen“ mitgezählt. Dafür wird eine anonyme Nachricht („ein Gast ist verbunden“) an den Server gesendet, ohne Identität und ohne Übungsdaten; sie verschwindet, wenn du die App schließt.</li>
+        <li>Wenn du dich früher angemeldet und abgelehnt hast, deine als Gast geübten Daten deinem Konto hinzuzufügen, wurden diese Übungsdatensätze (Ton, Bund, Saite, Zeit, richtig oder falsch) möglicherweise anonym auf dem Server gespeichert, ohne Verknüpfung mit einem Konto.</li>
+      </ul>
+
+      <h2>2. Anmeldung mit Google</h2>
+      <p>Die Anmeldung ist freiwillig und dient dazu, deine Daten zu sichern und auf anderen Geräten wiederherzustellen. Bei der Anmeldung erhalten wir von Google deine E-Mail-Adresse, deinen Namen und dein Profilbild. Dein Google-Passwort erhalten wir nie.</p>
+      <p>Nach der Anmeldung wird Folgendes auf unserem Server (Supabase) gesichert und mit deinem Konto verknüpft:</p>
+      <ul>
+        <li>Dein Antwortverlauf und deine persönlichen Bestleistungen (einschließlich deiner Löschungen, damit sie auf jedem Gerät gelöscht bleiben).</li>
+        <li>Deine Einstellungen und Präferenzen (zum Beispiel Sprache, Design und Übungsauswahl).</li>
+        <li>Verdiente Abzeichen, Spielfortschritt und Lernstand (Wiederholungsplan, Lernpfad, Intervalle, Tonleitern, Notensystem und Tabulatur).</li>
+        <li>Dein Tarif (Free, Pro oder Premium).</li>
+        <li>Dein persönliches Stimmprofil, falls du eines erstellt hast. Gespeichert werden nur numerische Merkmale der Aufnahmen (MFCC), keine Audiodateien.</li>
+      </ul>
+
+      <h2>3. Lehrer-Modus (Kurse und Hausaufgaben)</h2>
+      <ul>
+        <li>Wer sich in der App als Lehrkraft einstuft, kann einen Kurs eröffnen und einen Beitrittscode erhalten.</li>
+        <li>Eine Schülerin oder ein Schüler, die oder der einem Kurs mit dem Code beitritt, wählt einen <strong>Anzeigenamen</strong> (nicht die echte Identität) und teilt ihn nur mit der Lehrkraft dieses Kurses.</li>
+        <li>Die Lehrkraft sieht die Kursliste (Anzeigename und Beitrittsdatum), die vergebenen Hausaufgaben und die Ergebnisse jedes Schülers darin (richtige Antworten von insgesamt, benötigte Zeit und wann sie erledigt wurden).</li>
+        <li>Schüler sehen die Ergebnisse anderer Schüler im Kurs nicht und müssen der Lehrkraft nichts außer dem gewählten Anzeigenamen preisgeben.</li>
+        <li>Die Lehrkraft kann einen Schüler aus dem Kurs entfernen und bei Bedarf sein Konto am erneuten Beitritt zu demselben Kurs hindern.</li>
+        <li>Ein Kurs ohne Aktivität (ein Beitritt, eine vergebene oder eine erledigte Hausaufgabe) wird nach sechs Monaten automatisch samt allen Daten vom Server gelöscht.</li>
+      </ul>
+
+      <h2>4. Was andere sehen können</h2>
+      <ul>
+        <li><strong>Bestenliste:</strong> Wenn du teilnimmst, sind dein Anzeigename, deine Punktzahl (XP), deine Fragenanzahl und deine Genauigkeit für alle sichtbar.</li>
+        <li><strong>Wöchentliche Ligagruppen:</strong> Wenn du in einer Liga bist, sind dein Anzeigename und deine Wochenpunktzahl für die anderen Spieler deiner Ligagruppe sichtbar (bis zu etwa 30 Spieler).</li>
+        <li><strong>Feedback-Board:</strong> Eine Nachricht, die du sendest, wird mit deinem Namen und deiner E-Mail-Adresse gespeichert und kann nur von den Admins der App gelesen werden.</li>
+        <li><strong>Nutzerzähler:</strong> Alle sehen eine allgemeine Zahl der registrierten Konten und der gerade aktiven Personen, nicht, wer sie sind.</li>
+      </ul>
+
+      <h2>5. Mikrofon und Spracherkennung</h2>
+      <p>Die App fragt nur dann nach dem Mikrofonzugriff, wenn du per Sprache antworten (oder ein Stimmprofil erstellen) möchtest. Das Audio dient dazu, deine Antwort zu erkennen, und wird nicht als Audiodatei gespeichert.</p>
+      <ul>
+        <li>Mit der Engine „Persönlich“ oder „Allgemein“ läuft die Erkennung <strong>auf deinem Gerät</strong>.</li>
+        <li>Mit der automatischen Engine kann dein Browser oder Betriebssystem einen eigenen Spracherkennungsdienst nutzen (zum Beispiel den von Google in Chrome und auf Android). Das Audio wird dann an diesen Anbieter gesendet und nach dessen Datenschutzerklärung behandelt, nicht nach unserer.</li>
+      </ul>
+
+      <h2>6. Werbung</h2>
+      <p>Der kostenlose Tarif zeigt einen Werbestreifen. Pro- und Premium-Abonnenten sehen keine Werbung.</p>
+      <ul>
+        <li>Auf Android und iPhone stammt die Werbung von Google AdMob, im Web von Google AdSense. Google kann eine Werbe-ID und Nutzungsdaten erfassen, um Werbung anzuzeigen und zu messen.</li>
+        <li>Bevor Werbung angezeigt wird, wirst du dort um Einwilligung gebeten, wo das Gesetz es verlangt (in der EU und im Vereinigten Königreich). Auf dem iPhone wirst du außerdem um die Tracking-Erlaubnis gebeten. Du kannst deine Wahl jederzeit ändern.</li>
+        <li>Weitere Informationen: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Wie Google Daten verwendet</a>.</li>
+      </ul>
+
+      <h2>7. Nutzungsmessung</h2>
+      <p>Wir führen ein kleines, anonymes Ereignisprotokoll, um zu verstehen, wie die App genutzt wird (zum Beispiel, wie viele Personen eine erste Übungsrunde beenden oder am nächsten Tag wiederkommen). Jedes Gerät erhält eine zufällige ID, die auf dem Gerät erzeugt und nur in dessen lokalem Speicher abgelegt wird – sie wird nie mit deinem Konto, deiner E-Mail-Adresse oder anderen personenbezogenen Daten verknüpft, und wir können sie nicht verwenden, um dich zu identifizieren. Wir protokollieren etwa zehn Ereignistypen (zum Beispiel: App geöffnet, Runde beendet, gesperrte Funktion angetippt, Upgrade-Seite angesehen), ohne Freitextinhalte und ohne Standort- oder Geräte-Fingerprint-Daten. Diese Tabelle erlaubt von der App aus nur das Einfügen – ist ein Ereignis geschrieben, kannst du die Ereignisse anderer nicht lesen, und nur die Admins der App können aggregierte Zahlen abfragen.</p>
+
+      <h2>8. Weitere Drittanbieter</h2>
+      <ul>
+        <li><strong>Supabase</strong> – speichert die Daten angemeldeter Nutzer sowie das anonyme Messprotokoll aus Abschnitt 7.</li>
+        <li><strong>Google</strong> – Anmeldung und Werbung, wie oben beschrieben.</li>
+        <li><strong>GitHub Pages</strong> – hostet die Webversion.</li>
+        <li><strong>Gitarren-Klangbibliothek</strong> (gleitz.github.io) – von dort werden die Notenklänge geladen. Wie bei jeder Website enthalten diese Anfragen deine IP-Adresse.</li>
+      </ul>
+      <p>Wir verkaufen keine personenbezogenen Daten und verwenden sie nur, um die App wie hier beschrieben zu betreiben.</p>
+
+      <h2>9. Deine Rechte</h2>
+      <ul>
+        <li><strong>Abmelden:</strong> Beim Abmelden wird das Gerät von deinem Konto getrennt. Lokale Daten bleiben auf dem Gerät.</li>
+        <li><strong>Löschung:</strong> Du kannst über den Kontakt unten verlangen, dass wir dein Konto und alle damit verbundenen Daten löschen. Wir bearbeiten die Anfrage innerhalb angemessener Zeit, spätestens innerhalb von 30 Tagen.</li>
+        <li><strong>Auskunft, Berichtigung und Kopie:</strong> Du kannst eine Kopie der über dich gespeicherten Daten verlangen und diese berichtigen lassen.</li>
+        <li><strong>Auf deinem Gerät:</strong> Das Löschen der Websitedaten oder das Deinstallieren der App löscht alles lokal Gespeicherte.</li>
+      </ul>
+
+      <h2>10. Kinder</h2>
+      <p>Die App richtet sich nicht an Kinder unter 13 Jahren, und wir erheben wissentlich keine Informationen über sie. Wenn du erfährst, dass sich ein Kind angemeldet hat, melde dich bei uns, und wir löschen die Daten.</p>
+
+      <h2>11. Sicherheit und Speicherdauer</h2>
+      <p>Die Kommunikation mit dem Server ist verschlüsselt, und der Zugriff auf die Serverdaten ist durch Berechtigungsregeln beschränkt, sodass jeder angemeldete Nutzer nur seine eigenen Daten lesen und ändern kann (abgesehen von den öffentlichen Daten in Abschnitt 4 und den Kursdaten in Abschnitt 3, die eine Lehrkraft sehen kann). Wir speichern die Daten, solange das Konto besteht, und löschen sie, wenn das Konto gelöscht wird.</p>
+
+      <h2>12. Änderungen dieser Erklärung</h2>
+      <p>Wir aktualisieren diese Seite, wenn sich die App ändert, und das Datum oben ändert sich mit. Bei einer wesentlichen Änderung zeigen wir einen Hinweis in der App an.</p>
+
+      <h2>13. Kontakt</h2>
+      <p>Für Datenschutzfragen und -anliegen (einschließlich eines Löschantrags) öffne die App, melde dich an und sende eine Nachricht über das Feedback-Board. Wir richten gerade eine eigene E-Mail-Adresse ein und veröffentlichen sie hier.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 日本語 ───────────────────────── -->
+  <section id="ja" lang="ja" dir="ltr" hidden>
+    <h1>プライバシーポリシー</h1>
+    <p class="meta">Fretquencyアプリ(弦楽器の指板ドリル) · 最終更新日:2026年10月6日</p>
+    <p>このページでは、アプリがあなたについてどのような情報を保存するか、その目的、そしてその情報を使ってできることを説明します。このアプリは、アカウントなしで、練習データをサーバーに送らなくても、すべての機能を使えるように作られています。</p>
+
+    <div class="card">
+      <h2>1. ゲストとしての利用(ログインなし)</h2>
+      <ul>
+        <li>履歴、自己ベスト、設定、バッジ、進捗は、<strong>お使いの端末の中だけ</strong>に保存されます(ブラウザまたはアプリのローカルストレージ)。</li>
+        <li>これらのデータを当方が見ることはできません。サイトのデータを消去するか、アプリをアンインストールすると、削除されます。</li>
+        <li>ゲストも、「現在アプリを使っている人数」のカウンターに数えられます。そのため、匿名のメッセージ(「ゲストが接続中」)がサーバーに送られます。個人の識別情報も練習データも含まれず、アプリを閉じると消えます。</li>
+        <li>以前にログインして、ゲストとしての練習記録をアカウントに追加しないことを選んだ場合、その練習記録(音名、フレット、弦、時間、正解・不正解)は、どのアカウントとも結び付けられない匿名の形で、サーバーに保存されている場合があります。</li>
+      </ul>
+
+      <h2>2. Googleでのログイン</h2>
+      <p>ログインは任意で、端末間でデータをバックアップ・復元するために使います。ログインすると、Googleからメールアドレス、名前、プロフィール画像を受け取ります。Googleのパスワードを受け取ることはありません。</p>
+      <p>ログイン後は、次のデータのコピーが当方のサーバー(Supabase)に保存され、あなたのアカウントに結び付けられます。</p>
+      <ul>
+        <li>回答履歴と自己ベスト(すべての端末で削除状態が保たれるよう、あなたが行った削除も含みます)。</li>
+        <li>設定と好み(たとえば、言語、テーマ、練習の選択内容)。</li>
+        <li>獲得したバッジ、ゲームの進捗、学習の状態(復習スケジュール、学習パス、音程、スケール、五線譜、タブ譜の進捗)。</li>
+        <li>ご利用のプラン(Free、Pro、Premium)。</li>
+        <li>作成した場合は、パーソナル音声プロファイル。保存されるのは録音の数値的な特徴量(MFCC)のみで、音声ファイルは保存されません。</li>
+      </ul>
+
+      <h2>3. 先生モード(クラスと宿題)</h2>
+      <ul>
+        <li>アプリ内で自分を先生として設定したユーザーは、クラスを作成し、参加コードを受け取れます。</li>
+        <li>コードでクラスに参加する生徒は、<strong>表示名</strong>(本名ではないもの)を選び、そのクラスの先生にだけ共有します。</li>
+        <li>先生は、クラスの名簿(表示名と参加日)、自分が出した宿題、それに対する各生徒の結果(全問中の正解数、所要時間、実施日時)を見られます。</li>
+        <li>生徒は、クラスの他の生徒の結果を見られません。また、自分で選んだ表示名以外の情報を先生に明かすよう求められることはありません。</li>
+        <li>先生は、生徒をクラスから削除でき、必要な場合は、そのアカウントが同じクラスに再び参加できないようにブロックできます。</li>
+        <li>6か月間、活動(参加、宿題の割り当て、宿題の完了)がまったくないクラスは、すべてのデータとともにサーバーから自動的に削除されます。</li>
+      </ul>
+
+      <h2>4. 他の人に見えるもの</h2>
+      <ul>
+        <li><strong>ランキング:</strong> 参加した場合、表示名、スコア(XP)、回答数、正答率が、全員に表示されます。</li>
+        <li><strong>週ごとのリーググループ:</strong> リーグに参加している場合、表示名と今週のスコアが、同じリーググループの他のプレイヤー(最大で約30人)に表示されます。</li>
+        <li><strong>フィードバックボード:</strong> 送信したメッセージは、名前とメールアドレスとともに保存され、アプリの管理者だけが読めます。</li>
+        <li><strong>ユーザー数のカウンター:</strong> 登録アカウントの総数と、現在アクティブな人数が全員に表示されます。誰なのかは表示されません。</li>
+      </ul>
+
+      <h2>5. マイクと音声認識</h2>
+      <p>アプリがマイクへのアクセスを求めるのは、声で回答する(または音声プロファイルを作成する)ことを選んだときだけです。音声は回答の認識にのみ使われ、音声ファイルとして保存されることはありません。</p>
+      <ul>
+        <li>「パーソナル」または「一般」のエンジンでは、認識は<strong>お使いの端末の中</strong>で行われます。</li>
+        <li>自動エンジンでは、ブラウザやOSが独自の音声認識サービス(たとえば、ChromeやAndroidのGoogleのサービス)を使う場合があります。その場合、音声はその提供元に送信され、当方ではなく提供元のプライバシーポリシーに従って扱われます。</li>
+      </ul>
+
+      <h2>6. 広告</h2>
+      <p>無料プランでは、広告バーが表示されます。ProとPremiumの加入者には、広告は表示されません。</p>
+      <ul>
+        <li>AndroidとiPhoneでは広告はGoogle AdMobから、ウェブではGoogle AdSenseから配信されます。Googleは、広告を表示・測定するために、広告IDと利用データを収集する場合があります。</li>
+        <li>広告を表示する前に、法律で必要とされる地域(EUと英国)では、同意をお願いします。iPhoneでは、トラッキングの許可もお願いします。選択はいつでも変更できます。</li>
+        <li>詳しくは、<a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Googleによるデータの利用方法</a>をご覧ください。</li>
+      </ul>
+
+      <h2>7. 利用状況の計測</h2>
+      <p>アプリがどのように使われているかを把握するため(たとえば、何人が最初の練習ラウンドを終えるか、翌日に戻ってくるか)、小規模な匿名のイベントログを保存しています。各端末には、その端末上で生成されたランダムなIDが割り当てられ、端末のローカルストレージにのみ保存されます。このIDは、アカウント、メールアドレス、その他の個人情報とは結び付けられることはなく、あなたを特定するために使うこともできません。記録するイベントは約10種類です(たとえば、アプリを開いた、ラウンドを終えた、ロックされた機能をタップした、アップグレードページを見た)。自由記述の内容、位置情報、端末を特定する情報は含まれません。このテーブルは、アプリ側からは書き込みのみ可能です。イベントを書き込んだあとは、他の誰のイベントも読み取ることはできず、集計値を参照できるのはアプリの管理者だけです。</p>
+
+      <h2>8. その他の外部サービス</h2>
+      <ul>
+        <li><strong>Supabase</strong> — ログインしたユーザーのデータと、第7項の匿名の計測ログを保存します。</li>
+        <li><strong>Google</strong> — ログインと、前述の広告。</li>
+        <li><strong>GitHub Pages</strong> — ウェブ版をホスティングします。</li>
+        <li><strong>ギターのサンプル音源ライブラリ</strong>(gleitz.github.io) — 音のサンプルがここから読み込まれます。どのウェブサイトでも同様に、これらのリクエストにはIPアドレスが含まれます。</li>
+      </ul>
+      <p>当方は個人情報を販売せず、ここに説明した方法でアプリを動かす目的にのみ使用します。</p>
+
+      <h2>9. あなたの権利</h2>
+      <ul>
+        <li><strong>ログアウト:</strong> ログアウトすると、端末とアカウントとの関連付けが解除されます。端末内のデータは端末に残ります。</li>
+        <li><strong>削除:</strong> 下記の連絡先から、アカウントと関連するすべてのデータの削除を依頼できます。依頼は、妥当な期間内に、遅くとも30日以内に対応します。</li>
+        <li><strong>開示、訂正、コピー:</strong> 当方が保有するあなたのデータのコピーの提供と、その訂正を依頼できます。</li>
+        <li><strong>端末上のデータ:</strong> サイトのデータを消去するか、アプリをアンインストールすると、ローカルに保存されたすべてが削除されます。</li>
+      </ul>
+
+      <h2>10. お子様</h2>
+      <p>このアプリは13歳未満のお子様を対象としておらず、当方は、お子様に関する情報を意図的に収集することはありません。お子様が登録したことをお知りになった場合は、ご連絡ください。データを削除します。</p>
+
+      <h2>11. セキュリティと保存期間</h2>
+      <p>サーバーとの通信は暗号化されています。サーバー上のデータへのアクセスは権限ルールで制限されており、ログインした各ユーザーは、自分のデータだけを読み取り・更新できます(第4項の公開データと、先生が見られる第3項のクラスのデータを除きます)。データは、アカウントが存在する間保存し、アカウントが削除されたときに削除します。</p>
+
+      <h2>12. 本ポリシーの変更</h2>
+      <p>アプリが変更されたときは、このページを更新し、ページ上部の日付も更新します。重要な変更がある場合は、アプリ内でお知らせを表示します。</p>
+
+      <h2>13. お問い合わせ</h2>
+      <p>プライバシーに関するご質問やご依頼(削除の依頼を含む)は、アプリを開いてログインし、フィードバックボードからメッセージをお送りください。専用のメールアドレスを準備中で、準備ができ次第こちらに掲載します。</p>
+    </div>
+  </section>
 </main>
 
 <script>
   (function () {
+    var LANGS = ['he', 'en', 'es', 'pt', 'fr', 'it', 'de', 'ja'];
+    var LANG_TAGS = { pt: 'pt-BR' };
     var buttons = document.querySelectorAll('.switch button');
     function show(lang) {
-      document.getElementById('he').hidden = lang !== 'he';
-      document.getElementById('en').hidden = lang !== 'en';
-      document.documentElement.lang = lang;
+      for (var j = 0; j < LANGS.length; j++) {
+        var el = document.getElementById(LANGS[j]);
+        if (el) el.hidden = LANGS[j] !== lang;
+      }
+      document.documentElement.lang = LANG_TAGS[lang] || lang;
       document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
       for (var i = 0; i < buttons.length; i++) {
         buttons[i].setAttribute('aria-pressed', String(buttons[i].getAttribute('data-lang') === lang));
@@ -236,8 +804,11 @@
     for (var i = 0; i < buttons.length; i++) {
       buttons[i].addEventListener('click', function (e) { show(e.currentTarget.getAttribute('data-lang')); });
     }
-    var q = /[?&]lang=(he|en)/.exec(location.search);
-    var pref = q ? q[1] : ((navigator.language || 'he').slice(0, 2) === 'he' ? 'he' : 'en');
+    // ?lang=xx from the app wins; otherwise the browser language; otherwise English
+    // (the page used to default to Hebrew only for Hebrew browsers).
+    var q = /[?&]lang=(he|en|es|pt|fr|it|de|ja)/.exec(location.search);
+    var browser = (navigator.language || 'en').slice(0, 2);
+    var pref = q ? q[1] : (LANGS.indexOf(browser) >= 0 ? browser : 'en');
     show(pref);
   })();
 </script>

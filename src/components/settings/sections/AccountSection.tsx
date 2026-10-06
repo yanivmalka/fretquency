@@ -8,7 +8,7 @@ import { setOwnEntitlement } from '../../../utils/entitlement';
 import { verror } from '../../../utils/debugLog';
 import type { AuthState } from '../../../hooks/useAuth';
 import { dateLocale, type Lang } from '../../../i18n/translations';
-import { PRIVACY_POLICY_URL, TERMS_URL } from '../../../utils/onboardingState';
+import { privacyPolicyUrl, TERMS_URL } from '../../../utils/onboardingState';
 import { trialDaysLeft } from '../../../utils/trial';
 import { isBeginnerPreview, startBeginnerPreview, endBeginnerPreview } from '../../../utils/adminBeginnerPreview';
 
@@ -222,7 +222,7 @@ export default function AccountSection({
         <a className="account-privacy-link" href={TERMS_URL} target="_blank" rel="noopener noreferrer">
           {t('Terms of use')}
         </a>
-        <a className="account-privacy-link" href={PRIVACY_POLICY_URL} target="_blank" rel="noopener noreferrer">
+        <a className="account-privacy-link" href={privacyPolicyUrl(lang)} target="_blank" rel="noopener noreferrer">
           {t('Privacy policy')}
         </a>
       </div>

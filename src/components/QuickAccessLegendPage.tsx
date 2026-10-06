@@ -17,6 +17,7 @@ function statesFor(id: QuickAccessId, t: (s: string) => string, guitarSupported:
       return [
         { value: 'alpha', caption: t('Letters (A B C)') },
         { value: 'solfege', caption: t('Solfège (Do Re Mi)') },
+        { value: 'german', caption: t('German letters (A H C)') },
       ];
     case 'accidental':
       return [

@@ -131,6 +131,24 @@ export function speechLangForNotation(
   return override || 'en-US';
 }
 
+/**
+ * The BCP-47 tag the recogniser should listen in for a UI language, or
+ * `undefined` to keep the English default. The new-language players say
+ * "do sostenido" / "Cis" / "ドシャープ" in their own tongue, so the engine
+ * must be told. English and Hebrew keep the old behaviour (English letters).
+ */
+export function speechLocaleForLang(lang: string): string | undefined {
+  switch (lang) {
+    case 'es': return 'es-ES';
+    case 'pt-BR': return 'pt-BR';
+    case 'fr': return 'fr-FR';
+    case 'it': return 'it-IT';
+    case 'de': return 'de-DE';
+    case 'ja': return 'ja-JP';
+    default: return undefined;
+  }
+}
+
 // ── Web implementation ───────────────────────────────────────────────
 
 type SRConstructor = new () => SpeechRecognitionLike;
@@ -712,6 +730,6 @@ export function createDictationEngine(): SpeechEngine {
 }
 
 /** Convenience re-export so callers pass one thing to `start()`. */
-export function vocabularyFor(notation: SpeechNotation): string[] {
-  return speechVocabulary(notation);
+export function vocabularyFor(notation: SpeechNotation, locale?: string): string[] {
+  return speechVocabulary(notation, locale);
 }

@@ -28,6 +28,22 @@ const ALPHA_FRAG: Record<string, string> = {
 const SOLFEGE_FRAG: Record<string, string> = {
   C: 'do', D: 're', E: 'mi', F: 'fa', G: 'sol', A: 'la', B: 'si',
 };
+// The spoken word for an accidental, in the language the player will say it
+// in: the notation picks the family (letters vs do-re-mi), the UI language the
+// spelling. German says the ending ("Cis", "Des"), Japanese the English loan.
+function accidentalWordFor(label: string, notation: NotationMode, lang: string): string {
+  const sharp = label === '#';
+  if (lang === 'ja') return sharp ? 'シャープ' : 'フラット';
+  if (notation === 'german') return sharp ? 'is' : 'es';
+  if (notation === 'solfege') {
+    if (lang === 'es') return sharp ? 'sostenido' : 'bemol';
+    if (lang === 'pt-BR') return sharp ? 'sustenido' : 'bemol';
+    if (lang === 'it') return sharp ? 'diesis' : 'bemolle';
+    return sharp ? 'dièse' : 'bémol';
+  }
+  return sharp ? 'sharp' : 'flat';
+}
+
 function exportFileStem(notation: NotationMode, label: string): string {
   const set = notation === 'solfege' ? 'solfege' : 'alpha';
   if (label === '#') return `${set}_${notation === 'solfege' ? 'diese' : 'sharp'}`;
@@ -63,7 +79,7 @@ type RecState = 'idle' | 'recording' | 'thinking';
 // saved as a template, and each take can be deleted individually if it
 // still came out wrong.
 export default function VoiceCalibration({ notation, accidental, onClose, onProfileChanged }: Props) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const vocabId = profileVocabId(notation as SpeechNotation);
   const [profile, setProfile] = useState(() => getActiveProfile() ?? 'My profile');
   const [idx, setIdx] = useState(0);
@@ -103,12 +119,10 @@ export default function VoiceCalibration({ notation, accidental, onClose, onProf
 
   const label = PROFILE_LABELS[idx];
   const isAccidental = (ACCIDENTAL_LABELS as readonly string[]).includes(label);
-  // The accidental word follows the notation: "sharp"/"flat" for A-B-C,
+  // The accidental word follows the notation and language: "sharp"/"flat" for A-B-C,
   // "dièse"/"bémol" for do-re-mi. Always shown in its own language, never
   // transliterated to Hebrew.
-  const accidentalWord = label === '#'
-    ? (notation === 'solfege' ? 'dièse' : 'sharp')
-    : (notation === 'solfege' ? 'bémol' : 'flat');
+  const accidentalWord = accidentalWordFor(label, notation, lang);
   const prompt = isAccidental
     ? accidentalWord
     : displayNote(label, accidental, notation);
@@ -119,12 +133,10 @@ export default function VoiceCalibration({ notation, accidental, onClose, onProf
   // Display text for any label (letter or accidental), for the self-test list.
   const labelText = useCallback((l: string) => {
     if ((ACCIDENTAL_LABELS as readonly string[]).includes(l)) {
-      return l === '#'
-        ? (notation === 'solfege' ? 'dièse' : 'sharp')
-        : (notation === 'solfege' ? 'bémol' : 'flat');
+      return accidentalWordFor(l, notation, lang);
     }
     return displayNote(l, accidental, notation);
-  }, [notation, accidental]);
+  }, [notation, accidental, lang]);
 
   const refreshCounts = useCallback(async (name: string) => {
     const c = await templateCounts(name, vocabId, true);

@@ -286,12 +286,13 @@ export default function PlayingSection({
         help={
           <>
             {t("Display only — the drill itself doesn't change.")}{' '}
-            {t('Letters (A, B, C…) or solfège syllables (Do, Re, Mi…).')}
+            {t('Letters (A, B, C…) or solfège syllables (Do, Re, Mi…).')}{' '}
+            {t('German letters write B as H and B♭ as B.')}
           </>
         }
       >
         <div className="pick-row" role="group" aria-label={t('Note names')}>
-          {([['alpha', 'A B C'], ['solfege', solfegeSample()]] as const).map(([val, label]) => (
+          {([['alpha', 'A B C'], ['solfege', solfegeSample()], ['german', 'A H C']] as const).map(([val, label]) => (
             <button
               key={val}
               type="button"

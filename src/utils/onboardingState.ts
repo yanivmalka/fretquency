@@ -9,6 +9,11 @@ import { loadSetting, saveSetting } from './settings';
 
 export const PRIVACY_POLICY_URL = 'https://yanivmalka.github.io/fretquency/privacy.html';
 export const TERMS_URL = 'https://yanivmalka.github.io/fretquency/terms.html';
+
+// The privacy page ships in every UI language; `?lang=` opens it in the player's own.
+export function privacyPolicyUrl(lang: string): string {
+  return `${PRIVACY_POLICY_URL}?lang=${lang === 'pt-BR' ? 'pt' : lang}`;
+}
 // The "Last updated" dates of public/privacy.html and public/terms.html. Bump
 // them with the pages so a stored acceptance records which text was agreed to.
 const PRIVACY_POLICY_VERSION = '2026-09-25';

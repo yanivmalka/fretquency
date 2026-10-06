@@ -65,7 +65,7 @@ export const QUICK_ACCESS_ITEMS: readonly QuickAccessItem[] = [
     id: 'notation',
     prefKey: 'pref_notation',
     label: 'Note names',
-    next: (cur) => (cur === 'solfege' ? 'alpha' : 'solfege'),
+    next: (cur) => (cur === 'alpha' ? 'solfege' : cur === 'solfege' ? 'german' : 'alpha'),
   },
   {
     id: 'accidental',

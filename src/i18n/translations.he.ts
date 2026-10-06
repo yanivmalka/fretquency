@@ -1968,4 +1968,8 @@ export const he: Record<string, string> = {
   "Shows the first-time demo again the next time you open each practice domain.":
     "יציג שוב את ההדגמה הראשונית בפעם הבאה שתיכנס לכל אחד מתחומי התרגול.",
   "Tours reset.": "ההדרכות אופסו.",
+
+  // German note names (H for B) — Note names setting
+  'German letters write B as H and B♭ as B.': 'באותיות גרמניות B נכתב H ו־B♭ נכתב B.',
+  'German letters (A H C)': 'אותיות גרמניות (A H C)',
 };
