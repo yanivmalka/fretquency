@@ -10,6 +10,7 @@
 //     re-push catches anything written offline.
 
 import { supabase } from './supabase';
+import { isBeginnerPreview } from './adminBeginnerPreview';
 import type { HistoryEntry } from './music';
 import type { PersonalBest } from './personalBest';
 
@@ -23,7 +24,8 @@ const ALL_KEYS = '*';
 let currentUserId: string | null = null;
 
 export function setSyncUser(id: string | null) {
-  currentUserId = id;
+  // An admin's new-user preview must never reach the account.
+  currentUserId = isBeginnerPreview() ? null : id;
 }
 
 /** The signed-in user id, or null for a guest. Read-only access for other sync modules. */

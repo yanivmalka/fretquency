@@ -270,6 +270,11 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
     target: { kind: 'section', section: 'settings', anchor: 'masteryWindow' },
     keywords: ['date range', 'recent questions', 'day', 'period', 'טווח תאריכים', 'תקופה', 'יום', 'שאלות אחרונות', 'rango de fechas', 'período', 'intervalo de datas', 'période', 'periodo'],
   },
+  {
+    id: 'replayTours', label: 'Replay app tours', emoji: '🔁', path: [SETTINGS],
+    target: { kind: 'section', section: 'settings', anchor: 'replayTours' },
+    keywords: ['tutorial', 'tour', 'demo', 'guide', 'walkthrough', 'הדרכה', 'הדגמה', 'הסבר', 'טיוטוריאל', 'tutorial', 'guía', 'tutorial', 'guia', 'tutoriel', 'tutorial', 'guida'],
+  },
 
   // ── Account ───────────────────────────────────────────────────────
   {

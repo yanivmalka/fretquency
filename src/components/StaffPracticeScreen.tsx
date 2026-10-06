@@ -48,6 +48,9 @@ import { useTranslation } from '../i18n/useTranslation';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import { loadSetting, saveSetting } from '../utils/settings';
 import { playClickSound, haptic } from '../utils/feedback';
+import DemoTour from './DemoTour';
+import { STAFF_DEMO_STEPS } from './demoTourContent';
+import { hasSeenDemo, markDemoSeen } from '../utils/demoState';
 
 interface Props {
   instrument: InstrumentConfig;
@@ -97,6 +100,7 @@ interface Placement { position: number; sign: StaffSign }
 
 export default function StaffPracticeScreen({ instrument, accidental, notation, showMenuButton = true, onOpenMenu }: Props) {
   const { t, lang } = useTranslation();
+  const [showDemo, setShowDemo] = useState(() => !hasSeenDemo('staff'));
   const [finished, setFinished] = useState(false);
   const [tab, setTab] = useState<'practice' | 'progress'>('practice');
   const [exercise, setExerciseState] = useState<StaffExercise>(() => loadOneOf('staff_exercise', EXERCISES, 'nameNote'));
@@ -315,6 +319,11 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
 
   return (
     <div className="app settings-page lp-page interval-home">
+      <DemoTour
+        active={showDemo}
+        steps={STAFF_DEMO_STEPS}
+        onFinish={() => { markDemoSeen('staff'); setShowDemo(false); }}
+      />
       {showMenuButton && (
         <button
           className="burger-btn"
@@ -486,7 +495,7 @@ export default function StaffPracticeScreen({ instrument, accidental, notation, 
                 <p className="set-card-help">{t(EXERCISE_HELP[exercise])}</p>
                 <p className="set-card-help">{clefHelp}</p>
                 {goalBar}
-                <button type="button" className="set-card-btn set-card-btn-primary" onClick={startSession}>
+                <button type="button" data-demo="start-btn" className="set-card-btn set-card-btn-primary" onClick={startSession}>
                   {t('Start')}
                 </button>
               </div>

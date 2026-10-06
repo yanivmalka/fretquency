@@ -1,0 +1,98 @@
+/* Practice side bubbles (src/components/PracticeSideBubbles.tsx) — a vertical
+   stack of small floating circles on the screen's left edge, opposite
+   QuickAccess's right-edge FAB (26-quick-access.css). `left` is physical, so
+   the stack stays put in Hebrew RTL too, same convention as QuickAccess. */
+.psb-stack {
+  position: fixed;
+  left: 14px;
+  top: 46%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 71;
+}
+
+.psb-bubble {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg-2);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 14px 2px rgba(var(--accent-rgb), 0.35);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s, transform 0.2s;
+}
+.psb-bubble:hover { background: rgba(var(--accent-rgb), 0.1); }
+.psb-bubble:active { transform: scale(0.9); }
+
+.psb-glyph { font-size: 20px; line-height: 1; }
+
+.psb-badge {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--danger, #e5484d);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+@keyframes psb-pulse {
+  0%, 100% { box-shadow: 0 0 14px 2px rgba(var(--accent-rgb), 0.35); }
+  50% { box-shadow: 0 0 20px 6px rgba(var(--accent-rgb), 0.6); }
+}
+.psb-pulse { animation: psb-pulse 1.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .psb-pulse { animation: none; }
+}
+
+.psb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 72;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.psb-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--bg-1);
+  border-radius: 18px 18px 0 0;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.psb-sheet-close {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--surface-border);
+  background: var(--bg-3);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.psb-sheet-close:hover { color: var(--text-1); }

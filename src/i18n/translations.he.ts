@@ -830,8 +830,11 @@ export const he: Record<string, string> = {
   'Simulate tier (dev only — no DB change)':
     'הדמיית מסלול (למפתחים בלבד — ללא שינוי במסד הנתונים)',
   'Admin: view the app as': 'מנהל: הצג את האפליקציה בתור',
-  'Hides every admin-only control so you see exactly what a regular user sees. Switch back here any time — this is a local view change only and does not change what your account can do.':
-    'מסתיר כל פקד שמיועד למנהלים בלבד כדי שתראה בדיוק מה שמשתמש רגיל רואה. אפשר לחזור למצב מנהל כאן בכל רגע — זהו שינוי תצוגה מקומי בלבד ואינו משנה את מה שהחשבון שלך יכול לעשות.',
+  'Hides every admin-only control so you see exactly what a regular user sees, or lets you live through the first run as a brand-new user. Switch back here any time — this is a local view change only and does not change what your account can do.':
+    'מסתיר כל פקד שמיועד למנהלים בלבד כדי שתראה בדיוק מה שמשתמש רגיל רואה, או מאפשר לך לחוות את ההפעלה הראשונה כמשתמש חדש לגמרי. אפשר לחזור כאן בכל רגע — זהו שינוי תצוגה מקומי בלבד ואינו משנה את מה שהחשבון שלך יכול לעשות.',
+  'New user': 'משתמש חדש',
+  'Previewing a brand-new user: onboarding, the first-time demos and the Premium trial start from scratch, and nothing reaches your account. Switch back here to restore everything as it was.':
+    'תצוגה של משתמש חדש לגמרי: ה-onboarding, ההדגמות הראשונות וניסיון ה-Premium מתחילים מאפס, ושום דבר לא מגיע לחשבון שלך. עבור כאן חזרה כדי לשחזר הכול כפי שהיה.',
   'Regular user': 'משתמש רגיל',
   'Free': 'חינמי',
 
@@ -998,6 +1001,20 @@ export const he: Record<string, string> = {
   'reinforcement': 'חיזוק',
   'not practised much': 'לא תורגל הרבה',
   'review': 'חזרה',
+
+  // Practice side bubbles (floating shortcut circles on the practice screens)
+  // 'Homework' already translated above (Teacher mode classroom section).
+  'Homework waiting for you': 'שיעורי בית מחכים לך',
+  '{n} homework items are open in your classes.': 'יש {n} שיעורי בית פתוחים בכיתות שלך.',
+  'Go to homework': 'מעבר לשיעורי הבית',
+  'Welcome to Premium': 'ברוך בואך לפרימיום',
+  'Welcome to Premium!': 'ברוך בואך לפרימיום!',
+  'Thanks for joining Premium — the Teacher, Learning Path, intervals, staff and tab reading are all unlocked.':
+    'תודה שהצטרפת לפרימיום — המאמן, מסלול הלמידה, אינטרוולים, קריאת תווים וקריאת טאבים פתוחים לך.',
+  'Make the most of your first week: a few minutes a day with the Teacher beats one long cram session.':
+    'תפיק הכי הרבה מהשבוע הראשון: כמה דקות ביום עם המאמן שוות יותר מהתכוננות מרוכזת אחת.',
+  'Your daily goals and homework now live on the practice screens — look for the circles on the side.':
+    'היעדים היומיים ושיעורי הבית עברו למסכי התרגול — חפש את העיגולים בצד.',
 
   // Premium Learning Path — the Path screen (premium-product-plan.md §9 P3)
   'Learning Path': 'מסלול הלמידה',
@@ -1871,4 +1888,38 @@ export const he: Record<string, string> = {
   "These students cannot join this class again, even with a new code.": "התלמידים האלה לא יכולים להצטרף לכיתה הזו שוב, גם עם קוד חדש.",
   "blocked {date}": "נחסם ב-{date}",
   "Unblock": "ביטול חסימה",
+
+  // Per-domain first-time guided demo (DemoTour)
+  "Skip": "דלג",
+  "This is your question": "זו השאלה שלך",
+  "In \"by fret\" mode a fret number appears and you pick the matching note. In \"by note\" mode a note appears and you tap every matching fret.":
+    "במצב \"לפי סריג\" מופיע מספר סריג ועליך לבחור את התו המתאים. במצב \"לפי תו\" מופיע תו ועליך להקיש על כל הסריגים המתאימים לו.",
+  "Tap your answer here": "הקש כאן את התשובה שלך",
+  "Fret 0 is the open string — count up from there (fret 1, 2, 3…) to find the one you need.":
+    "סריג 0 הוא המיתר הפתוח — ספור משם ומעלה (סריג 1, 2, 3…) כדי למצוא את הסריג שאתה צריך.",
+  "Pick what to practice": "בחר מה לתרגל",
+  "Identify an interval by ear, or find the target note on the neck.":
+    "זהה אינטרוול לפי שמיעה, או מצא את התו המבוקש על הצוואר.",
+  "Start when ready": "התחל כשמוכן",
+  "Tap Start to begin the drill with your picks above.": "הקש על התחל כדי לפתוח את התרגול עם הבחירות שלך למעלה.",
+  "Your current scale": "הסולם הנוכחי שלך",
+  "This shows which scale and box you are practicing. New to scales? Start with the pentatonic or major chip here.":
+    "כאן מוצג איזה סולם ואיזה תיבה אתה מתרגל. מתחיל בסולמות? התחל עם הפנטטוני או הסולם המז'ורי כאן.",
+  "Tap to begin": "הקש כדי להתחיל",
+  "Pick a scale above, or just tap Start below to practice your current pick.":
+    "בחר סולם למעלה, או פשוט הקש על התחל למטה כדי לתרגל את הבחירה הנוכחית שלך.",
+  "Choose an exercise": "בחר תרגיל",
+  "Name notes on the staff, find them on the neck, or read a short phrase.":
+    "זהה תווים על התיווי, מצא אותם על הצוואר, או קרא משפט קצר.",
+  "Tap Start to begin.": "הקש על התחל כדי להתחיל.",
+  "Choose a topic": "בחר נושא",
+  "Single notes, chord shapes, or techniques (hammer-ons, slides, and more).":
+    "תווים בודדים, צורות אקורדים, או טכניקות (hammer-on, סליידים ועוד).",
+  "One puzzle a day, the same for everyone. Find the note, and try to keep your streak going.":
+    "חידה אחת ביום, אותה חידה לכולם. מצא את התו, ונסה לשמור על הרצף שלך.",
+  "Tap Start to try today’s puzzle.": "הקש על התחל כדי לנסות את חידת היום.",
+  "Replay app tours": "הצג שוב את ההדרכות באפליקציה",
+  "Shows the first-time demo again the next time you open each practice domain.":
+    "יציג שוב את ההדגמה הראשונית בפעם הבאה שתיכנס לכל אחד מתחומי התרגול.",
+  "Tours reset.": "ההדרכות אופסו.",
 };

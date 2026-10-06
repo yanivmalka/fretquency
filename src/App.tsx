@@ -18,6 +18,9 @@ import AdjustSuggestionBanner from './components/AdjustSuggestionBanner';
 import ProgressPanel from './components/ProgressPanel';
 import Onboarding from './components/Onboarding';
 import { markOnboardingDone } from './utils/onboardingState';
+import { hasSeenDemo, markDemoSeen } from './utils/demoState';
+import DemoTour from './components/DemoTour';
+import { PRACTICE_DEMO_STEPS } from './components/demoTourContent';
 import { setActiveInstrument } from './utils/music';
 import type { HistoryEntry } from './utils/music';
 import {
@@ -57,6 +60,11 @@ import { deriveDrillConfig, type DrillConfig } from './drill/DrillConfig';
 import LearningPathScreen from './components/LearningPathScreen';
 import DailyPracticeScreen from './components/DailyPracticeScreen';
 import IntervalPracticeScreen from './components/IntervalPracticeScreen';
+import PracticeSideBubbles, { type SideBubble } from './components/PracticeSideBubbles';
+import TodayCard from './components/TodayCard';
+import IntervalTodayCard from './components/IntervalTodayCard';
+import StaffTodayCard from './components/StaffTodayCard';
+import TabTodayCard from './components/TabTodayCard';
 import ScalePracticeScreen from './components/ScalePracticeScreen';
 import StaffPracticeScreen from './components/StaffPracticeScreen';
 import TabPracticeScreen from './components/TabPracticeScreen';
@@ -68,6 +76,8 @@ import ClassroomScreen from './components/ClassroomScreen';
 import { useClassLinkRoute } from './teacher/useClassLinkRoute';
 import { clearPendingClassCode } from './teacher/classLink';
 import { useTeacherRoles } from './teacher/useTeacherRoles';
+import { usePendingHomework } from './teacher/usePendingHomework';
+import { isWithinFirstWeek } from './utils/entitlement';
 import { useStartLinkRoute } from './hooks/useStartLinkRoute';
 import { isBootDone, subscribeBootDone } from './utils/bootState';
 import { useLearning } from './hooks/useLearning';
@@ -178,6 +188,10 @@ export default function App() {
   // Teacher / Student role badges (src/utils/badges.ts) — re-fetched whenever
   // the Class screen closes, since that's the only place either can change.
   const teacherRoles = useTeacherRoles(auth.user?.id);
+  // Pending-homework badge for the practice-screen homework bubble — same
+  // refresh-on-Class-screen-close rule as teacherRoles, since posting an
+  // attempt there is the only way this count can change.
+  const pendingHomework = usePendingHomework(auth.user?.id);
 
   // Which instrument is being drilled. Chosen on first launch (Onboarding) and
   // switchable from the hamburger menu; everything tuning/string/fret/sample
@@ -606,6 +620,9 @@ export default function App() {
     ensureTrialStarted(done);
     return done;
   });
+  // One-time guided demo over the first round's question + answer area
+  // (wishlist §L — a brand-new beginner's first answer was a blind guess).
+  const [showPracticeDemo, setShowPracticeDemo] = useState(() => !hasSeenDemo('practice'));
   // One-time end-of-trial summary (see the TrialEndedCard render below).
   // Captured once at mount — including trackedCount, read directly from
   // learningState.ts rather than in the JSX (an impure localStorage read
@@ -1269,6 +1286,143 @@ export default function App() {
     />
   );
 
+  // The floating side-bubble cluster (src/components/PracticeSideBubbles.tsx)
+  // — the practice-screen replacement for the old Daily-practice-page cards.
+  // Each domain gets its own "daily goal" bubble wrapping the exact same
+  // TodayCard/IntervalTodayCard/StaffTodayCard/TabTodayCard component that
+  // used to live on that page (same props, same behaviour); a homework
+  // bubble and a Premium first-week welcome/upsell bubble are shared across
+  // every domain. Called explicitly per screen, same pattern as
+  // renderQuickAccess above — there is no shared layout wrapper to hook into
+  // once.
+  const busyNow = gameActive || countdown !== null;
+  const homeworkBubble: SideBubble | null =
+    can('classroomJoin', auth.tier) && pendingHomework.count > 0
+      ? {
+        id: 'homework',
+        icon: '📝',
+        label: t('Homework'),
+        badge: pendingHomework.count,
+        content: (close) => (
+          <section className="teacher-card" dir={lang === 'he' ? 'rtl' : undefined}>
+            <header className="teacher-card-head">
+              <h2 className="teacher-card-title">📝 {t('Homework waiting for you')}</h2>
+            </header>
+            <p className="teacher-card-summary">
+              {t('{n} homework items are open in your classes.').replace('{n}', String(pendingHomework.count))}
+            </p>
+            <div className="teacher-actions">
+              <button
+                type="button"
+                className="teacher-btn teacher-btn-primary"
+                onClick={() => { playClickSound(); haptic.tap(); close(); setClassroomOpen(true); }}
+              >
+                ▶ {t('Go to homework')}
+              </button>
+            </div>
+          </section>
+        ),
+      }
+      : null;
+  const premiumWelcomeBubble: SideBubble | null = isWithinFirstWeek(auth.entitlement)
+    ? {
+      id: 'premium-welcome',
+      icon: '⭐',
+      label: t('Welcome to Premium'),
+      pulse: true,
+      content: () => (
+        <section className="teacher-card" dir={lang === 'he' ? 'rtl' : undefined}>
+          <header className="teacher-card-head">
+            <span className="teacher-card-badge">⭐ {t('Premium')}</span>
+            <h2 className="teacher-card-title">{t('Welcome to Premium!')}</h2>
+          </header>
+          <p className="teacher-card-summary">
+            {t('Thanks for joining Premium — the Teacher, Learning Path, intervals, staff and tab reading are all unlocked.')}
+          </p>
+          <p className="teacher-card-summary">
+            {t('Make the most of your first week: a few minutes a day with the Teacher beats one long cram session.')}
+          </p>
+        </section>
+      ),
+    }
+    : null;
+
+  const renderPracticeSideBubbles = (domain: 'notes' | 'intervals' | 'staff' | 'tabs') => {
+    const bubbles: SideBubble[] = [];
+
+    if (domain === 'notes' && can('premiumTeacher', auth.tier) && learning.todayPlan) {
+      bubbles.push({
+        id: 'daily-goal',
+        icon: '🎯',
+        label: t('Daily goal'),
+        pulse: !learning.goalComplete,
+        content: (close) => (
+          <TodayCard
+            todayPlan={learning.todayPlan}
+            weakSpotsPlan={learning.weakSpotsPlan}
+            dailyGoal={learning.dailyGoal}
+            goalComplete={learning.goalComplete}
+            accidental={accidental}
+            notation={notation}
+            instrument={instrument}
+            busy={busyNow}
+            onStart={(plan) => { close(); setTeacherPlan(plan); }}
+            onOpenPath={can('learningPath', auth.tier)
+              ? () => { close(); setShowStats(false); setSettingsOpen(false); setShowPath(true); }
+              : undefined}
+          />
+        ),
+      });
+    }
+
+    if (domain === 'intervals' && can('intervalDrill', auth.tier)) {
+      bubbles.push({
+        id: 'daily-goal',
+        icon: '🎯',
+        label: t('Daily goal'),
+        pulse: !learning.intervalGoalComplete,
+        content: (close) => (
+          <IntervalTodayCard
+            todayPlan={learning.intervalTodayPlan}
+            weakSpotsPlan={learning.intervalWeakSpotsPlan}
+            dailyGoal={learning.intervalDailyGoal}
+            goalComplete={learning.intervalGoalComplete}
+            busy={busyNow}
+            onStart={(exercise, kind) => {
+              const plan = kind === 'weak'
+                ? learning.buildIntervalWeakSpotsPlan(exercise)
+                : learning.buildIntervalTodayPlan(exercise);
+              if (plan) { close(); setIntervalPlan(plan.drill); }
+            }}
+          />
+        ),
+      });
+    }
+
+    if (domain === 'staff' && can('staffReading', auth.tier)) {
+      bubbles.push({
+        id: 'daily-goal',
+        icon: '📖',
+        label: t('Daily goal'),
+        content: (close) => <StaffTodayCard instrumentId={instrument.id} busy={busyNow} onOpen={close} />,
+      });
+    }
+
+    if (domain === 'tabs' && can('tabReading', auth.tier)) {
+      bubbles.push({
+        id: 'daily-goal',
+        icon: '🎼',
+        label: t('Daily goal'),
+        content: (close) => <TabTodayCard instrumentId={instrument.id} busy={busyNow} onOpen={close} />,
+      });
+    }
+
+    if (homeworkBubble) bubbles.push(homeworkBubble);
+    if (premiumWelcomeBubble) bubbles.push(premiumWelcomeBubble);
+
+    return <PracticeSideBubbles bubbles={bubbles} />;
+  };
+
   // The Tuner is a self-contained full-screen takeover — it owns
   // its own mic/pitch-detection state (src/tuner/useTuner.ts) entirely.
   if (tunerOpen) {
@@ -1301,7 +1455,7 @@ export default function App() {
         profileName={auth.profile?.name ?? null}
         initialCode={classLinkCode}
         onSignIn={() => { void auth.signInWithGoogle(); }}
-        onClose={() => { clearPendingClassCode(); setClassroomOpen(false); teacherRoles.refresh(); }}
+        onClose={() => { clearPendingClassCode(); setClassroomOpen(false); teacherRoles.refresh(); pendingHomework.refresh(); }}
         backRef={classroomBackRef}
       />
     );
@@ -1380,46 +1534,12 @@ export default function App() {
     dismissRoundEnd();
   };
 
+  // A static "this moved" page now — the goal/homework cards it used to host
+  // live on the practice screens as floating side bubbles instead (see
+  // renderPracticeSideBubbles above).
   if (activeDomain === 'daily' && can('premiumTeacher', auth.tier)
       && onboardingDone && !gameActive && !gameEnded) {
-    // Keep the Daily page mounted through the 3-2-1 count-in (with the shared
-    // overlay on top) so launching a plan never flashes the note practice
-    // board — Selector → count-in → the guided question, same as Intervals.
-    return (
-      <>
-        <DailyPracticeScreen
-          todayPlan={learning.todayPlan}
-          weakSpotsPlan={learning.weakSpotsPlan}
-          dailyGoal={learning.dailyGoal}
-          goalComplete={learning.goalComplete}
-          accidental={accidental}
-          notation={notation}
-          instrument={instrument}
-          canIntervals={can('intervalDrill', auth.tier)}
-          intervalTodayPlan={learning.intervalTodayPlan}
-          intervalWeakSpotsPlan={learning.intervalWeakSpotsPlan}
-          intervalDailyGoal={learning.intervalDailyGoal}
-          intervalGoalComplete={learning.intervalGoalComplete}
-          canStaff={can('staffReading', auth.tier)}
-          onOpenStaff={() => setActiveDomain('staff')}
-          canTabs={can('tabReading', auth.tier)}
-          onOpenTabs={() => setActiveDomain('tabs')}
-          busy={gameActive || countdown !== null}
-          onStart={(plan) => setTeacherPlan(plan)}
-          onStartIntervalPlan={(exercise, kind) => {
-            const plan = kind === 'weak'
-              ? learning.buildIntervalWeakSpotsPlan(exercise)
-              : learning.buildIntervalTodayPlan(exercise);
-            if (plan) setIntervalPlan(plan.drill);
-          }}
-          onOpenPath={can('learningPath', auth.tier)
-            ? () => { setShowStats(false); setSettingsOpen(false); setShowPath(true); }
-            : undefined}
-          onClose={backToLearnHub}
-        />
-        {countdown !== null && <CountdownOverlay countdown={countdown} />}
-      </>
-    );
+    return <DailyPracticeScreen onClose={backToLearnHub} />;
   }
   // The hamburger stays a side drawer that only lists the section titles.
   // Tapping a title opens that one section as its own full page (same
@@ -1482,6 +1602,7 @@ export default function App() {
             the home screen: not while the hamburger drawer is open, not during
             the count-in. */}
         {!settingsOpen && countdown === null && renderQuickAccess()}
+        {!settingsOpen && !gameActive && countdown === null && renderPracticeSideBubbles('intervals')}
         {countdown !== null && <CountdownOverlay countdown={countdown} />}
       </>
     );
@@ -1542,6 +1663,7 @@ export default function App() {
             slideIn={drawerSlideIn}
           />
         )}
+        {!settingsOpen && renderPracticeSideBubbles('staff')}
       </>
     );
   }
@@ -1569,6 +1691,7 @@ export default function App() {
             slideIn={drawerSlideIn}
           />
         )}
+        {!settingsOpen && renderPracticeSideBubbles('tabs')}
       </>
     );
   }
@@ -1595,6 +1718,12 @@ export default function App() {
           }}
         />
       )}
+
+      <DemoTour
+        active={showPracticeDemo && gameActive && countdown === null && !intervalPrompt}
+        steps={PRACTICE_DEMO_STEPS}
+        onFinish={() => { markDemoSeen('practice'); setShowPracticeDemo(false); }}
+      />
 
       {/* Pause: dim the entire app screen; .controls (Resume/Stop) sits
           above this via z-index so it stays sharp and clickable in place. */}
@@ -1627,6 +1756,8 @@ export default function App() {
           countdown, and not while the hamburger drawer is open. */}
       {!gameActive && countdown === null && onboardingDone && !settingsOpen
         && renderQuickAccess()}
+      {!gameActive && countdown === null && onboardingDone && !settingsOpen
+        && renderPracticeSideBubbles('notes')}
 
       <h1>{instrument.emoji} {t(instrument.label)} {t('Fret Practice')}</h1>
 

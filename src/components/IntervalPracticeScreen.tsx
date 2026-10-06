@@ -12,7 +12,7 @@
 // second line of defence. All copy through `t()`; the layout flips for Hebrew
 // via `dir`.
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { InstrumentConfig } from '../utils/instruments';
 import type { AccidentalMode, NotationMode, OrderMode } from '../utils/music';
 import type { DrillConfig } from '../drill/DrillConfig';
@@ -21,6 +21,9 @@ import IntervalSelectorPanel from './IntervalSelectorPanel';
 import { ProGate } from './ProGate';
 import { useTranslation } from '../i18n/useTranslation';
 import { playClickSound, haptic } from '../utils/feedback';
+import DemoTour from './DemoTour';
+import { INTERVALS_DEMO_STEPS } from './demoTourContent';
+import { hasSeenDemo, markDemoSeen } from '../utils/demoState';
 
 interface Props {
   instrument: InstrumentConfig;
@@ -59,6 +62,7 @@ export default function IntervalPracticeScreen({
   onStart,
 }: Props) {
   const { t, lang } = useTranslation();
+  const [showDemo, setShowDemo] = useState(() => !hasSeenDemo('intervals'));
 
   const masteredSizes = useMemo(
     () => intervalBoard.filter((r) => r.status === 'mastered').map((r) => r.semitones),
@@ -67,6 +71,11 @@ export default function IntervalPracticeScreen({
 
   return (
     <div className="app settings-page lp-page interval-home">
+      <DemoTour
+        active={showDemo}
+        steps={INTERVALS_DEMO_STEPS}
+        onFinish={() => { markDemoSeen('intervals'); setShowDemo(false); }}
+      />
       {showMenuButton && (
         <button
           className="burger-btn"

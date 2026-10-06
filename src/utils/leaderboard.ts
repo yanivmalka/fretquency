@@ -8,6 +8,7 @@
 // sign in and their client pushes a row.
 
 import { supabase } from './supabase';
+import { isBeginnerPreview } from './adminBeginnerPreview';
 import type { HistoryEntry } from './music';
 
 export type LeaderboardScope = 'allTime' | 'thisWeek';
@@ -160,6 +161,7 @@ export async function upsertMyEntry(
   stats: MyStats,
 ): Promise<void> {
   if (!supabase) throw new Error('offline');
+  if (isBeginnerPreview()) return;
   const { error } = await supabase.from('leaderboard_entries').upsert(
     {
       user_id: userId,

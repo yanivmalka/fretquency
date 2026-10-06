@@ -8,6 +8,7 @@ import { QuickAccessEnableToggle, QuickAccessLegendLink, QuickAccessPinButton } 
 import AppearancePicker from '../AppearancePicker';
 import { withClick as click } from '../../../utils/withClick';
 import { saveSetting } from '../../../utils/settings';
+import { resetAllDemos } from '../../../utils/demoState';
 import { isNative } from '../../../utils/reminder';
 import { LANGUAGES, type Lang } from '../../../i18n/translations';
 import { useTranslation } from '../../../i18n/useTranslation';
@@ -142,6 +143,7 @@ export default function GeneralSettingsSection({
   };
 
   const windowSummary = describeMasteryWindow(masteryWindow, t);
+  const [toursReset, setToursReset] = useState(false);
 
   return (
     <>
@@ -527,6 +529,19 @@ export default function GeneralSettingsSection({
           )}
         </SettingCard>
       </ProGate>
+      <SettingCard
+        anchor="replayTours"
+        label={t('Replay app tours')}
+        help={t('Shows the first-time demo again the next time you open each practice domain.')}
+      >
+        <button
+          className="set-card-btn"
+          onClick={click(() => { resetAllDemos(); setToursReset(true); })}
+        >
+          {t('Replay app tours')}
+        </button>
+        {toursReset && <p className="set-card-help">{t('Tours reset.')}</p>}
+      </SettingCard>
     </>
   );
 }

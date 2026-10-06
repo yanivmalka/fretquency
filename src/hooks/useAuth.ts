@@ -298,7 +298,8 @@ export function useAuth(): AuthState {
   const tierWithTrial: Tier = onTrial ? 'premium' : realTier;
   const effectiveTier: Tier = simTier === 'off' ? tierWithTrial : simTier;
   const effectiveEntitlement: Entitlement = onTrial
-    ? { tier: 'premium', source: 'trial', expiresAt: trialEndsAt()?.toISOString() ?? null }
+    // Not a real subscription, so no first-week welcome/upsell bubble.
+    ? { tier: 'premium', source: 'trial', expiresAt: trialEndsAt()?.toISOString() ?? null, createdAt: null }
     : (user ? entitlement : FREE);
 
   return {

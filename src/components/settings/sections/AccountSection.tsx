@@ -10,6 +10,7 @@ import type { AuthState } from '../../../hooks/useAuth';
 import { dateLocale, type Lang } from '../../../i18n/translations';
 import { PRIVACY_POLICY_URL, TERMS_URL } from '../../../utils/onboardingState';
 import { trialDaysLeft } from '../../../utils/trial';
+import { isBeginnerPreview, startBeginnerPreview, endBeginnerPreview } from '../../../utils/adminBeginnerPreview';
 
 /**
  * The "Account" drawer section body: sign-in / sign-out, the plan tile, the
@@ -146,17 +147,27 @@ export default function AccountSection({
       {auth.adminAccount && (
         <SettingCard
           label={t('Admin: view the app as')}
-          help={t('Hides every admin-only control so you see exactly what a regular user sees. Switch back here any time — this is a local view change only and does not change what your account can do.')}
+          help={t('Hides every admin-only control so you see exactly what a regular user sees, or lets you live through the first run as a brand-new user. Switch back here any time — this is a local view change only and does not change what your account can do.')}
         >
-          <SegmentedControl<'admin' | 'user'>
+          <SegmentedControl<'admin' | 'user' | 'beginner'>
             ariaLabel={t('Admin: view the app as')}
-            value={auth.viewingAsUser ? 'user' : 'admin'}
+            value={isBeginnerPreview() ? 'beginner' : auth.viewingAsUser ? 'user' : 'admin'}
             options={[
               { value: 'admin', label: t('Admin') },
               { value: 'user', label: t('Regular user') },
+              { value: 'beginner', label: t('New user') },
             ]}
-            onChange={(next) => auth.setViewingAsUser(next === 'user')}
+            onChange={(next) => {
+              if (isBeginnerPreview()) endBeginnerPreview(next === 'user');
+              else if (next === 'beginner') startBeginnerPreview();
+              else auth.setViewingAsUser(next === 'user');
+            }}
           />
+          {isBeginnerPreview() && (
+            <p className="set-card-help">
+              {t('Previewing a brand-new user: onboarding, the first-time demos and the Premium trial start from scratch, and nothing reaches your account. Switch back here to restore everything as it was.')}
+            </p>
+          )}
         </SettingCard>
       )}
       {auth.admin && auth.user && (

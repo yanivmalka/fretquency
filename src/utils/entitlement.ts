@@ -36,9 +36,24 @@ export interface Entitlement {
    *  the time a caller sees a paid `tier`. */
   expiresAt: string | null;
   source: string;
+  /** ISO timestamp the entitlement row was created, or null (Free, or an
+   *  older cached record from before this field existed). Used to show a
+   *  first-week welcome/upsell to a new Premium subscriber. */
+  createdAt: string | null;
 }
 
-export const FREE: Entitlement = { tier: 'free', expiresAt: null, source: 'none' };
+export const FREE: Entitlement = { tier: 'free', expiresAt: null, source: 'none', createdAt: null };
+
+const FIRST_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** True for a Premium entitlement created within the last 7 days. False for
+ *  any other tier, or when `createdAt` is unknown (e.g. a pre-this-field
+ *  cached record) — safer to under-show the welcome bubble than to show it
+ *  indefinitely. */
+export function isWithinFirstWeek(entitlement: Entitlement): boolean {
+  if (entitlement.tier !== 'premium' || !entitlement.createdAt) return false;
+  return Date.now() - Date.parse(entitlement.createdAt) < FIRST_WEEK_MS;
+}
 
 const cacheKey = (userId: string) => `entitlementCache:${userId}`;
 
@@ -78,7 +93,7 @@ export async function fetchEntitlement(userId: string): Promise<Entitlement> {
 
   const { data, error } = await supabase
     .from('entitlements')
-    .select('tier, expires_at, source')
+    .select('tier, expires_at, source, created_at')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -95,7 +110,7 @@ export async function fetchEntitlement(userId: string): Promise<Entitlement> {
     && (expiresAt === null || Date.parse(expiresAt) > Date.now());
 
   const result: Entitlement = live
-    ? { tier: paidTier, expiresAt, source: data.source ?? 'manual' }
+    ? { tier: paidTier, expiresAt, source: data.source ?? 'manual', createdAt: data.created_at ?? null }
     : FREE;
 
   writeCache(userId, result);
@@ -129,7 +144,7 @@ export async function setOwnEntitlement(userId: string, tier: Tier): Promise<Ent
   }
 
   const result: Entitlement =
-    tier === 'free' ? FREE : { tier, expiresAt: null, source: 'comp' };
+    tier === 'free' ? FREE : { tier, expiresAt: null, source: 'comp', createdAt: new Date().toISOString() };
   writeCache(userId, result);
   return result;
 }

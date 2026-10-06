@@ -337,6 +337,29 @@ export async function fetchAttempts(classId: string): Promise<AttemptRow[]> {
   }));
 }
 
+/** How many of this student's assigned homework items across every class
+ *  they've joined have no attempt from them yet — the badge count for the
+ *  practice-screen homework bubble. Counts "open" homework regardless of due
+ *  date (there is no "overdue" distinction in the UI yet). */
+export async function fetchPendingHomeworkCount(userId: string): Promise<number> {
+  if (!supabase) return 0;
+  const { data: mem, error: memErr } = await supabase
+    .from('class_members').select('class_id').eq('user_id', userId);
+  if (memErr) throw memErr;
+  const classIds = [...new Set((mem ?? []).map((m) => m.class_id as string))];
+  if (classIds.length === 0) return 0;
+
+  const [{ data: hw, error: hwErr }, { data: att, error: attErr }] = await Promise.all([
+    supabase.from('homework').select('id').in('class_id', classIds),
+    supabase.from('homework_attempts').select('homework_id').eq('user_id', userId).in('class_id', classIds),
+  ]);
+  if (hwErr) throw hwErr;
+  if (attErr) throw attErr;
+
+  const attempted = new Set((att ?? []).map((a) => a.homework_id as string));
+  return (hw ?? []).filter((h) => !attempted.has(h.id as string)).length;
+}
+
 export async function submitAttempt(input: {
   homeworkId: string; classId: string; userId: string; correct: number; total: number; seconds: number;
   /** Positions missed on this run (migration 0030); omitted/undefined stores null. */

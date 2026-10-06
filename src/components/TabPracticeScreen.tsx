@@ -61,6 +61,9 @@ import { useTranslation } from '../i18n/useTranslation';
 import { displayNote, type AccidentalMode, type NotationMode } from '../utils/music';
 import { loadSetting, saveSetting } from '../utils/settings';
 import { playClickSound, haptic } from '../utils/feedback';
+import DemoTour from './DemoTour';
+import { TABS_DEMO_STEPS } from './demoTourContent';
+import { hasSeenDemo, markDemoSeen } from '../utils/demoState';
 import { playChordStrum, playNoteGlide, playNoteSequence, playNoteSingle } from '../utils/audio';
 
 interface Props {
@@ -193,6 +196,7 @@ interface ChordPick { root?: string; quality?: ChordQuality }
 
 export default function TabPracticeScreen({ instrument, accidental, notation, showMenuButton = true, onOpenMenu }: Props) {
   const { t, lang } = useTranslation();
+  const [showDemo, setShowDemo] = useState(() => !hasSeenDemo('tabs'));
   const [finished, setFinished] = useState(false);
   const [tab, setTab] = useState<'practice' | 'progress'>('practice');
   const [exercise, setExerciseState] = useState<TabExercise>(() => loadOneOf(
@@ -502,6 +506,11 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
 
   return (
     <div className="app settings-page lp-page interval-home">
+      <DemoTour
+        active={showDemo}
+        steps={TABS_DEMO_STEPS}
+        onFinish={() => { markDemoSeen('tabs'); setShowDemo(false); }}
+      />
       {showMenuButton && (
         <button
           className="burger-btn"
@@ -703,7 +712,7 @@ export default function TabPracticeScreen({ instrument, accidental, notation, sh
                 ) : (
                   <>
                     {goalBar}
-                    <button type="button" className="set-card-btn set-card-btn-primary" onClick={startSession}>
+                    <button type="button" data-demo="start-btn" className="set-card-btn set-card-btn-primary" onClick={startSession}>
                       {t('Start')}
                     </button>
                   </>

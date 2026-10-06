@@ -156,7 +156,7 @@ export default function NoteCircle({ notes, activeNotes, active, correctNote, wr
   // content (buttons at radius ≤ ~156 from centre) always stays well inside
   // this box, so nothing meaningful is clipped.
   return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, overflow: 'hidden' }}>
+    <div data-demo="note-circle" style={{ position: 'relative', width: size, height: size, flexShrink: 0, overflow: 'hidden' }}>
       <div style={{
         position: 'absolute', width: size, height: size,
         transform: `rotate(${wheelAngle}deg)`,

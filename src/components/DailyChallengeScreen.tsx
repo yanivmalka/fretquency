@@ -44,6 +44,9 @@ import { buildDailyChallengeUrl, buildFriendChallengeUrl, type ChallengeLinkData
 import { shareResult } from '../utils/share';
 import { shareBaseUrl } from '../utils/publicUrl';
 import { track } from '../utils/analytics';
+import DemoTour from './DemoTour';
+import { DAILY_CHALLENGE_DEMO_STEPS } from './demoTourContent';
+import { hasSeenDemo, markDemoSeen } from '../utils/demoState';
 
 const INSTRUMENT_IDS: InstrumentId[] = ['guitar', 'bass', 'mandolin', 'banjo', 'ukulele'];
 
@@ -98,6 +101,7 @@ export default function DailyChallengeScreen({
   onboardingDone = true, onStartOnboarding, onClose,
 }: Props) {
   const { t, lang } = useTranslation();
+  const [showDemo, setShowDemo] = useState(() => !hasSeenDemo('daily'));
   const accidental: AccidentalMode = loadSetting('pref_accidental', 'sharps');
   const order: OrderMode = loadSetting('pref_order', 'fifths');
   const notation: NotationMode = loadSetting('pref_notation', 'alpha');
@@ -221,6 +225,11 @@ export default function DailyChallengeScreen({
 
   return (
     <div className="app settings-page fotd-page">
+      <DemoTour
+        active={showDemo && phase === 'idle'}
+        steps={DAILY_CHALLENGE_DEMO_STEPS}
+        onFinish={() => { markDemoSeen('daily'); setShowDemo(false); }}
+      />
       <div className="sp2 settings-page-inner" dir={lang === 'he' ? 'rtl' : undefined}>
         <div className="sp2-head settings-page-head">
           <button className="sp2-back" onClick={() => { playClickSound(); haptic.tap(); leave(); }}>

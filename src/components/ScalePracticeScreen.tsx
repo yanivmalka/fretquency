@@ -58,6 +58,9 @@ import ScaleProgressBoard from './ScaleProgressBoard';
 import ScaleTermHint, { ScaleTermNote, ScaleTermStrip } from './ScaleTermHint';
 import { termHighlight, type ScaleTermId } from '../learning/scaleTerms';
 import FingersCard from './FingersCard';
+import DemoTour from './DemoTour';
+import { SCALES_DEMO_STEPS } from './demoTourContent';
+import { hasSeenDemo, markDemoSeen } from '../utils/demoState';
 import PickStrokesCard from './PickStrokesCard';
 import { pickStrokes } from '../learning/scalePicking';
 import { questionFingering } from '../learning/scaleFingering';
@@ -83,6 +86,7 @@ interface Props {
 
 export default function ScalePracticeScreen({ instrument, accidental, notation, showMenuButton = true, onOpenMenu }: Props) {
   const { t, lang } = useTranslation();
+  const [showDemo, setShowDemo] = useState(() => !hasSeenDemo('scales'));
   const [finished, setFinished] = useState(false);
   const [tab, setTab] = useState<'practice' | 'progress'>('practice');
   // Bumped on every recorded answer (mirrors `useLearning.ts`'s own `now`
@@ -477,6 +481,11 @@ export default function ScalePracticeScreen({ instrument, accidental, notation, 
 
   return (
     <div className="app settings-page lp-page interval-home">
+      <DemoTour
+        active={showDemo}
+        steps={SCALES_DEMO_STEPS}
+        onFinish={() => { markDemoSeen('scales'); setShowDemo(false); }}
+      />
       {showMenuButton && (
         <button
           className="burger-btn"

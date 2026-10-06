@@ -1,92 +1,26 @@
 // ── DailyPracticeScreen — the "Daily practice" learning tab (full page) ─
 //
 // One of the learning-type tabs reachable from the drawer's "Learn" group.
-// It hosts every "what should I practise today?" card as a full page (the
-// same page-replacing treatment as Stats / the Learning Path), instead of a
-// card stacked on the home screen: the notes Teacher's Today card and — when
-// the user also has the interval tier — the guided "Today's intervals" card,
-// and — with Staff reading and Tab reading — their goal cards (each domain its
-// own card).
-// Anything daily-plan-shaped belongs here; the Intervals tab is left as just
-// the free Interval Selector. Premium-only: the host mounts it behind
-// `can('premiumTeacher', tier)` and it is wrapped in <ProGate> as a second
-// line of defence. All copy through `t()`; the layout flips for Hebrew via
-// `dir`.
+// Used to host every "what should I practise today?" card (notes/intervals/
+// staff/tab goal cards) as a full page. Those cards now live on the practice
+// screens themselves as floating side bubbles (PracticeSideBubbles in
+// App.tsx) instead — this page stays reachable from the menu/search for
+// anyone who had it bookmarked, but just points there now. Premium-only: the
+// host mounts it behind `can('premiumTeacher', tier)` and it is wrapped in
+// <ProGate> as a second line of defence. All copy through `t()`; the layout
+// flips for Hebrew via `dir`.
 
-import type { AccidentalMode, NotationMode } from '../utils/music';
-import type { InstrumentConfig } from '../utils/instruments';
-import type { TeacherPlan } from '../learning/planner';
-import type { IntervalTeacherPlan } from '../learning/intervalPlanner';
-import type { DailyGoal } from '../learning/learningState';
-import type { IntervalExercise } from '../utils/intervals';
-import TodayCard from './TodayCard';
-import IntervalTodayCard from './IntervalTodayCard';
-import StaffTodayCard from './StaffTodayCard';
-import TabTodayCard from './TabTodayCard';
 import { ProGate } from './ProGate';
 import { Chevron } from './Chevron';
 import { useTranslation } from '../i18n/useTranslation';
 import { playClickSound, haptic } from '../utils/feedback';
 
 interface Props {
-  todayPlan: TeacherPlan | null;
-  weakSpotsPlan: TeacherPlan | null;
-  dailyGoal: DailyGoal;
-  goalComplete: boolean;
-  accidental: AccidentalMode;
-  notation: NotationMode;
-  instrument: InstrumentConfig;
   headerIcon?: string;
-  /** Whether to also show the guided "Today's intervals" card (interval tier). */
-  canIntervals: boolean;
-  /** The interval Teacher's recommended + weak-spots sessions (spec §13). */
-  intervalTodayPlan: IntervalTeacherPlan | null;
-  intervalWeakSpotsPlan: IntervalTeacherPlan | null;
-  /** Today's separate *interval* goal (OD-5). */
-  intervalDailyGoal: DailyGoal;
-  intervalGoalComplete: boolean;
-  /** Whether to show the staff-reading goal card (Staff reading tier). */
-  canStaff: boolean;
-  /** Open the Staff reading page. */
-  onOpenStaff: () => void;
-  /** Whether to show the tab-reading goal card (Tab reading tier). */
-  canTabs: boolean;
-  /** Open the Tab reading page. */
-  onOpenTabs: () => void;
-  /** Disable the actions while a session is starting / running. */
-  busy?: boolean;
-  onStart: (plan: TeacherPlan) => void;
-  /** Start a guided interval session (daily or weak-spots) for an exercise. */
-  onStartIntervalPlan: (exercise: IntervalExercise, kind: 'today' | 'weak') => void;
-  /** Open the full Learning Path screen (P3). Omitted ⇒ the link is hidden. */
-  onOpenPath?: () => void;
   onClose: () => void;
 }
 
-export default function DailyPracticeScreen({
-  todayPlan,
-  weakSpotsPlan,
-  dailyGoal,
-  goalComplete,
-  accidental,
-  notation,
-  instrument,
-  headerIcon,
-  canIntervals,
-  intervalTodayPlan,
-  intervalWeakSpotsPlan,
-  intervalDailyGoal,
-  intervalGoalComplete,
-  canStaff,
-  onOpenStaff,
-  canTabs,
-  onOpenTabs,
-  busy,
-  onStart,
-  onStartIntervalPlan,
-  onOpenPath,
-  onClose,
-}: Props) {
+export default function DailyPracticeScreen({ headerIcon, onClose }: Props) {
   const { t, lang } = useTranslation();
 
   return (
@@ -115,38 +49,9 @@ export default function DailyPracticeScreen({
             variant="replace"
             pitch={t('Let the Teacher plan your practice')}
           >
-            {todayPlan ? (
-              <TodayCard
-                todayPlan={todayPlan}
-                weakSpotsPlan={weakSpotsPlan}
-                dailyGoal={dailyGoal}
-                goalComplete={goalComplete}
-                accidental={accidental}
-                notation={notation}
-                instrument={instrument}
-                busy={busy}
-                onStart={onStart}
-                onOpenPath={onOpenPath}
-              />
-            ) : (
-              <p className="lp-intro">{t('Your daily plan is loading…')}</p>
-            )}
-            {canIntervals && (
-              <IntervalTodayCard
-                todayPlan={intervalTodayPlan}
-                weakSpotsPlan={intervalWeakSpotsPlan}
-                dailyGoal={intervalDailyGoal}
-                goalComplete={intervalGoalComplete}
-                busy={busy}
-                onStart={onStartIntervalPlan}
-              />
-            )}
-            {canStaff && (
-              <StaffTodayCard instrumentId={instrument.id} busy={busy} onOpen={onOpenStaff} />
-            )}
-            {canTabs && (
-              <TabTodayCard instrumentId={instrument.id} busy={busy} onOpen={onOpenTabs} />
-            )}
+            <p className="lp-intro">
+              {t('Your daily goals and homework now live on the practice screens — look for the circles on the side.')}
+            </p>
           </ProGate>
         </div>
       </div>
