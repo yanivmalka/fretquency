@@ -52,6 +52,9 @@ export interface DrillCollaborators {
   /** Fired when the drill ends because every question was answered — never on
    *  a manual stop or a pause. Practice uses this for Auto Advance. */
   onComplete?: () => void;
+  /** Interval drills: wait for an explicit Continue after a wrong answer (the
+   *  caller must render the control, driven by `awaitingContinue`). */
+  holdAfterMiss?: boolean;
   /** UI language + note-name notation for the feedback line. */
   display?: EngineDisplay;
 }
@@ -62,7 +65,7 @@ export function useDrillSession(config: DrillConfig, collab: DrillCollaborators)
     { setGuitarString: collab.setActiveString, ...NOOP_SETTERS },
     collab.history,
     collab.scoring,
-    { onComplete: collab.onComplete },
+    { onComplete: collab.onComplete, holdAfterMiss: collab.holdAfterMiss },
     collab.display,
   );
 

@@ -107,6 +107,10 @@ export interface EngineCallbacks {
   // engine running). Lets a caller (e.g. Auto Advance) distinguish a real
   // stage completion from the session simply being stopped.
   onComplete?: () => void;
+  // Interval drills only: after a WRONG answer, don't auto-advance — wait for
+  // an explicit `continueAfterMiss()` (the caller must render a Continue
+  // control). Off by default so a surface without that control never stalls.
+  holdAfterMiss?: boolean;
 }
 
 // How the feedback line is worded: the UI language and the player's note-name
@@ -238,6 +242,21 @@ export function useGameEngine(
   const questionPlaybackRate = () =>
     questionTimeRef.current > 0 ? baseTimeRef.current / questionTimeRef.current : 1;
   const timeoutCallbackRef = useRef<(() => void) | null>(null);
+  // Hold-after-miss (interval drills): the pending "next question" closure,
+  // stamped with its session, run only by an explicit continueAfterMiss().
+  const holdMissRef = useRef(false);
+  holdMissRef.current = !!callbacks.holdAfterMiss;
+  const continueRef = useRef<{ session: number; fn: () => void } | null>(null);
+  const [awaitingContinue, setAwaitingContinue] = useState(false);
+  // The contrastive replay's delayed second playback.
+  const replayTimerRef = useRef<number | null>(null);
+  const clearReplay = () => {
+    if (replayTimerRef.current) { clearTimeout(replayTimerRef.current); replayTimerRef.current = null; }
+  };
+  const dropHold = () => {
+    continueRef.current = null;
+    setAwaitingContinue(false);
+  };
   const advanceTimeoutRef = useRef<number | null>(null);
   const advanceMetaRef = useRef<{ fn: () => void; start: number; delay: number } | null>(null);
 
@@ -468,6 +487,47 @@ export function useGameEngine(
     }
   }, []);
 
+  // After a wrong answer in an interval drill: wait for an explicit Continue
+  // instead of auto-advancing. Returns false (caller keeps its auto-advance)
+  // when the hold is off or this is not an interval question.
+  const holdForContinue = useCallback((mySession: number, fn: () => void): boolean => {
+    if (!holdMissRef.current || !intervalPromptRef.current) return false;
+    continueRef.current = { session: mySession, fn };
+    setAwaitingContinue(true);
+    return true;
+  }, []);
+
+  const continueAfterMiss = useCallback(() => {
+    const held = continueRef.current;
+    if (!held || held.session !== sessionRef.current || !runningRef.current) return;
+    dropHold();
+    held.fn();
+  }, []);
+
+  // Contrastive replay on a miss in *identify the interval*: the correct
+  // interval, then — from the same root — the one the learner chose, so the
+  // difference is audible. Silent mode is honoured inside playNoteSequence.
+  const playContrastiveReplay = useCallback((chosenSemitones: number, mySession: number) => {
+    const p = intervalPromptRef.current;
+    if (!p || p.exercise !== 'identifyInterval') return;
+    clearReplay();
+    const maxFret = notes[p.refString - 1].length - 1;
+    const sign = p.dir === 'up' ? 1 : -1;
+    let chosenFret = p.refFret + sign * chosenSemitones;
+    if (chosenFret < 0 || chosenFret > maxFret) chosenFret = p.refFret - sign * chosenSemitones;
+    replayTimerRef.current = window.setTimeout(() => {
+      replayTimerRef.current = null;
+      if (sessionRef.current !== mySession || !runningRef.current) return;
+      playNoteSequence(p.refString, [p.refFret, p.targetFret], 900);
+      if (chosenFret < 0 || chosenFret > maxFret) return;
+      replayTimerRef.current = window.setTimeout(() => {
+        replayTimerRef.current = null;
+        if (sessionRef.current !== mySession || !runningRef.current) return;
+        playNoteSequence(p.refString, [p.refFret, chosenFret], 900);
+      }, 1500);
+    }, 350);
+  }, []);
+
   const setIntervalPromptBoth = useCallback((p: IntervalPromptState | null) => {
     intervalPromptRef.current = p;
     setIntervalPrompt(p);
@@ -508,6 +568,7 @@ export function useGameEngine(
     setQuestionNumber(countRef.current);
     setAnswered(false);
     answeredRef.current = false;
+    clearReplay(); dropHold();
     setFeedback('');
     setWrongFret(null);
     setFoundFrets([]);
@@ -700,9 +761,13 @@ export function useGameEngine(
           ? `✗ ${fmtRef.current.note(note, interval?.notation)}`
           : `✗ ${fmtRef.current.t('Correct: {list}').replace('{list}', rem.join(', '))}`,
       );
-      advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) nextByNote(); }, 1800);
+      // *Find on the neck* miss: the board already reveals every accepted
+      // position — hold for an explicit Continue so it can be read.
+      if (!(intervalPositionRef.current && holdForContinue(mySession, nextByNote))) {
+        advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) nextByNote(); }, 1800);
+      }
     }
-  }, [paused, addEntry, nextByNote, onTimeout, onWrong, scoreCorrect, scheduleAdvance, advanceAfterSound, showScore, tagInterval, accidental, interval]);
+  }, [paused, addEntry, nextByNote, onTimeout, onWrong, scoreCorrect, scheduleAdvance, advanceAfterSound, showScore, tagInterval, accidental, interval, holdForContinue]);
 
   // ── BY FRET MODE ──────────────────────────────────────────────
   const next = useCallback(() => {
@@ -718,6 +783,7 @@ export function useGameEngine(
     setQuestionNumber(countRef.current);
     setAnswered(false);
     answeredRef.current = false;
+    clearReplay(); dropHold();
     setFeedback('');
     setCorrectCofNote(null);
     setWrongCofNote(null);
@@ -827,6 +893,9 @@ export function useGameEngine(
       return true;
     }
 
+    // *Find the target note* miss: the chip row already marks the right note —
+    // hold for an explicit Continue (no-op outside an interval drill).
+    if (holdForContinue(mySession, next)) return false;
     const waitForSound = () => {
       if (isSoundPlaying()) {
         scheduleAdvance(waitForSound, 100);
@@ -836,7 +905,7 @@ export function useGameEngine(
     };
     scheduleAdvance(waitForSound, 800);
     return false;
-  }, [paused, currentFret, accidental, order, addEntry, next, onWrong, scoreCorrect, scheduleAdvance, advanceAfterSound, tagInterval, interval]);
+  }, [paused, currentFret, accidental, order, addEntry, next, onWrong, scoreCorrect, scheduleAdvance, advanceAfterSound, tagInterval, interval, holdForContinue]);
 
   // ── SELECT INTERVAL (identify-the-interval answer) ────────────
   // The chip-row answer for *identify the interval*: the learner picked an
@@ -863,11 +932,22 @@ export function useGameEngine(
     }
     addEntry(tagInterval({ note: p.targetNote, fret: p.targetFret, string: qString, seconds: Math.round(elapsed * 10) / 10, skipped: false, correct: isCorrect }));
     const answerShort = intervalBySemitones(p.semitones)?.short ?? `+${p.semitones}`;
-    setFeedback(isCorrect ? `✓ ${fmtRef.current.t('Correct!')}` : `✗ ${answerShort}`);
+    const chosenShort = intervalBySemitones(chosenSemitones)?.short ?? `+${chosenSemitones}`;
+    setFeedback(
+      isCorrect
+        ? `✓ ${fmtRef.current.t('Correct!')}`
+        : holdMissRef.current
+          ? `✗ ${fmtRef.current.t('You said {chosen}, it was {answer}').replace('{chosen}', chosenShort).replace('{answer}', answerShort)}`
+          : `✗ ${answerShort}`,
+    );
 
     if (isCorrect) {
       advanceAfterSound(() => { if (runningRef.current && sessionRef.current === mySession) next(); });
       return true;
+    }
+    if (holdForContinue(mySession, next)) {
+      playContrastiveReplay(chosenSemitones, mySession);
+      return false;
     }
     const waitForSound = () => {
       if (isSoundPlaying()) {
@@ -878,18 +958,20 @@ export function useGameEngine(
     };
     scheduleAdvance(waitForSound, 800);
     return false;
-  }, [paused, addEntry, next, onWrong, scoreCorrect, scheduleAdvance, advanceAfterSound, tagInterval]);
+  }, [paused, addEntry, next, onWrong, scoreCorrect, scheduleAdvance, advanceAfterSound, tagInterval, holdForContinue, playContrastiveReplay]);
 
   // "🔊 hear it again" — replay the current interval question's stimulus with
   // no scoring effect. No-op outside an interval question.
   const replayIntervalQuestion = useCallback(() => {
     if (!runningRef.current || !intervalPromptRef.current) return;
+    clearReplay();
     playIntervalStimulus();
   }, [playIntervalStimulus]);
 
   // ── CONTROLS ─────────────────────────────────────────────────
   const start = useCallback((maxQ: number, currentTime: number, isByNote: boolean) => {
     sessionRef.current++;
+    clearReplay(); dropHold();
     noteRoundStarted();
     maxQuestionsRef.current = maxQ;
     baseTimeRef.current = currentTime;
@@ -930,6 +1012,7 @@ export function useGameEngine(
     clearTimers();
     if (advanceTimeoutRef.current) { clearTimeout(advanceTimeoutRef.current); advanceTimeoutRef.current = null; }
     advanceMetaRef.current = null;
+    clearReplay(); dropHold();
     runningRef.current = false;
     pausedRef.current = false;
     completedNaturallyRef.current = false;
@@ -965,7 +1048,11 @@ export function useGameEngine(
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
     if (advanceTimeoutRef.current) { clearTimeout(advanceTimeoutRef.current); advanceTimeoutRef.current = null; }
     advanceMetaRef.current = null;
-    if (countRef.current > 0) countRef.current--;
+    // A held miss: its question was already answered and scored, so unlike an
+    // in-flight one it must not give its slot back (resume asks a fresh one).
+    const wasHeld = continueRef.current !== null;
+    clearReplay(); dropHold();
+    if (countRef.current > 0 && !wasHeld) countRef.current--;
     setQuestionNumber(countRef.current);
     runningRef.current = false;
     answeredRef.current = true;
@@ -1008,5 +1095,6 @@ export function useGameEngine(
     // actions
     start, stop, pause, resume, selectFret, selectAnswer,
     selectInterval, replayIntervalQuestion,
+    awaitingContinue, continueAfterMiss,
   };
 }

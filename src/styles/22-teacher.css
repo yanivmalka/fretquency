@@ -363,3 +363,25 @@
 .ivl-board {
   margin-top: 4px;
 }
+
+/* Miss feedback in the interval drill: the two notes on the neck with the fret
+   distance, and the explicit Continue the engine waits for. */
+.interval-feedback-neck { margin-top: 8px; }
+.interval-feedback-distance {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.interval-continue-btn {
+  display: block;
+  margin: 10px auto 0;
+  padding: 8px 28px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg, #000);
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}

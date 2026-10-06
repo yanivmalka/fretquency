@@ -546,6 +546,7 @@ export default function App() {
       session: scoring.session,
     },
     onComplete: handleAutoComplete,
+    holdAfterMiss: true,
     display: { t, notation },
   });
   const {
@@ -554,7 +555,7 @@ export default function App() {
     questionTime, questionStart, questionSeq, questionNumber, intervalPrompt,
     completedNaturally,
     start: engineStart, stop, pause, resume, selectFret, selectAnswer,
-    selectInterval, replayIntervalQuestion,
+    selectInterval, replayIntervalQuestion, awaitingContinue, continueAfterMiss,
     // The tidy end-of-drill snapshot (score / accuracy / streak / counts) the
     // drill session already derives from the session score + recorded history.
     // Practice reads it for the round-complete card and the personal-best
@@ -1987,6 +1988,8 @@ export default function App() {
           selectAnswer={selectAnswer}
           selectInterval={selectInterval}
           replayIntervalQuestion={replayIntervalQuestion}
+          awaitingContinue={awaitingContinue}
+          continueAfterMiss={continueAfterMiss}
         >
           {gameEnded && isStopped && (
             <GameEndSummary

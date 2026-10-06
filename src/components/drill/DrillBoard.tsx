@@ -87,6 +87,9 @@ export interface DrillBoardProps {
   selectAnswer: (note: string) => boolean | undefined;
   selectInterval: (semitones: number) => void;
   replayIntervalQuestion: () => void;
+  /** Interval drill, after a wrong answer: the engine is holding for a Continue tap. */
+  awaitingContinue: boolean;
+  continueAfterMiss: () => void;
 
   children?: ReactNode;
 }
@@ -100,6 +103,7 @@ export default function DrillBoard({
   questionStart, questionNumber, remainingFrets, foundFrets, wrongFret,
   correctCofNote, wrongCofNote, wrongInterval,
   selectFret, selectAnswer, selectInterval, replayIntervalQuestion,
+  awaitingContinue, continueAfterMiss,
   children,
 }: DrillBoardProps) {
   const {
@@ -156,6 +160,38 @@ export default function DrillBoard({
                       {displayNote(intervalPrompt.targetNote, accidental, notation)}
                     </div>
                   )}
+                  {intervalPrompt.exercise === 'identifyInterval' && (() => {
+                    // The two notes on the neck, with the fret distance. The
+                    // grid is the same lowest-string-first single-string board
+                    // the find-on-the-neck drill uses (it mirrors itself for
+                    // left-handed play); the window widens to hold both notes.
+                    const dist = Math.abs(intervalPrompt.targetFret - intervalPrompt.refFret);
+                    const shortName = def?.short ?? `+${intervalPrompt.semitones}`;
+                    const lo = Math.min(eff.fretFrom, intervalPrompt.refFret, intervalPrompt.targetFret);
+                    const hi = Math.max(eff.fretTo, intervalPrompt.refFret, intervalPrompt.targetFret);
+                    return (
+                      <div className="interval-feedback-neck">
+                        <FretGrid
+                          fretFrom={lo}
+                          fretTo={hi}
+                          guitarString={intervalPrompt.refString}
+                          validFrets={new Set(Array.from({ length: hi - lo + 1 }, (_, i) => lo + i))}
+                          active={false}
+                          correctFrets={[intervalPrompt.targetFret]}
+                          wrongFret={null}
+                          foundFrets={[]}
+                          onSelect={() => {}}
+                          showMastery={false}
+                          referenceFret={intervalPrompt.refFret}
+                        />
+                        <div className="interval-feedback-distance">
+                          {(dist === 1 ? t('1 fret = {interval}') : t('{n} frets = {interval}'))
+                            .replace('{n}', String(dist))
+                            .replace('{interval}', shortName)}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   {content && (
                     <div className="interval-feedback-compare">{t(content.comparison)}</div>
                   )}
@@ -166,6 +202,16 @@ export default function DrillBoard({
                   >
                     🔊 {t('Hear it again')}
                   </button>
+                  {awaitingContinue && (
+                    <button
+                      type="button"
+                      className="interval-continue-btn"
+                      onClick={click(continueAfterMiss)}
+                      autoFocus
+                    >
+                      {t('Continue')}
+                    </button>
+                  )}
                 </div>
               );
             })()}

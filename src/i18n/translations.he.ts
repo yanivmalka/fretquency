@@ -1251,6 +1251,9 @@ export const he: Record<string, string> = {
   'Find on the neck': 'למצוא על הצוואר',
   'Which interval did you hear?': 'איזה אינטרוול שמעת?',
   'Hear it again': 'להשמיע שוב',
+  'You said {chosen}, it was {answer}': "את/ה אמרת {chosen}, זה היה {answer}",
+  '1 fret = {interval}': "סריג אחד = {interval}",
+  '{n} frets = {interval}': "{n} סריגים = {interval}",
   'below': 'מתחת ל־',
   // *Find on the neck* (intervals-learning-spec §8.5): one note is marked on the
   // string, tap the note that completes the interval.
