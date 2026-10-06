@@ -25,6 +25,10 @@ import { playClickSound, haptic } from '../utils/feedback';
 import { track } from '../utils/analytics';
 import { Chevron } from './Chevron';
 import HomeworkRun from './HomeworkRun';
+import ScaleHomeworkRun from './ScaleHomeworkRun';
+import ReadingHomeworkRun from './ReadingHomeworkRun';
+import HomeworkKindForm from './HomeworkKindForm';
+import type { HomeworkFinishPayload } from '../hooks/useHomeworkResult';
 import { isSupabaseConfigured } from '../utils/supabase';
 import { loadSetting } from '../utils/settings';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
@@ -42,9 +46,14 @@ import {
 import TeacherExamScreen from './TeacherExamScreen';
 import {
   HOMEWORK_INSTRUMENTS, HOMEWORK_QUESTION_COUNTS,
-  defaultHomeworkPicks, buildHomeworkDrill, homeworkPicksFromDrill, parseHomeworkDrill, describeHomework,
+  defaultHomeworkPicks, buildHomeworkDrill, homeworkPicksFromDrill,
   summariseAttempts, isHomeworkInstrument, classWeakSpots, studentWeakSpots, type HomeworkPicks, type StudentResult,
 } from '../teacher/homework';
+import {
+  HOMEWORK_KINDS, KIND_LABEL, defaultHomeworkSpec, retargetHomeworkSpec, parseHomework, homeworkToStored,
+  describeHomeworkSpec, intervalHomeworkDrill,
+  type HomeworkKind, type NonNotesSpec,
+} from '../teacher/homeworkKinds';
 import {
   CLASS_CODE_MAX, normaliseClassCode, isJoinableCode, classCodeProblem, suggestClassCode,
   type CodeProblem,
@@ -699,7 +708,7 @@ function HomeworkResults({ hw, members, attempts, onEdit, onDeleted }: {
   const practised = members.filter((m) => byStudent.has(m.userId)).length;
   const weakSpots = useMemo(() => classWeakSpots(attempts, 5), [attempts]);
   const attemptsWithDetail = useMemo(() => attempts.filter((a) => a.wrongPositions != null).length, [attempts]);
-  const drill = parseHomeworkDrill(hw.drill, hw.instrumentId, { accidental: 'sharps', order: 'fifths' });
+  const spec = parseHomework(hw.drill, hw.instrumentId, { accidental: 'sharps', order: 'fifths' });
   const instrumentEmoji = isHomeworkInstrument(hw.instrumentId) ? getInstrument(hw.instrumentId).emoji : '🎸';
 
   return (
@@ -713,7 +722,9 @@ function HomeworkResults({ hw, members, attempts, onEdit, onDeleted }: {
       </button>
       {open && (
         <div className="class-hw-body">
-          {drill && <p className="class-muted">{describeHomework(drill, t)}</p>}
+          {spec && isHomeworkInstrument(hw.instrumentId) && (
+            <p className="class-muted">{describeHomeworkSpec(spec, hw.instrumentId, t)}</p>
+          )}
           {hw.dueOn && <p className="class-muted">{t('Due {date}').replace('{date}', shortDate(hw.dueOn))}</p>}
           {weakSpots.length > 0 && (
             <div className="class-weak-spots">
@@ -788,47 +799,64 @@ function HomeworkResults({ hw, members, attempts, onEdit, onDeleted }: {
 
 function AssignView({ cls, editing, onDone }: { cls: ClassRow; editing?: HomeworkRow; onDone: () => void }) {
   const { t } = useTranslation();
+  // What is being edited, if it still runs on this build.
+  const editingSpec = useMemo(
+    () => (editing ? parseHomework(editing.drill, editing.instrumentId, { accidental: 'sharps', order: 'fifths' }) : null),
+    [editing],
+  );
+  const [kind, setKind] = useState<HomeworkKind>(editingSpec?.kind ?? 'notes');
+  // The Notes picks also carry the instrument for every other kind.
   const [picks, setPicks] = useState<HomeworkPicks>(() => {
-    if (editing && isHomeworkInstrument(editing.instrumentId)) {
-      const parsed = parseHomeworkDrill(editing.drill, editing.instrumentId, { accidental: 'sharps', order: 'fifths' });
-      if (parsed) return homeworkPicksFromDrill(parsed, editing.instrumentId);
+    if (editing && editingSpec && isHomeworkInstrument(editing.instrumentId)) {
+      return editingSpec.kind === 'notes'
+        ? homeworkPicksFromDrill(editingSpec.drill, editing.instrumentId)
+        : defaultHomeworkPicks(editing.instrumentId);
     }
     return defaultHomeworkPicks('guitar');
   });
+  const [other, setOther] = useState<NonNotesSpec | null>(
+    () => (editingSpec && editingSpec.kind !== 'notes' ? editingSpec : null),
+  );
   const [title, setTitle] = useState(editing?.title ?? '');
   const [dueOn, setDueOn] = useState(editing?.dueOn ?? '');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const instrument = getInstrument(picks.instrumentId);
-  const drill = buildHomeworkDrill(picks);
+  const notesDrill = buildHomeworkDrill(picks);
+  const spec = kind === 'notes' || !other ? { kind: 'notes' as const, drill: notesDrill } : other;
   const frets = Array.from({ length: instrument.maxFret + 1 }, (_, f) => f);
   const stringNums = Array.from({ length: instrument.stringCount }, (_, i) => i + 1);
-  const ready = title.trim().length > 0 && picks.strings.length > 0 && !busy;
+  const ready = title.trim().length > 0 && (spec.kind !== 'notes' || picks.strings.length > 0) && !busy;
 
   const set = (p: Partial<HomeworkPicks>) => setPicks((prev) => ({ ...prev, ...p }));
+  const pickKind = (k: HomeworkKind) => {
+    setKind(k);
+    if (k !== 'notes' && other?.kind !== k) setOther(defaultHomeworkSpec(k, picks.instrumentId));
+  };
 
   return (
     <section className="class-card class-assign">
       <h3 className="class-h">{editing ? t('Edit homework') : t('Assign homework')}</h3>
-      <p className="class-muted">
-        {picks.mode === 'byNote'
-          ? t('A Notes drill: a note is shown, the student finds every matching fret.')
-          : t('A Notes drill: a fret is shown, the student names the note.')}
-      </p>
 
       <div className="class-field">
-        <span>{t('Direction')}</span>
+        <span>{t('Type')}</span>
         <div className="class-chips">
-          <button className={`fotd-instrument-btn${picks.mode === 'byFret' ? ' active' : ''}`}
-            aria-pressed={picks.mode === 'byFret'} onClick={tap(() => set({ mode: 'byFret' }))}>
-            {t('Note by Fret')}
-          </button>
-          <button className={`fotd-instrument-btn${picks.mode === 'byNote' ? ' active' : ''}`}
-            aria-pressed={picks.mode === 'byNote'} onClick={tap(() => set({ mode: 'byNote' }))}>
-            {t('Fret by Note')}
-          </button>
+          {HOMEWORK_KINDS.map((k) => (
+            <button key={k} className={`fotd-instrument-btn${k === kind ? ' active' : ''}`}
+              aria-pressed={k === kind} onClick={tap(() => pickKind(k))}>
+              {t(KIND_LABEL[k])}
+            </button>
+          ))}
         </div>
       </div>
+
+      {kind === 'notes' && (
+        <p className="class-muted">
+          {picks.mode === 'byNote'
+            ? t('A Notes drill: a note is shown, the student finds every matching fret.')
+            : t('A Notes drill: a fret is shown, the student names the note.')}
+        </p>
+      )}
 
       <label className="class-field">
         <span>{t('Title')}</span>
@@ -842,72 +870,96 @@ function AssignView({ cls, editing, onDone }: { cls: ClassRow; editing?: Homewor
           {HOMEWORK_INSTRUMENTS.map((id: InstrumentId) => (
             <button key={id} className={`fotd-instrument-btn${id === picks.instrumentId ? ' active' : ''}`}
               aria-pressed={id === picks.instrumentId}
-              onClick={tap(() => setPicks({ ...defaultHomeworkPicks(id), mode: picks.mode, naturalsOnly: picks.naturalsOnly, questionCount: picks.questionCount }))}>
+              onClick={tap(() => {
+                setPicks({ ...defaultHomeworkPicks(id), mode: picks.mode, naturalsOnly: picks.naturalsOnly, questionCount: picks.questionCount });
+                if (other) setOther(retargetHomeworkSpec(other, id));
+              })}>
               <span aria-hidden="true">{getInstrument(id).emoji}</span> {t(getInstrument(id).label)}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="class-field">
-        <span>{t('Strings')}</span>
-        <div className="class-chips" dir="ltr">
-          {stringNums.map((s) => {
-            const on = picks.strings.includes(s);
-            return (
-              <button key={s} className={`class-string-chip${on ? ' active' : ''}`} aria-pressed={on}
-                title={t(instrument.stringLabels[s] ?? '')}
-                onClick={tap(() => set({ strings: on ? picks.strings.filter((x) => x !== s) : [...picks.strings, s] }))}>
-                {s} <small>{instrument.notes[s - 1]?.[0]}</small>
+      {kind === 'notes' ? (
+        <>
+          <div className="class-field">
+            <span>{t('Direction')}</span>
+            <div className="class-chips">
+              <button className={`fotd-instrument-btn${picks.mode === 'byFret' ? ' active' : ''}`}
+                aria-pressed={picks.mode === 'byFret'} onClick={tap(() => set({ mode: 'byFret' }))}>
+                {t('Note by Fret')}
               </button>
-            );
-          })}
-        </div>
-      </div>
+              <button className={`fotd-instrument-btn${picks.mode === 'byNote' ? ' active' : ''}`}
+                aria-pressed={picks.mode === 'byNote'} onClick={tap(() => set({ mode: 'byNote' }))}>
+                {t('Fret by Note')}
+              </button>
+            </div>
+          </div>
 
-      <div className="class-field">
-        <span>{t('Frets')}</span>
-        <div className="class-inline-form" dir="ltr">
-          <select className="class-input" value={picks.fretFrom} aria-label={t('From fret')}
-            onChange={(e) => set({ fretFrom: Number(e.target.value) })}>
-            {frets.map((f) => <option key={f} value={f}>{f}</option>)}
-          </select>
-          <span>–</span>
-          <select className="class-input" value={picks.fretTo} aria-label={t('To fret')}
-            onChange={(e) => set({ fretTo: Number(e.target.value) })}>
-            {frets.map((f) => <option key={f} value={f}>{f}</option>)}
-          </select>
-        </div>
-      </div>
+          <div className="class-field">
+            <span>{t('Strings')}</span>
+            <div className="class-chips" dir="ltr">
+              {stringNums.map((s) => {
+                const on = picks.strings.includes(s);
+                return (
+                  <button key={s} className={`class-string-chip${on ? ' active' : ''}`} aria-pressed={on}
+                    title={t(instrument.stringLabels[s] ?? '')}
+                    onClick={tap(() => set({ strings: on ? picks.strings.filter((x) => x !== s) : [...picks.strings, s] }))}>
+                    {s} <small>{instrument.notes[s - 1]?.[0]}</small>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-      <label className="class-check">
-        <input type="checkbox" checked={picks.naturalsOnly} onChange={(e) => set({ naturalsOnly: e.target.checked })} />
-        <span>{t('Natural notes only (no sharps or flats)')}</span>
-      </label>
+          <div className="class-field">
+            <span>{t('Frets')}</span>
+            <div className="class-inline-form" dir="ltr">
+              <select className="class-input" value={picks.fretFrom} aria-label={t('From fret')}
+                onChange={(e) => set({ fretFrom: Number(e.target.value) })}>
+                {frets.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+              <span>–</span>
+              <select className="class-input" value={picks.fretTo} aria-label={t('To fret')}
+                onChange={(e) => set({ fretTo: Number(e.target.value) })}>
+                {frets.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </div>
+          </div>
 
-      <div className="class-field">
-        <span>{t('Questions')}</span>
-        <div className="class-chips">
-          {HOMEWORK_QUESTION_COUNTS.map((n) => (
-            <button key={n} className={`class-string-chip${n === picks.questionCount ? ' active' : ''}`}
-              aria-pressed={n === picks.questionCount} onClick={tap(() => set({ questionCount: n }))}>
-              {n}
-            </button>
-          ))}
-        </div>
-      </div>
+          <label className="class-check">
+            <input type="checkbox" checked={picks.naturalsOnly} onChange={(e) => set({ naturalsOnly: e.target.checked })} />
+            <span>{t('Natural notes only (no sharps or flats)')}</span>
+          </label>
+
+          <div className="class-field">
+            <span>{t('Questions')}</span>
+            <div className="class-chips">
+              {HOMEWORK_QUESTION_COUNTS.map((n) => (
+                <button key={n} className={`class-string-chip${n === picks.questionCount ? ' active' : ''}`}
+                  aria-pressed={n === picks.questionCount} onClick={tap(() => set({ questionCount: n }))}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : other && (
+        <HomeworkKindForm spec={other} instrumentId={picks.instrumentId} onChange={setOther} />
+      )}
 
       <label className="class-field">
         <span>{t('Due date (optional)')}</span>
         <input className="class-input" type="date" value={dueOn} onChange={(e) => setDueOn(e.target.value)} />
       </label>
 
-      <p className="class-muted">{describeHomework(drill, t)}</p>
+      <p className="class-muted">{describeHomeworkSpec(spec, picks.instrumentId, t)}</p>
 
       <div className="class-row">
         <button className="clear-btn" onClick={tap(onDone)}>{t('Cancel')}</button>
         <button className="class-btn-primary" disabled={!ready} onClick={tap(() => {
           setBusy(true); setFailed(false);
+          const drill = homeworkToStored(spec);
           const save = editing
             ? updateHomework({ homeworkId: editing.id, title, instrumentId: picks.instrumentId, drill, dueOn: dueOn || null })
             : assignHomework({ classId: cls.id, title, instrumentId: picks.instrumentId, drill, dueOn: dueOn || null });
@@ -958,7 +1010,7 @@ function StudyView({ user, cls, onRun, onLeft }: {
             <ul className="class-list">
               {data.data.homework.map((hw) => {
                 const mine = data.data!.mine.get(hw.id);
-                const runnable = parseHomeworkDrill(hw.drill, hw.instrumentId, { accidental: 'sharps', order: 'fifths' }) !== null;
+                const runnable = parseHomework(hw.drill, hw.instrumentId, { accidental: 'sharps', order: 'fifths' }) !== null;
                 const meta = [
                   hw.dueOn ? t('Due {date}').replace('{date}', shortDate(hw.dueOn)) : null,
                   mine
@@ -1002,25 +1054,30 @@ function StudyView({ user, cls, onRun, onLeft }: {
 function RunView({ user, cls, homework, onDone }: {
   user: User; cls: ClassRow; homework: HomeworkRow; onDone: () => void;
 }) {
+  const { t } = useTranslation();
   const accidental: AccidentalMode = loadSetting('pref_accidental', 'sharps');
   const order: OrderMode = loadSetting('pref_order', 'fifths');
   const notation: NotationMode = loadSetting('pref_notation', 'alpha');
-  const drill = useMemo(
-    () => parseHomeworkDrill(homework.drill, homework.instrumentId, { accidental, order }),
+  const spec = useMemo(
+    () => parseHomework(homework.drill, homework.instrumentId, { accidental, order }),
     [homework, accidental, order],
   );
   // StudyView only offers runnable homework, so this is a can't-happen guard.
-  if (!drill || !isHomeworkInstrument(homework.instrumentId)) return null;
-  return (
-    <HomeworkRun
-      title={homework.title}
-      instrumentId={homework.instrumentId}
-      drill={drill}
-      accidental={accidental}
-      order={order}
-      notation={notation}
-      onFinished={(r) => submitAttempt({ homeworkId: homework.id, classId: cls.id, userId: user.id, ...r })}
-      onDone={onDone}
-    />
-  );
+  if (!spec || !isHomeworkInstrument(homework.instrumentId)) return null;
+  const instrumentId = homework.instrumentId;
+  const summary = describeHomeworkSpec(spec, instrumentId, t);
+  const onFinished = (r: HomeworkFinishPayload) =>
+    submitAttempt({ homeworkId: homework.id, classId: cls.id, userId: user.id, ...r });
+  const common = { title: homework.title, instrumentId, summary, accidental, notation, onFinished, onDone };
+  switch (spec.kind) {
+    case 'notes':
+      return <HomeworkRun {...common} drill={spec.drill} order={order} />;
+    case 'interval':
+      return <HomeworkRun {...common} drill={intervalHomeworkDrill(spec, { accidental, order, notation })} order={order} />;
+    case 'scale':
+      return <ScaleHomeworkRun {...common} spec={spec} />;
+    case 'staff':
+    case 'tab':
+      return <ReadingHomeworkRun {...common} spec={spec} />;
+  }
 }

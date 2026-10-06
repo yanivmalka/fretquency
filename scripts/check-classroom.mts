@@ -257,5 +257,71 @@ function qualifiesForClassroomJoin(
   eq(qualifiesForClassroomJoin(null, new Date(now.getTime() - (TRIAL_DAYS + 1) * 86_400_000).toISOString(), now), false, 'trial expired: refused');
 }
 
+// ── Homework kinds beyond Notes (src/teacher/homeworkKinds.ts) ──────────
+{
+  const K = await import('../src/teacher/homeworkKinds.ts');
+  const display = { accidental: 'sharps', order: 'fifths' } as const;
+  const t = (s: string) => s;
+
+  for (const inst of HOMEWORK_INSTRUMENTS) {
+    for (const kind of ['interval', 'scale', 'staff', 'tab'] as const) {
+      const spec = K.defaultHomeworkSpec(kind, inst);
+      const back = K.parseHomework(JSON.parse(JSON.stringify(K.homeworkToStored(spec))), inst, display);
+      eq(back, spec, `${kind} default on ${inst} round-trips`);
+      if (!K.describeHomeworkSpec(spec, inst, t).includes('10')) fail(`${kind} on ${inst}: description lacks the question count`);
+    }
+  }
+
+  // Notes rows keep their old shape and still parse as notes.
+  const notes = buildHomeworkDrill(defaultHomeworkPicks('guitar'));
+  eq(K.parseHomework(notes, 'guitar', display)?.kind, 'notes', 'untagged row is a Notes homework');
+  eq(K.homeworkToStored({ kind: 'notes', drill: notes }), notes, 'Notes homework is stored as the bare DrillConfig');
+
+  // Old builds must refuse the new kinds (they require `mode`), never run them as Notes.
+  for (const kind of ['interval', 'scale', 'staff', 'tab'] as const) {
+    const stored = K.homeworkToStored(K.defaultHomeworkSpec(kind, 'guitar')) as Record<string, unknown>;
+    eq(stored.mode, undefined, `${kind} stored shape has no 'mode'`);
+    eq(parseHomeworkDrill(stored, 'guitar', display), null, `old parser rejects a ${kind} homework`);
+  }
+
+  // Hostile / stale rows are rejected.
+  const iv = K.defaultHomeworkSpec('interval', 'bass') as Record<string, unknown>;
+  eq(K.parseHomework({ ...iv, strings: [9] }, 'bass', display), null, 'interval: string past the instrument');
+  eq(K.parseHomework({ ...iv, fretTo: 99 }, 'bass', display), null, 'interval: fret past the instrument');
+  eq(K.parseHomework({ ...iv, semitones: [0] }, 'bass', display), null, 'interval: size 0');
+  eq(K.parseHomework({ ...iv, semitones: [] }, 'bass', display), null, 'interval: no sizes');
+  eq(K.parseHomework({ ...iv, exercise: 'nope' }, 'bass', display), null, 'interval: unknown exercise');
+  eq(K.parseHomework({ ...iv, questionCount: 0 }, 'bass', display), null, 'interval: zero questions');
+  eq(K.parseHomework({ ...iv, kind: 'mystery' }, 'bass', display), null, 'unknown kind');
+  eq(K.parseHomework(iv, 'banjo', display), null, 'instrument a student may be locked out of');
+  const sc = K.defaultHomeworkSpec('scale', 'guitar') as Record<string, unknown>;
+  eq(K.parseHomework({ ...sc, scaleTypeIds: ['nope'] }, 'guitar', display), null, 'scale: unknown scale');
+  eq(K.parseHomework({ ...sc, scaleTypeIds: ['major', 'major'] }, 'guitar', display), null, 'scale: duplicate scale');
+  const st = K.defaultHomeworkSpec('staff', 'guitar') as Record<string, unknown>;
+  eq(K.parseHomework({ ...st, key: 'H' }, 'guitar', display), null, 'staff: unknown key');
+  eq(K.parseHomework({ ...st, range: 'huge' }, 'guitar', display), null, 'staff: unknown range');
+  const tb = K.defaultHomeworkSpec('tab', 'guitar') as Record<string, unknown>;
+  eq(K.parseHomework({ ...tb, exercise: 'writeTab' }, 'guitar', display), null, 'tab: deferred exercise refused');
+
+  // Retargeting keeps what fits and repairs what does not.
+  const wide = { ...(K.defaultHomeworkSpec('interval', 'guitar') as object), strings: [5, 6], fretTo: 12 } as never;
+  const onBass = K.retargetHomeworkSpec(wide, 'bass') as { strings: number[]; fretTo: number };
+  eq(onBass.strings.every((s: number) => s <= getInstrument('bass').stringCount) && onBass.strings.length > 0, true, 'retarget: strings fit bass');
+
+  // The engine config an interval homework runs.
+  const ivSpec = K.defaultHomeworkSpec('interval', 'guitar');
+  const cfg = K.intervalHomeworkDrill(ivSpec as never, { ...display, notation: 'alpha' });
+  eq(cfg.interval?.exercise, 'identifyInterval', 'interval drill carries its exercise');
+  eq(cfg.mode, 'byFret', 'chip-row interval exercise runs by fret');
+  eq(K.intervalHomeworkDrill({ ...(ivSpec as object), exercise: 'findTargetPosition' } as never, { ...display, notation: 'alpha' }).mode,
+    'byNote', 'find-on-the-neck interval exercise runs by note');
+
+  // Scoring totals count each phrase / riff note.
+  eq(K.homeworkTotal({ kind: 'staff', exercise: 'readPhrase', range: 'open', key: 'C', inKeyOnly: true, questionCount: 6 }), 6 * K.STAFF_PHRASE_NOTES, 'phrase total');
+  eq(K.homeworkTotal({ kind: 'tab', exercise: 'readRiff', range: 'open', naturalsOnly: true, questionCount: 6 }), 6 * K.TAB_RIFF_NOTES, 'riff total');
+  eq(K.homeworkNeedsSound(K.defaultHomeworkSpec('interval', 'guitar')), true, 'identify interval needs sound');
+  eq(K.homeworkNeedsSound(K.defaultHomeworkSpec('staff', 'guitar')), false, 'staff needs no sound');
+}
+
 if (failed) { console.error(`\n${failed} check(s) failed`); process.exit(1); }
 console.log('check-classroom: all checks passed');

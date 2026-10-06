@@ -8,7 +8,7 @@
 //     from that class (0028's class_blocks + remove_class_member RPC)
 //   - a class idle for 6 months is deleted server-side (0028); the screen
 //     warns ahead of it from `lastActivityAt` (classActivity.ts)
-//   - the teacher assigns homework (a DrillConfig as jsonb); members read it
+//   - the teacher assigns homework (a DrillConfig, or a tagged spec for the other kinds, as jsonb); members read it
 //   - a student posts one `homework_attempts` row per finished run; the
 //     class's teacher reads them all (the "who practised" list)
 //
@@ -18,7 +18,6 @@
 // online-only by nature (it exists to move results between two people).
 
 import { supabase } from '../utils/supabase';
-import type { DrillConfig } from '../drill/DrillConfig';
 import type { InstrumentId } from '../utils/instruments';
 import type { WrongPosition } from './homework';
 
@@ -50,7 +49,7 @@ export interface HomeworkRow {
   classId: string;
   title: string;
   instrumentId: string;
-  /** Raw stored jsonb — run it only through `parseHomeworkDrill`. */
+  /** Raw stored jsonb — run it only through `parseHomework`. */
   drill: unknown;
   dueOn: string | null;
   createdAt: string;
@@ -264,7 +263,7 @@ export async function fetchHomework(classId: string): Promise<HomeworkRow[]> {
 }
 
 export async function assignHomework(input: {
-  classId: string; title: string; instrumentId: InstrumentId; drill: DrillConfig; dueOn: string | null;
+  classId: string; title: string; instrumentId: InstrumentId; drill: unknown; dueOn: string | null;
 }): Promise<HomeworkRow | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
@@ -291,7 +290,7 @@ export async function assignHomework(input: {
  *  or re-label them. Only attempts submitted after the edit run against the
  *  new drill. */
 export async function updateHomework(input: {
-  homeworkId: string; title: string; instrumentId: InstrumentId; drill: DrillConfig; dueOn: string | null;
+  homeworkId: string; title: string; instrumentId: InstrumentId; drill: unknown; dueOn: string | null;
 }): Promise<HomeworkRow | null> {
   if (!supabase) return null;
   const { data, error } = await supabase

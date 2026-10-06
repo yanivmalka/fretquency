@@ -1,4 +1,4 @@
-// ── HomeworkRun — a student plays one homework drill ──────────────────────
+// ── HomeworkRun — a student plays one Notes or Intervals homework drill ───
 //
 // Runs the teacher's DrillConfig through the shared `useDrillSession` facade,
 // exactly the way Fret of the Day does (DailyChallengeScreen.tsx): its own
@@ -6,7 +6,12 @@
 // can never interleave with a Practice round left running in the background
 // and never writes Practice's history / mastery / stats / leaderboard. The
 // one thing a finished run produces is a result row for the teacher
-// (`onFinished` → classroom.submitAttempt).
+// (`onFinished` → classroom.submitAttempt, via `useHomeworkResult`).
+//
+// An interval homework (`drill.interval` set) runs through the very same
+// engine: the question area swaps to `IntervalPrompt` and the answer surface to
+// the chip row (or, for "find it on the neck", the fret grid with the
+// reference note marked) — the pieces Practice's `DrillBoard` uses.
 //
 // The board renders the instrument's base tuning — the teacher assigned
 // strings by number on that tuning, so a student's 7-string variant setting
@@ -18,36 +23,42 @@ import { playClickSound, haptic } from '../utils/feedback';
 import NoteCircle from './NoteCircle';
 import FretGrid from './FretGrid';
 import SpeedBar from './SpeedBar';
+import IntervalPrompt from './IntervalPrompt';
+import IntervalChoiceRow from './IntervalChoiceRow';
+import HomeworkResultPanel from './HomeworkResultPanel';
+import HomeworkSoundNotice from './HomeworkSoundNotice';
 import { useDrillSession } from '../hooks/useDrillSession';
 import { useDerivedNotes } from '../hooks/useDerivedNotes';
 import { useScoring } from '../hooks/useScoring';
+import { useHomeworkResult, type HomeworkFinishPayload } from '../hooks/useHomeworkResult';
 import { useDrillHistorySink } from '../game/useDrillHistorySink';
-import { recordDailyActivity } from '../utils/dailyActivity';
-import { recordLeagueActivity } from '../utils/leagueActivity';
 import { unlockAudio, setAudioInstrument } from '../utils/audio';
 import { displayNote, setActiveInstrument, type AccidentalMode, type OrderMode, type NotationMode } from '../utils/music';
+import { intervalBySemitones } from '../utils/intervals';
 import { getInstrument, type InstrumentId } from '../utils/instruments';
 import type { DrillConfig } from '../drill/DrillConfig';
-import { describeHomework, extractWrongPositions, type WrongPosition } from '../teacher/homework';
+import { extractWrongPositions } from '../teacher/homework';
 
 interface Props {
   title: string;
   instrumentId: InstrumentId;
   drill: DrillConfig;
+  /** One-line description of the drill (the caller knows its kind). */
+  summary: string;
   accidental: AccidentalMode;
   order: OrderMode;
   notation: NotationMode;
   /** Called once when every question has been answered. */
-  onFinished: (r: { correct: number; total: number; seconds: number; wrongPositions: WrongPosition[] }) => Promise<void>;
+  onFinished: (r: HomeworkFinishPayload) => Promise<void>;
   onDone: () => void;
 }
 
 type Phase = 'idle' | 'playing' | 'result';
 
 export default function HomeworkRun({
-  title, instrumentId, drill, accidental, order, notation, onFinished, onDone,
+  title, instrumentId, drill, summary, accidental, order, notation, onFinished, onDone,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const instrument = getInstrument(instrumentId);
   // Same render-time override as DailyChallengeScreen: App re-syncs its own
   // instrument on its next render once this screen closes.
@@ -55,8 +66,7 @@ export default function HomeworkRun({
   setAudioInstrument(instrument);
 
   const [phase, setPhase] = useState<Phase>('idle');
-  const [result, setResult] = useState<{ correct: number; total: number; seconds: number } | null>(null);
-  const [saveState, setSaveState] = useState<'saving' | 'saved' | 'failed'>('saving');
+  const { result, saveState, finish, retrySave, clear } = useHomeworkResult(instrumentId, onFinished);
 
   const scoring = useScoring();
   const historySink = useDrillHistorySink();
@@ -74,17 +84,6 @@ export default function HomeworkRun({
     false, drill.isMulti ? drill.strings : [], instrumentId,
   );
 
-  // Captured at the moment a run ends, so a "Try again" retry after a failed
-  // save resends the same positions rather than whatever the next run leaves
-  // in the (by-then-reset) history sink.
-  const wrongPositionsRef = useRef<WrongPosition[]>([]);
-
-  const save = (r: { correct: number; total: number; seconds: number }) => {
-    setSaveState('saving');
-    onFinished({ ...r, wrongPositions: wrongPositionsRef.current })
-      .then(() => setSaveState('saved'), () => setSaveState('failed'));
-  };
-
   // End-of-run detection, as in DailyChallengeScreen: watch `running` fall
   // so the last answer has settled into `session.result`. A manual stop
   // (Back mid-run) never posts a result.
@@ -98,17 +97,11 @@ export default function HomeworkRun({
       finishedRef.current = true;
       const seconds = historySink.history.reduce((sum, e) => sum + (e.seconds || 0), 0);
       const r = { correct: session.result.questionsCorrect, total: drill.questionCount, seconds: Math.round(seconds) };
-      wrongPositionsRef.current = extractWrongPositions(historySink.history);
-      setResult(r);
       setPhase('result');
-      save(r);
-      // Homework otherwise writes only to an in-memory sink (see the module
-      // comment) — without this, a student's home-screen streak and daily
-      // goal would never move on a day they only did homework.
-      recordDailyActivity(drill.questionCount);
-      // Same reasoning for weekly league XP (leagueActivity.ts) — a
-      // homework-only week must still move the player's league standing.
-      recordLeagueActivity(instrumentId, r.correct);
+      // The weak-spot list is per fret position; an interval question's
+      // position is just where its reference note happened to sit, so those
+      // runs report none.
+      finish(r, drill.interval ? [] : extractWrongPositions(historySink.history));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.running, session.paused, session.result]);
@@ -123,12 +116,15 @@ export default function HomeworkRun({
     finishedRef.current = false;
     scoring.reset();
     scoring.beginRun(drill.timeLimit, drill.questionCount);
-    setResult(null);
+    clear();
     setPhase('playing');
     session.start(drill.questionCount, drill.timeLimit, false);
   };
 
   const click = (fn: () => void) => { playClickSound(); haptic.tap(); fn(); };
+
+  const prompt = session.intervalPrompt;
+  const answered = session.answered;
 
   return (
     <div className="class-run">
@@ -136,26 +132,33 @@ export default function HomeworkRun({
         <span className="class-run-emoji" aria-hidden="true">{instrument.emoji}</span>
         <div>
           <div className="class-run-title">{title}</div>
-          <div className="class-muted">{describeHomework(drill, t)}</div>
+          <div className="class-muted">{summary}</div>
         </div>
       </div>
 
       {phase === 'idle' && (
-        <button className="class-btn-primary" onClick={() => click(start)}>{t('Start')}</button>
+        <>
+          <HomeworkSoundNotice needsSound={drill.interval?.exercise === 'identifyInterval'} />
+          <button className="class-btn-primary" onClick={() => click(start)}>{t('Start')}</button>
+        </>
       )}
 
       {phase === 'playing' && (
         <div className="question-col class-question-col">
           <div className="string-label">{t(instrument.stringLabels[activeString] ?? '')}</div>
-          {drill.mode === 'byNote'
-            ? <div className="note-display">{session.currentNote ? displayNote(session.currentNote, accidental, notation) : '—'}</div>
-            : <div className="fret-display">{session.currentFret !== null ? session.currentFret : '—'}</div>}
+          {prompt
+            ? <div className="note-display">
+                <IntervalPrompt prompt={prompt} accidental={accidental} notation={notation} onReplay={session.replayIntervalQuestion} />
+              </div>
+            : drill.mode === 'byNote'
+              ? <div className="note-display">{session.currentNote ? displayNote(session.currentNote, accidental, notation) : '—'}</div>
+              : <div className="fret-display">{session.currentFret !== null ? session.currentFret : '—'}</div>}
           <SpeedBar
             key={`hw-sb-${session.questionSeq}`}
             remaining={session.remaining}
             total={session.questionTime}
             startAt={session.questionStart}
-            answered={session.answered}
+            answered={answered}
             paused={session.paused}
           />
           <div className="game-info-row">
@@ -165,13 +168,45 @@ export default function HomeworkRun({
           <div className={`feedback ${session.feedback.startsWith('✓') ? 'good' : session.feedback.startsWith('✗') ? 'bad' : 'warn'}`}>
             {session.feedback}
           </div>
-          {drill.mode === 'byNote' ? (
+          {prompt && prompt.exercise === 'findTargetPosition' ? (
+            <FretGrid
+              fretFrom={drill.fretFrom}
+              fretTo={drill.fretTo}
+              guitarString={activeString}
+              validFrets={new Set(Array.from({ length: drill.fretTo - drill.fretFrom + 1 }, (_, i) => drill.fretFrom + i))}
+              active={!answered}
+              correctFrets={session.remainingFrets}
+              wrongFret={session.wrongFret}
+              foundFrets={session.foundFrets}
+              onSelect={session.selectFret}
+              showMastery={false}
+              referenceFret={prompt.refFret}
+            />
+          ) : prompt ? (
+            <IntervalChoiceRow
+              variant={prompt.exercise === 'identifyInterval' ? 'interval' : 'note'}
+              options={prompt.exercise === 'identifyInterval'
+                ? prompt.optionSemitones.map((s) => ({ value: String(s), label: intervalBySemitones(s)?.short ?? `+${s}` }))
+                : prompt.options.map((n) => ({ value: n, label: displayNote(n, accidental, notation) }))}
+              correct={answered ? (prompt.exercise === 'identifyInterval' ? String(prompt.semitones) : prompt.targetNote) : null}
+              wrong={answered
+                ? (prompt.exercise === 'identifyInterval'
+                  ? (session.wrongInterval != null ? String(session.wrongInterval) : null)
+                  : session.wrongCofNote)
+                : null}
+              disabled={answered}
+              dir={lang === 'he' ? 'rtl' : undefined}
+              onSelect={(value) => (prompt.exercise === 'identifyInterval'
+                ? session.selectInterval(Number(value))
+                : session.selectAnswer(value))}
+            />
+          ) : drill.mode === 'byNote' ? (
             <FretGrid
               fretFrom={drill.fretFrom}
               fretTo={drill.fretTo}
               guitarString={activeString}
               validFrets={new Set(Object.values(derived.noteFrets).flat())}
-              active={!session.answered}
+              active={!answered}
               correctFrets={session.remainingFrets}
               wrongFret={session.wrongFret}
               foundFrets={session.foundFrets}
@@ -183,7 +218,7 @@ export default function HomeworkRun({
             <NoteCircle
               notes={derived.cofList}
               activeNotes={derived.isMulti ? derived.questionActiveNotes : derived.activeNotes}
-              active={!session.answered}
+              active={!answered}
               correctNote={session.correctCofNote}
               wrongNote={session.wrongCofNote}
               onSelect={session.selectAnswer}
@@ -201,21 +236,13 @@ export default function HomeworkRun({
       )}
 
       {phase === 'result' && result && (
-        <div className="class-run-result">
-          <div className="class-run-score">{result.correct}/{result.total} · {result.seconds}s</div>
-          <p className="class-muted" role="status">
-            {saveState === 'saving' && t('Sending your result to your teacher…')}
-            {saveState === 'saved' && t('Your teacher can see this result.')}
-            {saveState === 'failed' && t('Could not send your result. Check your connection.')}
-          </p>
-          <div className="class-row">
-            {saveState === 'failed' && (
-              <button className="clear-btn" onClick={() => click(() => save(result))}>{t('Try again')}</button>
-            )}
-            <button className="clear-btn" onClick={() => click(start)}>{t('Play again')}</button>
-            <button className="class-btn-primary" onClick={() => click(onDone)}>{t('Done')}</button>
-          </div>
-        </div>
+        <HomeworkResultPanel
+          result={result}
+          saveState={saveState}
+          onRetrySave={() => retrySave(result)}
+          onPlayAgain={start}
+          onDone={onDone}
+        />
       )}
     </div>
   );
