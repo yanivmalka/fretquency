@@ -35,7 +35,13 @@
 import type { DrillConfig } from '../drill/DrillConfig';
 import type { AccidentalMode, NotationMode, OrderMode } from '../utils/music';
 import type { IntervalHistoryRow } from './learningState';
-import { intervalItemId, parseIntervalItemId } from './intervalItem';
+import {
+  intervalItemId,
+  parseIntervalId,
+  seedLegacyIntervalSrs,
+  type IntervalDir,
+  type IntervalSkill,
+} from './intervalItem';
 import { dueItems, type SrsItem, type SrsMap } from './srs';
 import { ALL_INTERVAL_SEMITONES, type IntervalExercise } from '../utils/intervals';
 import { intervalDifficulty } from './intervalDrill';
@@ -66,6 +72,12 @@ export interface IntervalPlannedItem {
   /** Interval size in semitones, 1..11. */
   semitones: number;
   bucket: IntervalPlanBucket;
+  /** The skill this session drills (derived from the exercise): the pick was
+   *  weighed on THIS skill's SRS + history only. */
+  skill: IntervalSkill;
+  /** Directions in which this skill is weak / due for the quality (empty for
+   *  non-weakness buckets) — lets the UI say "ear is weak for M3 down". */
+  weakDirs: IntervalDir[];
   /** Weakness reasons behind the pick (empty for non-weakness buckets). */
   reasons: IntervalWeaknessReason[];
 }
@@ -185,6 +197,16 @@ function build(
 
   const cap = Math.max(1, Math.round(sessionSize));
 
+  // One exercise = one skill: weigh only that skill's schedule and history, so
+  // "mastered by calculation" never hides "weak by ear".
+  const skill: IntervalSkill =
+    exercise === 'identifyInterval' ? 'ear' : exercise === 'findTargetPosition' ? 'neck' : 'calc';
+  const srsView = seedLegacyIntervalSrs(intervalSrs);
+  const skillSrs: SrsMap = {};
+  for (const [id, item] of Object.entries(srsView)) {
+    if (parseIntervalId(id)?.skill === skill) skillSrs[id] = item;
+  }
+
   // The current curriculum group — derived on the fly, nothing stored (§6.4).
   const mastered = masteredSizes(intervalSrs, history, now);
   const groupIdx = currentGroupIndex(mastered, readyRatio);
@@ -202,23 +224,44 @@ function build(
     if (!(size >= 1 && size <= 11)) return false;
     if (seen.has(size) || picked.length >= cap) return false;
     seen.add(size);
-    picked.push({ itemId: intervalItemId(size), semitones: size, bucket, reasons });
+    const weakDirs = (dirsBySize.get(size) ?? []) as IntervalDir[];
+    picked.push({
+      itemId: intervalItemId(size),
+      semitones: size,
+      bucket,
+      skill,
+      weakDirs: bucket === 'overdue' || bucket === 'weak' ? weakDirs : [],
+      reasons,
+    });
     return true;
   };
 
-  const signals = analyzeIntervalWeakness(history, intervalSrs, now, weaknessCfg);
-  const signalBySize = new Map(signals.map((s) => [s.semitones, s]));
+  const signals = analyzeIntervalWeakness(history, intervalSrs, now, weaknessCfg, skill);
+  // Per quality: the strongest signal (both directions folded) + which
+  // directions fired.
+  const signalBySize = new Map<number, (typeof signals)[number]>();
+  const dirsBySize = new Map<number, IntervalDir[]>();
+  for (const sg of signals) {
+    if (!signalBySize.has(sg.semitones)) signalBySize.set(sg.semitones, sg);
+    const d = dirsBySize.get(sg.semitones) ?? [];
+    if (!d.includes(sg.dir)) d.push(sg.dir);
+    dirsBySize.set(sg.semitones, d);
+  }
 
   // 1 — overdue SRS qualities, most overdue first.
-  for (const it of dueItems(intervalSrs, now)) {
-    const size = parseIntervalItemId(it.itemId);
+  for (const it of dueItems(skillSrs, now)) {
+    const size = parseIntervalId(it.itemId)?.semitones;
     if (size == null) continue;
+    if (!dirsBySize.has(size)) dirsBySize.set(size, []);
+    const d = dirsBySize.get(size)!;
+    const dir = parseIntervalId(it.itemId)!.dir!;
+    if (!d.includes(dir)) d.push(dir);
     add(size, 'overdue', signalBySize.get(size)?.reasons ?? ['overdue']);
   }
 
   // 2 — weak qualities not already pulled in as overdue.
   for (const sig of signals) {
-    if (sig.overdue) continue; // already handled above
+    if (sig.overdue) continue; // already handled above (its quality is picked)
     add(sig.semitones, 'weak', sig.reasons);
   }
 
@@ -252,9 +295,9 @@ function build(
       // 5 — consolidation: interval SRS qualities doing fine (bucket >= 2, not
       // due), most recently reviewed first, so a session ends on solid ground.
       const strong: { size: number; item: SrsItem }[] = [];
-      for (const item of Object.values(intervalSrs)) {
+      for (const item of Object.values(skillSrs)) {
         if (!(item.bucket >= 2 && item.dueAt > now)) continue;
-        const size = parseIntervalItemId(item.itemId);
+        const size = parseIntervalId(item.itemId)?.semitones;
         if (size == null || seen.has(size)) continue;
         strong.push({ size, item });
       }

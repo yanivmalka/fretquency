@@ -34,7 +34,16 @@
 
 import type { IntervalHistoryRow } from './learningState';
 import type { SrsMap } from './srs';
-import { intervalItemId } from './intervalItem';
+import {
+  INTERVAL_DIRS,
+  INTERVAL_SKILLS,
+  intervalItemId,
+  intervalSkillItemId,
+  seedLegacyIntervalSrs,
+  skillOfForm,
+  type IntervalDir,
+  type IntervalSkill,
+} from './intervalItem';
 import { INTERVALS, ALL_INTERVAL_SEMITONES } from '../utils/intervals';
 import { INTERVAL_CURRICULUM, sizesThroughGroup } from './intervalCurriculum';
 import {
@@ -95,10 +104,14 @@ function weightedStats(
   historyRows: readonly IntervalHistoryRow[],
   size: number,
   now: number,
+  cell?: { skill: IntervalSkill; dir: IntervalDir },
 ): WeightedStats {
   const cutoff = now - INTERVAL_MASTERY_MAX_AGE_DAYS * DAY_MS;
   const rows = historyRows.filter(
-    (r) => r.semitones === size && r.createdAt >= cutoff,
+    (r) =>
+      r.semitones === size &&
+      r.createdAt >= cutoff &&
+      (!cell || (skillOfForm(r.form) === cell.skill && r.dir === cell.dir)),
   );
   const { accuracy, effectiveN } = weightedAccuracy(
     rows.map((r) => ({ correct: r.correct === true, atMs: r.createdAt })),
@@ -149,6 +162,83 @@ function displayStats(
   return { attempts: rows.length, accuracy: correct / rows.length };
 }
 
+// ── Per-skill cells (quality × skill × direction) ─────────────────────
+//
+// "Mastered" is only meaningful per skill: calculating the target note says
+// nothing about hearing it. A cell is one (quality, skill, direction); a skill
+// is its two direction cells; the board row shows the three skills.
+
+function cellStrength(
+  size: number,
+  skill: IntervalSkill,
+  dir: IntervalDir,
+  srsView: SrsMap,
+  historyRows: readonly IntervalHistoryRow[],
+  now: number,
+): number {
+  const srsItem = srsView[intervalSkillItemId(size, skill, dir)];
+  const { accuracy, effectiveN } = weightedStats(historyRows, size, now, { skill, dir });
+  return positionScore(accuracy, effectiveN, srsItem ? srsItem.bucket : null, INTERVAL_MIN_EFFECTIVE_N);
+}
+
+function cellStatus(
+  size: number,
+  skill: IntervalSkill,
+  dir: IntervalDir,
+  srsView: SrsMap,
+  historyRows: readonly IntervalHistoryRow[],
+  now: number,
+): IntervalStatus {
+  if (cellStrength(size, skill, dir, srsView, historyRows, now) >= INTERVAL_MASTERED_ACCURACY) {
+    return 'mastered';
+  }
+  const started =
+    srsView[intervalSkillItemId(size, skill, dir)] != null ||
+    weightedStats(historyRows, size, now, { skill, dir }).attempts > 0;
+  return started ? 'learning' : 'notStarted';
+}
+
+export interface IntervalSkillStatus {
+  /** `mastered` only when EVERY direction practised so far is mastered
+   *  (and at least one has been practised). */
+  status: IntervalStatus;
+  up: IntervalStatus;
+  down: IntervalStatus;
+  /** Both directions have been practised — "mastered" on the board needs this. */
+  bothDirs: boolean;
+}
+
+/** One skill's status for one quality (ear / calc / neck). */
+export function intervalSkillStatus(
+  size: number,
+  skill: IntervalSkill,
+  intervalSrs: SrsMap,
+  historyRows: readonly IntervalHistoryRow[],
+  now: number,
+): IntervalSkillStatus {
+  const view = seedLegacyIntervalSrs(intervalSrs);
+  const [up, down] = INTERVAL_DIRS.map((d) =>
+    cellStatus(size, skill, d, view, historyRows, now),
+  );
+  const started = [up, down].filter((x) => x !== 'notStarted');
+  const status: IntervalStatus =
+    started.length === 0
+      ? 'notStarted'
+      : started.every((x) => x === 'mastered')
+        ? 'mastered'
+        : 'learning';
+  return { status, up, down, bothDirs: started.length === 2 };
+}
+
+// Does this quality have any stored fine-grained SRS row? If not, it is a
+// pre-split account for that quality and curriculum progression keeps the old
+// pooled rule, so an existing learner's group never moves backwards.
+function hasFineSrs(size: number, intervalSrs: SrsMap): boolean {
+  return INTERVAL_SKILLS.some((k) =>
+    INTERVAL_DIRS.some((d) => intervalSrs[intervalSkillItemId(size, k, d)] != null),
+  );
+}
+
 // ── Public predicates ────────────────────────────────────────────────
 
 /**
@@ -165,10 +255,20 @@ export function isIntervalMastered(
   historyRows: readonly IntervalHistoryRow[],
   now: number,
 ): boolean {
-  return (
-    intervalStrength(size, intervalSrs, historyRows, now) >=
-    INTERVAL_MASTERED_ACCURACY
-  );
+  if (!hasFineSrs(size, intervalSrs)) {
+    return (
+      intervalStrength(size, intervalSrs, historyRows, now) >=
+      INTERVAL_MASTERED_ACCURACY
+    );
+  }
+  // Curriculum progression ("ready for the next group"): every skill the
+  // learner has started is mastered. A learner who only ever drills one
+  // exercise still progresses; the BOARD (below) is what shows the other
+  // skills as not yet proven.
+  const skills = INTERVAL_SKILLS.map(
+    (k) => intervalSkillStatus(size, k, intervalSrs, historyRows, now).status,
+  ).filter((x) => x !== 'notStarted');
+  return skills.length > 0 && skills.every((x) => x === 'mastered');
 }
 
 /**
@@ -216,8 +316,12 @@ export interface IntervalBoardRow {
   short: string;
   /** Full-name i18n key, e.g. `Major 3rd` (from `INTERVALS`). */
   nameKey: string;
-  /** `notStarted` / `learning` / `mastered` — from the weighted decay engine. */
+  /** Overall: `mastered` ONLY when all three skills are mastered in both
+   *  directions; `learning` once any skill started; else `notStarted`. */
   status: IntervalStatus;
+  /** Per-skill breakdown — what the board shows so "mastered" is never claimed
+   *  for a quality that is only known in one skill. */
+  skills: Record<IntervalSkill, IntervalSkillStatus>;
   /** Plain unweighted accuracy over the 45-day display window, 0–1 (0 when no
    *  recent answers) — the thin bar. Independent of `status`, so the two can
    *  legitimately disagree (recency-decay plan §7 item 5). */
@@ -254,11 +358,21 @@ export function buildIntervalBoard(opts: IntervalBoardOptions): IntervalBoardRow
   return CURRICULUM_ORDER.map((size) => {
     const def = INTERVALS.find((d) => d.semitones === size)!;
     const display = displayStats(historyRows, size, now);
+    const skills = Object.fromEntries(
+      INTERVAL_SKILLS.map((k) => [k, intervalSkillStatus(size, k, intervalSrs, historyRows, now)]),
+    ) as Record<IntervalSkill, IntervalSkillStatus>;
+    const all = INTERVAL_SKILLS.map((k) => skills[k]);
+    const status: IntervalStatus = all.every((x) => x.status === 'mastered' && x.bothDirs)
+      ? 'mastered'
+      : all.some((x) => x.status !== 'notStarted')
+        ? 'learning'
+        : 'notStarted';
     return {
       semitones: size,
       short: def.short,
       nameKey: def.nameKey,
-      status: intervalStatus(size, intervalSrs, historyRows, now),
+      status,
+      skills,
       recentAccuracy: display.accuracy,
       attempts: display.attempts,
       strength: intervalStrength(size, intervalSrs, historyRows, now),

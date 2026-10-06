@@ -26,7 +26,14 @@
 // Deterministic: same inputs → same ranked list, ties broken by semitone size.
 
 import type { IntervalHistoryRow } from './learningState';
-import { intervalItemId, parseIntervalItemId } from './intervalItem';
+import {
+  intervalSkillItemId,
+  parseIntervalId,
+  seedLegacyIntervalSrs,
+  skillOfForm,
+  type IntervalDir,
+  type IntervalSkill,
+} from './intervalItem';
 import { overdueByMs, type SrsItem, type SrsMap } from './srs';
 import {
   DAY_MS,
@@ -75,8 +82,11 @@ export type IntervalWeaknessReason =
   | 'overdue';
 
 export interface IntervalWeaknessSignal {
-  /** `interval:<n>` — the SRS / mastery id for this quality. */
+  /** `interval:<n>:<skill>:<dir>` — the SRS id for this quality in one skill
+   *  and direction ("ear is weak for M3 down" is one signal). */
   itemId: string;
+  skill: IntervalSkill;
+  dir: IntervalDir;
   /** Interval size in semitones, 1..11. */
   semitones: number;
   /** Raw count of surviving rows (inside the 180-day cap) for this quality. */
@@ -113,13 +123,19 @@ function isMiss(r: IntervalHistoryRow): boolean {
  * @param rows  the instrument's `intervalHistory` (already capped / synced).
  * @param intervalSrs  the interval SRS map for the same instrument.
  * @param now   epoch ms — injected so the function stays pure / testable.
+ * @param skill when given, only that skill's items are ranked (a guided
+ *              session drills one exercise = one skill, so it should weigh
+ *              that skill's weaknesses, not another's).
  */
 export function analyzeIntervalWeakness(
   rows: readonly IntervalHistoryRow[],
   intervalSrs: SrsMap,
   now: number,
   cfg: IntervalWeaknessConfig = DEFAULT_INTERVAL_WEAKNESS_CONFIG,
+  skill?: IntervalSkill,
 ): IntervalWeaknessSignal[] {
+  // Legacy quality-only SRS rows seed the fine ids (read-side migration).
+  const srsView = seedLegacyIntervalSrs(intervalSrs);
   // Group rows by quality, dropping anything past the hard cap (a performance
   // bound, not a data delete) before the decay model sees it.
   const cutoff = now - cfg.maxAgeDays * DAY_MS;
@@ -128,19 +144,21 @@ export function analyzeIntervalWeakness(
   for (const r of rows) {
     if (!(r.semitones >= 1 && r.semitones <= 11)) continue;
     if (!Number.isFinite(r.createdAt) || r.createdAt < cutoff) continue;
-    const id = intervalItemId(r.semitones);
+    const id = intervalSkillItemId(r.semitones, skillOfForm(r.form), r.dir);
     const list = byItem.get(id);
     if (list) list.push(r);
     else byItem.set(id, [r]);
   }
 
   // Every id we might report on: seen in history, or tracked by SRS.
-  const ids = new Set<string>([...byItem.keys(), ...Object.keys(intervalSrs)]);
+  const ids = new Set<string>([...byItem.keys(), ...Object.keys(srsView)]);
 
   const signals: IntervalWeaknessSignal[] = [];
   for (const id of ids) {
-    const semitones = parseIntervalItemId(id);
-    if (semitones == null) continue;
+    const parsed = parseIntervalId(id);
+    if (parsed == null || parsed.skill == null || parsed.dir == null) continue;
+    if (skill && parsed.skill !== skill) continue;
+    const { semitones } = parsed;
 
     const sorted = (byItem.get(id) ?? []).slice().sort((a, b) => a.createdAt - b.createdAt);
     const attempts = sorted.length;
@@ -163,7 +181,7 @@ export function analyzeIntervalWeakness(
     // still surfaces immediately.
     const recentMistakes = sorted.slice(-cfg.mistakeLookback).filter(isMiss).length;
 
-    const srsItem: SrsItem | undefined = intervalSrs[id];
+    const srsItem: SrsItem | undefined = srsView[id];
     const odMs = srsItem ? overdueByMs(srsItem, now) : 0;
     const overdue = odMs > 0;
 
@@ -196,6 +214,8 @@ export function analyzeIntervalWeakness(
 
     signals.push({
       itemId: id,
+      skill: parsed.skill,
+      dir: parsed.dir,
       semitones,
       attempts,
       weightedAccuracy: weightedAcc,
@@ -209,5 +229,5 @@ export function analyzeIntervalWeakness(
     });
   }
 
-  return signals.sort((a, b) => b.score - a.score || a.semitones - b.semitones);
+  return signals.sort((a, b) => b.score - a.score || a.semitones - b.semitones || (a.itemId < b.itemId ? -1 : 1));
 }

@@ -52,6 +52,9 @@ export default function IntervalStatsPanel({ board, stats }: Props) {
           </div>
         ))}
       </div>
+      <p className="sp2-scope-cap">
+        {t('Each skill is tracked separately: by ear, by calculation and on the neck. "Mastered" only when all three are.')}
+      </p>
       <IntervalBoard rows={board} />
     </div>
   );

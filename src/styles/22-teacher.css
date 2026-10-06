@@ -385,3 +385,12 @@
   font-weight: 800;
   cursor: pointer;
 }
+
+/* Interval board: per-skill (ear / calculate / neck) markers under each row. */
+.ivl-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+  margin-top: 0.1rem;
+  font-size: 0.78em;
+}

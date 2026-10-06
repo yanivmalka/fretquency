@@ -13,6 +13,7 @@
 // `string-bar-*` row styling — no new stylesheet.
 
 import type { IntervalBoardRow } from '../learning/intervalMastery';
+import { INTERVAL_SKILLS, type IntervalSkill } from '../learning/intervalItem';
 import { useTranslation } from '../i18n/useTranslation';
 
 type Status = IntervalBoardRow['status'];
@@ -42,6 +43,15 @@ const STATUS_BAR: Record<Status, string> = {
   mastered: 'bar-mastered',
 };
 
+// Ear / calculate / neck are separate skills — a quality is only "mastered"
+// overall when all three are, so each row shows where it stands per skill.
+const SKILL_LABEL: Record<IntervalSkill, string> = {
+  ear: 'By ear',
+  calc: 'Calculate',
+  neck: 'On the neck',
+};
+const SKILL_MARK: Record<Status, string> = { notStarted: '·', learning: '…', mastered: '✓' };
+
 export default function IntervalBoard({ rows }: { rows: IntervalBoardRow[] }) {
   const { t } = useTranslation();
   return (
@@ -64,6 +74,22 @@ export default function IntervalBoard({ rows }: { rows: IntervalBoardRow[] }) {
               {' · '}
               <span style={{ color: STATUS_COLOR[r.status] }}>
                 {t(STATUS_LABEL[r.status])}
+              </span>
+              <span className="ivl-skills">
+                {INTERVAL_SKILLS.map((k) => {
+                  const sk = r.skills[k];
+                  const dirs = sk.bothDirs || sk.status === 'notStarted' ? '' : sk.up !== 'notStarted' ? ' ↑' : ' ↓';
+                  return (
+                    <span
+                      key={k}
+                      className={`ivl-skill ivl-skill-${sk.status}`}
+                      style={{ color: STATUS_COLOR[sk.status] }}
+                      title={`${t(SKILL_LABEL[k])}: ${t(STATUS_LABEL[sk.status])}`}
+                    >
+                      {SKILL_MARK[sk.status]} {t(SKILL_LABEL[k])}{dirs}
+                    </span>
+                  );
+                })}
               </span>
             </span>
           </div>

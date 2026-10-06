@@ -1355,6 +1355,10 @@ export const it: Record<string, string> = {
     'La nota superiore luminosa e jazzistica di un accordo di settima maggiore.',
   // Intervals Learning — progress board and Stats section
   'not started': 'non iniziato',
+  'By ear': 'A orecchio',
+  'Calculate': 'Calcolando',
+  'On the neck': 'Sulla tastiera',
+  'Each skill is tracked separately: by ear, by calculation and on the neck. "Mastered" only when all three are.': 'Ogni abilità è tracciata separatamente: a orecchio, calcolando e sulla tastiera. «Padroneggiato» solo quando lo sono tutte e tre.',
   'learning': 'in corso',
   'currently learning': 'in studio ora',
   'In the system': 'Nel sistema',

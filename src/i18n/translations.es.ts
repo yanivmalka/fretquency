@@ -1355,6 +1355,10 @@ export const es: Record<string, string> = {
     'La nota superior brillante y jazzística de un acorde de séptima mayor.',
   // Intervals Learning — progress board and Stats section
   'not started': 'sin empezar',
+  'By ear': 'De oído',
+  'Calculate': 'Calculando',
+  'On the neck': 'En el mástil',
+  'Each skill is tracked separately: by ear, by calculation and on the neck. "Mastered" only when all three are.': 'Cada habilidad se cuenta por separado: de oído, calculando y en el mástil. «Dominado» solo cuando las tres lo están.',
   'learning': 'aprendiendo',
   'currently learning': 'aprendiendo ahora',
   'In the system': 'En el sistema',

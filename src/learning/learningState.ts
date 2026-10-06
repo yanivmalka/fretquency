@@ -45,6 +45,7 @@ import {
   type SrsMap,
 } from './srs';
 import { noteItemId } from './noteItem';
+import { intervalSkillItemId, skillOfForm } from './intervalItem';
 import { parseScaleItemId } from './scaleItem';
 import { parseStaffItemId } from './staffItem';
 import { isValidTabItemId } from './tabItem';
@@ -708,8 +709,11 @@ export function recordIntervalTeacherAnswer(
   answer: RecordedIntervalAnswer,
   now: number,
 ): InstrumentLearningState {
-  const srsItem = getOrCreate(st.intervalSrs, answer.itemId, now);
-  const nextItem = reviewSrsItem(srsItem, answer.correct, now);
+  // Two rows: the fine skill × direction id (what mastery / the Teacher read)
+  // and the legacy quality-only aggregate (what an older device still reads).
+  const fineId = intervalSkillItemId(answer.semitones, skillOfForm(answer.form), answer.dir);
+  const nextItem = reviewSrsItem(getOrCreate(st.intervalSrs, answer.itemId, now), answer.correct, now);
+  const nextFine = reviewSrsItem(getOrCreate(st.intervalSrs, fineId, now), answer.correct, now);
   const intervalDaily = rollDailyGoal(
     st.intervalDaily,
     now,
@@ -726,7 +730,7 @@ export function recordIntervalTeacherAnswer(
   const history = [...st.intervalHistory, row];
   return {
     ...st,
-    intervalSrs: { ...st.intervalSrs, [answer.itemId]: nextItem },
+    intervalSrs: { ...st.intervalSrs, [answer.itemId]: nextItem, [fineId]: nextFine },
     intervalDaily: { ...intervalDaily, completed: intervalDaily.completed + 1 },
     intervalHistory:
       history.length > INTERVAL_HISTORY_CAP

@@ -1362,6 +1362,10 @@ export const he: Record<string, string> = {
   // section of Stats & progress (intervals-learning-spec §12, §15.1). Status
   // words for the board ("mastered" already exists above); headline numbers.
   'not started': 'טרם התחיל',
+  'By ear': 'באוזן',
+  'Calculate': 'בחישוב',
+  'On the neck': 'על הצוואר',
+  'Each skill is tracked separately: by ear, by calculation and on the neck. "Mastered" only when all three are.': 'כל מיומנות נספרת בנפרד: באוזן, בחישוב ועל הצוואר. "בשליטה" רק כשכולן בשליטה.',
   'learning': 'בלמידה',
   'currently learning': 'לומד עכשיו',
   'In the system': 'במערכת',

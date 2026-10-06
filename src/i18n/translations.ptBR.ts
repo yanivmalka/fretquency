@@ -1352,6 +1352,10 @@ export const ptBR: Record<string, string> = {
     'A nota de cima brilhante e jazzística de um acorde de sétima maior.',
   // Intervals Learning — progress board and Stats section
   'not started': 'não iniciado',
+  'By ear': 'De ouvido',
+  'Calculate': 'Calculando',
+  'On the neck': 'No braço',
+  'Each skill is tracked separately: by ear, by calculation and on the neck. "Mastered" only when all three are.': 'Cada habilidade é contada separadamente: de ouvido, calculando e no braço. «Dominado» só quando as três estão.',
   'learning': 'aprendendo',
   'currently learning': 'aprendendo agora',
   'In the system': 'No sistema',

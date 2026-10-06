@@ -51,6 +51,21 @@ import {
   type IntervalTeacherPlan,
 } from '../learning/intervalPlanner';
 import { parseIntervalItemId } from '../learning/intervalItem';
+import type { SrsItem } from '../learning/srs';
+
+/** Distinct interval qualities with an SRS row — legacy quality rows and the
+ *  skill × direction rows (up to 6 per quality) count the quality once. */
+function distinctIntervalSizes(
+  srs: Record<string, SrsItem>,
+  pred: (it: SrsItem) => boolean = () => true,
+): number {
+  const sizes = new Set<number>();
+  for (const [id, it] of Object.entries(srs)) {
+    const n = parseIntervalItemId(id);
+    if (n != null && pred(it)) sizes.add(n);
+  }
+  return sizes.size;
+}
 import type { IntervalExercise } from '../utils/intervals';
 import {
   buildIntervalBoard,
@@ -429,8 +444,8 @@ export function useLearning(opts: UseLearningOptions): UseLearningResult {
 
     const stats: IntervalStatsSummary = {
       inSystem: 11,
-      started: Object.keys(srsMap).length,
-      needsWork: Object.values(srsMap).filter((it) => it.bucket < 2 && it.lapses > 0).length,
+      started: distinctIntervalSizes(srsMap),
+      needsWork: distinctIntervalSizes(srsMap, (it) => it.bucket < 2 && it.lapses > 0),
       mastered: board.filter((r) => r.status === 'mastered').length,
       accuracy: recent.length > 0 ? correct.length / recent.length : null,
       avgSeconds: timed.length > 0
@@ -532,7 +547,7 @@ export function useLearning(opts: UseLearningOptions): UseLearningResult {
     pathView,
     recordAnswer,
     recordPracticeAnswer,
-    intervalTrackedCount: Object.keys(instState.intervalSrs ?? {}).length,
+    intervalTrackedCount: distinctIntervalSizes(instState.intervalSrs ?? {}),
     recordIntervalAnswer,
     recordIntervalTeacherAnswer,
     buildIntervalPlan,

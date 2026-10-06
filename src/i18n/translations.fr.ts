@@ -1359,6 +1359,10 @@ export const fr: Record<string, string> = {
     'Le sommet lumineux et jazzy d’un accord de septième majeure.',
   // Intervals Learning — progress board and Stats section
   'not started': 'pas commencé',
+  'By ear': 'À l’oreille',
+  'Calculate': 'Par calcul',
+  'On the neck': 'Sur le manche',
+  'Each skill is tracked separately: by ear, by calculation and on the neck. "Mastered" only when all three are.': 'Chaque compétence est suivie séparément : à l\'oreille, par calcul et sur le manche. « Maîtrisé » seulement quand les trois le sont.',
   'learning': 'en cours',
   'currently learning': 'en cours d’apprentissage',
   'In the system': 'Dans le système',

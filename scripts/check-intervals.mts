@@ -691,7 +691,7 @@ for (const [label, inst] of [['guitar', guitar], ['bass', bass]] as const) {
       T0,
     );
     check('analyzeIntervalWeakness flags a low-accuracy + overdue quality',
-      sig.length === 1 && sig[0].semitones === 3 &&
+      sig.every((x: { semitones: number }) => x.semitones === 3) && sig[0].itemId === 'interval:3:calc:up' &&
       sig[0].reasons.includes('lowAccuracy') && sig[0].reasons.includes('overdue'));
     check('analyzeIntervalWeakness returns nothing for clean input',
       analyzeIntervalWeakness([], {}, T0).length === 0);
@@ -1099,6 +1099,119 @@ for (const [label, inst] of [['guitar', guitar], ['bass', bass]] as const) {
       // …and the personal-best write is gated on !wasTeacherRunRef.current.
       /!wasTeacherRunRef\.current[\s\S]{0,600}saveBest\(histKey/.test(celebrations));
   }
+}
+
+// ── Skill × direction split (ear / calc / neck, up / down) ────────────
+{
+  const {
+    intervalSkillItemId, parseIntervalId, isLegacyIntervalItemId, skillOfForm,
+    seedLegacyIntervalSrs, INTERVAL_SKILLS, INTERVAL_DIRS,
+  } = await import('../src/learning/intervalItem.ts');
+  const { buildIntervalBoard, intervalSkillStatus, masteredSizes } =
+    await import('../src/learning/intervalMastery.ts');
+  const { analyzeIntervalWeakness } = await import('../src/learning/intervalWeakness.ts');
+  const { buildIntervalDailyPlan } = await import('../src/learning/intervalPlanner.ts');
+  const { mergeSrsMaps } = await import('../src/learning/srs.ts');
+
+  // id round-trip, all 66 fine ids + legacy
+  let rt = true;
+  for (const n of ALL_INTERVAL_SEMITONES) for (const k of INTERVAL_SKILLS) for (const d of INTERVAL_DIRS) {
+    const q = parseIntervalId(intervalSkillItemId(n, k, d));
+    if (!q || q.semitones !== n || q.skill !== k || q.dir !== d) rt = false;
+    if (parseIntervalItemId(intervalSkillItemId(n, k, d)) !== n) rt = false;
+  }
+  check('fine interval id round-trips for 11 x 3 x 2', rt);
+  check('legacy id still parses and is flagged legacy',
+    parseIntervalItemId('interval:4') === 4 && isLegacyIntervalItemId('interval:4') &&
+    !isLegacyIntervalItemId('interval:4:ear:up'));
+  check('malformed fine ids are rejected',
+    parseIntervalId('interval:4:eye:up') === null && parseIntervalId('interval:4:ear') === null &&
+    parseIntervalId('interval:12:ear:up') === null && parseIntervalId('interval:0') === null);
+  check('forms map to skills',
+    skillOfForm('identify') === 'ear' && skillOfForm('findNote') === 'calc' && skillOfForm('findPosition') === 'neck');
+  check('fine ids never parse as a note id', parseNoteItemId('interval:4:ear:up') === null);
+
+  // a guided answer writes the fine row AND the legacy aggregate
+  const ans = (form: 'identify' | 'findNote' | 'findPosition', dir: 'up' | 'down', correct: boolean) =>
+    ({ itemId: 'interval:4', semitones: 4, dir, form, correct, seconds: 2 });
+  const st = recordIntervalTeacherAnswer(emptyInstrumentState(T0), ans('identify', 'down', true), T0 + 1000);
+  check('answer writes fine + legacy rows',
+    st.intervalSrs['interval:4:ear:down']?.reps === 1 && st.intervalSrs['interval:4']?.reps === 1 &&
+    st.intervalSrs['interval:4:calc:down'] === undefined);
+
+  // old blob (legacy only) + new blob (fine + legacy) from two devices merge without loss
+  const legacyOnly = { 'interval:4': { ...newSrsItem('interval:4', T0), bucket: 4, reps: 9, lastReviewedAt: T0 + 10 } };
+  const oldDev = { ...emptyInstrumentState(T0), intervalSrs: legacyOnly };
+  const m1 = mergeInstrumentState(oldDev, st);
+  const m2 = mergeInstrumentState(st, oldDev);
+  check('old+new blobs merge: every key from both survives',
+    m1.intervalSrs['interval:4:ear:down'] != null && m1.intervalSrs['interval:4'] != null &&
+    m1.intervalSrs['interval:4'].reps === 9);
+  check('merge is commutative and idempotent',
+    JSON.stringify(mergeSrsMaps(m1.intervalSrs, m1.intervalSrs)) === JSON.stringify(m1.intervalSrs) &&
+    JSON.stringify(m1.intervalSrs) === JSON.stringify(m2.intervalSrs));
+  const roundTrip = normalizeInstrumentState(JSON.parse(JSON.stringify(m1)), T0);
+  check('fine keys survive normalise (cloud round-trip)',
+    roundTrip.intervalSrs['interval:4:ear:down'] != null);
+
+  // old-key migration: seeds fine ids, capped below mastery, never stored
+  const seeded = seedLegacyIntervalSrs(legacyOnly);
+  check('legacy row seeds all 6 fine ids, bucket capped at 2',
+    Object.keys(seeded).length === 7 && seeded['interval:4:neck:up'].bucket === 2 &&
+    seeded['interval:4'].bucket === 4);
+  check('seeding does not mutate the stored map and a stored fine row wins',
+    Object.keys(legacyOnly).length === 1 &&
+    seedLegacyIntervalSrs({ ...legacyOnly, 'interval:4:ear:up': { ...newSrsItem('interval:4:ear:up', T0), bucket: 0 } })['interval:4:ear:up'].bucket === 0);
+
+  // board: mastered only per skill
+  type Row = { semitones: number; dir: 'up' | 'down'; form: 'identify' | 'findNote' | 'findPosition'; correct: boolean; seconds: number; createdAt: number };
+  const mk = (n: number, form: Row['form'], dir: Row['dir'], correct: boolean, i: number): Row =>
+    ({ semitones: n, dir, form, correct, seconds: 2, createdAt: T0 - i * 60_000 });
+  const hist: Row[] = [];
+  for (let i = 0; i < 8; i++) { hist.push(mk(4, 'findNote', 'up', true, i)); hist.push(mk(4, 'findNote', 'down', true, i + 20)); }
+  for (let i = 0; i < 8; i++) hist.push(mk(4, 'identify', 'down', i % 2 === 0, i + 40));
+  const srs: Record<string, ReturnType<typeof newSrsItem>> = {};
+  for (const k of INTERVAL_SKILLS) for (const d of INTERVAL_DIRS) {
+    const id = intervalSkillItemId(4, k, d);
+    srs[id] = { ...newSrsItem(id, T0), bucket: 3, lastReviewedAt: T0, dueAt: T0 + 1e9 };
+  }
+  const board = buildIntervalBoard({ intervalSrs: srs, historyRows: hist, now: T0 });
+  const row = board.find((r: { semitones: number }) => r.semitones === 4)!;
+  check('board has 11 rows, each with ear/calc/neck', board.length === 11 &&
+    board.every((r: { skills: object }) => INTERVAL_SKILLS.every((k: string) => k in r.skills)));
+  check('calc mastered both directions', row.skills.calc.status === 'mastered' && row.skills.calc.bothDirs);
+  check('ear (descending shaky) is NOT mastered', row.skills.ear.status === 'learning' && row.skills.ear.down === 'learning');
+  check('row is not "mastered" while ear is not', row.status === 'learning');
+  const hist2 = hist.filter((r) => r.form !== 'identify');
+  for (let i = 0; i < 8; i++) for (const d of INTERVAL_DIRS) for (const f of ['identify', 'findPosition'] as const) hist2.push(mk(4, f, d, true, i + 60));
+  check('row is mastered only when all three skills are',
+    buildIntervalBoard({ intervalSrs: srs, historyRows: hist2, now: T0 }).find((r: { semitones: number }) => r.semitones === 4)!.status === 'mastered');
+  check('untouched quality is notStarted in every skill',
+    board.find((r: { semitones: number }) => r.semitones === 9)!.status === 'notStarted');
+  check('legacy-only data never reads as mastered by a skill',
+    intervalSkillStatus(4, 'ear', legacyOnly, [], T0).status === 'learning');
+  check('progression stays pooled for a legacy-only quality',
+    masteredSizes({ 'interval:4': { ...newSrsItem('interval:4', T0), bucket: 3 } }, [], T0).has(4));
+
+  // weakness / planner see "ear is weak for M3 down"
+  const earHist: Row[] = [];
+  for (let i = 0; i < 8; i++) earHist.push(mk(4, 'identify', 'down', false, i));
+  for (let i = 0; i < 8; i++) earHist.push(mk(4, 'findNote', 'down', true, i));
+  const sig = analyzeIntervalWeakness(earHist, {}, T0);
+  check('weakness is per skill+dir (ear down flagged, calc down not)',
+    sig.some((x: { itemId: string }) => x.itemId === 'interval:4:ear:down') &&
+    !sig.some((x: { itemId: string }) => x.itemId === 'interval:4:calc:down'));
+  check('weakness can be filtered to one skill',
+    analyzeIntervalWeakness(earHist, {}, T0, 'calc').length === 0);
+  const planBase = { intervalSrs: {}, history: earHist, now: T0, maxFret: 12,
+    allStrings: [1, 2, 3, 4, 5, 6], accidental: 'both', order: 'cof' };
+  const earPlan = buildIntervalDailyPlan({ ...planBase, exercise: 'identifyInterval' } as never);
+  const calcPlan = buildIntervalDailyPlan({ ...planBase, exercise: 'findTargetNote' } as never);
+  const e4 = earPlan.items.find((i: { semitones: number }) => i.semitones === 4);
+  check('ear session picks M3 as weak, down direction',
+    e4?.bucket === 'weak' && e4.skill === 'ear' && e4.weakDirs.join() === 'down');
+  check('calc session does not call M3 weak',
+    calcPlan.items.find((i: { semitones: number }) => i.semitones === 4)?.bucket !== 'weak');
 }
 
 console.log(failures === 0 ? '\nAll interval checks passed.' : `\n${failures} check(s) failed.`);
