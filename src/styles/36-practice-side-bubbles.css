@@ -21,18 +21,18 @@
   /* Anchored to the Play button's left edge (it is 56px wide, centred), so it
      holds whether the controls row is full width (phone) or shrink-wrapped to
      the button (desktop). */
-  right: calc(50% + 40px);
+  right: calc(50% + 36px);
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 5px;
   width: max-content;
-  max-width: 132px;
+  max-width: 77px;
 }
-.psb-row .psb-bubble { width: 40px; height: 40px; }
-.psb-row .psb-glyph { font-size: 17px; }
+.psb-row .psb-bubble { width: 36px; height: 36px; border-width: 2px; }
+.psb-row .psb-glyph { font-size: 15px; }
 .psb-item { display: flex; }
 
 .psb-bubble {
