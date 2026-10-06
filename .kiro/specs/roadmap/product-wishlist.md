@@ -21,7 +21,6 @@ A compressed, priority-ordered view of everything in this document that is **not
 
 ### A. Voice — live product bugs, most urgent (full detail: §1)
 - **Accuracy goal set by the product owner 2026-10-06: 96% first-try correct, later 99% — and both A-B-C and Do-Re-Mi.** Agreed reading of the target: *correct on the first utterance* ≥ 96%, *wrong answers* ≤ ~1% (a wrong answer is scored as the player's mistake, "say again" is not), measured in a quiet room **and** with background noise, natural speech with no deliberate pause. Downloading a model of a few MB is acceptable to the owner. Speakers available for a test set right now: the owner and his father (two adult men — no women/children voices yet, so a result does not generalise to them). Assessment given to the owner: the current engine (13 MFCC + CMN + DTW against 4 takes/label) will not reach 96% by threshold tuning — B C D E G is the classic "E-set" problem — so the plan is: **phase 0** measurement infrastructure (**built 2026-10-06, see Part 2 §A**); **phase 1** record the two speakers in the lab and take a baseline with `scripts/eval-voice-e2e.mts`, then test offline: Do-Re-Mi vs A-B-C (acoustically far more distinct; `diez`/`bemol`), endpointing against the utterance's own peak (the background-noise item below); **phase 2** replace the MFCC front-end with a small pretrained speech-embedding model (on-device, ONNX/WASM, keeps personal few-shot calibration) and A/B it on the same set; **phase 3** (toward 99%) a small dedicated keyword classifier trained on many voices (synthetic + augmentation + opt-in real takes) with per-user adaptation. Every change is gated on the e2e score, not on a single live round. Note: the 22.5 accidental cap and the widened letter fallback that §1 item 4 lists as candidates are already built (Part 2 §A) — the baseline will measure them.
-- **First lab data, 2026-10-06 — calibration only (36 takes, one speaker, computer mic, quiet, A-B-C), no answer takes yet.** VAD replay reproduced the live capture on 36/36. `eval-voice-e2e.mts --cal-loo` (each isolated calibration word matched against the speaker's other 3 takes per word, through the shipped `isolateWord` + MFCC + DTW): **31/36 = 86% [71–94]** — misreads B→D, B→G, G→D, and "sharp"↔"flat" once each way. So even clean, isolated words sit well short of 96% with the current features; fluent drill answers can only score lower. **Hypothesis tested and refuted the same day:** that `isolateWord`'s energy trim cuts the quiet consonants that tell words apart (sh/fl, the /s/ of C) — "flat" takes were trimmed to 220–240ms of a 600–730ms capture. Re-scoring with +80ms padding, two lenient gates and no trim at all gave 30–32/36, the same within noise; the sharp/flat confusion survives every variant (one "sharp" take, 260ms, sits nearer the flats under all of them). Points at the features (phase 2), not the trim. Caveat: 36 takes — indicative only.
 - **Next step for phase 1 (owner + father):** in the lab, each records "Calibration + answers" (2–3 rounds) in a quiet room on the device they'd actually use, then "Answers only" with TV/music on; then Do-Re-Mi the same way. About 400+ answer takes per condition are needed to tell 93% from 96% apart (the script prints the interval).
 - **Real drill-session log analysed 2026-09-15 (`SAMPLES_PER_LABEL` already raised to 4 at this point) — four separate findings, none fixed yet, all from one live 15-question round:**
   1. **A recognised as B, undetected by the self-test.** The self-test (post-fix) only flagged B/D and D/E, but this live round misheard A as B, and the calibration log for this same profile shows A's nearest calibration neighbour was B at distance 19.1 — a real, present confusion the self-test's pairwise check missed.
@@ -42,7 +41,6 @@ A compressed, priority-ordered view of everything in this document that is **not
 ### B. Finish the current product (full detail: §2, §3)
 - **Badge art + earn-animation redesign** — direction agreed, **blocked on art assets** (Gemini-rendered PNGs per badge family × tier × face).
 - **Adaptive timer** (tightens/relaxes with streak) — not built.
-- **Audio refinements B1/B2** — escalating streak tone (`playStreakTone`) and the background-beats toggle — not built. (B3 Silent Mode is done — see Part 2.)
 - **Practice schedule / reminders** (local notification, streak nudge) — not built.
 - **More UI languages** — requested 2026-09-25; order Spanish → Portuguese (Brazil) → German/French/Italian/Japanese (German needs an H-notation mode). Spanish, Portuguese (Brazil), French and Italian stage 1 and stage 2 have landed (see Part 2); the privacy page, spoken answers in those languages, native-speaker reviews and the other languages are open — detail in §3 OPEN (continued).
 
@@ -373,114 +371,6 @@ Features from the old roadmap that are clearly still desired and map cleanly ont
 ### OPEN
 
 - **Adaptive timer** — tightens/relaxes based on streak, within a session. Not built — no evidence in `useGameEngine.ts`/`useScoring.ts`.
-- **Audio refinements (B1/B2)** — escalating streak tone (`playStreakTone`) and the background-beats toggle. Single-note question sound and satisfying correct chime already exist (and B3 Silent Mode is done — see Part 2); what is missing is **B1** (escalating streak tone) and **B2** (background beats toggle). Both have detailed implementation plans below but are **not built**.
-
-  ### Implementation plan — Audio refinements (B1/B2)
-
-  Single-note question sound (`playNoteSingle`) and the satisfying correct chime (`playCorrectChime`, a C-E-G major triad) already exist in `src/utils/audio.ts` / `src/utils/feedback.ts`. What is missing is the **escalating streak tone** and the **background beats toggle**. All Web Audio sounds follow the existing convention: a short oscillator burst through `getCtx()`, `gain.setValueAtTime` → `exponentialRampToValueAtTime`, times in seconds of `ctx.currentTime`. (The shared `_silent` flag, `setSilent` setter, and the Silent Mode wiring described in the interaction table below are already built — see Part 2 for B3's full implementation.)
-
-  #### B1 — Escalating streak tone `playStreakTone(streak)` (new, `src/utils/feedback.ts`)
-
-  Played **together with** `playCorrectChime` on every correct answer (the escalation is the point, so it is not gated to high streaks — but it stays silent below streak 3). Pitch steps up with the streak, mirroring `STREAK_TIERS`:
-
-  | Streak | Note | Freq (Hz) | Waveform | Peak gain | Duration |
-  |---|---|---|---|---|---|
-  | 0–2 | — | (does not play; chime alone) | | | |
-  | 3–4 | E5 | 659.25 | `triangle` | 0.06 | 0.10s |
-  | 5–6 | G5 | 783.99 | `triangle` | 0.07 | 0.10s |
-  | 7–9 | B5 | 987.77 | `triangle` | 0.08 | 0.11s |
-  | 10–14 | D6 | 1174.66 | `triangle` | 0.09 | 0.12s |
-  | 15–19 | E6 | 1318.51 | `triangle` | 0.10 | 0.12s |
-  | 20+ | G6 | 1567.98 | `triangle` | 0.11 | 0.13s |
-
-  ```ts
-  export function playStreakTone(streak: number) {
-    if (_silent) return;                       // see B3
-    const step = STREAK_TONE_STEPS.find(s => streak >= s.min && streak <= s.max);
-    if (!step) return;                          // streak < 3
-    const ctx = getCtx(); if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = step.freq;
-    osc.connect(gain); gain.connect(ctx.destination);
-    const t = ctx.currentTime + 0.04;          // 40ms after the chime onset, so attacks don't collide
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(step.gain, t + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + step.dur);
-    osc.start(t); osc.stop(t + step.dur);
-  }
-  ```
-  No need to update `_chimeEndTime`: the streak tone is shorter than `CHIME_TAIL` (0.4s) and is swallowed by it, so `correctChimeRemainingMs()` still covers it.
-
-  #### B2 — Background beats toggle (new)
-
-  **Asset:** `public/sounds/beat-loop.mp3` — a clean 1–2 bar loop (kick + hi-hat, ~90 BPM), 2–4s, normalised quiet. Loaded once and cached like `stick-click.mp3`. The service worker already precaches files under `sounds/`; confirm the pattern in `vite.config.ts` includes it.
-
-  **`src/utils/audio.ts`:**
-  ```ts
-  let _beatBuffer: AudioBuffer | null = null;
-  let _beatSource: AudioBufferSourceNode | null = null;
-  let _beatGain: GainNode | null = null;
-
-  export async function startBackgroundBeat() {
-    if (_silent || _beatSource) return;
-    const ctx = getAudioCtx();
-    if (!_beatBuffer) _beatBuffer = await loadBeatBuffer(ctx);
-    if (!_beatBuffer) return;
-    _beatGain = ctx.createGain();
-    _beatGain.gain.value = 0.14;               // low bed, doesn't compete with the question note
-    _beatSource = ctx.createBufferSource();
-    _beatSource.buffer = _beatBuffer;
-    _beatSource.loop = true;
-    _beatSource.connect(_beatGain);
-    _beatGain.connect(ctx.destination);
-    _beatSource.start();
-  }
-
-  export function stopBackgroundBeat() {
-    try { _beatSource?.stop(); } catch { /* already stopped */ }
-    _beatSource?.disconnect(); _beatGain?.disconnect();
-    _beatSource = null; _beatGain = null;
-  }
-
-  export function pauseBackgroundBeat()  { if (_beatGain) _beatGain.gain.value = 0; }
-  export function resumeBackgroundBeat() { if (_beatGain) _beatGain.gain.value = 0.14; }
-  ```
-
-  **Lifecycle in `src/App.tsx`:**
-  - Preference: `const [backgroundBeats, setBackgroundBeats] = useState(() => loadSetting('pref_backgroundBeats', false));`
-  - `start()`: if `backgroundBeats && !silentMode` → `startBackgroundBeat()`.
-  - `stop()` (and game-end): `stopBackgroundBeat()`.
-  - `pause()`: `pauseBackgroundBeat()`; `resume()`: `resumeBackgroundBeat()`.
-  - Toggling mid-game: if `running`, start/stop immediately to match.
-
-  **UI:** a new section in `settingsSections` (`src/App.tsx`), after `score`:
-  ```
-  id: 'beats'
-  title: '🥁 Background beats'
-  blurb: 'A quiet rhythm loop under the drill to keep your pace. Off by default. Muted automatically in Silent mode.'
-  body: On/Off using notation-row + order-chip (like the Score section)
-  ```
-  When `silentMode` is on, the buttons get `chip-disabled` and do nothing.
-
-  #### Interaction between the three audio pieces (B1/B2 unbuilt, B3 shipped)
-
-  | Mode | Question note | Chime | Streak tone | Background beats | UI sounds | Haptics | Visual celebrations |
-  |---|---|---|---|---|---|---|---|
-  | Normal | ✓ | ✓ | ✓ (streak ≥3) | per toggle | ✓ | ✓ | per Score |
-  | Score off | ✓ | ✓ | ✗ | per toggle | ✓ | ✓ | ✗ |
-  | Silent Mode | ✗ | ✗ | ✗ | ✗ (stopped) | ✓ | ✓ | per Score |
-
-  **Files touched:** `src/utils/feedback.ts`, `src/utils/audio.ts`, `src/App.tsx` (`pref_backgroundBeats`, `start/stop/pause/resume` wiring, a new drawer section), `vite.config.ts` (ensure `beat-loop.mp3` is precached), `public/sounds/beat-loop.mp3` (new asset).
-
-  #### Suggested build order (relative to B3, which is already done)
-
-  1. ~~`setSilent` + Silent Mode (flag infrastructure, drawer section)~~ — done.
-  2. ~~Celebration tiers~~ — **dropped by product decision, see the "Closed / dropped" note in Part 2; do not build.**
-  3. `playStreakTone` (B1).
-  4. Background beats (B2) — largest (asset + pause/resume/stop lifecycle).
 
 ### OPEN (continued)
 
@@ -761,7 +651,13 @@ Everything already shipped or fixed — including items that were marked done mi
 
 ### Audio refinements — B3 Silent Mode, shipped
 
-- **Silent Mode (B3)** — visual-only questions, no audio. **DONE** (`Add Silent mode: mute drill content audio, keep UI sounds and celebrations`). `src/utils/audio.ts` and `src/utils/feedback.ts` each carry a module-level `_silent` flag with a `setSilent(v)` setter; the question-note entry points (`playNote` / `playNoteSingle` / `playNoteSequence` / `beep`) and the content-audio entry points (`playCorrectChime`, `playBadgeFanfare`, and the ascending tone block inside `celebrateTier3`) early-return when it is set. `App.tsx` holds `pref_silentMode` and pushes it to both modules via an effect (`setSilent` is imported aliased from each). A `SettingCard` toggle lives in the existing `settings` drawer section. UI clicks, all haptics and every on-screen celebration (rings, banners, NEW BEST card) keep working; not Pro-gated; no new CSS or assets. `advanceAfterSound` falls back to the normal read-the-answer `minDelay` when no sound is in flight. (The B1/B2 pieces of the original combined plan — `playStreakTone`, background beats, `beat-loop.mp3` — remain unbuilt; see Part 1.)
+- **Silent Mode (B3)** — visual-only questions, no audio. **DONE** (`Add Silent mode: mute drill content audio, keep UI sounds and celebrations`). `src/utils/audio.ts` and `src/utils/feedback.ts` each carry a module-level `_silent` flag with a `setSilent(v)` setter; the question-note entry points (`playNote` / `playNoteSingle` / `playNoteSequence` / `beep`) and the content-audio entry points (`playCorrectChime`, `playBadgeFanfare`, and the ascending tone block inside `celebrateTier3`) early-return when it is set. `App.tsx` holds `pref_silentMode` and pushes it to both modules via an effect (`setSilent` is imported aliased from each). A `SettingCard` toggle lives in the existing `settings` drawer section. UI clicks, all haptics and every on-screen celebration (rings, banners, NEW BEST card) keep working; not Pro-gated; no new CSS or assets. `advanceAfterSound` falls back to the normal read-the-answer `minDelay` when no sound is in flight. (The B1/B2 pieces of the original combined plan shipped 2026-10-06 — see the next section.)
+
+### Audio refinements — B1 streak tone + B2 background beats, shipped 2026-10-06
+
+- **B1 — escalating streak tone.** `playStreakTone(streak)` in `src/utils/feedback.ts`: one short triangle note 40ms after the correct chime, silent below a streak of 3, climbing E5 → G5 → B5 → D6 → E6 → G6 at 3/5/7/10/15/20 (the same steps as `useScoring`'s multiplier tiers). Called from `useGameEngine`'s `scoreCorrect`, so it covers Practice notes and the Practice interval drill; gated on Score & celebrations (off = no tone) and muted by the shared `_silent` flag (Silent / Vibrate). It's shorter than the chime's tail, so `correctChimeRemainingMs()` already covers it. Not added to the Learn engines (reading / scales), which have no multiplier streak.
+- **B2 — background beats.** Settings → General → "Background beats" (`pref_backgroundBeats`, off by default, cloud-synced with the other prefs, in app search). No audio asset: `src/utils/backgroundBeat.ts` synthesizes a two-bar 90 BPM kick + hi-hat loop once into an `AudioBuffer` (fixed-seed noise, normalised), played on audio.ts's context through its own 0.14 gain straight to the destination — not through the note makeup gain, so the volume ladder never pushes it over the question note. `useBackgroundBeat(active)` starts it with a short fade-in and stops it with a fade-out; `App.tsx` passes `active` = setting on && feedback mode 'sound' && answer mode 'tap' && (running || Auto Advance hand-off) && !paused. Voice and guitar answer modes turn it off because the mic would hear the loop; the card says in place why it isn't playing in that case and in Silent / Vibrate. Verified in the browser: it starts with the round, stops on pause, restarts on resume, stops on Stop. **Not verified:** how it sounds on a phone speaker, and the streak tone by ear in a long run.
+- The original plan's `beat-loop.mp3` + service-worker precache step was dropped — the synthesized loop needs no file.
 
 ### More UI languages — Spanish, Portuguese (Brazil), French, Italian, shipped
 

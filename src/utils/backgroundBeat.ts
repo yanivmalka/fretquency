@@ -74,6 +74,10 @@ function buildLoop(ctx: AudioContext): AudioBuffer {
       hat(barS + e * (beatS / 2), e % 2 === 0 ? 0.32 : 0.2);
     }
   }
+  // Overlapping hits can sum past 1; normalise so BED_GAIN is the true peak.
+  let peak = 0;
+  for (let i = 0; i < length; i++) peak = Math.max(peak, Math.abs(out[i]));
+  if (peak > 0) for (let i = 0; i < length; i++) out[i] /= peak;
   return buf;
 }
 
