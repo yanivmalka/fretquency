@@ -15,6 +15,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Fonts for the 'studio' palette (src/styles/39-studio-theme.css). Only
+         this small stylesheet loads up front; the font files themselves are
+         fetched by the browser only once a studio-themed element uses them,
+         and fall back to the system font offline. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Rubik:wght@500;700;800&display=swap" />
     <title>Fretquency — Guitar, Bass & Ukulele Fretboard Trainer</title>
     <meta name="description" content="Learn every note on the fretboard of guitar, bass, ukulele, mandolin or banjo. Free drills for note recognition, intervals, scales, staff reading and tab reading, plus a built-in tuner — in the browser or as an app, no install required." />
     <meta property="og:title" content="Fretquency — Guitar, Bass & Ukulele Fretboard Trainer" />
@@ -182,12 +189,14 @@
         // THEME_BG must stay in sync with THEME_BG in src/utils/theme.ts.
         (function () {
           var MODES = { dark: 1, night: 1, day: 1 };
-          var SEASONS = { winter: 1, spring: 1, summer: 1, autumn: 1 };
+          var SEASONS = { winter: 1, spring: 1, summer: 1, autumn: 1, studio: 1 };
+          var FIXED = { studio: 1 }; // not calendar seasons: a pick never expires (mirrors FIXED_SEASONS)
           var THEME_BG = {
             'winter-dark': '#1a1a2e', 'winter-night': '#0f1320', 'winter-day': '#eef2f8',
             'spring-dark': '#14201a', 'spring-night': '#12140d', 'spring-day': '#f1f7f0',
             'summer-dark': '#241009', 'summer-night': '#16110b', 'summer-day': '#fbf5df',
-            'autumn-dark': '#201410', 'autumn-night': '#170e09', 'autumn-day': '#f4e8d3'
+            'autumn-dark': '#201410', 'autumn-night': '#170e09', 'autumn-day': '#f4e8d3',
+            'studio-dark': '#121226', 'studio-night': '#0e0f1c', 'studio-day': '#f3f4fb'
           };
           var mode = 'dark', season = 'winter';
           try {
@@ -208,7 +217,8 @@
             var s = JSON.parse(localStorage.getItem('pref_season') || '""');
             var inSeason = localStorage.getItem('pref_seasonPickedIn');
             inSeason = inSeason === null ? season : JSON.parse(inSeason);
-            if (SEASONS[s] && inSeason === season) season = s;
+            if (FIXED[s]) season = s;
+            else if (SEASONS[s] && inSeason === season) season = s;
           } catch (e) {}
           var attr = season + '-' + mode;
           root.dataset.theme = attr;

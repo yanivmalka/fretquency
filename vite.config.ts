@@ -131,6 +131,16 @@ export default defineConfig({
             },
           },
           {
+            // Studio-palette fonts (index.html <link>): keep them for offline use.
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: /^https:\/\/gleitz\.github\.io\/midi-js-soundfonts\/.*/,
             handler: 'CacheFirst',
             options: {

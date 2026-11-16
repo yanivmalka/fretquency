@@ -1,6 +1,6 @@
 import { playClickSound, haptic } from '../../utils/feedback';
 import {
-  SEASONS, THEME_MODES, type SeasonPref, type ThemePref,
+  PICKABLE_SEASONS, THEME_MODES, type SeasonPref, type ThemePref,
 } from '../../utils/theme';
 
 /**
@@ -17,7 +17,7 @@ const MODE_LABEL: Record<ThemePref, string> = {
   auto: 'Auto', dark: 'Dark', night: 'Night', day: 'Day',
 };
 const SEASON_LABEL: Record<SeasonPref, string> = {
-  auto: 'Auto', winter: 'Winter', spring: 'Spring', summer: 'Summer', autumn: 'Autumn',
+  auto: 'Auto', winter: 'Winter', spring: 'Spring', summer: 'Summer', autumn: 'Autumn', studio: 'Studio',
 };
 
 function Tile({
@@ -72,8 +72,10 @@ export default function AppearancePicker({
       </div>
       <div className="ap-axis">
         <span className="ap-axis-k">{t('Season')}</span>
-        <div className="ap-row ap-row-5" role="group" aria-label={t('Season')}>
-          {(['auto', ...SEASONS] as SeasonPref[]).map((s) => (
+        {/* Auto + 4 calendar seasons + Studio = 6 tiles: two rows of 3 so the
+            labels stay readable on a narrow phone. */}
+        <div className="ap-row ap-row-3" role="group" aria-label={t('Season')}>
+          {(['auto', ...PICKABLE_SEASONS] as SeasonPref[]).map((s) => (
             <Tile
               key={s}
               on={s === season}

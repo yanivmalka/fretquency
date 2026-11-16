@@ -100,6 +100,7 @@ export const es: Record<string, string> = {
   'Spring': 'Primavera',
   'Summer': 'Verano',
   'Autumn': 'Otoño',
+  'Studio': 'Estudio',
   'A seasonal colour palette layered over the theme. Winter is the original look.':
     'Una paleta de colores de temporada sobre el tema. Invierno es el aspecto original.',
   'Mastery on the fretboard': 'Dominio en el diapasón',

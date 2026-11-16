@@ -102,6 +102,7 @@ export const ptBR: Record<string, string> = {
   'Spring': 'Primavera',
   'Summer': 'Verão',
   'Autumn': 'Outono',
+  'Studio': 'Estúdio',
   'A seasonal colour palette layered over the theme. Winter is the original look.':
     'Uma paleta de cores da estação aplicada sobre o tema. Inverno é o visual original.',
   'Mastery on the fretboard': 'Domínio no braço',

@@ -3,7 +3,7 @@ import { loadSetting, saveSetting } from '../utils/settings';
 import type { AccidentalMode, NotationMode, OrderMode } from '../utils/music';
 import type { VoiceEnginePref } from '../utils/speech';
 import {
-  SEASONS, THEME_MODES, modeForHour, type Season, type SeasonPref, type Theme, type ThemePref,
+  PICKABLE_SEASONS, THEME_MODES, isFixedSeason, modeForHour, type Season, type SeasonPref, type Theme, type ThemePref,
 } from '../utils/theme';
 import { currentSeason, resolveSeason } from '../utils/region';
 import { NOTE_VOLUME_DEFAULT } from '../utils/audio';
@@ -99,7 +99,9 @@ export function useAppPreferences() {
   const [seasonState, setSeasonState] = useState<{ pref: SeasonPref; season: Season }>(() => {
     const actual = currentSeason();
     const pick = loadSetting<string | null>('pref_season', null);
-    if (!pick || !SEASONS.includes(pick as Season)) return { pref: 'auto', season: actual };
+    if (!pick || !PICKABLE_SEASONS.includes(pick as Season)) return { pref: 'auto', season: actual };
+    // A fixed palette ('studio') is not a calendar season: it holds until changed.
+    if (isFixedSeason(pick)) return { pref: pick, season: pick };
     let pickedIn = loadSetting<Season | null>('pref_seasonPickedIn', null);
     if (!pickedIn) {
       // A pick saved before pickedIn existed: it was made deliberately, so let

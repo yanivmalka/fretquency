@@ -101,6 +101,7 @@ export const he: Record<string, string> = {
   'Spring': 'אביב',
   'Summer': 'קיץ',
   'Autumn': 'סתיו',
+  'Studio': 'סטודיו',
   'A seasonal colour palette layered over the theme. Winter is the original look.':
     'פלטת צבעים עונתית מעל ערכת הנושא. חורף הוא המראה המקורי.',
   'Mastery on the fretboard': 'שליטה בצוואר',

@@ -80,6 +80,7 @@ export const de: Record<string, string> = {
   'Spring': 'Frühling',
   'Summer': 'Sommer',
   'Autumn': 'Herbst',
+  'Studio': 'Studio',
   'A seasonal colour palette layered over the theme. Winter is the original look.': 'Eine saisonale Farbpalette über dem Design. Winter ist der ursprüngliche Look.',
   'Mastery on the fretboard': 'Beherrschung auf dem Griffbrett',
   'The per-note / per-fret accuracy bars drawn over the circle and grid while stopped or paused.': 'Die Genauigkeitsbalken pro Ton bzw. Bund, die über Kreis und Raster gezeichnet werden, solange pausiert oder gestoppt ist.',

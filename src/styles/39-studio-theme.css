@@ -1,0 +1,40 @@
+/* ────────────────────────────────────────────────────────────────
+   Studio palette — the part of the Fretquency redesign that colour
+   tokens alone can't carry: typography and rounder, chunkier shapes.
+   Scoped entirely to html[data-theme^='studio-'], so every other
+   palette is untouched. Colours come from the studio-* blocks in
+   00-tokens.css; fonts are linked from index.html (system fallback
+   offline).
+──────────────────────────────────────────────────────────────── */
+
+html[data-theme^='studio-'] body,
+html[data-theme^='studio-'] button,
+html[data-theme^='studio-'] input,
+html[data-theme^='studio-'] select,
+html[data-theme^='studio-'] textarea {
+  font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Headings and section titles: Rubik, bold and slightly tighter. */
+html[data-theme^='studio-'] h1,
+html[data-theme^='studio-'] h2,
+html[data-theme^='studio-'] h3,
+html[data-theme^='studio-'] .picker-title,
+html[data-theme^='studio-'] .set-card-k {
+  font-family: 'Rubik', 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Rounder surfaces: cards and panels read as soft tiles. */
+html[data-theme^='studio-'] .set-card { border-radius: 20px; }
+html[data-theme^='studio-'] .picker-panel { border-radius: 24px; }
+html[data-theme^='studio-'] .picker-item { border-radius: 14px; }
+
+/* Buttons and pick chips: rounder corners, a bolder face. */
+html[data-theme^='studio-'] .pick-btn,
+html[data-theme^='studio-'] .set-card-btn,
+html[data-theme^='studio-'] .ap-tile {
+  border-radius: 14px;
+  font-weight: 700;
+}

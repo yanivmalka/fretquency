@@ -313,3 +313,42 @@
   --heat-unplayed: #dfe1ee; --heat-known-cell: #096635; --pick-accent: var(--accent);
   --menu-bg: #ebedf7;
 }
+
+/* ── Studio — the Fretquency redesign look (Nov 2026). Not a calendar
+   season: picking it never expires (FIXED_SEASONS in src/utils/theme.ts).
+   Deep indigo ground, cyan accent, warm gold; fonts and rounder shapes
+   live in src/styles/39-studio-theme.css. ─────────────────────── */
+[data-theme='studio-dark'] {
+  color-scheme: dark;
+  --bg-0: #121226; --bg-1: #0d0d1c; --bg-2: #1c1c3a; --bg-3: #24244a;
+  --bg-letterbox: #08080f; --surface-border: #2e2e55; --border-soft: #4a4a7a;
+  --text-0: #f0f0f8; --text-1: #cfcfe6; --text-2: #a9a9c8; --text-3: #8282a6;
+  --accent: #22e0e6; --accent-rgb: 34, 224, 230; --accent-dim: #139ca1; --accent-ink: #06222a;
+  --gold: #ffcf3d; --gold-rgb: 255, 207, 61; --amber: #ff9a3d;
+  --success: #34e07a; --success-rgb: 52, 224, 122;
+  --danger: #ff6b84; --danger-rgb: 255, 107, 132;
+  --heat-unplayed: #26264a; --heat-needs-work: #c2590a; --heat-known-cell: #0ea049; --pick-accent: #22e0e6;
+}
+[data-theme='studio-night'] {
+  color-scheme: dark;
+  --bg-0: #0e0f1c; --bg-1: #090a14; --bg-2: #161829; --bg-3: #1e2036;
+  --bg-letterbox: #05060c; --surface-border: #2a2c46; --border-soft: #3e4163;
+  --text-0: #e6e7f2; --text-1: #c3c5da; --text-2: #9a9cb8; --text-3: #75779a;
+  --accent: #6cc9cc; --accent-rgb: 108, 201, 204; --accent-dim: #3f8a8c; --accent-ink: #071c1d;
+  --gold: #e3c06a; --gold-rgb: 227, 192, 106; --amber: #e09356;
+  --success: #6fc48d; --success-rgb: 111, 196, 141;
+  --danger: #e07a86; --danger-rgb: 224, 122, 134;
+  --heat-unplayed: #22243c; --heat-needs-work: #b0602a; --heat-known-cell: #2f9a57; --pick-accent: #6cc9cc;
+}
+[data-theme='studio-day'] {
+  color-scheme: light;
+  --bg-0: #f3f4fb; --bg-1: #ffffff; --bg-2: #e8eaf6; --bg-3: #dcdff0;
+  --bg-letterbox: #d3d6ea; --surface-border: #d3d6ea; --border-soft: #b3b8d6;
+  --text-0: #14152b; --text-1: #34365a; --text-2: #5c5f84; --text-3: #6d7094;
+  --accent: #0b7f86; --accent-rgb: 11, 127, 134; --accent-dim: #0b7f86; --accent-ink: #ffffff;
+  --gold: #a87a00; --gold-rgb: 168, 122, 0; --amber: #b8600a;
+  --success: #178a52; --success-rgb: 23, 138, 82;
+  --danger: #c8324f; --danger-rgb: 200, 50, 79;
+  --heat-unplayed: #d3d6ea; --heat-needs-work: #b8600a; --heat-known-cell: #095630; --pick-accent: #0b7f86;
+  --menu-bg: #e8eaf6;
+}

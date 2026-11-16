@@ -1,5 +1,5 @@
 import type { Lang } from '../i18n/translations';
-import { SEASONS, type Season } from './theme';
+import { SEASONS, isFixedSeason, type Season } from './theme';
 
 // Where the player is, as far as the app needs to know: which hemisphere (so
 // the palette can follow the local season) and which language to open in the
@@ -48,6 +48,7 @@ export function currentSeason(): Season {
 export function resolveSeason(
   pick: Season | null, pickedIn: Season | null, actual: Season = currentSeason(),
 ): Season {
+  if (isFixedSeason(pick)) return pick; // not a calendar season: never expires
   return pick && pickedIn === actual ? pick : actual;
 }
 

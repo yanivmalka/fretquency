@@ -13,7 +13,7 @@
 // migration is needed; `pref_season` is new and defaults to 'winter'.
 
 export type ThemeMode = 'dark' | 'night' | 'day';
-export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
+export type Season = 'winter' | 'spring' | 'summer' | 'autumn' | 'studio';
 
 // What the player can pick for each axis: a fixed value, or 'auto' to follow
 // the clock (mode) / the real season where they are (season, utils/region.ts).
@@ -33,7 +33,19 @@ export function modeForHour(hour: number): ThemeMode {
 export type Theme = ThemeMode;
 
 export const THEME_MODES: readonly ThemeMode[] = ['dark', 'night', 'day'];
+// The four calendar seasons, in calendar order (utils/region.ts indexes this).
 export const SEASONS: readonly Season[] = ['winter', 'spring', 'summer', 'autumn'];
+// Palettes on the season axis that are NOT tied to the calendar: a pick of
+// one of these holds until the player changes it (it never expires when the
+// real season turns over, and 'auto' never lands on it). 'studio' is the
+// Fretquency redesign look: its own colours plus fonts and rounder shapes
+// (src/styles/39-studio-theme.css).
+export const FIXED_SEASONS: readonly Season[] = ['studio'];
+// Everything the Appearance picker offers on the season row.
+export const PICKABLE_SEASONS: readonly Season[] = [...SEASONS, ...FIXED_SEASONS];
+export function isFixedSeason(s: string | null | undefined): s is Season {
+  return !!s && (FIXED_SEASONS as readonly string[]).includes(s);
+}
 
 export const DEFAULT_MODE: ThemeMode = 'dark';
 export const DEFAULT_SEASON: Season = 'winter';
@@ -62,6 +74,7 @@ export const THEME_BG: Record<string, string> = {
   'spring-dark': '#14201a', 'spring-night': '#12140d', 'spring-day': '#f1f7f0',
   'summer-dark': '#241009', 'summer-night': '#16110b', 'summer-day': '#fbf5df',
   'autumn-dark': '#201410', 'autumn-night': '#170e09', 'autumn-day': '#f4e8d3',
+  'studio-dark': '#121226', 'studio-night': '#0e0f1c', 'studio-day': '#f3f4fb',
 };
 
 export function themeBg(season: Season, mode: ThemeMode): string {

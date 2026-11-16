@@ -79,6 +79,7 @@ export const ja: Record<string, string> = {
   'Spring': '春',
   'Summer': '夏',
   'Autumn': '秋',
+  'Studio': 'スタジオ',
   'A seasonal colour palette layered over the theme. Winter is the original look.': 'テーマの上に重ねる季節の配色です。冬が元のデザインです。',
   'Mastery on the fretboard': '指板の習熟度',
   'The per-note / per-fret accuracy bars drawn over the circle and grid while stopped or paused.': '停止中・一時停止中に、円とグリッドの上に表示される、音ごと・フレットごとの正答率バーです。',
