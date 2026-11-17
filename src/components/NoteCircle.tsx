@@ -222,7 +222,7 @@ export default function NoteCircle({ notes, activeNotes, active, correctNote, wr
               key={note}
               onClick={() => handleClick(note)}
               disabled={!inRange}
-              className={`note-btn note-wheel-btn ${isGlowing ? 'note-glow' : ''}`}
+              className={`note-btn note-wheel-btn ${isGlowing ? 'note-glow' : ''}${isCorrect ? ' note-correct' : ''}${isWrong ? ' note-wrong' : ''}`}
               style={{
                 position: 'absolute', left: x, top: y,
                 width: btnSize, height: btnSize, borderRadius: '50%',

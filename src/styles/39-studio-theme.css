@@ -38,3 +38,98 @@ html[data-theme^='studio-'] .ap-tile {
   border-radius: 14px;
   font-weight: 700;
 }
+
+/* ── Practice screen (the note drill) ──────────────────────────────
+   Matches the redesign's Practice artboard: calm surfaces instead of
+   neon glows, Rubik for the big prompt and the note letters, pills for
+   the round info, softer correct/wrong colours that still differ in
+   lightness, and a filled primary Start button with a pressed-down lip. */
+
+/* The prompt: the note or fret being asked. */
+html[data-theme^='studio-'] .note-display,
+html[data-theme^='studio-'] .fret-display {
+  font-family: 'Rubik', 'Heebo', sans-serif;
+  font-weight: 800;
+  text-shadow: none;
+}
+html[data-theme^='studio-'] .string-label {
+  font-family: 'Heebo', sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  text-shadow: none;
+  color: var(--text-2);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* Timer · question n/N · multiplier as small pills. */
+html[data-theme^='studio-'] .game-info-row { gap: 8px; margin: 6px 0; }
+html[data-theme^='studio-'] .game-timer,
+html[data-theme^='studio-'] .game-progress-text {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  border: 1px solid var(--surface-border);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+html[data-theme^='studio-'] .game-progress-text { color: var(--text-1); }
+
+/* Live score: Rubik instead of Georgia, no glow. */
+html[data-theme^='studio-'] .score-live-pts {
+  font-family: 'Rubik', 'Heebo', sans-serif;
+  font-weight: 800;
+  text-shadow: none;
+}
+
+/* Per-question time bar: a rounder, calmer track. */
+html[data-theme^='studio-'] .speed-bar-container {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-3);
+}
+html[data-theme^='studio-'] .speed-bar-fill { border-radius: 4px; }
+
+/* Answer feedback line. */
+html[data-theme^='studio-'] .feedback {
+  font-family: 'Rubik', 'Heebo', sans-serif;
+  font-weight: 700;
+}
+html[data-theme^='studio-'] .good { color: var(--success); }
+
+/* Note wheel: bolder letters; correct / wrong in the palette's own green
+   and red (the wrong one darker, so the two differ in lightness too). */
+html[data-theme^='studio-'] .note-wheel-btn {
+  font-family: 'Rubik', 'Heebo', sans-serif;
+  font-size: 16px !important;
+}
+html[data-theme^='studio-'] .note-wheel-btn.note-correct {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+  color: var(--accent-ink) !important;
+}
+html[data-theme^='studio-'] .note-wheel-btn.note-wrong {
+  background: color-mix(in srgb, var(--danger) 30%, var(--bg-1)) !important;
+  border-color: var(--danger) !important;
+  color: var(--text-0) !important;
+}
+
+/* Start / pause / stop: no neon halo. Start is the filled primary
+   action with a lip; pause and stop stay outlined. */
+html[data-theme^='studio-'] .icon-btn {
+  box-shadow: none;
+  border-color: var(--border-soft);
+  color: var(--text-0);
+  background: var(--bg-2);
+}
+html[data-theme^='studio-'] .icon-btn.play-btn {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+}
+html[data-theme^='studio-'] .icon-btn.play-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+html[data-theme^='studio-'] .play-btn:hover { background: var(--accent); }
