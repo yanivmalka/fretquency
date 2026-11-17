@@ -133,3 +133,131 @@ html[data-theme^='studio-'] .icon-btn.play-btn:active {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 }
 html[data-theme^='studio-'] .play-btn:hover { background: var(--accent); }
+
+/* ════════════════════════════════════════════════════════════════
+   All other screens — the shared building blocks, restyled once so
+   Home, Progress, Settings, Intervals, Tuner, the game map, Scales,
+   Leaderboard, Learning path, Teacher and Classroom all speak the
+   redesign's language. Same scope: html[data-theme^='studio-'].
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Cards and panels: soft, rounder tiles on the card surface. ── */
+html[data-theme^='studio-'] :is(
+  .set-card, .learn-tile, .mode-card, .adjust-suggest,
+  .teacher-card, .lp-current-card, .lp-cp, .class-card,
+  .lb-standing, .lb-pod, .lb-empty, .lb-profile-stats, .lb-league,
+  .board-compose, .board-item, .board-confirm-card,
+  .fotd-challenger-banner, .lock-hint, .pinned-picker-foot,
+  .qa-manage-row, .qa-legend-row, .sp2-tile, .psb-sheet, .picker-panel
+) {
+  border-radius: 20px;
+}
+
+/* ── Buttons, chips and inputs: rounder, bolder. ── */
+html[data-theme^='studio-'] :is(
+  .pick-btn, .pick-btn-soon, .set-card-btn, .onboarding-btn, .onboarding-note-btn,
+  .teacher-btn, .interval-choice-btn, .tn-btn, .diff-btn, .stepper-btn,
+  .nav-row, .lb-item-btn, .account-plan, .board-action, .board-handled-toggle,
+  .class-btn-primary, .account-btn-primary, .mic-btn-primary,
+  .fret-range-conflict-btn-primary, .pro-cta, .fotd-guest-cta,
+  .scale-fall-exit, .stage-suggest-btn, .fret-btn
+) {
+  border-radius: 14px;
+  font-weight: 700;
+}
+html[data-theme^='studio-'] :is(
+  .board-textarea, .app-search__input, .fotd-name-input, .set-date-input
+) {
+  border-radius: 14px;
+}
+
+/* Primary actions: filled accent with a pressed-down lip. */
+html[data-theme^='studio-'] :is(
+  .set-card-btn-primary, .teacher-btn-primary, .tn-btn-primary, .onboarding-primary,
+  .class-btn-primary, .account-btn-primary, .mic-btn-primary,
+  .fret-range-conflict-btn-primary, .pro-cta, .fotd-guest-cta
+) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+  font-family: 'Rubik', 'Heebo', sans-serif;
+}
+html[data-theme^='studio-'] :is(
+  .set-card-btn-primary, .teacher-btn-primary, .tn-btn-primary, .onboarding-primary,
+  .class-btn-primary, .account-btn-primary, .mic-btn-primary,
+  .fret-range-conflict-btn-primary, .pro-cta, .fotd-guest-cta
+):active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ── Titles: Rubik across every screen. ── */
+html[data-theme^='studio-'] :is(
+  .sp2-title, .stat-group-title, .group-title, .stage-title, .stage-center-title,
+  .stage-transition-name, .countdown-num, .tn-readout-note, .lb-pod, .lb-standing,
+  .score-live-pts, .teacher-card h3, .class-card h3
+) {
+  font-family: 'Rubik', 'Heebo', sans-serif;
+}
+
+/* ── No neon: drop the glow halos; the palette carries emphasis. ── */
+html[data-theme^='studio-'] :is(
+  .stage-title-glow, .stage-transition-name, .countdown-num,
+  .mic-card-icon, .stage-level-dash-active, .stage-dot-active
+) {
+  text-shadow: none;
+  box-shadow: none;
+}
+html[data-theme^='studio-'] :is(.qa-fab, .qa-menu-item, .psb-bubble) {
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4);
+}
+html[data-theme^='studio-'] .countdown { color: var(--gold); }
+
+/* ── Hard-coded neon green / yellow → the palette's own colours. ── */
+html[data-theme^='studio-'] .stage-suggestion-next {
+  background: color-mix(in srgb, var(--success) 14%, var(--bg-2));
+  border-color: var(--success);
+  color: var(--success);
+}
+html[data-theme^='studio-'] .stage-suggestion-prev {
+  background: color-mix(in srgb, var(--gold) 14%, var(--bg-2));
+  border-color: var(--gold);
+  color: var(--gold);
+}
+html[data-theme^='studio-'] :is(.stage-arrow-suggest, .stage-arrow-hint, .stage-arrow-blinking, .stage-chevron-suggest) {
+  color: var(--gold) !important;
+  border-color: var(--gold) !important;
+}
+html[data-theme^='studio-'] :is(.fret-btn-dot, .fret-dot) { color: var(--gold); }
+html[data-theme^='studio-'] :is(.voice-status.voice-heard) { color: var(--success); }
+html[data-theme^='studio-'] :is(.mic-level-fill.is-good, .bar-mastered) { background: var(--success); }
+
+/* Fret answers (By fret mode, intervals): the same correct / wrong
+   language as the note wheel. */
+html[data-theme^='studio-'] :is(.fret-found, .fret-reveal) {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+  color: var(--accent-ink) !important;
+  box-shadow: none;
+}
+html[data-theme^='studio-'] .fret-wrong {
+  background: color-mix(in srgb, var(--danger) 30%, var(--bg-1)) !important;
+  border-color: var(--danger) !important;
+  color: var(--text-0) !important;
+}
+
+/* ── Segmented controls and pills. ── */
+html[data-theme^='studio-'] :is(.set-seg, .board-tabs, .badge-tier-seg, .sp2-scope) {
+  padding: 4px;
+  gap: 4px;
+}
+html[data-theme^='studio-'] .string-pill { font-weight: 700; }
+
+/* ── Tuner: the big readout in Rubik, calmer status line. ── */
+html[data-theme^='studio-'] .tn-readout-note { font-weight: 800; }
+html[data-theme^='studio-'] .tn-readout-hz,
+html[data-theme^='studio-'] .tn-readout-cents { color: var(--text-2); }
+
+/* ── Leaderboard: the first-place pod in gold. ── */
+html[data-theme^='studio-'] .lb-pod.lb-pod-1 { border-color: var(--gold); }
